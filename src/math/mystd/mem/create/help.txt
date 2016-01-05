@@ -1,0 +1,77 @@
+/*
+ * Automatic rollback:
+ *   "Rollback" may apply when an object throws an exception during
+ *   its construction at offset loff, address lp.
+ *   All objects previously allocated up to loff (lp) are destroyed in LIFO order,
+ *   and the memory is deallocated.        
+ * 
+ * Throw Create overloads:
+ *  
+ *   Guard overload:
+ *    Allocation and (copy) Constructor related exceptions proceed.
+ *    Does not rollback.
+ *    - Rollback must be secured manually calling Release(guard) 
+ *    See Guard meanings below. 
+ *     
+ *   Non-guard overload:
+ *    Allocation and (copy) Constructor related exceptions proceed.
+ *    Does rollback and then re-throws, in contrast to guarded version. 
+ *    - as otherwise there would be no way to safely destroy all      
+ *      possible objects that have been created in a field 
+ *      prior the object causing an exception.
+ *    ! An exception may also be thrown by a destructor or deallocator during rollback.
+ *      => this basically indicates a critical program error condition as an undefined
+ *         number of objects may be left undestroyed and the memory is unfreed.
+ *    
+ * Nothrow overloads:
+ *  
+ *  Use this overloaded version of Create function if you want to catch 
+ *  no allocation nor object copy constructor's related exceptions. 
+ *  - come to realize that an exception may still be thrown from default constructor if 
+ *    default parameter T() is used. 
+ *    (The exception is then thrown BEFORE truly entering the Create function) 
+ *    Calling Create without an initialization parameter is equivalent to
+ *    calling it with T() for non-trivial_constructibles.  
+ *    
+ *  Guard overload:
+ *    Does automatic rollback. 
+ *    Never throws an exception, nor when the rollback fails.
+ *    - A possibility of an unsuccessful rollback must additionally by taken into account 
+ *    See Guard meanings below.
+ *    
+ *  Non-guard overload:
+ *    Does automatic rollback. 
+ *    Does not throw allocation or constructor exceptions.
+ *    ! An exception may still be thrown by a destructor or deallocator during rollback.
+ *      => this basically indicates a critical program error condition as an undefined
+ *         number of objects may be left undestroyed and the memory is unfreed.
+ *                
+ * Guard meanings:
+ *  
+ *  if !Guard :
+ *    - Guard.lp == NULL : 
+ *      Either memory could not be allocated or exception while memory filling
+ *      => No object is left constructed undestroyed
+ *         No memory is allocated   
+ *    - Guard.lp != NULL 
+ *      - Guard.loff != 0
+ *        - throw versions:  
+ *          Exception when constructing an object at offset p.loff, address p.lp
+ *        - nothrow version:
+ *          Exception when destructing an object at offset p.loff, address p.lp              
+ *        => Objects up to p.lp are existing undestroyed
+ *           Memory is allocated    
+ *      - Guard.loff == 0
+ *        Deallocation failed (both throw and nothrow)
+ *        => No object is left constructed undestroyed
+ *           Memory is allocated 
+ * 
+ *  Preconditions:
+ *  
+ *  The Create function does not clear the Guard    
+ *  The correct result is only guaranteed if a newly constructed Guard is provided
+ *  as the function parameter.
+ *  guard.p can be compared against NULL instead of guard.lp only in case of 
+ *  the Guard has not been constructed with the hint parameter.        
+ *
+ */ 

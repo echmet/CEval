@@ -1,0 +1,210 @@
+#include "datafileloader.h"
+#include "custommetatypes.h"
+#include "gui/loadchemstationdatadialog.h"
+#include "gui/loadcsvfiledialog.h"
+#include <QFileDialog>
+#include <QMessageBox>
+
+const QString DataFileLoader::LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG("LastChemStationLoadPath");
+const QString DataFileLoader::LAST_CSV_LOAD_PATH_SETTINGS_TAG("LastCsvLoadPath");
+
+DataFileLoader::Data::Data(const QVector<QPointF> data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
+  data(data),
+  xType(xType),
+  xUnit(xUnit),
+  yType(yType),
+  yUnit(yUnit),
+  m_valid(true)
+{
+}
+
+DataFileLoader::Data::Data() :
+  m_valid(false)
+{
+}
+
+DataFileLoader::Data::Data(const Data &other) :
+  data(other.data),
+  xType(other.xType),
+  xUnit(other.xUnit),
+  yType(other.yType),
+  yUnit(other.yUnit),
+  m_valid(other.m_valid)
+{
+}
+
+DataFileLoader::Data &DataFileLoader::Data::operator=(const Data &other)
+{
+  const_cast<QVector<QPointF>&>(data) = other.data;
+  const_cast<QString&>(xType) = other.xType;
+  const_cast<QString&>(xUnit) = other.xUnit;
+  const_cast<QString&>(yType) = other.yType;
+  const_cast<QString&>(yUnit) = other.xUnit;
+  const_cast<bool&>(m_valid) = other.m_valid;
+
+  return *this;
+}
+
+DataFileLoader::DataFileLoader(QObject *parent) :
+  QObject(parent),
+  m_lastChemStationPath(QDir::homePath()),
+  m_lastCsvPath(QDir::homePath())
+{
+}
+
+QString DataFileLoader::chemStationTypeToString(const ChemStationFileLoader::Type type)
+{
+  switch (type) {
+  case ChemStationFileLoader::Type::CE_CCD:
+    return "Conductivity";
+    break;
+  case ChemStationFileLoader::Type::CE_CURRENT:
+    return "Current";
+    break;
+  case ChemStationFileLoader::Type::CE_DAD:
+    return "Absorbance";
+    break;
+  case ChemStationFileLoader::Type::CE_POWER:
+    return "Power";
+    break;
+  case ChemStationFileLoader::Type::CE_PRESSURE:
+    return "Pressure";
+    break;
+  case ChemStationFileLoader::Type::CE_TEMPERATURE:
+    return "Temperature";
+    break;
+  case ChemStationFileLoader::Type::CE_VOLTAGE:
+    return "Voltage";
+    break;
+  case ChemStationFileLoader::Type::CE_UNKNOWN:
+  default:
+    return "Unknown";
+    break;
+  }
+}
+
+void DataFileLoader::loadChemStationFile()
+{
+  LoadChemStationDataDialog dlg;
+  QString filePath;
+  int ret;
+
+  dlg.expandToPath(m_lastChemStationPath);
+
+  ret = dlg.exec();
+  if (ret != QDialog::Accepted)
+    return;
+  filePath = dlg.lastSelectedFile();
+
+  ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(filePath, true);
+
+  if (!chData.isValid())
+    return;
+
+  QDir d(filePath);
+  d.cdUp();
+  m_lastChemStationPath = d.path();
+
+  emit dataLoaded(std::shared_ptr<Data>(new Data(chData.data, "Time", "minute", chemStationTypeToString(chData.type), chData.yUnits)),
+                  filePath, QFileInfo(filePath).fileName());
+}
+
+void DataFileLoader::loadCsvFile()
+{
+  LoadCsvFileDialog loadDlg;
+  LoadCsvFileDialog::Parameters p;
+  QString filePath;
+  std::shared_ptr<Data> data;
+  QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
+
+  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
+  openDlg.setFileMode(QFileDialog::ExistingFile);
+
+  if (openDlg.exec() != QDialog::Accepted)
+    return;
+
+  QStringList files = openDlg.selectedFiles();
+  if (files.length() < 1)
+    return;
+
+  filePath = files.at(0);
+
+  while (true) {
+    if (loadDlg.exec() != QDialog::Accepted)
+      return;
+
+    p = loadDlg.parameters();
+    if (p.delimiter.length() != 1) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character."));
+      continue;
+    }
+    if (p.decimalSeparator == p.delimiter) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
+      continue;
+    }
+    break;
+  }
+
+  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator, p.hasHeader);
+  if (!csvData.isValid())
+    return;
+
+  QString xUnit = p.hasHeader ? csvData.xUnit : p.xCaption;
+  QString yUnit = p.hasHeader ? csvData.yUnit : p.yCaption;
+
+  if (yUnit.length() > 0) {
+    if (yUnit.at(yUnit.length() - 1) == '\n')
+      yUnit.chop(1);
+  }
+
+  data = std::shared_ptr<Data>(new Data(csvData.data,
+                                        "", xUnit,
+                                        "", yUnit));
+
+  m_lastCsvPath = filePath;
+  emit dataLoaded(data, filePath, QFileInfo(filePath).fileName());
+}
+
+void DataFileLoader::loadUserSettings(const QVariant &settings)
+{
+  if (!settings.canConvert<EMT::StringVariantMap>())
+    return;
+
+  EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
+
+  if (map.contains(LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG)) {
+    QVariant v = map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG];
+
+    m_lastChemStationPath = v.toString();
+  }
+
+  if (map.contains(LAST_CSV_LOAD_PATH_SETTINGS_TAG)) {
+    QVariant v = map[LAST_CSV_LOAD_PATH_SETTINGS_TAG];
+
+    m_lastCsvPath = v.toString();
+  }
+}
+
+void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type)
+{
+  switch (type) {
+  case DataFileLoaderMsgs::LoadableFileTypes::CHEMSTATION:
+    loadChemStationFile();
+    break;
+  case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED:
+    loadCsvFile();
+  default:
+    break;
+  }
+}
+
+QVariant DataFileLoader::saveUserSettings() const
+{
+  EMT::StringVariantMap map;
+
+  map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG] = m_lastChemStationPath;
+  map[LAST_CSV_LOAD_PATH_SETTINGS_TAG] = m_lastCsvPath;
+
+  return QVariant::fromValue<EMT::StringVariantMap>(map);
+}
+

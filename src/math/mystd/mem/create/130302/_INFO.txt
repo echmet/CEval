@@ -1,0 +1,5 @@
+This is  double- and single- nothrow implementation.
+What changed next:
+- double-nothrow version is canceled and single-nothrow version is redefined
+-  single nothrow in this implementation is "catch allocation exception, throw copy exceptions"
+-  new redefinition is "catch all exceptions, do rollback (Release) if needed"

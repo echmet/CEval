@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>EvalMainWindow</class>
+ <widget class="QMainWindow" name="EvalMainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>982</width>
+    <height>479</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>EvalMainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>982</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>Fi&amp;le</string>
+    </property>
+    <addaction name="actionLoad_ChemStation_file"/>
+    <addaction name="actionLoad_comma_separated_file"/>
+    <addaction name="separator"/>
+    <addaction name="actionLoad_data_table"/>
+    <addaction name="actionSave_data_table"/>
+    <addaction name="separator"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <widget class="QMenu" name="menuOptions">
+    <property name="title">
+     <string>Options</string>
+    </property>
+    <addaction name="actionAdjust_plot_appearance"/>
+    <addaction name="actionSet_number_format"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuOptions"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLoad_ChemStation_file">
+   <property name="text">
+    <string>&amp;Load ChemStation file</string>
+   </property>
+  </action>
+  <action name="actionLoad_comma_separated_file">
+   <property name="text">
+    <string>Load comma-separated file</string>
+   </property>
+  </action>
+  <action name="actionLoad_data_table">
+   <property name="text">
+    <string>Load data table</string>
+   </property>
+  </action>
+  <action name="actionSave_data_table">
+   <property name="text">
+    <string>Save data table</string>
+   </property>
+  </action>
+  <action name="actionSet_number_format">
+   <property name="text">
+    <string>Set number format</string>
+   </property>
+  </action>
+  <action name="actionCrash_me">
+   <property name="text">
+    <string>Crash me!</string>
+   </property>
+  </action>
+  <action name="actionAdjust_plot_appearance">
+   <property name="text">
+    <string>Adjust plot appearance</string>
+   </property>
+  </action>
+  <action name="actionExit">
+   <property name="text">
+    <string>Exit</string>
+   </property>
+  </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <resources/>
+ <connections/>
+</ui>

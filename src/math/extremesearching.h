@@ -1,0 +1,73 @@
+//---------------------------------------------------------------------------
+#ifndef ExtremeSearchingH
+#define ExtremeSearchingH
+
+#include <fstream>
+
+//---------------------------------------------------------------------------
+class TExtremeSearcher
+{
+private:
+
+  std::fstream debug;
+
+  long QCount, _I_, IMax, IMin, Count, I_end;
+  double YMax, YMin;
+
+  double CalcNoise(void);
+
+  int CheckForCentralExtreme();
+
+protected:
+  virtual void OnMaximum(double Value, long Index) = 0;
+  virtual void OnMinimum(double Value, long Index) = 0;
+
+public:
+  class TDataHandler
+  {
+  public:
+    virtual double GetX(long index) = 0;
+    virtual double GetY(long index) = 0;
+    virtual long Count(void) = 0;
+  };
+
+  TDataHandler *Data;
+  long ChainPoints;
+  double Noise;
+  bool LeftBoundary;
+  bool RightBoundary;
+
+  TExtremeSearcher(
+    TDataHandler *Data = nullptr,
+    long ChainPoints   = 3,
+    double Noise       = 0,
+    bool LeftBoundary  = false,
+    bool RightBoundary = false
+  ) :
+    Data(Data),
+    ChainPoints(ChainPoints),
+    Noise(Noise),
+    LeftBoundary(LeftBoundary),
+    RightBoundary(RightBoundary)
+  {}
+
+  TExtremeSearcher(TExtremeSearcher &T) :
+    QCount(T.QCount),
+    _I_(T._I_),
+    IMax(T.IMax),
+    IMin(T.IMin),
+    Count(T.Count),
+    I_end(T.I_end),
+    YMax(T.YMax),
+    YMin(T.YMin),
+    Data(T.Data),
+    ChainPoints(T.ChainPoints),
+    Noise(T.Noise),
+    LeftBoundary(T.LeftBoundary),
+    RightBoundary(T.RightBoundary)
+  {}
+
+  virtual ~TExtremeSearcher(){}
+  virtual void Search();
+};
+#endif

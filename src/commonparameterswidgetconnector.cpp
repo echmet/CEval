@@ -1,0 +1,23 @@
+#include "commonparameterswidgetconnector.h"
+#include "commonparametersengine.h"
+#include "gui/commonparameterswidget.h"
+#include "dataaccumulator.h"
+#include "evaluationengine.h"
+
+void CommonParametersWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac)
+{
+  CommonParametersWidget *w = qobject_cast<CommonParametersWidget *>(anonWidget);
+  DataAccumulator *dac = qobject_cast<DataAccumulator *>(anonDac);
+  EvaluationEngine *e;
+  CommonParametersEngine *ce;
+
+  Q_ASSERT(w != nullptr && dac != nullptr);
+  e = dac->evaluationEngine();
+  ce = dac->commonParametersEngine();
+
+  w->setCommonParametersModel(dac->commonParametersEngine()->model());
+
+  QObject::connect(ce, &CommonParametersEngine::validityState, w, &CommonParametersWidget::onValidityState);
+  QObject::connect(w, &CommonParametersWidget::readEof, e, &EvaluationEngine::onReadEof);
+}
+

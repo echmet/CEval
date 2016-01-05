@@ -1,0 +1,455 @@
+#ifndef ECHMET_REGRESS_HYPERBOLE2_H
+#define ECHMET_REGRESS_HYPERBOLE2_H
+
+//===========================================================================
+// INCLUDES
+
+#include "regress.h"
+
+//===========================================================================
+// CODE
+
+namespace echmet {
+
+namespace regressCore {
+
+//===========================================================================
+// dcl
+
+//---------------------------------------------------------------------------
+
+enum class RectangularHyperbole2Params { u0, uS, KS, du0, duS, dKS };
+
+//---------------------------------------------------------------------------
+
+// should not be public but then must be friend to the hyperbole2 template
+// too much complications too care now...
+template<typename XT>
+struct RectangularHyperbole2XType {
+
+    RectangularHyperbole2XType(msize_t index = 0, XT value = XT())
+    : index(index), value(value)
+    {}
+
+    msize_t index;
+    XT      value;
+};
+
+//---------------------------------------------------------------------------
+
+template<typename XT>
+dbstream & operator<<(dbstream & db, RectangularHyperbole2XType<XT> const & val)
+{
+
+    db << "(" << val.index << "; " << val.value << ")";
+
+    return db;
+
+}
+
+} // namespace regressCore
+} // namespace echmet
+
+namespace boost {
+
+// required for echmet::matrix interface
+template<typename XT> class is_pod
+        < echmet::regressCore::RectangularHyperbole2XType<XT> >
+:  public boost::true_type {};
+
+} // namespace boost
+
+//---------------------------------------------------------------------------
+#if ECHMET_REGRESS_DEBUG == 1
+
+template<typename XT>
+inline std::ostream &
+operator<<(
+    std::ostream & os,
+    echmet::regressCore::RectangularHyperbole2XType<XT> x
+) {
+
+        return os << "(" << x.index << ", " << x.value << ")";
+
+}
+
+#endif
+
+//---------------------------------------------------------------------------
+namespace echmet {
+
+namespace regressCore {
+
+//---------------------------------------------------------------------------
+
+using namespace echmet::matrix;
+
+//---------------------------------------------------------------------------
+template<typename XT = double, typename YT = double>
+class RectangularHyperbole2
+: public RegressFunction<RectangularHyperbole2XType<XT>, YT> {
+public:
+
+    typedef RectangularHyperbole2XType<XT> x_type;
+
+    RectangularHyperbole2 ();
+
+    virtual ~RectangularHyperbole2 () override;
+
+    bool Initialize (
+        Core<x_type> const & x,
+        Core<YT>     const & fx,
+        YT eps, unsigned nmax, bool dumping,
+        YT u01Setting = YT(0), YT u02Setting = YT(0), YT visckoef = YT(0)
+    );
+
+private:
+
+ YT m_u0Setting[2];
+ YT m_viscoeff;
+
+protected:
+
+ virtual RectangularHyperbole2 * ACreate() const override;
+
+ virtual bool AInitialize(
+     Core<YT>           & params,
+     Core<x_type> const & x,
+     Core<YT>     const & y
+ ) override;
+
+ virtual void AAssign(RegressFunction<x_type, YT> const & other) override;
+
+ virtual YT ACalculateFx (
+     x_type                   x,
+     Core<YT> const &        params,
+     echmet::matrix::msize_t
+ ) const override;
+
+ virtual YT ACalculateDerivative (
+     x_type                      x,
+     Core<YT> const &           params,
+     echmet::matrix::msize_t    param_idx,
+     echmet::matrix::msize_t
+ ) const override;
+
+ virtual bool AAccepted (YT, Core<YT> const & params) const override;
+
+};
+
+//===========================================================================
+// def
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+inline RectangularHyperbole2<XT, YT>::RectangularHyperbole2()
+:
+    RegressFunction<x_type, YT>(6),
+    m_viscoeff(1)
+{
+
+    m_u0Setting[0] = YT(0);
+    m_u0Setting[1] = YT(0);
+
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+RectangularHyperbole2<XT, YT>
+::~RectangularHyperbole2 ()
+{}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+inline bool RectangularHyperbole2<XT, YT>::Initialize(
+    Core<x_type> const & x,
+    Core<YT>     const & y,
+    YT eps, unsigned nmax, bool damping,
+    YT u01Setting, YT u02Setting, YT viscoeff
+
+)
+{
+
+    m_u0Setting[0] = u01Setting;
+    m_u0Setting[1] = u02Setting;
+    m_viscoeff     = viscoeff;
+    return RegressFunction<x_type, YT>::Initialize(x, y, eps, nmax, damping);
+
+}
+
+//---------------------------------------------------------------------------
+// Protected
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+RectangularHyperbole2<XT, YT> *
+RectangularHyperbole2<XT, YT>::ACreate() const
+{
+
+    return new RectangularHyperbole2();
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+bool RectangularHyperbole2<XT, YT>::AInitialize(
+    Core<YT>           & params,
+    Core<x_type> const & x,
+    Core<YT>     const & y
+)
+{
+
+    // Init
+
+    const long count = x.size();
+
+    YT   u0[2] = {YT(0)};
+    bool found[2] = {false};
+    for (long i = 0; i != count; ++i)
+        if ( x[i][0].value == 0.) {
+            found[x[i][0].index] = true;
+            u0[ x[i][0].index ] = y[i][0];
+        }
+
+    for (int i = 0; i != 2; ++i) if (!found[i]) u0[i] = m_u0Setting[i];
+
+    this->SetParam(params, RectangularHyperbole2Params::u0, u0[0]);
+    this->SetParam(params, RectangularHyperbole2Params::uS, YT(0));
+    this->SetParam(params, RectangularHyperbole2Params::KS, YT(0));
+    this->SetParam(params, RectangularHyperbole2Params::du0, u0[1] - u0[0]);
+    this->SetParam(params, RectangularHyperbole2Params::duS, YT(0));
+    this->SetParam(params, RectangularHyperbole2Params::dKS, YT(0));
+
+    long       ndata[2] = {0};
+    x_type _X;
+    YT _XVAL = YT(0);
+    YT _Y    = YT(0);
+    YT SummX[2] = {YT(0)}; YT SummXX[2] = {YT(0)};
+    YT SummY[2] = {YT(0)}; YT SummXY[2] = {YT(0)};
+
+    // Doit
+
+    for (long i = 0; i != count; ++i) {
+
+        // reading x and y
+        _X = x[i][0]; _Y = y[i][0];
+
+        if (_X.value == YT(0) || _Y == (_Y - u0[_X.index]) ) continue;
+
+        // hyperbole linearization
+        _XVAL = 1./_X.value;	_Y = 1./(_Y - u0[_X.index]);
+
+        // linregresion sums
+        SummX[_X.index]  += _XVAL;
+        SummXX[_X.index] += _XVAL * _XVAL;
+        SummY[_X.index]  += _Y;
+        SummXY[_X.index] += _XVAL * _Y;
+
+        // number of data excluding _Y == u0
+        ++ndata[_X.index];
+    }
+
+
+    // Finalise
+
+    YT SLOPE[2], INTERCEPT[2];
+    for (int i = 0; i != 2; ++i) {
+
+        if ( (_Y = (ndata[i] * SummXX[i] - SummX[i] * SummX[i])) )
+            _XVAL = (ndata[i] * SummXY[i] - SummX[i] * SummY[i]) / _Y;
+        else
+            _XVAL = YT(0.0);
+        if (_Y)
+            _Y = (SummY[i] * SummXX[i] - SummX[i] * SummXY[i]) / _Y;
+        else
+            _Y = YT(0.0);
+
+        SLOPE[i]     = _XVAL;
+        INTERCEPT[i] = _Y;
+
+    }
+
+    // hyperbole "delinearization"
+
+    if (INTERCEPT[0])
+        this->SetParam(params, RectangularHyperbole2Params::uS, YT(1)/INTERCEPT[0] + u0[0]);
+
+    if (SLOPE[0])
+        this->SetParam(params, RectangularHyperbole2Params::KS, INTERCEPT[0] / SLOPE[0]);
+
+    if (INTERCEPT[1])
+        this->SetParam(params, RectangularHyperbole2Params::duS, YT(1)/INTERCEPT[1] + u0[1]);
+
+    if (SLOPE[1])
+        this->SetParam(params, RectangularHyperbole2Params::dKS, INTERCEPT[1] / SLOPE[1]);
+
+    // conversion to deltas
+
+    this->SetParam(
+        params, RectangularHyperbole2Params::duS,
+        this->GetParam(params, RectangularHyperbole2Params::duS) -
+        this->GetParam(params, RectangularHyperbole2Params::uS)
+    );
+
+    this->SetParam(
+        params, RectangularHyperbole2Params::dKS,
+        this->GetParam(params, RectangularHyperbole2Params::dKS) -
+        this->GetParam(params, RectangularHyperbole2Params::KS)
+    );
+
+    // Check and Return
+
+    return AAccepted(YT(0), params);
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+void RectangularHyperbole2<XT, YT>::AAssign(
+    RegressFunction<x_type, YT> const & other
+) {
+
+    RectangularHyperbole2
+            const & mother =
+            dynamic_cast<RectangularHyperbole2 const &>(other);
+
+    m_u0Setting[0] = mother.m_u0Setting[0];
+    m_u0Setting[1] = mother.m_u0Setting[1];
+    m_viscoeff     = mother.m_viscoeff;
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+YT RectangularHyperbole2<XT, YT>
+::ACalculateFx (
+        x_type           x,
+        Core<YT> const & params,
+        msize_t
+) const {
+
+    // init
+
+    YT u0  = this->GetParam(params, RectangularHyperbole2Params::u0);
+    YT uS  = this->GetParam(params, RectangularHyperbole2Params::uS);
+    YT KS  = this->GetParam(params, RectangularHyperbole2Params::KS);
+    YT du0 = this->GetParam(params, RectangularHyperbole2Params::du0);
+    YT duS = this->GetParam(params, RectangularHyperbole2Params::duS);
+    YT dKS = this->GetParam(params, RectangularHyperbole2Params::dKS);
+
+    // viscosity correction
+
+    uS  /= YT(1) + m_viscoeff * x.value;
+    duS /= YT(1) + m_viscoeff * x.value;
+
+    // doit
+
+    if (x.index == 0)
+        return ( (u0 + uS * KS * x.value) / (1 + KS * x.value) );
+    else
+        return (
+            ( (u0 + du0) + (uS + duS) * (KS + dKS) * x.value ) /
+            ( YT(1) + (KS + dKS) * x.value )
+        );
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+YT RectangularHyperbole2<XT, YT>::ACalculateDerivative (
+    x_type                  x,
+    Core<YT> const &        params,
+    echmet::matrix::msize_t param_idx,
+    echmet::matrix::msize_t
+) const {
+
+    // init
+
+    YT u0  = this->GetParam(params, RectangularHyperbole2Params::u0);
+    YT uS  = this->GetParam(params, RectangularHyperbole2Params::uS);
+    YT KS  = this->GetParam(params, RectangularHyperbole2Params::KS);
+    YT du0 = this->GetParam(params, RectangularHyperbole2Params::du0);
+    YT duS = this->GetParam(params, RectangularHyperbole2Params::duS);
+    YT dKS = this->GetParam(params, RectangularHyperbole2Params::dKS);
+
+    YT helper1 = YT(1) + (KS * x.value);
+    YT helper2 = YT(1) + ((KS + dKS) * x.value);
+
+    // viscosity correction
+
+    uS  /= YT(1) + m_viscoeff * x.value;
+    duS /= YT(1) + m_viscoeff * x.value;
+
+    // doit
+
+    if (x.index == 0) {
+
+        switch(static_cast<RectangularHyperbole2Params>(param_idx)) {
+        case RectangularHyperbole2Params::u0  : return YT(1) / helper1;
+        case RectangularHyperbole2Params::uS  : return (KS * x.value) / helper1;
+        case RectangularHyperbole2Params::KS  : return ((uS - u0) * x.value) / (helper1 * helper1);
+        case RectangularHyperbole2Params::du0 : return YT(0);
+        case RectangularHyperbole2Params::duS : return YT(0);
+        case RectangularHyperbole2Params::dKS : return YT(0);
+        }
+
+    } else {
+
+        switch(static_cast<RectangularHyperbole2Params>(param_idx)) {
+        case RectangularHyperbole2Params::u0  :
+        case RectangularHyperbole2Params::du0 : return YT(1) / helper2;
+        case RectangularHyperbole2Params::uS  :
+        case RectangularHyperbole2Params::duS : return ((KS + dKS) * x.value) / helper2;
+        case RectangularHyperbole2Params::KS  :
+        case RectangularHyperbole2Params::dKS : return (((uS + duS) - (u0 + du0)) * x.value) / (helper2 * helper2);
+        }
+    }
+
+    return YT(); // warning off
+
+}
+
+//---------------------------------------------------------------------------
+template <typename XT, typename YT>
+bool RectangularHyperbole2<XT, YT>
+::AAccepted (YT, Core<YT> const & params)
+const {
+
+    return true;
+
+    YT u0  = this->GetParam(params, RectangularHyperbole2Params::u0);
+    YT uS  = this->GetParam(params, RectangularHyperbole2Params::uS);
+    YT KS  = this->GetParam(params, RectangularHyperbole2Params::KS);
+    YT du0 = this->GetParam(params, RectangularHyperbole2Params::du0);
+    YT duS = this->GetParam(params, RectangularHyperbole2Params::duS);
+    YT dKS = this->GetParam(params, RectangularHyperbole2Params::dKS);
+
+    return true;
+#if 0
+        fabs(u0)       < YT(1000.) &&
+        fabs(uS)       < YT(1000.) &&
+        KS            > YT(0.)    &&
+        fabs(u0 + du0) < YT(1000.) &&
+        fabs(uS + duS) < YT(1000.) &&
+        KS + dKS      > YT(0.)
+    ;
+#endif
+
+}
+
+//---------------------------------------------------------------------------
+#if ECHMET_REGRESS_DEBUG == 1
+
+template class RectangularHyperbole2<double, double>;
+
+#endif
+
+//---------------------------------------------------------------------------
+}  //namespace regressCore
+
+}  //namespace echmet
+
+//---------------------------------------------------------------------------
+#endif // ECHMET_REGRESS_HYPERBOLE_H2
+
