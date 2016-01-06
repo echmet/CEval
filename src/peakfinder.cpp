@@ -1136,8 +1136,8 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   r.toPeakIndex = tBi;
   r.noise = Noise;
   r.noiseRefPoint = tnrp;
-  r.maxY = MaxValue;
-  r.minY = MinValue;
+  r.maxY = YMax;
+  r.minY = YMin;
   r.peakFromX = tA;
   r.peakFromY = HA;
   r.peakHeight = HP;
