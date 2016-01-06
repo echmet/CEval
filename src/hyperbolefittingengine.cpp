@@ -11,9 +11,6 @@
 #include "doubletostringconvertor.h"
 #include "standardmodecontextsettingshandler.h"
 
-#include <QDebug>
-
-
 const QString HyperboleFittingEngine::s_dataPointsATitle = tr("Points A");
 const QString HyperboleFittingEngine::s_dataPointsBTitle = tr("Points B");
 const QString HyperboleFittingEngine::s_dataPointsAAvgTitle = tr("Average of points A");
@@ -148,8 +145,6 @@ void HyperboleFittingEngine::Concentration::recalculateAverage()
     sd += d;
 
   m_avgMobility = sd / m_mobilities.length();
-
-  qDebug() << "c" << concentration << "avg mobility" << m_avgMobility;
 }
 
 HyperboleFittingEngine::HypResults::HypResults(const double u0, const double uCS, const double KCS, const double maxX, const double sigma, const int iterations) :
