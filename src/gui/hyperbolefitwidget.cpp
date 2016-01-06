@@ -165,8 +165,13 @@ void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
 {
   if (enable)
     ui->qlv_analytes->setSelectionMode(QAbstractItemView::MultiSelection);
-  else
+  else {
+    QModelIndexList list = ui->qlv_analytes->selectionModel()->selectedIndexes();
+
     ui->qlv_analytes->setSelectionMode(QAbstractItemView::SingleSelection);
+    if (list.size() > 0)
+      ui->qlv_analytes->setCurrentIndex(list.at(0));
+  }
 }
 
 void HyperboleFitWidget::onEstimateClicked()
