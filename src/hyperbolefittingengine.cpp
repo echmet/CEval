@@ -1732,6 +1732,8 @@ void HyperboleFittingEngine::setDoubleFitStats()
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to initialize statUnitsModel"));
     throw;
   }
+
+  m_currentStatMode = StatMode::MOBILITY_B;
 }
 
 void HyperboleFittingEngine::setMobilitiesList(const QList<QStandardItem *> &list)
@@ -1759,6 +1761,8 @@ void HyperboleFittingEngine::setSingleFitStats()
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to initialize statUnitsModel"));
     throw;
   }
+
+  m_currentStatMode = StatMode::MOBILITY_A;
 }
 
 void HyperboleFittingEngine::showDataSeries()
