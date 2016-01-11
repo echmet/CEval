@@ -42,6 +42,7 @@ private:
   QDataWidgetMapper m_analyteNamesMapper;
 
   QSortFilterProxyModel m_concentrationsSortProxy;
+  QSortFilterProxyModel m_mobilitiesSortProxy;
 
   FloatingValueDelegate m_floatingDelegate;
 

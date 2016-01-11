@@ -105,8 +105,10 @@ void HyperboleFitWidget::onAddMobilityClicked()
   dlg.setDoubleMaximum(std::numeric_limits<double>::max());
 
   ret = dlg.exec();
-  if (ret == QDialog::Accepted)
+  if (ret == QDialog::Accepted) {
     emit addMobility(dlg.doubleValue());
+    m_mobilitiesSortProxy.sort(0);
+  }
 
   return;
 }
@@ -220,8 +222,10 @@ void HyperboleFitWidget::onRemoveAnalyteClicked()
 
   reply = QMessageBox::question(this, tr("Remove analyte?"), QString(tr("Really remove the analyte \"%1\"?")).arg(name),
                                 QMessageBox::Yes | QMessageBox::No);
-  if (reply == QMessageBox::Yes)
+  if (reply == QMessageBox::Yes) {
     emit removeAnalyte(idx);
+    m_mobilitiesSortProxy.sort(0);
+  }
 }
 
 void HyperboleFitWidget::onRemoveConcentrationClicked()
@@ -382,7 +386,10 @@ void HyperboleFitWidget::setFitModeModel(QAbstractItemModel *model)
 
 void HyperboleFitWidget::setMobilitiesModel(QAbstractItemModel *model)
 {
-  ui->qlv_mobilities->setModel(model);
+  m_mobilitiesSortProxy.setSourceModel(model);
+  ui->qlv_mobilities->setModel(&m_mobilitiesSortProxy);
+
+  m_mobilitiesSortProxy.setSortRole(Qt::UserRole + 1);
 }
 
 void HyperboleFitWidget::setStatModeModel(QAbstractItemModel *model)

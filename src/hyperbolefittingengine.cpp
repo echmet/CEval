@@ -1036,6 +1036,8 @@ void HyperboleFittingEngine::onAddMobility(const double u)
     return;
   }
 
+  item->setData(u, Qt::UserRole + 1);
+
   m_mobilitiesModel.appendRow(item);
 
   showDataSeries();
