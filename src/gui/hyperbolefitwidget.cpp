@@ -175,6 +175,7 @@ void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
   }
 
   ui->qcb_swapAnalytes->setEnabled(enable);
+  onSwapAnalytesClicked();
 }
 
 void HyperboleFitWidget::onEstimateClicked()
