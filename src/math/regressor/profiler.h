@@ -28,16 +28,16 @@ public:
     typedef XT x_type;
     typedef YT y_type;
     typedef RegressFunction<XT, YT> regressor_type;
-    typedef y_type ( * converter_type)(y_type tau, regressor_type const & original, regressor_type const & disrupted);
+    typedef y_type ( * converter_type)(y_type tau, double p, regressor_type const & original, regressor_type const & disrupted);
 
-    static y_type tau_to_tau        (y_type tau, regressor_type const & , regressor_type const & );
-    static y_type tau_to_abs        (y_type tau, regressor_type const & , regressor_type const & );
-    static y_type tau_to_confidenceL(y_type tau, regressor_type const & original, regressor_type const & );
-    static y_type tau_to_confidenceR(y_type tau, regressor_type const & original, regressor_type const & );
-    static y_type tau_to_confidenceT(y_type tau, regressor_type const & original, regressor_type const & );
-    static y_type tau_to_pvalueL    (y_type tau, regressor_type const & original, regressor_type const & foo);
-    static y_type tau_to_pvalueR    (y_type tau, regressor_type const & original, regressor_type const & foo);
-    static y_type tau_to_pvalueT    (y_type tau, regressor_type const & original, regressor_type const & foo);
+    static y_type tau_to_tau        (y_type tau, double p, regressor_type const & , regressor_type const & );
+    static y_type tau_to_abs        (y_type tau, double p, regressor_type const & , regressor_type const & );
+    static y_type tau_to_confidenceL(y_type tau, double p, regressor_type const & original, regressor_type const & );
+    static y_type tau_to_confidenceR(y_type tau, double p, regressor_type const & original, regressor_type const & );
+    static y_type tau_to_confidenceT(y_type tau, double p, regressor_type const & original, regressor_type const & );
+    static y_type tau_to_pvalueL    (y_type tau, double p, regressor_type const & original, regressor_type const & foo);
+    static y_type tau_to_pvalueR    (y_type tau, double p, regressor_type const & original, regressor_type const & foo);
+    static y_type tau_to_pvalueT    (y_type tau, double p, regressor_type const & original, regressor_type const & foo);
 
     y_type         toTau;
     bool           twoSided;
@@ -150,6 +150,7 @@ bool Profiler<XT, YT>::profile(
     const y_type s0      = f.GetS();
 
     y_type rssOld    = rss0;
+    y_type rss;
 
     y_type param     = f.GetParameter(param_id);
     y_type paramOld  = param;
@@ -157,9 +158,14 @@ bool Profiler<XT, YT>::profile(
     y_type tau       = y_type(0);
     y_type tauOld    = tau;
 
+    double pOld      = 0.5;
+    double p;
+
+    int    df        = f.GetDF();
+
     m_reg->Assign(f);
     m_reg->FixParameter(param_id, param);
-    out.push_back(std::make_pair(param, converter( 0, f, *m_reg )));
+    out.push_back(std::make_pair(param, converter( 0, 0.5, f, *m_reg )));
 
     for (
         y_type end = fabs(toTau);
@@ -173,6 +179,8 @@ bool Profiler<XT, YT>::profile(
         else            param += sign * fabs(param) * coeff;
         m_reg->FixParameter(param_id, param);
 
+        debug << "param : " << param << ", param - paramOld " << param - paramOld << std::endl;
+
         if (!m_reg->Regress()) {
 
             param = paramOld;
@@ -182,16 +190,16 @@ bool Profiler<XT, YT>::profile(
 
         }
 
-        y_type rss = m_reg->GetRSS();
+        rss = m_reg->GetRSS();
 
-        debug << "param : " << param << ", RSS - RSSOld : " << rss - rssOld << std::endl;
+        debug <<  "REGRESSION OK : RSS - RSSOld : " << rss - rssOld << std::endl;
 
 #if 1
         if (rss < rssOld ) {
 
-            debug << "NOT ACCEPTED" << std::endl;
+            debug << "NOT ACCEPTED : Coeff : " << coeff << std::endl;
 
-            return false;
+            continue;
 
         }
 
@@ -204,11 +212,49 @@ bool Profiler<XT, YT>::profile(
 
 #if 1
 
-        if (tau - tauOld > y_type(1)/y_type(10) ) {
+        p = AlgLib::studenttdistribution(df, sign * tau);
+        double pdiff = sign * (p - pOld);
+
+        debug << "p : " << p << ", pdiff : " << pdiff << std::endl;
+
+
+        double pdiffmin, pdiffmax;
+
+        pdiffmin = sign * (pOld - 0.5);  // temporary
+        if (pdiffmin > 0.45) {           // 95% level
+
+            pdiffmax = 0.002;
+            pdiffmin = 0.0001;
+
+        } else if (pdiffmin > 0.40) {    // 90% level
+
+            pdiffmax = 0.01;
+            pdiffmin = 0.001;
+
+        } else if (pdiffmin > 0.25) {    // 75% level
+
+            pdiffmax = 0.02;
+            pdiffmin = 0.001;
+
+        } else if (pdiffmin > 0.10) {    // 60% level
+
+            pdiffmax = 0.05;
+            pdiffmin = 0.01;
+
+        } else {                        // < 60% level
+
+            pdiffmax = 0.1;
+            pdiffmin = 0.01;
+
+        }
+
+        if (pdiff > pdiffmax ) {
 
             param = paramOld;
             tau   = tauOld;
             rss   = rssOld;
+            p     = pOld;
+
             coeff /= 2.;
 
             debug << "DIFFERENCE TOO LARGE: Coeff : " << coeff << std::endl;
@@ -216,18 +262,26 @@ bool Profiler<XT, YT>::profile(
             continue;
         }
 
-        if (tau - tauOld < y_type(1)/y_type(100)) coeff *= 1.25;
+        if (pdiff < pdiffmin) {
+
+            coeff *= 1.25;
+
+            debug << "Step coeff increased : Coeff : " << coeff << std::endl;
+
+        }
+
 #endif
 
-        y_type val = converter( sign * tau, f, *m_reg );
+        y_type val = converter( sign * tau, p, f, *m_reg );
         out.push_back(std::make_pair(param, val));
 
-        debug << "ACCEPTED: param - paramOld : " << param - paramOld << ", value : " << val << ", coeff : " << coeff << std::endl;
+        debug << "ACCEPTED : value : " << val << ", coeff : " << coeff << std::endl;
         debug << std::endl;
 
         paramOld = param;
         rssOld   = rss;
         tauOld   = tau;
+        pOld     = p;
 
     };
 
@@ -242,6 +296,7 @@ bool Profiler<XT, YT>::profile(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_tau(
     y_type            tau,
+    double                ,
     regressor_type const &,
     regressor_type const &
 )
@@ -255,6 +310,7 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_tau(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_abs(
     y_type            tau,
+    double                ,
     regressor_type const &,
     regressor_type const &
 )
@@ -268,12 +324,14 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_abs(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceL(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const &
 )
 {
 
-    return y_type(1) - AlgLib::studenttdistribution(original.GetDF(), tau);
+    // return y_type(1) - AlgLib::studenttdistribution(original.GetDF(), tau);
+    return 1 - p;
 
 }
 
@@ -281,12 +339,15 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceL(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceR(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const &
 )
 {
 
-    return AlgLib::studenttdistribution(original.GetDF(), tau);
+    // return AlgLib::studenttdistribution(original.GetDF(), tau);
+
+    return p;
 
 
 }
@@ -295,15 +356,15 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceR(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceT(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const &
 )
 {
 
-    tau = fabs(tau);
-    return
-        AlgLib::studenttdistribution(original.GetDF(), tau) -
-        AlgLib::studenttdistribution(original.GetDF(), y_type(-1) * tau);
+    return std::fabs(
+        p - AlgLib::studenttdistribution(original.GetDF(), -1 * tau)
+    );
 
 }
 
@@ -311,12 +372,13 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceT(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_pvalueL(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const & foo
 )
 {
 
-    return y_type(1) - tau_to_confidenceL(tau, original, foo);
+    return y_type(1) - tau_to_confidenceL(tau, p, original, foo);
 
 }
 
@@ -324,12 +386,13 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_pvalueL(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_pvalueR(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const & foo
 )
 {
 
-    return y_type(1) - tau_to_confidenceR(tau, original, foo);
+    return y_type(1) - tau_to_confidenceR(tau, p, original, foo);
 
 }
 
@@ -337,12 +400,13 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_pvalueR(
 template<typename XT, typename YT>
 inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_pvalueT(
     y_type            tau,
+    double              p,
     regressor_type const & original,
     regressor_type const & foo
 )
 {
 
-    return y_type(1) - tau_to_confidenceT(tau, original, foo);
+    return y_type(1) - tau_to_confidenceT(tau, p, original, foo);
 
 }
 
