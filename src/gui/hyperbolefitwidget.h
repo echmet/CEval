@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QDataWidgetMapper>
+#include <QSortFilterProxyModel>
 #include "../abstractmappermodel.h"
 #include "../floatingvaluedelegate.h"
 #include "../hyperbolefititems.h"
@@ -39,6 +40,8 @@ private:
   QDataWidgetMapper m_fitIntMapper;
   QDataWidgetMapper m_fitResultsMapper;
   QDataWidgetMapper m_analyteNamesMapper;
+
+  QSortFilterProxyModel m_concentrationsSortProxy;
 
   FloatingValueDelegate m_floatingDelegate;
 

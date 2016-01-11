@@ -86,8 +86,10 @@ void HyperboleFitWidget::onAddConcentrationClicked()
   dlg.setDoubleMaximum(std::numeric_limits<double>::max());
 
   ret = dlg.exec();
-  if (ret == QDialog::Accepted)
+  if (ret == QDialog::Accepted) {
     emit addConcentration(dlg.doubleValue());
+    m_concentrationsSortProxy.sort(0);
+  }
 
   return;
 }
@@ -242,8 +244,10 @@ void HyperboleFitWidget::onRemoveConcentrationClicked()
 
   reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(c),
                                 QMessageBox::Yes | QMessageBox::No);
-  if (reply == QMessageBox::Yes)
+  if (reply == QMessageBox::Yes) {
     emit removeConcentration(idx);
+    m_concentrationsSortProxy.sort(0);
+  }
 }
 
 void HyperboleFitWidget::onRemoveMobilityClicked()
@@ -318,7 +322,10 @@ void HyperboleFitWidget::setAnalytesModel(QAbstractItemModel *model)
 
 void HyperboleFitWidget::setConcentrationsModel(QAbstractItemModel *model)
 {
-  ui->qlv_concentrations->setModel(model);
+  m_concentrationsSortProxy.setSourceModel(model);
+  ui->qlv_concentrations->setModel(&m_concentrationsSortProxy);
+
+  m_concentrationsSortProxy.setSortRole(Qt::UserRole + 1);
 }
 
 void HyperboleFitWidget::setFitFixedModel(AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *model)
