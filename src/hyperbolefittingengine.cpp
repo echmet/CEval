@@ -512,6 +512,33 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
   double uCSB = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_CS_B);
   double KCSB = m_fitResultsValues.at(HyperboleFitResults::Floating::K_CS_B);
 
+  /* Work around a bug in the regressor:
+   * Apparently something in the regressor is not initialized
+   * when the estimate is run for the first time, causing the
+   * fixation of the parameters to hit a nullptr dereference.
+   *
+   * Work around the problem by dry-running the estimation with
+   * all parameters released at first and re-run the calculation
+   * with the fixed parameters afterwards.
+   */
+  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_A) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_A) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_B) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_B) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_B)) {
+    bool ret = dfrRef.Initialize(mat_x, mat_y,
+                                 m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
+                                 m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                                 true, u0A, u0B,
+                                 m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+    if (!ret) {
+      QMessageBox::warning(nullptr, tr("Runtime error"), tr("Double estimation failed."));
+      return DoubleHypResults();
+    }
+  }
+  /* End workaround */
+
   if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A))
     dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::u0, u0A);
   else
@@ -664,6 +691,32 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
     ++idx;
   }
 
+  double u0 = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
+
+  /* Work around a bug in the regressor:
+   * Apparently something in the regressor is not initialized
+   * when the estimate is run for the first time, causing the
+   * fixation of the parameters to hit a nullptr dereference.
+   *
+   * Work around the problem by dry-running the estimation with
+   * all parameters released at first and re-run the calculation
+   * with the fixed parameters afterwards.
+   */
+  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_A) ||
+      m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_A)) {
+    bool ret = sfrRef.Initialize(mat_x, mat_y,
+                                 m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
+                                 m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                                 true, u0,
+                                 m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+    if (!ret) {
+      QMessageBox::warning(nullptr, tr("Runtime error"), tr("Single estimation failed."));
+      return HypResults();
+    }
+  }
+  /* End workaround */
+
   if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A))
     sfrRef.FixParameter(echmet::regressCore::RectangularHyperboleParams::u0,
         m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A)
@@ -684,8 +737,6 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
     );
   else
     sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperboleParams::KS);
-
-  double u0 = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
 
   bool ret = sfrRef.Initialize(mat_x, mat_y,
                                m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
