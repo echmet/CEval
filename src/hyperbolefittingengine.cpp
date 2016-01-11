@@ -215,6 +215,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_secondAnalyte(nullptr),
   m_currentConcentration(nullptr),
   m_currentConcentrationKey(INVAL_CONC_KEY),
+  m_swapAnalytes(false),
   m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)")
 {
   initFitModeModel();
@@ -463,8 +464,8 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
       return DoubleHypResults();
   }
 
-  const Analyte::ConcentrationMap &cs1 = m_currentAnalyte->concentrations;
-  const Analyte::ConcentrationMap &cs2 = m_secondAnalyte->concentrations;
+  const Analyte::ConcentrationMap &cs1 = (!m_swapAnalytes) ? m_currentAnalyte->concentrations : m_secondAnalyte->concentrations;
+  const Analyte::ConcentrationMap &cs2 = (!m_swapAnalytes) ? m_secondAnalyte->concentrations : m_currentAnalyte->concentrations;
 
   mat_x.data.New(cs1.size() + cs2.size(), 1);
   mat_y.data.New(cs1.size() + cs2.size(), 1);
@@ -1590,6 +1591,13 @@ void HyperboleFittingEngine::onStatUnitsChanged(const QVariant &v)
     return;
 
   m_currentStatUnits = v.value<StatUnits>();
+}
+
+void HyperboleFittingEngine::onSwapAnalytesChanged(const bool swap)
+{
+  m_swapAnalytes = swap;
+
+  emit swapAnalyteNamesModel(swap);
 }
 
 int constexpr HyperboleFittingEngine::seriesIndex(const Series s)

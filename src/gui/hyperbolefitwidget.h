@@ -59,6 +59,7 @@ signals:
   void renameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
   void statModeChanged(const QVariant &v);
   void statUnitsChanged(const QVariant &v);
+  void swapAnalytesChanged(const bool swap);
 
 private slots:
   void onAddAnalyteClicked();
@@ -79,9 +80,11 @@ private slots:
   void onStatRightClicked();
   void onStatModeActivated(const int idx);
   void onStatUnitsActivated(const int idx);
+  void onSwapAnalytesClicked();
 
 public slots:
   void onEnableDoubleFit(const bool enable);
+  void onSwapAnalyteNamesModel(const bool swap);
 
 };
 

@@ -219,6 +219,7 @@ private:
   FitMode m_currentFitMode;
   StatMode m_currentStatMode;
   StatUnits m_currentStatUnits;
+  bool m_swapAnalytes;
 
   MappedVectorWrapper<bool, HyperboleFitParameters::Boolean> m_fitFixedValues;
   MappedVectorWrapper<double, HyperboleFitResults::Floating> m_fitResultsValues;
@@ -276,6 +277,7 @@ private:
 
 signals:
   void enableDoubleFit(const bool enable);
+  void swapAnalyteNamesModel(const bool swap);
 
 public slots:
   void onAddAnalyte(const QString &name);
@@ -299,6 +301,7 @@ public slots:
   void onSerialize();
   void onStatModeChanged(const QVariant &v);
   void onStatUnitsChanged(const QVariant &v);
+  void onSwapAnalytesChanged(const bool swap);
 };
 
 #endif // HYPERBOLEFITTINGENGINE_H

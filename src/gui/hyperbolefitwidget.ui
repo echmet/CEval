@@ -158,208 +158,222 @@
           </layout>
          </item>
          <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_4">
            <item>
-            <widget class="QGroupBox" name="qgb_singleFit">
-             <property name="title">
-              <string>Single fit (for first peak)</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_6">
-              <item>
-               <layout class="QFormLayout" name="formLayout">
-                <property name="sizeConstraint">
-                 <enum>QLayout::SetMinimumSize</enum>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="ql_analyteAName">
-                  <property name="text">
-                   <string>Analyte:</string>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <item>
+              <widget class="QGroupBox" name="qgb_singleFit">
+               <property name="title">
+                <string>Single fit (for first peak)</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_6">
+                <item>
+                 <layout class="QFormLayout" name="formLayout">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetMinimumSize</enum>
                   </property>
-                 </widget>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="ql_analyteAName">
+                    <property name="text">
+                     <string>Analyte:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="qle_analyteAName">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="qle_analyteAName">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout">
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="ql_csMobility">
+                    <property name="text">
+                     <string>μ (AS)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_csMobility">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="ql_freeMobility">
+                    <property name="text">
+                     <string>μ (A)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_KCS">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="ql_KCS">
+                    <property name="text">
+                     <string>K (AS)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_freeMobility">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedFreeMobility">
+                    <property name="text">
+                     <string>Fixed</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedCsMobility">
+                    <property name="text">
+                     <string>Fixed</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedKCS">
+                    <property name="text">
+                     <string>Fixed</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
-              </item>
-              <item>
-               <layout class="QGridLayout" name="gridLayout">
-                <item row="1" column="0">
-                 <widget class="QLabel" name="ql_csMobility">
-                  <property name="text">
-                   <string>μ (AS)</string>
+              </widget>
+             </item>
+             <item>
+              <widget class="QGroupBox" name="qgb_doubleFit">
+               <property name="title">
+                <string>Double fit (for second peak)</string>
+               </property>
+               <layout class="QVBoxLayout" name="verticalLayout_7">
+                <item>
+                 <layout class="QFormLayout" name="formLayout_2">
+                  <property name="sizeConstraint">
+                   <enum>QLayout::SetMinimumSize</enum>
                   </property>
-                 </widget>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="ql_analyteBName">
+                    <property name="text">
+                     <string>Analyte:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLineEdit" name="qle_analyteBName">
+                    <property name="frame">
+                     <bool>true</bool>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                    <property name="readOnly">
+                     <bool>true</bool>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
-                <item row="1" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_csMobility">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="ql_freeMobility">
-                  <property name="text">
-                   <string>μ (A)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_KCS">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="ql_KCS">
-                  <property name="text">
-                   <string>K (AS)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_freeMobility">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedFreeMobility">
-                  <property name="text">
-                   <string>Fixed</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedCsMobility">
-                  <property name="text">
-                   <string>Fixed</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedKCS">
-                  <property name="text">
-                   <string>Fixed</string>
-                  </property>
-                 </widget>
+                <item>
+                 <layout class="QGridLayout" name="gridLayout_2">
+                  <item row="2" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_KCSB">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_freeMobilityB">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QLabel" name="ql_KCS_2">
+                    <property name="text">
+                     <string>K (AS)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QLabel" name="ql_freeMobilityB">
+                    <property name="text">
+                     <string>μ (A)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="0">
+                   <widget class="QLabel" name="ql_csMobilityB">
+                    <property name="text">
+                     <string>μ (AS)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="1">
+                   <widget class="FloatingValueLineEdit" name="qle_csMobilityB">
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedFreeMobilityB">
+                    <property name="text">
+                     <string>Same as first analyte</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="1" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedCsMobilityB">
+                    <property name="text">
+                     <string>Same as first analyte</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QMappedCheckBox" name="qcb_fixedKCSB">
+                    <property name="text">
+                     <string>Same as first analyte</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
                 </item>
                </layout>
-              </item>
-             </layout>
-            </widget>
+              </widget>
+             </item>
+            </layout>
            </item>
            <item>
-            <widget class="QGroupBox" name="qgb_doubleFit">
-             <property name="title">
-              <string>Double fit (for second peak)</string>
+            <widget class="QCheckBox" name="qcb_swapAnalytes">
+             <property name="enabled">
+              <bool>false</bool>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_7">
-              <item>
-               <layout class="QFormLayout" name="formLayout_2">
-                <property name="sizeConstraint">
-                 <enum>QLayout::SetMinimumSize</enum>
-                </property>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="ql_analyteBName">
-                  <property name="text">
-                   <string>Analyte:</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QLineEdit" name="qle_analyteBName">
-                  <property name="frame">
-                   <bool>true</bool>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QGridLayout" name="gridLayout_2">
-                <item row="2" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_KCSB">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_freeMobilityB">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="ql_KCS_2">
-                  <property name="text">
-                   <string>K (AS)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QLabel" name="ql_freeMobilityB">
-                  <property name="text">
-                   <string>μ (A)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="ql_csMobilityB">
-                  <property name="text">
-                   <string>μ (AS)</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_csMobilityB">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedFreeMobilityB">
-                  <property name="text">
-                   <string>Same as first analyte</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedCsMobilityB">
-                  <property name="text">
-                   <string>Same as first analyte</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QMappedCheckBox" name="qcb_fixedKCSB">
-                  <property name="text">
-                   <string>Same as first analyte</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
+             <property name="text">
+              <string>Swap analytes</string>
+             </property>
             </widget>
            </item>
           </layout>
