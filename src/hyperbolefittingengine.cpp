@@ -1134,7 +1134,7 @@ void HyperboleFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
   if (item == nullptr)
     return;
 
-  num = item->data().toDouble(&ok);
+  num = item->data(Qt::UserRole + 1).toDouble(&ok);
   if (!ok) {
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Invalid concentration key"));
     return;

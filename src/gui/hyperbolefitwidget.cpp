@@ -163,7 +163,11 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
 
 void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
 {
-  emit concentrationSwitched(idx);
+  if (!idx.isValid())
+    return;
+
+  const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
+  emit concentrationSwitched(srcidx);
 }
 
 void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
@@ -249,14 +253,16 @@ void HyperboleFitWidget::onRemoveConcentrationClicked()
   reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(c),
                                 QMessageBox::Yes | QMessageBox::No);
   if (reply == QMessageBox::Yes) {
-    emit removeConcentration(idx);
+    const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
+    emit removeConcentration(srcidx);
     m_concentrationsSortProxy.sort(0);
   }
 }
 
 void HyperboleFitWidget::onRemoveMobilityClicked()
 {
-  emit removeMobility(ui->qlv_mobilities->currentIndex());
+  const QModelIndex srcidx = m_mobilitiesSortProxy.mapToSource(ui->qlv_mobilities->currentIndex());
+  emit removeMobility(srcidx);
 }
 
 void HyperboleFitWidget::onStatBothClicked()
