@@ -84,6 +84,7 @@ private:
   void fillPointStylesComboBox();
   void setLineColorBox(const QColor &c);
   void setPointColorBox(const QColor &c);
+  void setPointFillColorBox(const QColor &c);
   void setPointStyleIndex(const PointStyles ps);
   template<typename T> QVector<T> vectorOfVisuals(const QComboBox *qcbox) const;
 

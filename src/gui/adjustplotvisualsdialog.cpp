@@ -32,7 +32,9 @@ void AdjustPlotVisualsDialog::SerieVisuals::fromOther(const SerieVisuals &other)
 {
   lineColor = other.lineColor;
   lineThickness = other.lineThickness;
+  pointLineThickness = other.pointLineThickness;
   pointColor = other.pointColor;
+  pointFillColor = other.pointFillColor;
   pointSize = other.pointSize;
   pointStyle = other.pointStyle;
 }
@@ -42,7 +44,9 @@ AdjustPlotVisualsDialog::SerieVisuals &AdjustPlotVisualsDialog::SerieVisuals::op
   const_cast<int&>(id) = other.id;
   lineColor = other.lineColor;
   lineThickness = other.lineThickness;
+  pointLineThickness = other.pointLineThickness;
   pointColor = other.pointColor;
+  pointFillColor = other.pointFillColor;
   pointSize = other.pointSize;
   pointStyle = other.pointStyle;
 
@@ -56,6 +60,7 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   ui->setupUi(this);
   ui->ql_lineColorClr->setAutoFillBackground(true);
   ui->ql_pointColorClr->setAutoFillBackground(true);
+  ui->ql_pointFillColorClr->setAutoFillBackground(true);
 
   fillPointStylesComboBox();
 
@@ -241,7 +246,7 @@ void AdjustPlotVisualsDialog::onPickPointFillColorClicked()
     return;
 
   sv.pointFillColor = dlg.currentColor();
-  setPointColorBox(dlg.currentColor());
+  setPointFillColorBox(dlg.currentColor());
   item->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
 }
 
@@ -296,8 +301,10 @@ void AdjustPlotVisualsDialog::onSerieSelected(const int idx)
   setLineColorBox(sv.lineColor);
   setPointColorBox(sv.pointColor);
   setPointStyleIndex(sv.pointStyle);
+  setPointFillColorBox(sv.pointFillColor);
 
   ui->qspbox_lineThickness->setValue(sv.lineThickness);
+  ui->qspbox_pointLineThickness->setValue(sv.pointLineThickness);
   ui->qspbox_pointSize->setValue(sv.pointSize);
 }
 
@@ -393,6 +400,11 @@ void AdjustPlotVisualsDialog::setLineColorBox(const QColor &c)
 void AdjustPlotVisualsDialog::setPointColorBox(const QColor &c)
 {
   ui->ql_pointColorClr->setStyleSheet(backgroundColorToStyleSheet(c));
+}
+
+void AdjustPlotVisualsDialog::setPointFillColorBox(const QColor &c)
+{
+  ui->ql_pointFillColorClr->setStyleSheet(backgroundColorToStyleSheet(c));
 }
 
 void AdjustPlotVisualsDialog::setPointStyleIndex(const PointStyles ps)

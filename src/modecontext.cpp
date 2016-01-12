@@ -76,7 +76,9 @@ void ModeContext::adjustAppearance()
     AdjustPlotVisualsDialog::SerieVisuals sv(id);
     sv.lineColor = style.pen.color();
     sv.lineThickness = style.pen.width();
+    sv.pointLineThickness = style.symbol()->pen().widthF();
     sv.pointColor = style.symbol()->pen().color();
+    sv.pointFillColor = style.symbol()->brush().color();
     sv.pointSize = style.symbol()->size().width();
     sv.pointStyle = qwtSymbolStypeToPointStyle(style.symbol()->style());
 
@@ -114,6 +116,8 @@ void ModeContext::adjustAppearance()
     QwtSymbol *nSym = new QwtSymbol(ss);
     p = cSym->pen();
     p.setColor(sv.pointColor);
+    p.setWidthF(sv.pointLineThickness);
+    nSym->setBrush(QBrush(sv.pointFillColor));
     nSym->setPen(p);
     nSym->setSize(sv.pointSize);
 

@@ -31,12 +31,13 @@ public:
     void setSymbolOwned();
 
   private:
-    QwtSymbol *m_symbol;
     bool m_symbolOwned;
+    QwtSymbol *m_symbol;
   };
 
   static QString axisToName(const Axis a);
-  static QwtSymbol *SQwtSymbol(const QwtSymbol::Style style, const qreal size, const QColor &color = Qt::black);
+  static QwtSymbol *SQwtSymbol(const QwtSymbol::Style style, const qreal size, const QColor &color = Qt::black,
+                               const qreal lineThickness = 1.0, const QBrush fill = QBrush(Qt::black));
 
 };
 

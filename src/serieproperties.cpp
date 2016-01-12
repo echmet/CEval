@@ -53,11 +53,17 @@ QString SerieProperties::axisToName(const Axis a)
   }
 }
 
-QwtSymbol *SerieProperties::SQwtSymbol(const QwtSymbol::Style style, const qreal size, const QColor &color)
+QwtSymbol *SerieProperties::SQwtSymbol(const QwtSymbol::Style style, const qreal size, const QColor &color,
+                                       const qreal lineThickness, const QBrush fill)
 {
   QwtSymbol *s = new QwtSymbol(style);
-  s->setColor(color);
+
+  QPen p;
+  p.setColor(color);
+  p.setWidthF(lineThickness);
+  s->setPen(p);
   s->setSize(size, size);
+  s->setBrush(fill);
 
   return s;
 }
