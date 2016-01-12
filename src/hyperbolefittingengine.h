@@ -50,6 +50,33 @@ public:
   };
   Q_ENUM(StatUnits)
 
+  class regressor_initialization_error : public std::exception {
+  public:
+    regressor_initialization_error(const char *what) :
+      std::exception(),
+      m_what(nullptr)
+    {
+      m_what = static_cast<char *>(malloc(strlen(what) + 1));
+      if (m_what != nullptr)
+        strcpy(m_what, what);
+    }
+    ~regressor_initialization_error()
+    {
+      free(m_what);
+    }
+
+    virtual const char *what() const noexcept
+    {
+      if (m_what != nullptr)
+        return m_what;
+
+      return "Unable to initialize regressor";
+    }
+
+  private:
+    char *m_what;
+  };
+
   explicit HyperboleFittingEngine(QObject *parent = nullptr);
   ~HyperboleFittingEngine();
 
@@ -73,6 +100,8 @@ public:
   static const QString EMERG_SAVE_FILE;
 
 private:
+  typedef echmet::regressCore::RectangularHyperbole2<double, double>::x_type x_type;
+
   enum class Series : int {
     POINTS_A,
     POINTS_A_AVG,

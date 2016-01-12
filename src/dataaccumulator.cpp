@@ -32,6 +32,9 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate HyperboleFittingEngine"));
     throw;
+  } catch (HyperboleFittingEngine::regressor_initialization_error &ex) {
+    QMessageBox::critical(nullptr, tr("Initialization error"), QString(ex.what()));
+    throw std::exception();
   }
 
   try {
