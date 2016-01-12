@@ -57,7 +57,9 @@ public:
     QColor lineColor;
     qreal lineThickness;
     QColor pointColor;
+    QColor pointFillColor;
     int pointSize;
+    qreal pointLineThickness;
     PointStyles pointStyle;
 
     SerieVisuals &operator=(const SerieVisuals &other);
@@ -94,7 +96,9 @@ private slots:
   void onOkClicked();
   void onPickLineColorClicked();
   void onPickPointColorClicked();
+  void onPickPointFillColorClicked();
   void onLineThicknessChanged(const double t);
+  void onPointLineThicknessChanges(const double t);
   void onPointSizeChanged(const int t);
   void onPointStyleSelected(const int idx);
   void onSerieSelected(const int idx);

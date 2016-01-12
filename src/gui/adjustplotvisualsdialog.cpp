@@ -64,10 +64,12 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
 
   connect(ui->qpb_pickLineColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickLineColorClicked);
   connect(ui->qpb_pickPointColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickPointColorClicked);
+  connect(ui->qpb_pickPointFillColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickPointFillColorClicked);
   connect(ui->qpb_setForAllAxes, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onSetForAllAxesClicked);
 
   connect(ui->qspbox_lineThickness, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onLineThicknessChanged);
-  connect(ui->qspbox_pointSize, static_cast <void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onPointSizeChanged);
+  connect(ui->qspbox_pointSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onPointSizeChanged);
+  connect(ui->qspbox_pointLineThickness, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onPointLineThicknessChanges);
 
   connect(ui->qspbox_axisFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onAxisFontSizeChanged);
   connect(ui->qcb_axisBold, &QCheckBox::stateChanged, this, &AdjustPlotVisualsDialog::onAxisFontBoldChanged);
@@ -221,6 +223,37 @@ void AdjustPlotVisualsDialog::onPickPointColorClicked()
 
   sv.pointColor = dlg.currentColor();
   setPointColorBox(dlg.currentColor());
+  item->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
+}
+
+void AdjustPlotVisualsDialog::onPickPointFillColorClicked()
+{
+  QStandardItem *item = comboBoxItem(ui->qcbox_series, ui->qcbox_series->currentIndex());
+  if (item == nullptr)
+    return;
+
+  SerieVisuals sv = datatypeFromItem<SerieVisuals>(item);
+
+  QColorDialog dlg(sv.pointFillColor);
+  int dlgRet = dlg.exec();
+
+  if (dlgRet != QDialog::Accepted)
+    return;
+
+  sv.pointFillColor = dlg.currentColor();
+  setPointColorBox(dlg.currentColor());
+  item->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
+}
+
+void AdjustPlotVisualsDialog::onPointLineThicknessChanges(const double t)
+{
+  QStandardItem *item = comboBoxItem(ui->qcbox_series, ui->qcbox_series->currentIndex());
+  if (item == nullptr)
+    return;
+
+  SerieVisuals sv = datatypeFromItem<SerieVisuals>(item);
+
+  sv.pointLineThickness = t;
   item->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
 }
 
