@@ -94,7 +94,7 @@
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QLabel" name="ql_pointThickness">
+         <widget class="QLabel" name="ql_pointSize">
           <property name="text">
            <string>Point size</string>
           </property>
@@ -146,6 +146,51 @@
         </item>
         <item row="1" column="1">
          <widget class="QComboBox" name="qcbox_pointStyles"/>
+        </item>
+        <item row="6" column="0">
+         <widget class="QLabel" name="ql_pointLineThickness">
+          <property name="text">
+           <string>Point line thinckness</string>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="0">
+         <widget class="QLabel" name="ql_pointFillColor">
+          <property name="text">
+           <string>Point fill color</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1">
+         <widget class="QDoubleSpinBox" name="qspbox_pointLineThickness">
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="decimals">
+           <number>1</number>
+          </property>
+          <property name="minimum">
+           <double>1.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1">
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="ql_pointFillColorClr">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="qpb_pickPointFillColor">
+            <property name="text">
+             <string>Pick</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </item>
