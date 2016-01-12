@@ -3,6 +3,8 @@
 const QString StandardModeContextSettingsHandler::LINE_COLOR_SETTINGS_TAG("Line-Color");
 const QString StandardModeContextSettingsHandler::LINE_THICKNESS_SETTINGS_TAG("Line-Thickness");
 const QString StandardModeContextSettingsHandler::POINT_COLOR_SETTINGS_TAG("Point-Color");
+const QString StandardModeContextSettingsHandler::POINT_FILLCOLOR_SETTINGS_TAG("Point-FillColor");
+const QString StandardModeContextSettingsHandler::POINT_LINETHICKNESS_SETTINGS_TAG("Point-LineThickness");
 const QString StandardModeContextSettingsHandler::POINT_SIZE_SETTINGS_TAG("Point-Size");
 const QString StandardModeContextSettingsHandler::POINT_STYLE_SETTINGS_TAG("Point-Style");
 
@@ -58,6 +60,28 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
           QColor c = v.value<QColor>();
           QPen p(vs.symbol()->pen());
           p.setColor(c);
+          vs.symbol()->setPen(p);
+        }
+      }
+
+      if (innerMap.contains(POINT_FILLCOLOR_SETTINGS_TAG)) {
+        QVariant v = innerMap[POINT_FILLCOLOR_SETTINGS_TAG];
+
+        if (v.canConvert<QColor>()) {
+          QColor c = v.value<QColor>();
+          QBrush b(vs.symbol()->brush());
+          b.setColor(c);
+          vs.symbol()->setBrush(b);
+        }
+      }
+
+      if (innerMap.contains(POINT_LINETHICKNESS_SETTINGS_TAG)) {
+        QVariant v = innerMap[POINT_LINETHICKNESS_SETTINGS_TAG];
+
+        if (v.canConvert<qreal>()) {
+          qreal r = v.value<qreal>();
+          QPen p(vs.symbol()->pen());
+          p.setWidthF(r);
           vs.symbol()->setPen(p);
         }
       }
@@ -124,6 +148,8 @@ EMT::StringVariantMap StandardModeContextSettingsHandler::saveUserSettings(ModeC
     map.insert(LINE_COLOR_SETTINGS_TAG, vs.pen.color());
     map.insert(LINE_THICKNESS_SETTINGS_TAG, vs.pen.widthF());
     map.insert(POINT_COLOR_SETTINGS_TAG, vs.symbol()->pen().color());
+    map.insert(POINT_FILLCOLOR_SETTINGS_TAG, vs.symbol()->brush().color());
+    map.insert(POINT_LINETHICKNESS_SETTINGS_TAG, vs.symbol()->pen().widthF());
     map.insert(POINT_SIZE_SETTINGS_TAG, vs.symbol()->size().width());
     map.insert(POINT_STYLE_SETTINGS_TAG, vs.symbol()->style());
 

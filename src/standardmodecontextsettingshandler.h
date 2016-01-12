@@ -15,7 +15,9 @@ public:
 private:
   static const QString LINE_COLOR_SETTINGS_TAG;
   static const QString LINE_THICKNESS_SETTINGS_TAG;
+  static const QString POINT_FILLCOLOR_SETTINGS_TAG;
   static const QString POINT_COLOR_SETTINGS_TAG;
+  static const QString POINT_LINETHICKNESS_SETTINGS_TAG;
   static const QString POINT_SIZE_SETTINGS_TAG;
   static const QString POINT_STYLE_SETTINGS_TAG;
 
