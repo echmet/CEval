@@ -75,7 +75,7 @@ void ModeContext::adjustAppearance()
 
     AdjustPlotVisualsDialog::SerieVisuals sv(id);
     sv.lineColor = style.pen.color();
-    sv.lineThickness = style.pen.width();
+    sv.lineThickness = style.pen.widthF();
     sv.pointLineThickness = style.symbol()->pen().widthF();
     sv.pointColor = style.symbol()->pen().color();
     sv.pointFillColor = style.symbol()->brush().color();
