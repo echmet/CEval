@@ -75,8 +75,8 @@ int main(int argc, char *argv[])
   try {
     w = new EvalMainWindow(nullptr);
     dac = new DataAccumulator(w->plot(), nullptr);
-  } catch (std::bad_alloc&) {
-    QMessageBox::critical(nullptr, QObject::tr("Insufficient memory"), QObject::tr("Unable to allocate basic data structures"));
+  } catch (...) {
+    QMessageBox::critical(nullptr, QObject::tr("Initialization"), QObject::tr("Unable to allocate basic data structures"));
     aRet = EXIT_FAILURE;
     goto out;
   }
