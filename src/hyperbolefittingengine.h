@@ -60,7 +60,7 @@ public:
       if (m_what != nullptr)
         strcpy(m_what, what);
     }
-    ~regressor_initialization_error()
+    ~regressor_initialization_error() noexcept
     {
       free(m_what);
     }
