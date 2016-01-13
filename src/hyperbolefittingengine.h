@@ -227,6 +227,7 @@ private:
   void hideDataSeries();
   void initFitModeModel();
   void initStatUnitsModel();
+  double interpolateVerticalMarkerPosition(const QPointF &a, const QPointF &b, const double y) const;
   void invalidateAll();
   void invalidateAnalyteB();
   void invalidateCurrentConcentration();
@@ -266,6 +267,7 @@ private:
   double m_horizontalMarkerPosition;
   double m_verticalAMarkerPosition;
   double m_verticalBMarkerPosition;
+  QVector<QPointF> m_statData;
 
   MappedVectorWrapper<bool, HyperboleFitParameters::Boolean> m_fitFixedValues;
   MappedVectorWrapper<double, HyperboleFitResults::Floating> m_fitResultsValues;
@@ -326,6 +328,7 @@ private:
 
 signals:
   void enableDoubleFit(const bool enable);
+  void chartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void swapAnalyteNamesModel(const bool swap);
 
 public slots:
@@ -333,6 +336,7 @@ public slots:
   void onAddConcentration(const double num);
   void onAddMobility(const double u);
   void onAnalyteSwitched(const QModelIndexList &inList);
+  void onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();

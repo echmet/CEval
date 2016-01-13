@@ -100,6 +100,7 @@ private slots:
 
 public slots:
   void onEnableDoubleFit(const bool enable);
+  void onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void onSwapAnalyteNamesModel(const bool swap);
 
 };

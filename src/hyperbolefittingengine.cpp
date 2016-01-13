@@ -848,6 +848,13 @@ void HyperboleFittingEngine::invalidateAll()
   m_currentAnalyte = nullptr;
 }
 
+double HyperboleFittingEngine::interpolateVerticalMarkerPosition(const QPointF &a, const QPointF &b, const double y) const
+{
+  const double k = (b.y() - a.y()) / (b.x() - a.x());
+
+  return ((y - a.y()) / k) + a.x();
+}
+
 void HyperboleFittingEngine::invalidateAnalyteB()
 {
   m_secondAnalyte = nullptr;
@@ -1117,6 +1124,43 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   invalidateCurrentConcentration();
 
   setConcentrationsList(makeConcentrationsList(m_currentAnalyte->concentrations));
+}
+
+void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
+{
+  auto comparator = [this](const double current, const double threshold) {
+    if (this->m_currentStatUnits == StatUnits::P_VALUE)
+      return current >= threshold;
+    else
+      return current <= threshold;
+  };
+
+  switch (marker) {
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    for (int idx = 1; idx < m_statData.size(); idx++) {
+      if (comparator(m_statData.at(idx).y(), m_horizontalMarkerPosition)) {
+        m_verticalAMarkerPosition = interpolateVerticalMarkerPosition(m_statData.at(idx - 1), m_statData.at(idx), m_horizontalMarkerPosition);
+
+        setMarkerPosition(marker);
+        emit chartVerticalMarkerIntersectionSet(marker, m_verticalAMarkerPosition);
+        return;
+      }
+    }
+    break;
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    for (int idx = m_statData.size() - 2; idx >= 0; idx--) {
+      if (comparator(m_statData.at(idx).y(), m_horizontalMarkerPosition)) {
+        m_verticalBMarkerPosition = interpolateVerticalMarkerPosition(m_statData.at(idx + 1), m_statData.at(idx), m_horizontalMarkerPosition);
+
+        setMarkerPosition(marker);
+        emit chartVerticalMarkerIntersectionSet(marker, m_verticalBMarkerPosition);
+        return;
+      }
+    }
+    break;
+  default:
+    break;
+  }
 }
 
 void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value)
@@ -1417,6 +1461,8 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
   setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
   setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
+
+  m_statData = data;
 
   m_modeCtx->replot();
 }

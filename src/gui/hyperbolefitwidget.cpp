@@ -185,6 +185,20 @@ void HyperboleFitWidget::onChartVerticalBMarkerItscClicked()
   emit chartVerticalMarkerIntersection(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
 }
 
+void HyperboleFitWidget::onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d)
+{
+  switch (marker) {
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    ui->qle_chartVerticalAMarker->setText(QString::number(d));
+    break;
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    ui->qle_chartVerticalBMarker->setText(QString::number(d));
+    break;
+  default:
+    break;
+  }
+}
+
 void HyperboleFitWidget::onChartHorizontalMarkerValueChanged(const QString &value)
 {
   emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, value);
