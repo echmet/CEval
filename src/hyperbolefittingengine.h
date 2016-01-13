@@ -239,7 +239,7 @@ private:
   void plotSingleCurve(const HypResults &r);
   void setConcentrationsList(const QList<QStandardItem *> &list);
   void setDoubleFitStats();
-  void setMarkerPosition();
+  void setMarkerPosition(const HyperboleFittingEngineMsgs::MarkerType marker);
   void setMobilitiesList(const QList<QStandardItem *> &list);
   void setSingleFitStats();
   void showDataSeries();
@@ -261,7 +261,11 @@ private:
   StatUnits m_currentStatUnits;
   bool m_swapAnalytes;
   bool m_showHorizontalMarker;
+  bool m_showVerticalAMarker;
+  bool m_showVerticalBMarker;
   double m_horizontalMarkerPosition;
+  double m_verticalAMarkerPosition;
+  double m_verticalBMarkerPosition;
 
   MappedVectorWrapper<bool, HyperboleFitParameters::Boolean> m_fitFixedValues;
   MappedVectorWrapper<double, HyperboleFitResults::Floating> m_fitResultsValues;

@@ -220,7 +220,11 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_currentConcentrationKey(INVAL_CONC_KEY),
   m_swapAnalytes(false),
   m_showHorizontalMarker(false),
+  m_showVerticalAMarker(false),
+  m_showVerticalBMarker(false),
   m_horizontalMarkerPosition(0.0),
+  m_verticalAMarkerPosition(0.0),
+  m_verticalBMarkerPosition(0.0),
   m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)")
 {
   initFitModeModel();
@@ -338,9 +342,9 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<ModeContextLimited> c
 
   if (!m_modeCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_horizontalMarkerTitle));
-  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalAMarkerTitle));
-  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalBMarkerTitle));
 
 
@@ -1120,11 +1124,32 @@ void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEng
 
   value.toDouble(&ok);
   if (ok) {
-    m_horizontalMarkerPosition = value.toDouble();
+    const double d = value.toDouble();
 
-    if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
-      setMarkerPosition();
-      m_modeCtx->replot();
+    switch (marker) {
+    case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+      m_horizontalMarkerPosition = d;
+      if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
+        setMarkerPosition(marker);
+        m_modeCtx->replot();
+      }
+      break;
+    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+      m_verticalAMarkerPosition = d;
+      if ((m_viewMode == ViewMode::STATS) && m_showVerticalAMarker) {
+        setMarkerPosition(marker);
+        m_modeCtx->replot();
+      }
+      break;
+    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+      m_verticalBMarkerPosition = d;
+      if ((m_viewMode == ViewMode::STATS) && m_showVerticalBMarker) {
+        setMarkerPosition(marker);
+        m_modeCtx->replot();
+      }
+      break;
+    default:
+      break;
     }
   }
 }
@@ -1376,7 +1401,14 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   hideDataSeries();
   showStatsSeries(m_currentStatUnits, m_currentStatMode);
   m_modeCtx->setSerieSamples(seriesIndex(Series::STATS), data);
-  setMarkerPosition();
+  m_modeCtx->clearSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER));
+  m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER));
+  m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER));
+
+  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
+  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
+  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
+
   m_modeCtx->replot();
 }
 
@@ -1664,20 +1696,69 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
   bool ok;
 
   value.toDouble(&ok);
-  if (ok)
-    m_showHorizontalMarker = value.toDouble();
+  if (ok) {
+    const double d = value.toDouble();
 
-  m_showHorizontalMarker = visible;
-  if (m_showHorizontalMarker) {
-    setMarkerPosition();
+    switch (marker) {
+    case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+      m_horizontalMarkerPosition = d;
+      break;
+    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+      m_verticalAMarkerPosition = d;
+      break;
+    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+      m_verticalBMarkerPosition = d;
+      break;
+    default:
+      break;
+    }
+  }
 
-    if (m_viewMode == ViewMode::STATS) {
-      m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+  switch (marker) {
+  case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+    m_showHorizontalMarker = visible;
+    if (m_showHorizontalMarker) {
+      setMarkerPosition(marker);
+
+      if (m_viewMode == ViewMode::STATS) {
+        m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+        m_modeCtx->replot();
+      }
+    } else {
+      m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
       m_modeCtx->replot();
     }
-  } else {
-    m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
-    m_modeCtx->replot();
+    break;
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    m_showVerticalAMarker = visible;
+    if (m_showVerticalAMarker) {
+      setMarkerPosition(marker);
+
+      if (m_viewMode == ViewMode::STATS) {
+        m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+        m_modeCtx->replot();
+      }
+    } else {
+      m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+      m_modeCtx->replot();
+    }
+    break;
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    m_showVerticalBMarker = visible;
+    if (m_showVerticalBMarker) {
+      setMarkerPosition(marker);
+
+      if (m_viewMode == ViewMode::STATS) {
+        m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+        m_modeCtx->replot();
+      }
+    } else {
+      m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+      m_modeCtx->replot();
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -1873,16 +1954,40 @@ void HyperboleFittingEngine::setDoubleFitStats()
   m_currentStatMode = StatMode::MOBILITY_B;
 }
 
-void HyperboleFittingEngine::setMarkerPosition()
+void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs::MarkerType marker)
 {
   const QRectF r = m_modeCtx->range();
 
+  switch (marker) {
+  case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
   {
     QVector<QPointF> points;
     points.push_back(QPointF(r.topLeft().x(), m_horizontalMarkerPosition));
     points.push_back(QPointF(r.topRight().x(), m_horizontalMarkerPosition));
 
     m_modeCtx->setSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER), points);
+    break;
+  }
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+  {
+    QVector<QPointF> points;
+    points.push_back(QPointF(m_verticalAMarkerPosition, r.topLeft().y()));
+    points.push_back(QPointF(m_verticalAMarkerPosition, r.bottomLeft().y()));
+
+    m_modeCtx->setSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER), points);
+    break;
+  }
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+  {
+    QVector<QPointF> points;
+    points.push_back(QPointF(m_verticalBMarkerPosition, r.topLeft().y()));
+    points.push_back(QPointF(m_verticalBMarkerPosition, r.bottomLeft().y()));
+
+    m_modeCtx->setSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER), points);
+    break;
+  }
+  default:
+    return;
   }
 }
 
@@ -1919,6 +2024,9 @@ void HyperboleFittingEngine::showDataSeries()
 {
   m_modeCtx->hideSerie(seriesIndex(Series::STATS));
   m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+  m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+  m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+
   m_modeCtx->showSerie(seriesIndex(Series::FIT_A_CURVE));
   m_modeCtx->showSerie(seriesIndex(Series::FIT_B_CURVE));
   m_modeCtx->showSerie(seriesIndex(Series::POINTS_A));
@@ -1980,6 +2088,10 @@ void HyperboleFittingEngine::showStatsSeries(const StatUnits units, const StatMo
 
   if (m_showHorizontalMarker)
     m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+  if (m_showVerticalAMarker)
+    m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+  if (m_showVerticalBMarker)
+    m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
 
   m_viewMode = ViewMode::STATS;
 }
