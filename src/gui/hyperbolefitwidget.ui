@@ -532,6 +532,9 @@
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
                     </widget>
                    </item>
                    <item>
@@ -594,6 +597,9 @@
                     <widget class="QLineEdit" name="qle_chartVerticalBMarker">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                      </property>
                     </widget>
                    </item>
