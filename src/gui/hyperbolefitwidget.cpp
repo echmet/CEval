@@ -33,7 +33,11 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qpb_leftConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatLeftClicked);
   connect(ui->qpb_rightConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatRightClicked);
   connect(ui->qcb_chartHorizontalMarker, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartHorizontalMarker);
+  connect(ui->qcb_chartVerticalMarkerA, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalAMarker);
+  connect(ui->qcb_chartVerticalMarkerB, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalBMarker);
   connect(ui->qle_chartHorizontalMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartHorizontalMarkerValueChanged);
+  connect(ui->qle_chartVerticalMarkerA, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalAMarkerValueChanged);
+  connect(ui->qle_chartVerticalMarkerB, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalBMarkerValueChanged);
 
   connect(ui->qpb_estimate, &QPushButton::clicked, this, &HyperboleFitWidget::onEstimateClicked);
   connect(ui->qpb_fit, &QPushButton::clicked, this, &HyperboleFitWidget::onFitClicked);
@@ -174,6 +178,16 @@ void HyperboleFitWidget::onChartHorizontalMarkerValueChanged(const QString &valu
   emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, value);
 }
 
+void HyperboleFitWidget::onChartVerticalAMarkerValueChanged(const QString &value)
+{
+  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, value);
+}
+
+void HyperboleFitWidget::onChartVerticalBMarkerValueChanged(const QString &value)
+{
+  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, value);
+}
+
 void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
 {
   if (!idx.isValid())
@@ -285,6 +299,24 @@ void HyperboleFitWidget::onShowChartHorizontalMarker()
   ui->qle_chartHorizontalMarker->setEnabled(visible);
 
   emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, visible, ui->qle_chartHorizontalMarker->text());
+}
+
+void HyperboleFitWidget::onShowChartVerticalAMarker()
+{
+  const bool visible = ui->qcb_chartVerticalMarkerA->checkState() == Qt::Checked;
+
+  ui->qle_chartVerticalMarkerA->setEnabled(visible);
+
+  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, visible, ui->qle_chartVerticalMarkerA->text());
+}
+
+void HyperboleFitWidget::onShowChartVerticalBMarker()
+{
+  const bool visible = ui->qcb_chartVerticalMarkerB->checkState() == Qt::Checked;
+
+  ui->qle_chartVerticalMarkerB->setEnabled(visible);
+
+  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, visible, ui->qle_chartVerticalMarkerB->text());
 }
 
 void HyperboleFitWidget::onStatBothClicked()

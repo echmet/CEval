@@ -75,6 +75,8 @@ private slots:
   void onAnalyteListClicked();
   void onAnalyteListDoubleClicked(const QModelIndex &idx);
   void onChartHorizontalMarkerValueChanged(const QString &value);
+  void onChartVerticalAMarkerValueChanged(const QString &value);
+  void onChartVerticalBMarkerValueChanged(const QString &value);
   void onConcentrationsListClicked(const QModelIndex &idx);
   void onEstimateClicked();
   void onFitClicked();
@@ -84,6 +86,8 @@ private slots:
   void onRemoveConcentrationClicked();
   void onRemoveMobilityClicked();
   void onShowChartHorizontalMarker();
+  void onShowChartVerticalAMarker();
+  void onShowChartVerticalBMarker();
   void onStatBothClicked();
   void onStatLeftClicked();
   void onStatRightClicked();
