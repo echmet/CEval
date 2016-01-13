@@ -23,7 +23,7 @@ const QString HyperboleFittingEngine::s_verticalAMarkerTitle = tr("Vertical A ma
 const QString HyperboleFittingEngine::s_verticalBMarkerTitle = tr("Vertical B marker");
 
 const QString HyperboleFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
-const QString HyperboleFittingEngine::s_uCSCaption = tr("Complexed mobility (\u03BC (AS))");
+const QString HyperboleFittingEngine::s_uCSCaption = tr("Mobility of complex (\u03BC (AS))");
 const QString HyperboleFittingEngine::s_KCSCaption = tr("Complexation constant (K (AS))");
 const QString HyperboleFittingEngine::s_tauCaption = tr("Tau (\u03C4)");
 const QString HyperboleFittingEngine::s_confidenceCaption = tr("Confidence(%)");
