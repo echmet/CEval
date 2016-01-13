@@ -18,6 +18,7 @@ const QString HyperboleFittingEngine::s_dataPointsBAvgTitle = tr("Average of poi
 const QString HyperboleFittingEngine::s_fitCurveATitle = tr("Fit A");
 const QString HyperboleFittingEngine::s_fitCurveBTitle = tr("Fit B");
 const QString HyperboleFittingEngine::s_fitCurveStatsTitle = tr("Statistics");
+const QString HyperboleFittingEngine::s_horizontalMarkerTitle = tr("Horizontal marker");
 
 const QString HyperboleFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
 const QString HyperboleFittingEngine::s_uCSCaption = tr("Complexed mobility (\u03BC (AS))");
@@ -216,6 +217,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_currentConcentration(nullptr),
   m_currentConcentrationKey(INVAL_CONC_KEY),
   m_swapAnalytes(false),
+  m_showHorizontalMarker(false),
   m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)")
 {
   initFitModeModel();
@@ -330,6 +332,9 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<ModeContextLimited> c
 
   if (!m_modeCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::green, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveStatsTitle));
+  if (!m_modeCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_horizontalMarkerTitle));
+
 
   /* Default axis fonts*/
   m_modeCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
@@ -1101,6 +1106,11 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   setConcentrationsList(makeConcentrationsList(m_currentAnalyte->concentrations));
 }
 
+void HyperboleFittingEngine::onChartHorizontalMarkerValueChanged(const QString &value)
+{
+
+}
+
 void HyperboleFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
 {
   QStandardItem *item;
@@ -1630,6 +1640,13 @@ void HyperboleFittingEngine::onSerialize()
   m_lastDataTablePath = d.absolutePath();
 }
 
+void HyperboleFittingEngine::onShowChartHorizontalMarker(const bool visible, const QString &value)
+{
+  m_showHorizontalMarker = visible;
+
+
+}
+
 void HyperboleFittingEngine::onStatModeChanged(const QVariant &v)
 {
   if (!v.canConvert<StatMode>())
@@ -1908,6 +1925,9 @@ void HyperboleFittingEngine::showStatsSerie(const StatUnits units, const StatMod
     m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "---");
     break;
   }
+
+  if (m_showHorizontalMarker)
+    m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
 
   m_modeCtx->showSerie(seriesIndex(Series::STATS));
 }

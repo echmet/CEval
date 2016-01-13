@@ -56,6 +56,8 @@ void HyperboleFittingWidgetConnector::connectAll(QObject *anonWidget, QObject *a
   QObject::connect(w, &HyperboleFitWidget::doEstimate, e, &HyperboleFittingEngine::onDoEstimate);
   QObject::connect(w, &HyperboleFitWidget::doFit, e, &HyperboleFittingEngine::onDoFit);
   QObject::connect(w, &HyperboleFitWidget::doStats, e, &HyperboleFittingEngine::onDoStats);
+  QObject::connect(w, &HyperboleFitWidget::chartHorizontalMarkerValueChanged, e, &HyperboleFittingEngine::onChartHorizontalMarkerValueChanged);
+  QObject::connect(w, &HyperboleFitWidget::showChartHorizontalMarker, e, &HyperboleFittingEngine::onShowChartHorizontalMarker);
 
   QObject::connect(w, &HyperboleFitWidget::redrawDataSeries, e, &HyperboleFittingEngine::onRedrawDataSeries);
 

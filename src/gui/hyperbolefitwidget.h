@@ -51,6 +51,7 @@ signals:
   void addConcentration(const double num);
   void addMobility(const double num);
   void analyteSwitched(const QModelIndexList &list);
+  void chartHorizontalMarkerValueChanged(const QString &value);
   void concentrationSwitched(const QModelIndex &idx);
   void doEstimate();
   void doFit();
@@ -61,6 +62,7 @@ signals:
   void removeConcentration(const QModelIndex &idx);
   void removeMobility(const QModelIndex &idx);
   void renameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
+  void showChartHorizontalMarker(const bool visible, const QString &value);
   void statModeChanged(const QVariant &v);
   void statUnitsChanged(const QVariant &v);
   void swapAnalytesChanged(const bool swap);
@@ -71,6 +73,7 @@ private slots:
   void onAddMobilityClicked();
   void onAnalyteListClicked();
   void onAnalyteListDoubleClicked(const QModelIndex &idx);
+  void onChartHorizontalMarkerValueChanged(const QString &value);
   void onConcentrationsListClicked(const QModelIndex &idx);
   void onEstimateClicked();
   void onFitClicked();
@@ -79,6 +82,7 @@ private slots:
   void onRemoveAnalyteClicked();
   void onRemoveConcentrationClicked();
   void onRemoveMobilityClicked();
+  void onShowChartHorizontalMarker();
   void onStatBothClicked();
   void onStatLeftClicked();
   void onStatRightClicked();

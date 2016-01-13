@@ -32,6 +32,8 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qpb_bothConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatBothClicked);
   connect(ui->qpb_leftConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatLeftClicked);
   connect(ui->qpb_rightConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatRightClicked);
+  connect(ui->qcb_chartHorizontalMarker, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartHorizontalMarker);
+  connect(ui->qle_chartHorizontalMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartHorizontalMarkerValueChanged);
 
   connect(ui->qpb_estimate, &QPushButton::clicked, this, &HyperboleFitWidget::onEstimateClicked);
   connect(ui->qpb_fit, &QPushButton::clicked, this, &HyperboleFitWidget::onFitClicked);
@@ -161,6 +163,11 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
   }
 }
 
+void HyperboleFitWidget::onChartHorizontalMarkerValueChanged(const QString &value)
+{
+  emit chartHorizontalMarkerValueChanged(value);
+}
+
 void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
 {
   if (!idx.isValid())
@@ -263,6 +270,15 @@ void HyperboleFitWidget::onRemoveMobilityClicked()
 {
   const QModelIndex srcidx = m_mobilitiesSortProxy.mapToSource(ui->qlv_mobilities->currentIndex());
   emit removeMobility(srcidx);
+}
+
+void HyperboleFitWidget::onShowChartHorizontalMarker()
+{
+  const bool visible = ui->qcb_chartHorizontalMarker->checkState() == Qt::Checked;
+
+  ui->qle_chartHorizontalMarker->setEnabled(visible);
+
+  emit showChartHorizontalMarker(visible, ui->qle_chartHorizontalMarker->text());
 }
 
 void HyperboleFitWidget::onStatBothClicked()
