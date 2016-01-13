@@ -519,7 +519,7 @@
                <item>
                 <layout class="QGridLayout" name="gridLayout_5">
                  <item row="2" column="0">
-                  <widget class="QLabel" name="ql_chartVerticalMarkerA">
+                  <widget class="QLabel" name="ql_chartVerticalAMarker">
                    <property name="text">
                     <string>Chart vertical marker A</string>
                    </property>
@@ -528,14 +528,14 @@
                  <item row="2" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_10">
                    <item>
-                    <widget class="QLineEdit" name="qle_chartVerticalMarkerA">
+                    <widget class="QLineEdit" name="qle_chartVerticalAMarker">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QCheckBox" name="qcb_chartVerticalMarkerA">
+                    <widget class="QCheckBox" name="qcb_chartVerticalAMarker">
                      <property name="text">
                       <string>Show</string>
                      </property>
@@ -544,7 +544,7 @@
                   </layout>
                  </item>
                  <item row="3" column="0">
-                  <widget class="QLabel" name="ql_chartVerticalMarkerB">
+                  <widget class="QLabel" name="ql_chartVerticalBMarker">
                    <property name="text">
                     <string>Chart vertical marker B</string>
                    </property>
@@ -591,14 +591,14 @@
                  <item row="3" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_11">
                    <item>
-                    <widget class="QLineEdit" name="qle_chartVerticalMarkerB">
+                    <widget class="QLineEdit" name="qle_chartVerticalBMarker">
                      <property name="enabled">
                       <bool>false</bool>
                      </property>
                     </widget>
                    </item>
                    <item>
-                    <widget class="QCheckBox" name="qcb_chartVerticalMarkerB">
+                    <widget class="QCheckBox" name="qcb_chartVerticalBMarker">
                      <property name="text">
                       <string>Show</string>
                      </property>

@@ -33,11 +33,11 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qpb_leftConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatLeftClicked);
   connect(ui->qpb_rightConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatRightClicked);
   connect(ui->qcb_chartHorizontalMarker, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartHorizontalMarker);
-  connect(ui->qcb_chartVerticalMarkerA, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalAMarker);
-  connect(ui->qcb_chartVerticalMarkerB, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalBMarker);
+  connect(ui->qcb_chartVerticalAMarker, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalAMarker);
+  connect(ui->qcb_chartVerticalBMarker, &QCheckBox::clicked, this, &HyperboleFitWidget::onShowChartVerticalBMarker);
   connect(ui->qle_chartHorizontalMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartHorizontalMarkerValueChanged);
-  connect(ui->qle_chartVerticalMarkerA, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalAMarkerValueChanged);
-  connect(ui->qle_chartVerticalMarkerB, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalBMarkerValueChanged);
+  connect(ui->qle_chartVerticalAMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalAMarkerValueChanged);
+  connect(ui->qle_chartVerticalBMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalBMarkerValueChanged);
 
   connect(ui->qpb_estimate, &QPushButton::clicked, this, &HyperboleFitWidget::onEstimateClicked);
   connect(ui->qpb_fit, &QPushButton::clicked, this, &HyperboleFitWidget::onFitClicked);
@@ -303,20 +303,20 @@ void HyperboleFitWidget::onShowChartHorizontalMarker()
 
 void HyperboleFitWidget::onShowChartVerticalAMarker()
 {
-  const bool visible = ui->qcb_chartVerticalMarkerA->checkState() == Qt::Checked;
+  const bool visible = ui->qcb_chartVerticalAMarker->checkState() == Qt::Checked;
 
-  ui->qle_chartVerticalMarkerA->setEnabled(visible);
+  ui->qle_chartVerticalAMarker->setEnabled(visible);
 
-  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, visible, ui->qle_chartVerticalMarkerA->text());
+  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, visible, ui->qle_chartVerticalAMarker->text());
 }
 
 void HyperboleFitWidget::onShowChartVerticalBMarker()
 {
-  const bool visible = ui->qcb_chartVerticalMarkerB->checkState() == Qt::Checked;
+  const bool visible = ui->qcb_chartVerticalBMarker->checkState() == Qt::Checked;
 
-  ui->qle_chartVerticalMarkerB->setEnabled(visible);
+  ui->qle_chartVerticalBMarker->setEnabled(visible);
 
-  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, visible, ui->qle_chartVerticalMarkerB->text());
+  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, visible, ui->qle_chartVerticalBMarker->text());
 }
 
 void HyperboleFitWidget::onStatBothClicked()
