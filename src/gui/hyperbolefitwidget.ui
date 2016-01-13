@@ -518,6 +518,38 @@
                </item>
                <item>
                 <layout class="QGridLayout" name="gridLayout_5">
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="ql_chartVerticalMarkerA">
+                   <property name="text">
+                    <string>Chart vertical marker A</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_10">
+                   <item>
+                    <widget class="QLineEdit" name="qle_chartVerticalMarkerA">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="qcb_chartVerticalMarkerA">
+                     <property name="text">
+                      <string>Show</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="ql_chartVerticalMarkerB">
+                   <property name="text">
+                    <string>Chart vertical marker B</string>
+                   </property>
+                  </widget>
+                 </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="ql_statUnits">
                    <property name="text">
@@ -549,6 +581,24 @@
                    </item>
                    <item>
                     <widget class="QCheckBox" name="qcb_chartHorizontalMarker">
+                     <property name="text">
+                      <string>Show</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="3" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_11">
+                   <item>
+                    <widget class="QLineEdit" name="qle_chartVerticalMarkerB">
+                     <property name="enabled">
+                      <bool>false</bool>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="qcb_chartVerticalMarkerB">
                      <property name="text">
                       <string>Show</string>
                      </property>
