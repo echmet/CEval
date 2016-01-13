@@ -24,8 +24,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>1107</width>
-        <height>583</height>
+        <width>1090</width>
+        <height>588</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -544,6 +544,13 @@
                      </property>
                     </widget>
                    </item>
+                   <item>
+                    <widget class="QPushButton" name="qpb_chartVerticalAMarkerItsc">
+                     <property name="text">
+                      <string>Intersection</string>
+                     </property>
+                    </widget>
+                   </item>
                   </layout>
                  </item>
                  <item row="3" column="0">
@@ -607,6 +614,13 @@
                     <widget class="QCheckBox" name="qcb_chartVerticalBMarker">
                      <property name="text">
                       <string>Show</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="qpb_chartVerticalBMarkerItsc">
+                     <property name="text">
+                      <string>Intersection</string>
                      </property>
                     </widget>
                    </item>

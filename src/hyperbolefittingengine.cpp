@@ -622,7 +622,8 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
 HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleFit(const DoubleHypResults &dr)
 {
   echmet::regressCore::RectangularHyperbole2<double, double> &dfrRef = *m_doubleFitRegressor;
-  dfrRef.Regress();
+  if (!dfrRef.Regress())
+    return DoubleHypResults();
 
   double u0A = dfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::u0);
   double uCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::uS);
@@ -1251,6 +1252,10 @@ void HyperboleFittingEngine::onDoFit()
     if (!r.isValid())
       return;
     r = doSingleFit(r);
+    if (!r.isValid()) {
+      QMessageBox::warning(nullptr, tr("Regressor failure"), tr("Single fit regressor failed to converge. Try to increase the number of iterations and try again."));
+      return;
+    }
 
     displayHypResults(&r);
     break;
@@ -1261,6 +1266,10 @@ void HyperboleFittingEngine::onDoFit()
     if (!dr.isValid())
       return;
     dr = doDoubleFit(dr);
+    if (!dr.isValid()) {
+      QMessageBox::warning(nullptr, tr("Regressor failure"), tr("Double fit regressor failed to converge. Try to increase the number of iterations and try again."));
+      return;
+    }
 
     displayHypResults(&dr);
     break;

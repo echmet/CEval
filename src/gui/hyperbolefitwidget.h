@@ -53,6 +53,7 @@ signals:
   void addMobility(const double num);
   void analyteSwitched(const QModelIndexList &list);
   void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
+  void chartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void concentrationSwitched(const QModelIndex &idx);
   void doEstimate();
   void doFit();
@@ -75,6 +76,8 @@ private slots:
   void onAnalyteListClicked();
   void onAnalyteListDoubleClicked(const QModelIndex &idx);
   void onChartHorizontalMarkerValueChanged(const QString &value);
+  void onChartVerticalAMarkerItscClicked();
+  void onChartVerticalBMarkerItscClicked();
   void onChartVerticalAMarkerValueChanged(const QString &value);
   void onChartVerticalBMarkerValueChanged(const QString &value);
   void onConcentrationsListClicked(const QModelIndex &idx);
