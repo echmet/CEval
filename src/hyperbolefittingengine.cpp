@@ -19,6 +19,8 @@ const QString HyperboleFittingEngine::s_fitCurveATitle = tr("Fit A");
 const QString HyperboleFittingEngine::s_fitCurveBTitle = tr("Fit B");
 const QString HyperboleFittingEngine::s_fitCurveStatsTitle = tr("Statistics");
 const QString HyperboleFittingEngine::s_horizontalMarkerTitle = tr("Horizontal marker");
+const QString HyperboleFittingEngine::s_verticalAMarkerTitle = tr("Vertical A marker");
+const QString HyperboleFittingEngine::s_verticalBMarkerTitle = tr("Vertical B marker");
 
 const QString HyperboleFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
 const QString HyperboleFittingEngine::s_uCSCaption = tr("Complexed mobility (\u03BC (AS))");
@@ -333,8 +335,13 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<ModeContextLimited> c
 
   if (!m_modeCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::green, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveStatsTitle));
+
   if (!m_modeCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_horizontalMarkerTitle));
+  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalAMarkerTitle));
+  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalBMarkerTitle));
 
 
   /* Default axis fonts*/
@@ -1107,7 +1114,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   setConcentrationsList(makeConcentrationsList(m_currentAnalyte->concentrations));
 }
 
-void HyperboleFittingEngine::onChartHorizontalMarkerValueChanged(const QString &value)
+void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value)
 {
   bool ok;
 
@@ -1652,7 +1659,7 @@ void HyperboleFittingEngine::onSerialize()
   m_lastDataTablePath = d.absolutePath();
 }
 
-void HyperboleFittingEngine::onShowChartHorizontalMarker(const bool visible, const QString &value)
+void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value)
 {
   bool ok;
 

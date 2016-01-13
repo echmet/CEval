@@ -237,7 +237,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/standardmodecontextsettingshandler.h \
     src/serieproperties.h \
     src/math/mystd/foostream.h \
-    src/gui/aboutdialog.h
+    src/gui/aboutdialog.h \
+    hyperbolefittingenginemsgs.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

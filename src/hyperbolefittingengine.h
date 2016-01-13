@@ -9,6 +9,7 @@
 #include "evalserializable.h"
 #include "floatingmappermodel.h"
 #include "hyperbolefititems.h"
+#include "hyperbolefittingenginemsgs.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -112,6 +113,8 @@ private:
     FIT_B_CURVE,
     STATS,
     HORIZONTAL_MARKER,
+    VERTICAL_A_MARKER,
+    VERTICAL_B_MARKER,
     LAST_INDEX
   };
 
@@ -295,6 +298,8 @@ private:
   static const QString s_fitCurveBTitle;
   static const QString s_fitCurveStatsTitle;
   static const QString s_horizontalMarkerTitle;
+  static const QString s_verticalAMarkerTitle;
+  static const QString s_verticalBMarkerTitle;
 
   static const QString s_uACaption;
   static const QString s_uCSCaption;
@@ -324,7 +329,7 @@ public slots:
   void onAddConcentration(const double num);
   void onAddMobility(const double u);
   void onAnalyteSwitched(const QModelIndexList &inList);
-  void onChartHorizontalMarkerValueChanged(const QString &value);
+  void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();
   void onDoEstimate();
@@ -340,7 +345,7 @@ public slots:
   void onRenameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
   void onSecondAnalyteSameChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
   void onSerialize();
-  void onShowChartHorizontalMarker(const bool visible, const QString &value);
+  void onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void onStatModeChanged(const QVariant &v);
   void onStatUnitsChanged(const QVariant &v);
   void onSwapAnalytesChanged(const bool swap);

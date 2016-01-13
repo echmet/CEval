@@ -8,6 +8,7 @@
 #include "../abstractmappermodel.h"
 #include "../floatingvaluedelegate.h"
 #include "../hyperbolefititems.h"
+#include "../hyperbolefittingenginemsgs.h"
 
 namespace Ui {
 class HyperboleFitWidget;
@@ -51,7 +52,7 @@ signals:
   void addConcentration(const double num);
   void addMobility(const double num);
   void analyteSwitched(const QModelIndexList &list);
-  void chartHorizontalMarkerValueChanged(const QString &value);
+  void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
   void concentrationSwitched(const QModelIndex &idx);
   void doEstimate();
   void doFit();
@@ -62,7 +63,7 @@ signals:
   void removeConcentration(const QModelIndex &idx);
   void removeMobility(const QModelIndex &idx);
   void renameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
-  void showChartHorizontalMarker(const bool visible, const QString &value);
+  void showChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void statModeChanged(const QVariant &v);
   void statUnitsChanged(const QVariant &v);
   void swapAnalytesChanged(const bool swap);

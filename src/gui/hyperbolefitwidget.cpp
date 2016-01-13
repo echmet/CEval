@@ -171,7 +171,7 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
 
 void HyperboleFitWidget::onChartHorizontalMarkerValueChanged(const QString &value)
 {
-  emit chartHorizontalMarkerValueChanged(value);
+  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, value);
 }
 
 void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
@@ -284,7 +284,7 @@ void HyperboleFitWidget::onShowChartHorizontalMarker()
 
   ui->qle_chartHorizontalMarker->setEnabled(visible);
 
-  emit showChartHorizontalMarker(visible, ui->qle_chartHorizontalMarker->text());
+  emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, visible, ui->qle_chartHorizontalMarker->text());
 }
 
 void HyperboleFitWidget::onStatBothClicked()
