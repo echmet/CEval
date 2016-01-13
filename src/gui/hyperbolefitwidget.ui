@@ -528,6 +528,31 @@
                  <item row="0" column="1">
                   <widget class="QComboBox" name="qcbox_statUnits"/>
                  </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="ql_chartHorizontalMarker">
+                   <property name="text">
+                    <string>Chart horizontal marker</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="1">
+                  <layout class="QHBoxLayout" name="horizontalLayout_9">
+                   <item>
+                    <widget class="QLineEdit" name="qle_chartHorizontalMarker">
+                     <property name="alignment">
+                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QCheckBox" name="qcb_chartHorizontalMarker">
+                     <property name="text">
+                      <string>Show</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
                 </layout>
                </item>
               </layout>
