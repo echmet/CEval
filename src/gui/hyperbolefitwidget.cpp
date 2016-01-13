@@ -80,17 +80,20 @@ void HyperboleFitWidget::onAddAnalyteClicked()
 void HyperboleFitWidget::onAddConcentrationClicked()
 {
   QInputDialog dlg(this);
-  int ret;
 
   dlg.setLabelText(tr("Enter concentration"));
-  dlg.setInputMode(QInputDialog::DoubleInput);
-  dlg.setDoubleMinimum(0.0);
-  dlg.setDoubleMaximum(std::numeric_limits<double>::max());
+  dlg.setInputMode(QInputDialog::TextInput);
 
-  ret = dlg.exec();
-  if (ret == QDialog::Accepted) {
-    emit addConcentration(dlg.doubleValue());
+  while (dlg.exec() == QDialog::Accepted) {
+    bool ok;
+    const double d = dlg.textValue().toDouble(&ok);
+    if (!ok) {
+      QMessageBox::warning(this, tr("Invalid input"), tr("Non-numeric value"));
+      continue;
+    }
+    emit addConcentration(d);
     m_concentrationsSortProxy.sort(0);
+    break;
   }
 
   return;
@@ -99,17 +102,20 @@ void HyperboleFitWidget::onAddConcentrationClicked()
 void HyperboleFitWidget::onAddMobilityClicked()
 {
   QInputDialog dlg(this);
-  int ret;
 
-  dlg.setLabelText(tr("Enter migrationtime"));
-  dlg.setInputMode(QInputDialog::DoubleInput);
-  dlg.setDoubleMinimum(0.0);
-  dlg.setDoubleMaximum(std::numeric_limits<double>::max());
+  dlg.setLabelText(tr("Enter migration time"));
+  dlg.setInputMode(QInputDialog::TextInput);
 
-  ret = dlg.exec();
-  if (ret == QDialog::Accepted) {
-    emit addMobility(dlg.doubleValue());
+  while (dlg.exec() == QDialog::Accepted) {
+    bool ok;
+    const double d = dlg.textValue().toDouble(&ok);
+    if (!ok) {
+      QMessageBox::warning(nullptr, tr("Invalid input"), tr("Non-numeric value"));
+      continue;
+    }
+    emit addMobility(d);
     m_mobilitiesSortProxy.sort(0);
+    break;
   }
 
   return;
