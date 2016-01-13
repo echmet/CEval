@@ -521,7 +521,7 @@
                  <item row="2" column="0">
                   <widget class="QLabel" name="ql_chartVerticalAMarker">
                    <property name="text">
-                    <string>Chart vertical marker A</string>
+                    <string>Chart vertical marker (left)</string>
                    </property>
                   </widget>
                  </item>
@@ -556,7 +556,7 @@
                  <item row="3" column="0">
                   <widget class="QLabel" name="ql_chartVerticalBMarker">
                    <property name="text">
-                    <string>Chart vertical marker B</string>
+                    <string>Chart vertical marker (right)</string>
                    </property>
                   </widget>
                  </item>
