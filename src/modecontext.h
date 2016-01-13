@@ -26,6 +26,7 @@ public:
   void deactivate();
   void hideSerie(const int id);
   void removeSerie(const int id);
+  QRectF range() const;
   void replot();
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title, bool store = true);
@@ -50,7 +51,7 @@ private:
   AdjustPlotVisualsDialog::PointStyles qwtSymbolStypeToPointStyle(const int qwtSymbol) const;
   void setAxisTitleFont(const int a, const QFont &f);
   void setZoomBase(const QRectF &rect);
-  QRectF uniteBoundingRects();
+  QRectF uniteBoundingRects() const;
 
 signals:
   void pointSelected(const QPointF &point, const QPoint &cursor);

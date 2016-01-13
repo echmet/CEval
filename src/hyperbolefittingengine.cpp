@@ -218,6 +218,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_currentConcentrationKey(INVAL_CONC_KEY),
   m_swapAnalytes(false),
   m_showHorizontalMarker(false),
+  m_horizontalMarkerPosition(0.0),
   m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)")
 {
   initFitModeModel();
@@ -1108,7 +1109,17 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
 
 void HyperboleFittingEngine::onChartHorizontalMarkerValueChanged(const QString &value)
 {
+  bool ok;
 
+  value.toDouble(&ok);
+  if (ok) {
+    m_horizontalMarkerPosition = value.toDouble();
+
+    if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
+      setMarkerPosition();
+      m_modeCtx->replot();
+    }
+  }
 }
 
 void HyperboleFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
@@ -1356,8 +1367,9 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   std::sort(data.begin(), data.end(), &Globals::qpointfXComparator);
 
   hideDataSeries();
-  showStatsSerie(m_currentStatUnits, m_currentStatMode);
+  showStatsSeries(m_currentStatUnits, m_currentStatMode);
   m_modeCtx->setSerieSamples(seriesIndex(Series::STATS), data);
+  setMarkerPosition();
   m_modeCtx->replot();
 }
 
@@ -1642,9 +1654,24 @@ void HyperboleFittingEngine::onSerialize()
 
 void HyperboleFittingEngine::onShowChartHorizontalMarker(const bool visible, const QString &value)
 {
+  bool ok;
+
+  value.toDouble(&ok);
+  if (ok)
+    m_showHorizontalMarker = value.toDouble();
+
   m_showHorizontalMarker = visible;
+  if (m_showHorizontalMarker) {
+    setMarkerPosition();
 
-
+    if (m_viewMode == ViewMode::STATS) {
+      m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+      m_modeCtx->replot();
+    }
+  } else {
+    m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+    m_modeCtx->replot();
+  }
 }
 
 void HyperboleFittingEngine::onStatModeChanged(const QVariant &v)
@@ -1839,6 +1866,19 @@ void HyperboleFittingEngine::setDoubleFitStats()
   m_currentStatMode = StatMode::MOBILITY_B;
 }
 
+void HyperboleFittingEngine::setMarkerPosition()
+{
+  const QRectF r = m_modeCtx->range();
+
+  {
+    QVector<QPointF> points;
+    points.push_back(QPointF(r.topLeft().x(), m_horizontalMarkerPosition));
+    points.push_back(QPointF(r.topRight().x(), m_horizontalMarkerPosition));
+
+    m_modeCtx->setSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER), points);
+  }
+}
+
 void HyperboleFittingEngine::setMobilitiesList(const QList<QStandardItem *> &list)
 {
   for (QStandardItem *const item : list)
@@ -1871,6 +1911,7 @@ void HyperboleFittingEngine::setSingleFitStats()
 void HyperboleFittingEngine::showDataSeries()
 {
   m_modeCtx->hideSerie(seriesIndex(Series::STATS));
+  m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
   m_modeCtx->showSerie(seriesIndex(Series::FIT_A_CURVE));
   m_modeCtx->showSerie(seriesIndex(Series::FIT_B_CURVE));
   m_modeCtx->showSerie(seriesIndex(Series::POINTS_A));
@@ -1880,9 +1921,11 @@ void HyperboleFittingEngine::showDataSeries()
 
   m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, tr("Mobility"));
   m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, tr("Selector concentration"));
+
+  m_viewMode = ViewMode::DATA;
 }
 
-void HyperboleFittingEngine::showStatsSerie(const StatUnits units, const StatMode mode)
+void HyperboleFittingEngine::showStatsSeries(const StatUnits units, const StatMode mode)
 {
   switch (units) {
   case StatUnits::P_VALUE:
@@ -1926,10 +1969,12 @@ void HyperboleFittingEngine::showStatsSerie(const StatUnits units, const StatMod
     break;
   }
 
+  m_modeCtx->showSerie(seriesIndex(Series::STATS));
+
   if (m_showHorizontalMarker)
     m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
 
-  m_modeCtx->showSerie(seriesIndex(Series::STATS));
+  m_viewMode = ViewMode::STATS;
 }
 
 QAbstractItemModel *HyperboleFittingEngine::statModeModel()

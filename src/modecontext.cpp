@@ -320,6 +320,11 @@ AdjustPlotVisualsDialog::PointStyles ModeContext::qwtSymbolStypeToPointStyle(con
   }
 }
 
+QRectF ModeContext::range() const
+{
+  return uniteBoundingRects();
+}
+
 void ModeContext::removeSerie(const int id)
 {
   if (!m_plotCurves.contains(id))
@@ -470,7 +475,7 @@ void ModeContext::showSerie(const int id)
   m_plotCurves[id]->attach(m_plot);
 }
 
-QRectF ModeContext::uniteBoundingRects()
+QRectF ModeContext::uniteBoundingRects() const
 {
   QRectF total;
 

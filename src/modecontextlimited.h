@@ -19,6 +19,7 @@ public:
   void clearSerieSamples(const int id);
   void hideSerie(const int id);
   void removeSerie(const int id);
+  QRectF range() const;
   void replot();
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title);

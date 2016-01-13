@@ -44,6 +44,11 @@ void ModeContextLimited::removeSerie(const int id)
   m_modeCtx->removeSerie(id);
 }
 
+QRectF ModeContextLimited::range() const
+{
+  return m_modeCtx->range();
+}
+
 void ModeContextLimited::replot()
 {
   m_modeCtx->replot();

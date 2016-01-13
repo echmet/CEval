@@ -115,6 +115,11 @@ private:
     LAST_INDEX
   };
 
+  enum class ViewMode {
+    DATA,
+    STATS
+  };
+
   class Concentration {
   public:
     typedef QVector<double> Mobilities;
@@ -231,12 +236,14 @@ private:
   void plotSingleCurve(const HypResults &r);
   void setConcentrationsList(const QList<QStandardItem *> &list);
   void setDoubleFitStats();
+  void setMarkerPosition();
   void setMobilitiesList(const QList<QStandardItem *> &list);
   void setSingleFitStats();
   void showDataSeries();
-  void showStatsSerie(const StatUnits units, const StatMode mode);
+  void showStatsSeries(const StatUnits units, const StatMode mode);
 
   std::shared_ptr<ModeContextLimited> m_modeCtx;
+  ViewMode m_viewMode;
 
   QMap<QString, std::shared_ptr<Analyte>> m_analytes;
 
@@ -251,6 +258,7 @@ private:
   StatUnits m_currentStatUnits;
   bool m_swapAnalytes;
   bool m_showHorizontalMarker;
+  double m_horizontalMarkerPosition;
 
   MappedVectorWrapper<bool, HyperboleFitParameters::Boolean> m_fitFixedValues;
   MappedVectorWrapper<double, HyperboleFitResults::Floating> m_fitResultsValues;
