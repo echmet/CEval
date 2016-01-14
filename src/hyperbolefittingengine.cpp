@@ -1161,12 +1161,16 @@ void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const Hyperbole
 
 void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
 {
-  auto comparator = [this](const double current, const double threshold) {
-    if (this->m_currentStatUnits == StatUnits::P_VALUE)
+  std::function<bool (const double, const double)> comparator;
+  if (m_currentStatUnits == StatUnits::P_VALUE) {
+    comparator = [](const double current, const double threshold) {
       return current >= threshold;
-    else
+    };
+  } else {
+    comparator = [](const double current, const double threshold) {
       return current <= threshold;
-  };
+    };
+  }
 
   switch (marker) {
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
