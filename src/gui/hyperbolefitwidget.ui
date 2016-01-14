@@ -528,9 +528,12 @@
                  <item row="2" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_10">
                    <item>
-                    <widget class="QLineEdit" name="qle_chartVerticalAMarker">
+                    <widget class="FloatingValueLineEdit" name="qle_chartVerticalAMarker">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -580,9 +583,12 @@
                  <item row="1" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_9">
                    <item>
-                    <widget class="QLineEdit" name="qle_chartHorizontalMarker">
+                    <widget class="FloatingValueLineEdit" name="qle_chartHorizontalMarker">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -615,9 +621,12 @@
                  <item row="3" column="1">
                   <layout class="QHBoxLayout" name="horizontalLayout_11">
                    <item>
-                    <widget class="QLineEdit" name="qle_chartVerticalBMarker">
+                    <widget class="FloatingValueLineEdit" name="qle_chartVerticalBMarker">
                      <property name="enabled">
                       <bool>false</bool>
+                     </property>
+                     <property name="text">
+                      <string>0</string>
                      </property>
                      <property name="alignment">
                       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
