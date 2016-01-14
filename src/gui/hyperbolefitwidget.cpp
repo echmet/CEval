@@ -219,17 +219,29 @@ void HyperboleFitWidget::onChartVerticalMarkerIntersectionSet(const HyperboleFit
 
 void HyperboleFitWidget::onChartHorizontalMarkerValueChanged(const QString &value)
 {
-  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, value);
+  bool ok;
+  const double d = DoubleToStringConvertor::back(value, &ok);
+
+  if (ok)
+    emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER, d);
 }
 
 void HyperboleFitWidget::onChartVerticalAMarkerValueChanged(const QString &value)
 {
-  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, value);
+  bool ok;
+  const double d = DoubleToStringConvertor::back(value, &ok);
+
+  if (ok)
+    emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, d);
 }
 
 void HyperboleFitWidget::onChartVerticalBMarkerValueChanged(const QString &value)
 {
-  emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, value);
+  bool ok;
+  const double d = DoubleToStringConvertor::back(value, &ok);
+
+  if (ok)
+    emit chartMarkerValueChanged(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, d);
 }
 
 void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)

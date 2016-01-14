@@ -1200,15 +1200,9 @@ void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFi
   }
 }
 
-void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value)
+void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d)
 {
-  bool ok;
-
-  value.toDouble(&ok);
-  if (ok) {
-    const double d = value.toDouble();
-
-    switch (marker) {
+  switch (marker) {
     case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
       m_horizontalMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
@@ -1232,7 +1226,6 @@ void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEng
       break;
     default:
       break;
-    }
   }
 }
 

@@ -53,7 +53,7 @@ signals:
   void addMobility(const double num);
   void analyteSwitched(const QModelIndexList &list);
   void chartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
-  void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
+  void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void chartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void concentrationSwitched(const QModelIndex &idx);
   void doEstimate();
