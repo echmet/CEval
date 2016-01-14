@@ -5,6 +5,7 @@
 #include <QStandardItem>
 #include <limits>
 #include "../hyperbolefittingwidgetconnector.h"
+#include "../doubletostringconvertor.h"
 
 #include <QDebug>
 
@@ -199,17 +200,17 @@ void HyperboleFitWidget::onChartVerticalBMarkerItscClicked()
 
 void HyperboleFitWidget::onChartHorizontalMarkerIntersectionSet(const double d)
 {
-  ui->qle_chartHorizontalMarker->setText(QString::number(d));
+  ui->qle_chartHorizontalMarker->setText(DoubleToStringConvertor::convert(d));
 }
 
 void HyperboleFitWidget::onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d)
 {
   switch (marker) {
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
-    ui->qle_chartVerticalAMarker->setText(QString::number(d));
+    ui->qle_chartVerticalAMarker->setText(DoubleToStringConvertor::convert(d));
     break;
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
-    ui->qle_chartVerticalBMarker->setText(QString::number(d));
+    ui->qle_chartVerticalBMarker->setText(DoubleToStringConvertor::convert(d));
     break;
   default:
     break;
