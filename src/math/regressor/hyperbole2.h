@@ -387,7 +387,7 @@ YT RectangularHyperbole2<XT, YT>::ACalculateDerivative (
 
         switch(static_cast<RectangularHyperbole2Params>(param_idx)) {
         case RectangularHyperbole2Params::u0  : return YT(1) / helper1;
-        case RectangularHyperbole2Params::uS  : return (KS * x.value) / helper1;
+        case RectangularHyperbole2Params::uS  : return (KS * x.value) / (YT(1) + m_viscoeff * x.value) / helper1;
         case RectangularHyperbole2Params::KS  : return ((uS - u0) * x.value) / (helper1 * helper1);
         case RectangularHyperbole2Params::du0 : return YT(0);
         case RectangularHyperbole2Params::duS : return YT(0);
@@ -400,7 +400,7 @@ YT RectangularHyperbole2<XT, YT>::ACalculateDerivative (
         case RectangularHyperbole2Params::u0  :
         case RectangularHyperbole2Params::du0 : return YT(1) / helper2;
         case RectangularHyperbole2Params::uS  :
-        case RectangularHyperbole2Params::duS : return ((KS + dKS) * x.value) / helper2;
+        case RectangularHyperbole2Params::duS : return ((KS + dKS) * x.value) / (YT(1) + m_viscoeff * x.value) / helper2;
         case RectangularHyperbole2Params::KS  :
         case RectangularHyperbole2Params::dKS : return (((uS + duS) - (u0 + du0)) * x.value) / (helper2 * helper2);
         }

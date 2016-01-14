@@ -247,7 +247,7 @@ YT RectangularHyperbole<XT, YT>::ACalculateDerivative (
     switch(static_cast<RectangularHyperboleParams>(param_idx))
     {
     case RectangularHyperboleParams::u0 : return YT(1) / helper;
-    case RectangularHyperboleParams::uS : return KS * x / helper;
+    case RectangularHyperboleParams::uS : return KS * x / (YT(1) + m_viscoeff * x) / helper;
     case RectangularHyperboleParams::KS : return (uS - u0) * x / (helper * helper);
     }
 
