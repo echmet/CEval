@@ -1128,6 +1128,35 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
 
 void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
 {
+  auto intersection = [](const QPointF &a, const QPointF &b, const double x) {
+    const double k = (b.y() - a.y()) / (b.x() - a.x());
+
+    return k * (x - a.x()) + a.y();
+  };
+
+  switch (marker) {
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    for (int idx = 1; idx < m_statData.size(); idx++) {
+      if (m_statData.at(idx).x() >= m_verticalAMarkerPosition) {
+        m_horizontalMarkerPosition = intersection(m_statData.at(idx - 1), m_statData.at(idx), m_verticalAMarkerPosition);
+        break;
+      }
+    }
+    break;
+  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    for (int idx = m_statData.size() - 2; idx >= 0; idx--) {
+      if (m_statData.at(idx).x() <= m_verticalBMarkerPosition) {
+        m_horizontalMarkerPosition = intersection(m_statData.at(idx), m_statData.at(idx + 1), m_verticalBMarkerPosition);
+        break;
+      }
+    }
+    break;
+  default:
+    return;
+  }
+
+  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
+  emit chartHorizontalMarkerIntersectionSet(m_horizontalMarkerPosition);
 }
 
 void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
