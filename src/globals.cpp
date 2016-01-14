@@ -5,7 +5,7 @@ const QString Globals::ORG_NAME = "ECHMET";
 const QString Globals::SOFTWARE_NAME = "CEval";
 const int Globals::VERSION_MAJ = 0;
 const int Globals::VERSION_MIN = 2;
-const QString Globals::VERSION_REV = "rc8";
+const QString Globals::VERSION_REV = "rc9";
 
 const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\u00FD", "pavel.dubsky@natur.cuni.cz"),
                                                             Globals::DeveloperID("Magda \u00D6rd\u00F6gov\u00E1", "magda.ordogova@natur.cuni.cz"),
