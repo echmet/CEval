@@ -164,7 +164,7 @@
              <item>
               <widget class="QGroupBox" name="qgb_singleFit">
                <property name="title">
-                <string>Single fit (for first peak)</string>
+                <string>Single fit (for first analyte)</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_6">
                 <item>
@@ -264,7 +264,7 @@
              <item>
               <widget class="QGroupBox" name="qgb_doubleFit">
                <property name="title">
-                <string>Double fit (for second peak)</string>
+                <string>Double fit (for second analyte)</string>
                </property>
                <layout class="QVBoxLayout" name="verticalLayout_7">
                 <item>
