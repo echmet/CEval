@@ -25,7 +25,7 @@
         <x>0</x>
         <y>0</y>
         <width>1090</width>
-        <height>588</height>
+        <height>591</height>
        </rect>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -593,6 +593,20 @@
                     <widget class="QCheckBox" name="qcb_chartHorizontalMarker">
                      <property name="text">
                       <string>Show</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="qpb_chartHorizontalMarkerLeftItsc">
+                     <property name="text">
+                      <string>Left itsc.</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="qpb_chartHorizontalMarkerRightItsc">
+                     <property name="text">
+                      <string>Right itsc.</string>
                      </property>
                     </widget>
                    </item>

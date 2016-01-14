@@ -1126,6 +1126,10 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   setConcentrationsList(makeConcentrationsList(m_currentAnalyte->concentrations));
 }
 
+void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
+{
+}
+
 void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
 {
   auto comparator = [this](const double current, const double threshold) {

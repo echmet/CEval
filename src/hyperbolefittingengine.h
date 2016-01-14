@@ -336,6 +336,7 @@ public slots:
   void onAddConcentration(const double num);
   void onAddMobility(const double u);
   void onAnalyteSwitched(const QModelIndexList &inList);
+  void onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const QString &value);
   void onConcentrationSwitched(const QModelIndex &idx);

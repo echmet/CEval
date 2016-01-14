@@ -38,6 +38,8 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qle_chartHorizontalMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartHorizontalMarkerValueChanged);
   connect(ui->qle_chartVerticalAMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalAMarkerValueChanged);
   connect(ui->qle_chartVerticalBMarker, &QLineEdit::textChanged, this, &HyperboleFitWidget::onChartVerticalBMarkerValueChanged);
+  connect(ui->qpb_chartHorizontalMarkerLeftItsc, &QPushButton::clicked, this, &HyperboleFitWidget::onChartHorizontalMarkerLeftItscClicked);
+  connect(ui->qpb_chartHorizontalMarkerRightItsc, &QPushButton::clicked, this, &HyperboleFitWidget::onChartHorizontalMarkerRightItscClicked);
   connect(ui->qpb_chartVerticalAMarkerItsc,&QPushButton::clicked, this, &HyperboleFitWidget::onChartVerticalAMarkerItscClicked);
   connect(ui->qpb_chartVerticalBMarkerItsc,&QPushButton::clicked, this, &HyperboleFitWidget::onChartVerticalBMarkerItscClicked);
 
@@ -173,6 +175,16 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
     } else
       return;
   }
+}
+
+void HyperboleFitWidget::onChartHorizontalMarkerLeftItscClicked()
+{
+  emit chartHorizontalMarkerIntersection(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
+}
+
+void HyperboleFitWidget::onChartHorizontalMarkerRightItscClicked()
+{
+  emit chartHorizontalMarkerIntersection(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
 }
 
 void HyperboleFitWidget::onChartVerticalAMarkerItscClicked()
