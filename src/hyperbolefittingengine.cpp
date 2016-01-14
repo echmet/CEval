@@ -1495,11 +1495,26 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER));
   m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER));
 
-  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
-  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
-  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
-
   m_statData = data;
+  if (m_statData.size() > 0) {
+    const int halfSize = m_statData.size() / 2;
+
+    if (m_showHorizontalMarker) {
+      m_horizontalMarkerPosition = m_statData.at(halfSize).y();
+      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
+      emit chartHorizontalMarkerIntersectionSet(m_horizontalMarkerPosition);
+    }
+    if (m_showVerticalAMarker) {
+      m_verticalAMarkerPosition = m_statData.at(halfSize).x();
+      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
+      emit chartVerticalMarkerIntersectionSet(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, m_verticalAMarkerPosition);
+    }
+    if (m_showVerticalBMarker) {
+      m_verticalBMarkerPosition = m_statData.at(halfSize).x();
+      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
+      emit chartVerticalMarkerIntersectionSet(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, m_verticalBMarkerPosition);
+    }
+  }
 
   m_modeCtx->replot();
 }
