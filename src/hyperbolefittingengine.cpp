@@ -1479,7 +1479,12 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   for (const auto& p : out)
     data.push_back(QPointF(p.first, p.second));
 
-  std::sort(data.begin(), data.end(), &Globals::qpointfXComparator);
+  {
+    auto comparator = [](const QPointF &first, const QPointF &second) {
+      return first.x() < second.x();
+    };
+    std::sort(data.begin(), data.end(), comparator);
+  }
 
   hideDataSeries();
   showStatsSeries(m_currentStatUnits, m_currentStatMode);

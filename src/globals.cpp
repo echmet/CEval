@@ -32,8 +32,3 @@ QString Globals::VERSION_STRING()
 {
   return QString("%1 %2.%3%4").arg(SOFTWARE_NAME).arg(VERSION_MAJ).arg(VERSION_MIN).arg(VERSION_REV);
 }
-
-bool Globals::qpointfXComparator(const QPointF &first, const QPointF &second)
-{
-  return first.x() < second.x();
-}

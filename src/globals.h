@@ -31,8 +31,6 @@ public:
   static const QString VERSION_REV;
 
   static const QVector<DeveloperID> DEVELOPERS;
-
-  static bool qpointfXComparator(const QPointF &first, const QPointF &second);
 };
 
 #endif // GLOBALS_H
