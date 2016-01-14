@@ -13,6 +13,11 @@ DoubleToStringConvertor::DoubleToStringConvertor() :
 {
 }
 
+double DoubleToStringConvertor::back(const QString &value, bool *ok)
+{
+  return s_me->m_locale.toDouble(value, ok);
+}
+
 QString DoubleToStringConvertor::convert(const double d)
 {
   return s_me->m_locale.toString(d, s_me->m_type, s_me->m_digits);
