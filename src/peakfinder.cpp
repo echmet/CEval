@@ -432,14 +432,8 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   if (p.showWindow == EvaluationParametersItems::ComboShowWindow::SLOPE_THRESHOLD) {
     _X = Data[diL].x();
     seriesA->push_back(QPointF(_X, (SlopeThreshold * _X) + _Y));
-    /*
-    USD.Add(ResultsEvaluator::XYPair(_X, (SlopeTreshold * _X) + _Y), SRsystem1);
-    */
     _X = Data[diR-1].x();
     seriesB->push_back(QPointF(_X, (SlopeThreshold * _X) + _Y));
-    /*
-    USD.Add(ResultsEvaluator::XYPair(_X, (SlopeTreshold * _X) + _Y), SRsystem2);
-    */
   }
   #undef _X
   #undef _Y
@@ -691,12 +685,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   seriesA->push_back(QPointF(MaxValue, HP - Noise_2));
   seriesB->push_back(QPointF(MinValue, HP - Noise_2));
   seriesB->push_back(QPointF(MaxValue, HP - Noise_2));
-  /*
-           USD.Add(ResultsEvaluator::XYPair(MinValue, HP - Noise_2), SRsystem1);
-           USD.Add(ResultsEvaluator::XYPair(MaxValue, HP - Noise_2), SRsystem1);
-           USD.Add(ResultsEvaluator::XYPair(MinValue, HP - Noise_2), SRsystem2);
-           USD.Add(ResultsEvaluator::XYPair(MaxValue, HP - Noise_2), SRsystem2);
-  */
   }
 
   /* * BSL A * */
@@ -947,9 +935,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       diR = tENDi;
 
     for (long i = diL; i < diR; ++i) {
-      seriesA->push_back(QPointF(Data[i].x(), Data[i].y()))
-           /*USD.Add(ResultsEvaluator::XYPair(Data[i].X, Data[i].Y), SRsystem1);*/
-          ;
+      seriesA->push_back(QPointF(Data[i].x(), Data[i].y()));
     }
 
   } // CbxWindow->ItemIndex == wkPeaks
@@ -968,17 +954,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   HP_ = HP - BSLSlope * tP - BSLIntercept;
 
   /* * w1/2 * */
-  /*double ___x;
-  for (
-       twPLefti = tPi;
-       ___x = (
-        Data[twPLefti].y() -
-        BSLSlope * Data[twPLefti].x() -
-        BSLIntercept
-       ) >= HP_ / 2. &&
-       twPLefti > tAi;
-       --twPLefti
-      );*/
   twPLefti = tPi;
   do {
     twPLefti--;
@@ -987,18 +962,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
 
   twPLeft = Data[twPLefti].x();
 
-  /*
-  for (
-       twPRighti = tPi;
-       (
-        Data[twPRighti].y() -
-        BSLSlope * Data[twPRighti].x() -
-        BSLIntercept
-       ) >= HP_ / 2. &&
-         twPRighti < tBi;
-         ++twPRighti
-      )
-    ;*/
   twPRighti = tPi;
   do {
     twPRighti++;
@@ -1011,10 +974,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   if (p.showWindow == EvaluationParametersItems::ComboShowWindow::BASELINE) {
     seriesA->push_back(QPointF(XMin, (BSLSlope * XMin) + BSLIntercept));
     seriesB->push_back(QPointF(XMin, (BSLSlope * XMin)+ BSLIntercept));
-    /*
-         USD.Add(ResultsEvaluator::XYPair(XMin, (BSLSlope * XMin) + BSLIntercept), SRsystem1);
-          USD.Add(ResultsEvaluator::XYPair(XMin, (BSLSlope * XMin)+ BSLIntercept), SRsystem1);
-          */
   }
 
    if (p.showWindow == EvaluationParametersItems::ComboShowWindow::PEAK_WIDTH_HALF) {
@@ -1022,12 +981,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
      seriesA->push_back(QPointF(twPRight, HP));
      seriesB->push_back(QPointF(twPLeft, (BSLSlope * twPLeft) + BSLIntercept));
      seriesB->push_back(QPointF(twPLeft, HP));
-     /*
-          USD.Add(ResultsEvaluator::XYPair(twPRight, (BSLSlope * twPRight) + BSLIntercept), SRsystem1);
-          USD.Add(ResultsEvaluator::XYPair(twPRight, HP), SRsystem1);
-          USD.Add(ResultsEvaluator::XYPair(twPLeft, (BSLSlope * twPLeft) + BSLIntercept), SRsystem2);
-          USD.Add(ResultsEvaluator::XYPair(twPLeft, HP), SRsystem2);
-          */
    }
 
   /* Kresleni SystemWindows::Smoothed * */
@@ -1043,7 +996,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
 
     while (diR < C) {
       seriesA->push_back(QPointF(Data[Position].x(), SummY / NoiseWindow));
-           /* USD.Add(ResultsEvaluator::XYPair(Data[Position].X, SummY / NoiseWindow), SRsystem1); */
       SummY -= Data[diL].y();
       SummY += Data[diR].y();
       ++diR;
@@ -1089,14 +1041,12 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       _X = Data[Position].x();
       if (p.showWindow == EvaluationParametersItems::ComboShowWindow::FIRST_DERIVATIVE ||
           p.showWindow == EvaluationParametersItems::ComboShowWindow::BOTH_DERIVATIVES) {
-        seriesA->push_back(QPointF(_X, SLOPE));
-             /* USD.Add(ResultsEvaluator::XYPair(_X, SLOPE), SRsystem1); */
+            seriesA->push_back(QPointF(_X, SLOPE));
       }
 
       if (p.showWindow == EvaluationParametersItems::ComboShowWindow::FIRST_DERIVATIVE ||
           p.showWindow == EvaluationParametersItems::ComboShowWindow::BOTH_DERIVATIVES) {
-        seriesB->push_back(QPointF(_X, (SLOPE - OLD) / (_X - Data[Position-1].x())));
-        /* USD.Add(ResultsEvaluator::XYPair(_X, (SLOPE - OLD) / (_X - Data[Position-1].X)), SRsystem2); */
+            seriesB->push_back(QPointF(_X, (SLOPE - OLD) / (_X - Data[Position-1].x())));
       }
 
       ++diR;
