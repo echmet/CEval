@@ -837,7 +837,7 @@ inline void RegressFunction<XT, YT>::CalculateFx () {
 template <typename XT, typename YT>
 inline void RegressFunction<XT, YT>::CalculateP () {
 
-    for (size_t i = 0; i != m_notFixed; ++i) {
+    for (size_t i = 0; i != static_cast<size_t>(m_notFixed); ++i) {
 
         const msize_t pid = m_pindexes[i];
         #pragma omp parallel for
