@@ -53,7 +53,11 @@ typedef const char *chvlstr_t;
         #define ECHMET_MATH_HVL_DLLCALL     __cdecl
 #elif defined ECHMET_MATH_HVL_PLATFORM_UNIX
         #define ECHMET_MATH_HVL_DLL	    "./hvl_mt.so"
-        #define ECHMET_MATH_HVL_DLLCALL	     __attribute__((__cdecl__))
+        #ifndef __x86_64__
+                #define ECHMET_MATH_HVL_DLLCALL __attribute__((__cdecl__))
+        #else
+                #define ECHMET_MATH_HVL_DLLCALL
+        #endif
 #else
         #error "No platform type has been specified!"
 #endif // HVL_PLATFORM_

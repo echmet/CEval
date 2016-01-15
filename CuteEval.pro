@@ -17,8 +17,6 @@ unix {
     DEFINES += ECHMET_MATH_HVL_MINGW32
 }
 
-QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic"
-
 CONFIG += xopenmp
 xopenmp {
     QMAKE_CXXFLAGS += -fopenmp
@@ -280,4 +278,6 @@ INCLUDEPATH += $$PWD/libHPCS
 INCLUDEPATH += $$PWD/includes
 
 DEPENDPATH += $$PWD/libHPCS
+
+QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic"
 
