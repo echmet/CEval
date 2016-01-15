@@ -237,8 +237,8 @@ private:
 
     // Non-resetable state variables
 
-    int  m_notFixed;
     YT   m_rss;
+    int  m_notFixed;
 
     // Setup variables
     unsigned m_nmax;

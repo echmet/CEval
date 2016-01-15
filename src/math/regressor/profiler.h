@@ -79,11 +79,11 @@ private:
 //---------------------------------------------------------------------------
 template<typename XT, typename YT>
 Profiler<XT, YT>::Profiler()
-:   m_reg(nullptr),
-    m_counter(0),
-    toTau(3),
+:   toTau(3),
     twoSided(true),
-    nmax(50)
+    nmax(50),
+    m_reg(nullptr),
+    m_counter(0)
 {
 
     converter = tau_to_tau;
