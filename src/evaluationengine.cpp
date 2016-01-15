@@ -815,7 +815,8 @@ void EvaluationEngine::onAddPeak()
     return;
 
   m_addPeakDlg->setInformation(m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
-                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
+                               m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   int dlgRet = m_addPeakDlg->exec();
   if (dlgRet != QDialog::Accepted)
     return;
@@ -838,9 +839,21 @@ void EvaluationEngine::onAddPeak()
     return;
   }
 
-  if (answer.registerInHF)
+  if (answer.registerInHF) {
+    double mobility;
+
+    switch (answer.mobilityFrom) {
+    case AddPeakDialog::MobilityFrom::HVL_A1:
+      mobility = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
+      break;
+    case AddPeakDialog::MobilityFrom::PEAK_MAXIMUM:
+      mobility = m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
+      break;
+    }
+
     emit registerMeasurement(answer.name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
-                             m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+                             mobility);
+  }
 
   m_currentPeakIdx = m_allPeaks.length() - 1;
 }

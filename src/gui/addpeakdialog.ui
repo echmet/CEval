@@ -108,14 +108,14 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="ql_registerBy">
+         <widget class="QLabel" name="ql_mobilityFrom">
           <property name="text">
-           <string>Register by</string>
+           <string>Mobility from</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="qcbox_registerBy"/>
+         <widget class="QComboBox" name="qcbox_mobilityFrom"/>
         </item>
        </layout>
       </item>
