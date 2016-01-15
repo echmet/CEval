@@ -227,12 +227,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
 
   long SlopeWindow; /* Calculated later, see below */
 
-  /* Initialize system parameters */
-  //tEOF = p.tEOF;
-  /*SEARCH_I(EOF)
-  if (!checkBounds(tEOFi, Data))
-    return Results();*/
-
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
   if (p.autoPeakFromX) {
@@ -1128,7 +1122,6 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
 
   r.baselineIntercept = BSLIntercept;
   r.baselineSlope = BSLSlope;
-  //r.eofIndex = tEOFi;
   r.fromIndex = tBEGi;
   r.toIndex = tENDi;
   r.indexAtMax = tPi;
