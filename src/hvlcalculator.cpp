@@ -192,9 +192,15 @@ bool HVLCalculator::initialize()
   s_me = new HVLCalculator();
 
   if (!s_me->m_hvlLib->Open(ECHMET_MATH_HVL_DLL, &errorMessage)) {
+    QString qstrErrorMessage;
+
+    if (errorMessage != nullptr) {
+      qstrErrorMessage = Helpers::hvlstrToQString(errorMessage);
+      s_me->m_hvlLib->FreeErrorMessage(errorMessage);
+    } else
+      qstrErrorMessage = tr("Could not retrieve error message");
     QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"), QString(QObject::tr("Unable to load hvl_mt library. HVL plotting will not be available\n"
-                                                                                        "Error returned: %1")).arg(Helpers::hvlstrToQString(errorMessage)));
-    s_me->m_hvlLib->FreeErrorMessage(errorMessage);
+                                                                                        "Error returned: %1")).arg(qstrErrorMessage));
     delete s_me;
     s_me = nullptr;
     return false;

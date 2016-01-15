@@ -186,15 +186,9 @@ private:
                 *errormsg = static_cast<hvlstr_t>(malloc(256));
                 if (*errormsg == NULL)
                         return;
-                #if (_POSIX_C_SOURCE >= 200112L || _XOPEN_SOURCE >= 600) && ! _GNU_SOURCE
-                        /* Use XSI strerror_r */
-                        strerror_r(errno, *errormsg, 256);
-                #else
-                        /* Use GNU strerror_r */
-                        char *tempstr = strerror_r(errno, *errormsg, 256);
-                        /* Handle a case where we get a pointer to some statically allocated string */
-                        memmove(*errormsg, tempstr, 256);
-                #endif // XSI vs GNU strerror_r
+
+                char* dlerr = dlerror();
+                memmove(*errormsg, dlerr, 256);
         #endif // ECHMET_MATH_HVL_PLATFORM_
         }
 
