@@ -16,12 +16,17 @@ static inline QString getBacktrace(unsigned int max_frames = 63)
     QString btrace;
 
     // storage array for stack trace address data
-    void* addrlist[max_frames+1];
+    void** addrlist = (void**)calloc(sizeof(void*), max_frames+1);
+    memset(addrlist, 0, max_frames+1);
+
+    if (addrlist == nullptr)
+        return btrace;
 
     // retrieve current stack addresses
-    int addrlen = backtrace(addrlist, sizeof(addrlist) / sizeof(void*));
+    int addrlen = backtrace(addrlist, max_frames+1);
 
     if (addrlen == 0) {
+        free(addrlist);
         return QString("  <empty, possibly corrupt>\n");
     }
 
@@ -93,6 +98,7 @@ static inline QString getBacktrace(unsigned int max_frames = 63)
 
     free(funcname);
     free(symbollist);
+    free(addrlist);
 
     return btrace;
 }
