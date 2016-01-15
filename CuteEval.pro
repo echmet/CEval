@@ -273,11 +273,13 @@ unix {
 # Adjust these include paths as needed.
 # Paths to libHPCS.h and the boost library
 # have to be provided.
-# Boost library is expected to be in "boost" subdirectory
+# BOOSTPATH variable is supposed to point to
+# a directory that contains a "boost" subdirectory
+# with the boost libraries.
 INCLUDEPATH += $$PWD/libHPCS
-INCLUDEPATH += $$PWD/includes
+BOOSTPATH = $$PWD/includes
 
 DEPENDPATH += $$PWD/libHPCS
 
-QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic"
+QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem $$BOOSTPATH"
 
