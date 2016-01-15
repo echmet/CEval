@@ -849,6 +849,9 @@ void EvaluationEngine::onAddPeak()
     case AddPeakDialog::MobilityFrom::PEAK_MAXIMUM:
       mobility = m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
       break;
+    default:
+      mobility = std::numeric_limits<double>::infinity();
+      break;
     }
 
     emit registerMeasurement(answer.name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
