@@ -530,8 +530,6 @@ FINALIZE:;
 
     }
 
-DONE:;
-
     Report();
 
     return HasConverged();
