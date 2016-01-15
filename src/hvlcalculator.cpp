@@ -187,11 +187,11 @@ QVector<QPointF> HVLCalculator::plot(
 
 bool HVLCalculator::initialize()
 {
-  hvlstr_t errorMessage;
+  hvlstr_t errorMessage = nullptr;
 
   s_me = new HVLCalculator();
 
-  if (!s_me->m_hvlLib->Open(ECHMET_MATH_HVL_DLL, &errorMessage)){
+  if (!s_me->m_hvlLib->Open(ECHMET_MATH_HVL_DLL, &errorMessage)) {
     QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"), QString(QObject::tr("Unable to load hvl_mt library. HVL plotting will not be available\n"
                                                                                         "Error returned: %1")).arg(Helpers::hvlstrToQString(errorMessage)));
     s_me->m_hvlLib->FreeErrorMessage(errorMessage);
