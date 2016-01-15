@@ -330,6 +330,8 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceL(
 )
 {
 
+    (void)tau;
+    (void)original;
     // return y_type(1) - AlgLib::studenttdistribution(original.GetDF(), tau);
     return 1 - p;
 
@@ -345,6 +347,8 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceR(
 )
 {
 
+    (void)tau;
+    (void)original;
     // return AlgLib::studenttdistribution(original.GetDF(), tau);
 
     return p;
