@@ -321,14 +321,20 @@ template<>
 inline
 msize_t const & CoreMultiplySizeSelection<trRows>
 (msize_t const  & a, msize_t const  & b)
-{ return a; }
+{
+  (void)b;
+  return a;
+}
 
 //.............................................................................
 template<>
 inline
 msize_t const & CoreMultiplySizeSelection<trColumns>
 (msize_t const  & a, msize_t const  & b)
-{ return b; }
+{
+  (void)a;
+  return b;
+}
 
 
 //.............................................................................

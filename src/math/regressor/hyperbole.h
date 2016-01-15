@@ -260,8 +260,6 @@ template <typename XT, typename YT>
 bool RectangularHyperbole<XT, YT>::AAccepted (YT, Core<YT> const & params)
 const {
 
-    return true;
-
 #if 0
 
     return
@@ -269,6 +267,11 @@ const {
         fabs(this->GetParam(params, RectangularHyperboleParams::uS)) < 1000 &&
         this->GetParam(params, RectangularHyperboleParams::KS)      > 0
     ;
+#else
+
+    (void)params;
+    return true;
+
 #endif
 
 }

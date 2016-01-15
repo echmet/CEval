@@ -416,19 +416,15 @@ bool RectangularHyperbole2<XT, YT>
 ::AAccepted (YT, Core<YT> const & params)
 const {
 
-    return true;
-
-    /* UNUSED
-    YT u0  = this->GetParam(params, RectangularHyperbole2Params::u0);
-    YT uS  = this->GetParam(params, RectangularHyperbole2Params::uS);
-    YT KS  = this->GetParam(params, RectangularHyperbole2Params::KS);
-    YT du0 = this->GetParam(params, RectangularHyperbole2Params::du0);
-    YT duS = this->GetParam(params, RectangularHyperbole2Params::duS);
-    YT dKS = this->GetParam(params, RectangularHyperbole2Params::dKS);
-    */
-
-    return true;
 #if 0
+
+        YT u0  = this->GetParam(params, RectangularHyperbole2Params::u0);
+        YT uS  = this->GetParam(params, RectangularHyperbole2Params::uS);
+        YT KS  = this->GetParam(params, RectangularHyperbole2Params::KS);
+        YT du0 = this->GetParam(params, RectangularHyperbole2Params::du0);
+        YT duS = this->GetParam(params, RectangularHyperbole2Params::duS);
+        YT dKS = this->GetParam(params, RectangularHyperbole2Params::dKS);
+
         fabs(u0)       < YT(1000.) &&
         fabs(uS)       < YT(1000.) &&
         KS            > YT(0.)    &&
@@ -436,6 +432,9 @@ const {
         fabs(uS + duS) < YT(1000.) &&
         KS + dKS      > YT(0.)
     ;
+#else
+        (void)params;
+        return true;
 #endif
 
 }
