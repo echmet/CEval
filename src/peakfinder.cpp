@@ -194,8 +194,14 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     tBEGi = 0;
     tBEG = XMin;
   } else {
+    long idx = 0;
     tBEG = p.from;
-    SEARCH_I(BEG)
+    while (Data.at(idx).x() < tBEG)
+      idx++;
+
+    tBEGi = idx;
+
+    //SEARCH_I(BEG)
 
     if (!checkBounds(tBEGi, Data))
         return Results();
@@ -205,9 +211,14 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     tENDi = C;
     tEND = XMax;
   } else {
+    long idx = Data.size() - 1;
     tEND = p.to;
-    SEARCH_I(END)
-    ++tENDi;
+    while (Data.at(idx).x() > tEND)
+      idx--;
+
+    tENDi = idx;
+    //SEARCH_I(END)
+    //++tENDi;
 
     if (!checkBounds(tENDi, Data))
         return Results();
