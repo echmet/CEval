@@ -7,7 +7,7 @@
 #define POINT_SIZE           10
 #define POINT_TYPE           QwtSymbol::Style::Cross
 
-#define TAU_MAX      3.0
+#define TAU_MAX      5.0
 #define TAU_MAXCOUNT 600
 
 
