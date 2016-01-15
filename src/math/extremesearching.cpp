@@ -24,7 +24,7 @@ double TExtremeSearcher::CalcNoise()
         SummX += X; SummXX += X*X; SummY += Y; SummXY += X*Y;
   }
 
-  if (Y = ((diR-diL) * SummXX - SummX * SummX))
+  if ((Y = ((diR-diL) * SummXX - SummX * SummX)))
     X = ((diR-diL) * SummXY - SummX * SummY) / Y;
   else
     X = 0.0;

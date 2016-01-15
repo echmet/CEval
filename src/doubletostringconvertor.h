@@ -19,8 +19,8 @@ private:
   DoubleToStringConvertor();
 
   QLocale m_locale;
-  char m_type;
   int m_digits;
+  char m_type;
 
   static DoubleToStringConvertor *s_me;
 

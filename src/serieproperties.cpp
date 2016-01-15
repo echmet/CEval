@@ -1,10 +1,10 @@
 #include "serieproperties.h"
 
 SerieProperties::VisualStyle::VisualStyle(const QPen pen, QwtSymbol *symbol, const QwtPlotCurve::CurveStyle curveStyle) :
-  m_symbol(symbol),
   curveStyle(curveStyle),
   pen(pen),
-  m_symbolOwned(false)
+  m_symbolOwned(false),
+  m_symbol(symbol)
 {
 }
 

@@ -139,7 +139,7 @@ void PeakFinder::Results::validate()
 
 bool PeakFinder::checkBounds(const unsigned long i, const QVector<QPointF> &data)
 {
-  if (i >= data.length()) {
+  if (i >= static_cast<unsigned long>(data.length())) {
     QMessageBox::critical(nullptr, QObject::tr("Logic error"), QString(QObject::tr("Data index out of bounds, idx = %1, data length = %2\n"
                                                                                    "Check evaluation parameters.")).arg(i).arg(data.length()));
     return false;
@@ -297,7 +297,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
         SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
       }
 
-      if (_Y = ((diR-diL) * SummXX - SummX * SummX))
+      if ((_Y = ((diR-diL) * SummXX - SummX * SummX)))
         _X = ((diR-diL) * SummXY - SummX * SummY) / _Y;
       else
         _X = 0.0;
@@ -406,7 +406,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       SummXY += _X*_Y;
     }
 
-    if (_Y = ((diR - diL)* SummXX - SummX * SummX))
+    if ((_Y = ((diR - diL)* SummXX - SummX * SummX)))
       _X = ((diR - diL) * SummXY - SummX * SummY) / _Y;
     else
       _X = 0.0;
@@ -743,7 +743,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
         SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
       }
 
-      if (SLOPE = ((diR-diL) * SummXX - SummX * SummX))
+      if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
         SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
       else
         SLOPE = 0.0;
@@ -765,7 +765,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
         SummXX += _X*_X;
         SummY += _Y;
         SummXY += _X*_Y;
-        if (SLOPE = (SlopeWindow * SummXX - SummX * SummX))
+        if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
           SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
         else SLOPE = 0.0;
 
@@ -860,7 +860,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
         SummXY += _X*_Y;
       }
 
-      if (SLOPE = ((diR-diL) * SummXX - SummX * SummX))
+      if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
         SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
       else
         SLOPE = 0.0;
@@ -883,7 +883,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
         SummY += _Y;
         SummXY += _X*_Y;
 
-        if (SLOPE = (SlopeWindow * SummXX - SummX * SummX))
+        if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
           SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
         else SLOPE = 0.0;
 
@@ -1073,7 +1073,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       SummXY += _X*_Y;
     }
 
-    if (SLOPE = ((diR-diL) * SummXX - SummX * SummX))
+    if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
       SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
     else
       SLOPE = 0.0;
@@ -1113,7 +1113,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       SummY += _Y;
       SummXY += _X*_Y;
 
-      if (SLOPE = (SlopeWindow * SummXX - SummX * SummX))
+      if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
         SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
       else
         SLOPE = 0.0;
