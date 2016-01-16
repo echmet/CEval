@@ -8,8 +8,6 @@
 #include <QMenu>
 #include <QMessageBox>
 
-#include <QDebug>
-
 const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* PEAK_FROM_X */
                                                                      true, /* PEAK_FROM_Y */
                                                                      true, /* PEAK_TO_X */
@@ -958,7 +956,6 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
 void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
 {
   Q_UNUSED(idx);
-  qDebug() << "onDeletePeak";
 
   if (m_currentPeakIdx == 0)
     return;

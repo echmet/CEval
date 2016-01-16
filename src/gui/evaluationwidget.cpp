@@ -2,8 +2,6 @@
 #include "ui_evaluationwidget.h"
 #include "../evaluationwidgetconnector.h"
 
-#include <QDebug>
-
 EvaluationWidget::EvaluationWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::EvaluationWidget)
@@ -26,8 +24,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   ui->qw_commonParametersUpperWidget->layout()->addWidget(m_commonParametersWidget);
   ui->qw_commonParametersUpperWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   ui->qw_commonParametersUpperWidget->setMinimumWidth(m_commonParametersWidget->width());
-
-  qDebug() << ui->qw_commonParametersUpperWidget->width() << m_commonParametersWidget->width();
 
 
   ui->qw_evaluatedPeaksUpperWidget->setLayout(new QVBoxLayout(this));
