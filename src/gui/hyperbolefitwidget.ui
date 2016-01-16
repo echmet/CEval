@@ -15,7 +15,130 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
+    <layout class="QVBoxLayout" name="verticalLayout">
+     <item>
+      <widget class="QListView" name="qlv_analytes">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="qpb_addAnalyte">
+         <property name="text">
+          <string>Add analyte</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="qpb_removeAnalyte">
+         <property name="text">
+          <string>Remove analyte</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_10">
+     <item>
+      <widget class="QListView" name="qlv_concentrations">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QPushButton" name="qpb_addConcentration">
+         <property name="text">
+          <string>Add concentration</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="qpb_removeConcentration">
+         <property name="text">
+          <string>Remove concentration</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QVBoxLayout" name="verticalLayout_3">
+     <item>
+      <widget class="QListView" name="qlv_mobilities">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::NoEditTriggers</set>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <layout class="QHBoxLayout" name="horizontalLayout_4">
+       <item>
+        <widget class="QPushButton" name="qpb_addMobility">
+         <property name="text">
+          <string>Add mobility</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="qpb_removeMobility">
+         <property name="text">
+          <string>Remove mobility</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QScrollArea" name="scrollArea">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="widgetResizable">
       <bool>true</bool>
      </property>
@@ -23,111 +146,18 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>1090</width>
-        <height>591</height>
+        <y>-237</y>
+        <width>640</width>
+        <height>804</height>
        </rect>
       </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <layout class="QHBoxLayout" name="horizontalLayout_8">
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout">
-         <item>
-          <widget class="QListView" name="qlv_analytes">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-           <property name="selectionMode">
-            <enum>QAbstractItemView::SingleSelection</enum>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QPushButton" name="qpb_addAnalyte">
-             <property name="text">
-              <string>Add analyte</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="qpb_removeAnalyte">
-             <property name="text">
-              <string>Remove analyte</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QListView" name="qlv_concentrations">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QPushButton" name="qpb_addConcentration">
-             <property name="text">
-              <string>Add concentration</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="qpb_removeConcentration">
-             <property name="text">
-              <string>Remove concentration</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QListView" name="qlv_mobilities">
-           <property name="editTriggers">
-            <set>QAbstractItemView::NoEditTriggers</set>
-           </property>
-           <property name="alternatingRowColors">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QPushButton" name="qpb_addMobility">
-             <property name="text">
-              <string>Add mobility</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="qpb_removeMobility">
-             <property name="text">
-              <string>Remove mobility</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_5">
          <item>
@@ -681,9 +711,6 @@
   <tabstop>qlv_analytes</tabstop>
   <tabstop>qpb_addAnalyte</tabstop>
   <tabstop>qpb_removeAnalyte</tabstop>
-  <tabstop>qlv_concentrations</tabstop>
-  <tabstop>qpb_addConcentration</tabstop>
-  <tabstop>qpb_removeConcentration</tabstop>
   <tabstop>qlv_mobilities</tabstop>
   <tabstop>qpb_addMobility</tabstop>
   <tabstop>qpb_removeMobility</tabstop>
