@@ -19,14 +19,14 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationResultsMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
   ui->setupUi(this);
-  ui->qw_commonParametersUpperWidget->setLayout(new QVBoxLayout(this));
+  ui->qw_commonParametersUpperWidget->setLayout(new QVBoxLayout(nullptr));
   ui->qw_commonParametersUpperWidget->layout()->setMargin(0);
   ui->qw_commonParametersUpperWidget->layout()->addWidget(m_commonParametersWidget);
   ui->qw_commonParametersUpperWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
   ui->qw_commonParametersUpperWidget->setMinimumWidth(m_commonParametersWidget->width());
 
 
-  ui->qw_evaluatedPeaksUpperWidget->setLayout(new QVBoxLayout(this));
+  ui->qw_evaluatedPeaksUpperWidget->setLayout(new QVBoxLayout(nullptr));
   ui->qw_evaluatedPeaksUpperWidget->layout()->setMargin(0);
   ui->qw_evaluatedPeaksUpperWidget->layout()->addWidget(m_evaluatedPeaksWidget);
 
