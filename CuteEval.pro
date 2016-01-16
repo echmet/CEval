@@ -254,32 +254,13 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/adjustplotvisualsdialog.ui \
     src/gui/aboutdialog.ui
 
-
-# Adjust the paths to Qwt library as needed.
-unix {
-    include(/home/madcat/Devel/ECHMET/qwt-6.1.3-bin/features/qwt.prf)
-} win32 {
-    include(D:\Developer\qwtplot-bin\features\qwt.prf)
-}
-
-# Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L$$PWD/libHPCS/ -lHPCS -lpthread
 unix {
     LIBS += -ldl
 } win32 {
     LIBS += -ldbghelp
 }
 
-# Adjust these include paths as needed.
-# Paths to libHPCS.h and the boost library
-# have to be provided.
-# BOOSTPATH variable is supposed to point to
-# a directory that contains a "boost" subdirectory
-# with the boost libraries.
-INCLUDEPATH += $$PWD/libHPCS
-BOOSTPATH = $$PWD/includes
-
-DEPENDPATH += $$PWD/libHPCS
+include($$PWD/CEval.pri)
 
 QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem $$BOOSTPATH"
 
