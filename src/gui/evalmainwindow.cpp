@@ -35,6 +35,15 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 
   setWindowTitle(Globals::VERSION_STRING());
 
+  ui->actionLoad_ChemStation_file->setIcon(QIcon::fromTheme("document-open"));
+  ui->actionLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
+  ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
+  ui->actionSave_data_table->setIcon(QIcon::fromTheme("document-save"));
+  ui->actionExit->setIcon(QIcon::fromTheme("application-exit"));
+  ui->actionAdjust_plot_appearance->setIcon(QIcon::fromTheme("preferences-system"));
+  ui->actionSet_number_format->setIcon(QIcon::fromTheme("preferences-system"));
+  ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
+
   connect(ui->actionAbout, &QAction::triggered, this, &EvalMainWindow::onActionAbout);
   connect(ui->actionAdjust_plot_appearance, &QAction::triggered, this, &EvalMainWindow::onActionAdjustPlotAppearance);
   connect(ui->actionExit, &QAction::triggered, this, &EvalMainWindow::onActionExit);
