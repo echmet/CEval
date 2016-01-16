@@ -187,8 +187,14 @@ private:
                 if (*errormsg == NULL)
                         return;
 
-                char* dlerr = dlerror();
-                memmove(*errormsg, dlerr, 256);
+                const char *dlerr = dlerror();
+                if (dlerr == NULL) {
+                    free(*errormsg);
+                    *errormsg = NULL;
+                }
+
+                size_t len = (strlen(dlerr) > 256) ? 256 : strlen(dlerr);
+                memmove(*errormsg, dlerr, len);
         #endif // ECHMET_MATH_HVL_PLATFORM_
         }
 

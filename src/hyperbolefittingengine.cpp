@@ -260,6 +260,8 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
 
     mat_x.data.New(1, 1);
     mat_y.data.New(1, 1);
+    mat_x[0][0] = 0;
+    mat_y[0][0] = 0;
 
     ret = m_singleFitRegressor->Initialize(mat_x, mat_y,
                                            m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
@@ -276,6 +278,8 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
 
     mat_x.data.New(1, 1);
     mat_y.data.New(1, 1);
+    mat_x[0][0] = 0;
+    mat_y[0][0] = 0;
 
     ret = m_doubleFitRegressor->Initialize(mat_x, mat_y,
                                            m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
