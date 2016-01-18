@@ -35,6 +35,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 
   setWindowTitle(Globals::VERSION_STRING());
 
+#ifdef Q_OS_LINUX
   ui->actionLoad_ChemStation_file->setIcon(QIcon::fromTheme("document-open"));
   ui->actionLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
   ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
@@ -43,6 +44,16 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionAdjust_plot_appearance->setIcon(QIcon::fromTheme("preferences-system"));
   ui->actionSet_number_format->setIcon(QIcon::fromTheme("preferences-system"));
   ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
+#else
+  ui->actionLoad_ChemStation_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+  ui->actionLoad_comma_separated_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+  ui->actionLoad_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+  ui->actionSave_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
+  ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
+  ui->actionAdjust_plot_appearance->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
+  ui->actionSet_number_format->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
+  ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
+#endif // Q_OS
 
   connect(ui->actionAbout, &QAction::triggered, this, &EvalMainWindow::onActionAbout);
   connect(ui->actionAdjust_plot_appearance, &QAction::triggered, this, &EvalMainWindow::onActionAdjustPlotAppearance);
