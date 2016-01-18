@@ -3,6 +3,7 @@
 
 #include <QAbstractItemModel>
 #include <QWidget>
+#include "../scrollareaeventfilter.h"
 
 namespace Ui {
 class EvaluatedPeaksWidget;
@@ -20,6 +21,7 @@ public:
 
 private:
   Ui::EvaluatedPeaksWidget *ui;
+  ScrollAreaEventFilter *m_scEvFilter;
 
 signals:
   void addPeakClicked();

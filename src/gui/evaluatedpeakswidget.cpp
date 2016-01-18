@@ -1,6 +1,8 @@
 #include "evaluatedpeakswidget.h"
 #include "ui_evaluatedpeakswidget.h"
+#include <functional>
 #include "../evaluatedpeakswidgetconnector.h"
+
 
 EvaluatedPeaksWidget::EvaluatedPeaksWidget(QWidget *parent) :
   QWidget(parent),
@@ -12,6 +14,28 @@ EvaluatedPeaksWidget::EvaluatedPeaksWidget(QWidget *parent) :
   connect(ui->qpb_cancelSelection, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onCancelSelectionClicked);
   connect(ui->qpb_deletePeak, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onDeletePeakClicked);
   connect(ui->qtbv_evaluatedPeaks, &QTableView::clicked, this, &EvaluatedPeaksWidget::onListClicked);
+
+  {
+    QWidget *me = this;
+    QTableView *tbv = ui->qtbv_evaluatedPeaks;
+    std::function<void (QObject *, QEvent *)> todo = [me, tbv](QObject *object, QEvent *ev) {
+      Q_UNUSED(object);
+
+      if (ev->type() == QEvent::Resize) {
+        int width;
+        int idx = 0;
+        int total = 0;
+
+        while ((width = tbv->horizontalHeader()->sectionSize(idx++)) > 0)
+          total += width;
+
+        me->setFixedWidth(total + tbv->horizontalHeader()->sizeHint().width() / 2);
+      }
+    };
+
+    m_scEvFilter = new ScrollAreaEventFilter(todo, ui->qtbv_evaluatedPeaks, this);
+  }
+
 }
 
 EvaluatedPeaksWidget::~EvaluatedPeaksWidget()
