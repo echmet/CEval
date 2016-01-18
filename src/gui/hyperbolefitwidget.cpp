@@ -2,6 +2,7 @@
 #include "ui_hyperbolefitwidget.h"
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QScrollBar>
 #include <QStandardItem>
 #include <limits>
 #include "../hyperbolefittingwidgetconnector.h"
@@ -50,6 +51,23 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
 
   ui->qle_analyteAName->setDisabled(true);
   ui->qle_analyteBName->setDisabled(true);
+
+  /* Make sure that the fitting and stats pane
+   * scrollarea is always wide enough for all controls
+   * to be dislayed without the need to scroll horizontally
+   */
+  {
+    QScrollArea *sa = ui->scrollArea;
+    std::function<void (QObject *, QEvent *)> f = [sa](QObject *object, QEvent *event) {
+      Q_UNUSED(object);
+
+      QWidget *w = sa->widget();
+      if (w != nullptr && event->type() != QEvent::Resize)
+        sa->setMinimumWidth(w->width() + sa->verticalScrollBar()->width());
+    };
+
+    m_saEvFilter = new ScrollAreaEventFilter(f, ui->scrollAreaWidgetContents, this);
+  }
 }
 
 HyperboleFitWidget::~HyperboleFitWidget()

@@ -9,6 +9,7 @@
 #include "../floatingvaluedelegate.h"
 #include "../hyperbolefititems.h"
 #include "../hyperbolefittingenginemsgs.h"
+#include "../scrollareaeventfilter.h"
 
 namespace Ui {
 class HyperboleFitWidget;
@@ -46,6 +47,8 @@ private:
   QSortFilterProxyModel m_mobilitiesSortProxy;
 
   FloatingValueDelegate m_floatingDelegate;
+
+  ScrollAreaEventFilter *m_saEvFilter;
 
 signals:
   void addAnalyte(const QString &name);

@@ -86,7 +86,8 @@ SOURCES += src/main.cpp \
     src/custommetatypes.cpp \
     src/standardmodecontextsettingshandler.cpp \
     src/serieproperties.cpp \
-    src/gui/aboutdialog.cpp
+    src/gui/aboutdialog.cpp \
+    src/scrollareaeventfilter.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -236,7 +237,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/serieproperties.h \
     src/math/mystd/foostream.h \
     src/gui/aboutdialog.h \
-    src/hyperbolefittingenginemsgs.h
+    src/hyperbolefittingenginemsgs.h \
+    src/scrollareaeventfilter.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
