@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1278</width>
+    <width>1483</width>
     <height>603</height>
    </rect>
   </property>
@@ -155,9 +155,9 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>0</y>
-        <width>471</width>
-        <height>591</height>
+        <y>-209</y>
+        <width>620</width>
+        <height>798</height>
        </rect>
       </property>
       <property name="sizePolicy">
@@ -556,51 +556,35 @@
                 </layout>
                </item>
                <item>
-                <layout class="QGridLayout" name="gridLayout_5">
-                 <item row="2" column="0">
-                  <widget class="QLabel" name="ql_chartVerticalAMarker">
+                <layout class="QGridLayout" name="gridLayout_6">
+                 <item row="1" column="1">
+                  <widget class="FloatingValueLineEdit" name="qle_chartHorizontalMarker">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>4</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
                    <property name="text">
-                    <string>Chart vertical marker (left)</string>
+                    <string>0</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                    </property>
                   </widget>
                  </item>
-                 <item row="2" column="1">
-                  <layout class="QHBoxLayout" name="horizontalLayout_10">
-                   <item>
-                    <widget class="FloatingValueLineEdit" name="qle_chartVerticalAMarker">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="qcb_chartVerticalAMarker">
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="qpb_chartVerticalAMarkerItsc">
-                     <property name="text">
-                      <string>Intersection</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </item>
-                 <item row="3" column="0">
-                  <widget class="QLabel" name="ql_chartVerticalBMarker">
+                 <item row="1" column="4">
+                  <widget class="QPushButton" name="qpb_chartHorizontalMarkerRightItsc">
                    <property name="text">
-                    <string>Chart vertical marker (right)</string>
+                    <string>Right itsc.</string>
                    </property>
                   </widget>
+                 </item>
+                 <item row="0" column="1" colspan="4">
+                  <widget class="QComboBox" name="qcbox_statUnits"/>
                  </item>
                  <item row="0" column="0">
                   <widget class="QLabel" name="ql_statUnits">
@@ -609,8 +593,19 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="0" column="1">
-                  <widget class="QComboBox" name="qcbox_statUnits"/>
+                 <item row="1" column="2">
+                  <widget class="QCheckBox" name="qcb_chartHorizontalMarker">
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="3">
+                  <widget class="QPushButton" name="qpb_chartHorizontalMarkerLeftItsc">
+                   <property name="text">
+                    <string>Left itsc.</string>
+                   </property>
+                  </widget>
                  </item>
                  <item row="1" column="0">
                   <widget class="QLabel" name="ql_chartHorizontalMarker">
@@ -619,74 +614,91 @@
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1">
-                  <layout class="QHBoxLayout" name="horizontalLayout_9">
-                   <item>
-                    <widget class="FloatingValueLineEdit" name="qle_chartHorizontalMarker">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="qcb_chartHorizontalMarker">
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="qpb_chartHorizontalMarkerLeftItsc">
-                     <property name="text">
-                      <string>Left itsc.</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="qpb_chartHorizontalMarkerRightItsc">
-                     <property name="text">
-                      <string>Right itsc.</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                 <item row="2" column="0">
+                  <widget class="QLabel" name="ql_chartVerticalAMarker">
+                   <property name="text">
+                    <string>Chart vertical marker (left)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="1">
+                  <widget class="FloatingValueLineEdit" name="qle_chartVerticalAMarker">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>4</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="2">
+                  <widget class="QCheckBox" name="qcb_chartVerticalAMarker">
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="2" column="3" colspan="2">
+                  <widget class="QPushButton" name="qpb_chartVerticalAMarkerItsc">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>Intersection</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="0">
+                  <widget class="QLabel" name="ql_chartVerticalBMarker">
+                   <property name="text">
+                    <string>Chart vertical marker (right)</string>
+                   </property>
+                  </widget>
                  </item>
                  <item row="3" column="1">
-                  <layout class="QHBoxLayout" name="horizontalLayout_11">
-                   <item>
-                    <widget class="FloatingValueLineEdit" name="qle_chartVerticalBMarker">
-                     <property name="enabled">
-                      <bool>false</bool>
-                     </property>
-                     <property name="text">
-                      <string>0</string>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QCheckBox" name="qcb_chartVerticalBMarker">
-                     <property name="text">
-                      <string>Show</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="qpb_chartVerticalBMarkerItsc">
-                     <property name="text">
-                      <string>Intersection</string>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
+                  <widget class="FloatingValueLineEdit" name="qle_chartVerticalBMarker">
+                   <property name="enabled">
+                    <bool>false</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                     <horstretch>4</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="text">
+                    <string>0</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="2">
+                  <widget class="QCheckBox" name="qcb_chartVerticalBMarker">
+                   <property name="text">
+                    <string>Show</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="3" column="3" colspan="2">
+                  <widget class="QPushButton" name="qpb_chartVerticalBMarkerItsc">
+                   <property name="text">
+                    <string>Intersection</string>
+                   </property>
+                  </widget>
                  </item>
                 </layout>
                </item>
@@ -750,7 +762,6 @@
   <tabstop>qpb_leftConfIntr</tabstop>
   <tabstop>qpb_rightConfIntr</tabstop>
   <tabstop>qpb_bothConfIntr</tabstop>
-  <tabstop>qcbox_statUnits</tabstop>
   <tabstop>scrollArea</tabstop>
  </tabstops>
  <resources/>
