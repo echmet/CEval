@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1483</width>
-    <height>603</height>
+    <width>1448</width>
+    <height>617</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -78,14 +78,14 @@
        <item>
         <widget class="QPushButton" name="qpb_addConcentration">
          <property name="text">
-          <string>Add concentration</string>
+          <string>Add conc.</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="qpb_removeConcentration">
          <property name="text">
-          <string>Remove concentration</string>
+          <string>Remove conc.</string>
          </property>
         </widget>
        </item>
@@ -155,7 +155,7 @@
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>-209</y>
+        <y>0</y>
         <width>620</width>
         <height>798</height>
        </rect>
@@ -380,21 +380,21 @@
                   <item row="0" column="2">
                    <widget class="QMappedCheckBox" name="qcb_fixedFreeMobilityB">
                     <property name="text">
-                     <string>Same as first analyte</string>
+                     <string>As first analyte</string>
                     </property>
                    </widget>
                   </item>
                   <item row="1" column="2">
                    <widget class="QMappedCheckBox" name="qcb_fixedCsMobilityB">
                     <property name="text">
-                     <string>Same as first analyte</string>
+                     <string>As first analyte</string>
                     </property>
                    </widget>
                   </item>
                   <item row="2" column="2">
                    <widget class="QMappedCheckBox" name="qcb_fixedKCSB">
                     <property name="text">
-                     <string>Same as first analyte</string>
+                     <string>As first analyte</string>
                     </property>
                    </widget>
                   </item>
@@ -435,7 +435,7 @@
               <item row="1" column="0">
                <widget class="QLabel" name="ql_maxIters">
                 <property name="text">
-                 <string>Maximum nubmer of iterations</string>
+                 <string>Maximum iterations</string>
                 </property>
                </widget>
               </item>
@@ -530,7 +530,14 @@
                <item>
                 <layout class="QGridLayout" name="gridLayout_4">
                  <item row="0" column="0">
-                  <widget class="QComboBox" name="qcbox_statData"/>
+                  <widget class="QComboBox" name="qcbox_statData">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                  </widget>
                  </item>
                  <item row="0" column="1">
                   <widget class="QPushButton" name="qpb_leftConfIntr">
@@ -610,14 +617,14 @@
                  <item row="1" column="0">
                   <widget class="QLabel" name="ql_chartHorizontalMarker">
                    <property name="text">
-                    <string>Chart horizontal marker</string>
+                    <string>Chart horiz. marker</string>
                    </property>
                   </widget>
                  </item>
                  <item row="2" column="0">
                   <widget class="QLabel" name="ql_chartVerticalAMarker">
                    <property name="text">
-                    <string>Chart vertical marker (left)</string>
+                    <string>Chart vert. marker (left)</string>
                    </property>
                   </widget>
                  </item>
@@ -663,7 +670,7 @@
                  <item row="3" column="0">
                   <widget class="QLabel" name="ql_chartVerticalBMarker">
                    <property name="text">
-                    <string>Chart vertical marker (right)</string>
+                    <string>Chart vert. marker (right)</string>
                    </property>
                   </widget>
                  </item>
