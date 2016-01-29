@@ -10,9 +10,6 @@ class FloatingValueLineEdit : public QLineEdit
 public:
   FloatingValueLineEdit(QWidget *parent = nullptr);
 
-private:
-  QLocale m_locale;
-
 private slots:
   void ensureSanity(QString text);
 

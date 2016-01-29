@@ -11,6 +11,20 @@ NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
   m_intValidator.setBottom(1);
   m_intValidator.setTop(16);
 
+  /* Fill list of available locales */
+  {
+    QLocale::Country currentCtry = DoubleToStringConvertor::country();
+    int currentCtryIdx = 0;
+    for (int ctry = 1; ctry <= 246; ctry++) {
+      QLocale::Country tctry = static_cast<QLocale::Country>(ctry);
+
+      ui->qcbox_formatting->addItem(QLocale::countryToString(tctry), ctry);
+      if (tctry == currentCtry)
+        currentCtryIdx = ctry - 1;
+    }
+    ui->qcbox_formatting->setCurrentIndex(currentCtryIdx);
+  }
+
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &NumberFormatDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &NumberFormatDialog::onOkClicked);
 }
@@ -29,6 +43,7 @@ void NumberFormatDialog::onOkClicked()
 {
   char type;
   int digits;
+  int ctry;
   bool ok;
 
   if (ui->qcb_trailingZeros->checkState() == Qt::Checked)
@@ -40,7 +55,9 @@ void NumberFormatDialog::onOkClicked()
   if (!ok)
     digits = 5;
 
-  DoubleToStringConvertor::setParameters(type, digits);
+  ctry = ui->qcbox_formatting->currentData().toInt();
+
+  DoubleToStringConvertor::setParameters(type, digits, static_cast<QLocale::Country>(ctry));
 
   accept();
 }

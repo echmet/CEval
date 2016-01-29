@@ -5,6 +5,7 @@
 #include "qwt_plot_zoomer.h"
 #include "qwt_scale_widget.h"
 #include "gui/adjustplotvisualsdialog.h"
+#include "doubletostringconvertor.h"
 
 ModeContext::ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent) :
   QObject(parent),
@@ -197,6 +198,11 @@ void ModeContext::hideSerie(const int id)
     return;
 
   m_plotCurves[id]->detach();
+}
+
+void ModeContext::onNumberFormatChanged()
+{
+  m_plot->setLocale(DoubleToStringConvertor::locale());
 }
 
 void ModeContext::onPointSelected(const QPointF &pos)

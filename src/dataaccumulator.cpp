@@ -1,4 +1,5 @@
 #include "dataaccumulator.h"
+#include "doubletostringconvertor.h"
 #include "crashhandler.h"
 #include "qwt_picker_machine.h"
 #include <QMessageBox>
@@ -64,6 +65,11 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to initialize mode contexts"));
     throw;
+  }
+
+  for (std::shared_ptr<ModeContext> &ctx : m_modeCtxs) {
+    ModeContext *tctx = ctx.get();
+    DoubleToStringConvertor::notifyOnFormatChanged(tctx);
   }
 
   m_currentModeCtx = nullptr;

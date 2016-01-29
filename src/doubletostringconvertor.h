@@ -2,17 +2,23 @@
 #define DOUBLETOSTRINGCONVERTOR_H
 
 #include <QLocale>
+#include <QVector>
 
-class DoubleToStringConvertor
+class INumberFormatChangeable;
+
+class DoubleToStringConvertor : public QObject
 {
 public:
   static double back(const QString &value, bool *ok);
   static QString convert(const double d);
   static int digits();
   static void initialize();
+  static QLocale::Country country();
   static void loadUserSettings(const QVariant &settings);
+  static const QLocale &locale();
+  static void notifyOnFormatChanged(QObject *o);
   static QVariant saveUserSettings();
-  static void setParameters(const char type, int digits);
+  static void setParameters(const char type, int digits, const QLocale::Country ctry);
   static char type();
 
 private:
@@ -22,10 +28,13 @@ private:
   int m_digits;
   char m_type;
 
+  QVector<INumberFormatChangeable *> m_listeners;
+
   static DoubleToStringConvertor *s_me;
 
   static const QString DIGITS_SETTINGS_TAG;
   static const QString NUMBER_FORMAT_SETTINGS_TAG;
+  static const QString LOCALE_SETTINGS_TAG;
 };
 
 #endif // DOUBLETOSTRINGCONVERTOR_H

@@ -10,22 +10,25 @@ FloatingValueLineEdit::FloatingValueLineEdit(QWidget *parent) :
   this->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
   connect(this, &FloatingValueLineEdit::textChanged, this, &FloatingValueLineEdit::ensureSanity);
+
+
 }
 
 void FloatingValueLineEdit::ensureSanity(QString text)
 {
   bool ok;
   double dv;
+  const QLocale &loc = DoubleToStringConvertor::locale();
 
   QString _text = text.replace(QChar::Nbsp, QString(""), Qt::CaseInsensitive);
-  dv = m_locale.toDouble(_text, &ok);
+  dv = loc.toDouble(_text, &ok);
   if (ok || _text.length() == 0) {
     this->setPalette(QPalette());
 
     /* You are not supposed to try to figure this out */
-    if (_text.endsWith(m_locale.decimalPoint()) ||
-        _text.startsWith(m_locale.decimalPoint()) ||
-        _text.startsWith(m_locale.negativeSign()) ||
+    if (_text.endsWith(loc.decimalPoint()) ||
+        _text.startsWith(loc.decimalPoint()) ||
+        _text.startsWith(loc.negativeSign()) ||
         _text.endsWith('0') ||
         dv == 0.0 ||
         _text.length() == 0 ||

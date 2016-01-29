@@ -238,7 +238,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/mystd/foostream.h \
     src/gui/aboutdialog.h \
     src/hyperbolefittingenginemsgs.h \
-    src/scrollareaeventfilter.h
+    src/scrollareaeventfilter.h \
+    src/inumberformatchangeable.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

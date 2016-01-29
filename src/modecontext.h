@@ -6,6 +6,7 @@
 #include <QPointF>
 #include <QRect>
 #include "serieproperties.h"
+#include "inumberformatchangeable.h"
 #include "gui/adjustplotvisualsdialog.h"
 
 class QwtPlot;
@@ -13,8 +14,9 @@ class QwtPlotCurve;
 class QwtPlotPicker;
 class QwtPlotZoomer;
 
-class ModeContext : public QObject {
+class ModeContext : public QObject, public INumberFormatChangeable {
   Q_OBJECT
+  Q_INTERFACES(INumberFormatChangeable)
 public:
   explicit ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent = nullptr);
   void activate();
@@ -25,6 +27,7 @@ public:
   void clearSerieSamples(const int id);
   void deactivate();
   void hideSerie(const int id);
+  void onNumberFormatChanged() override;
   void removeSerie(const int id);
   QRectF range() const;
   void replot();

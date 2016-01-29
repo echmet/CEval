@@ -72,6 +72,8 @@ int main(int argc, char *argv[])
 
   CrashHandler::install();
 
+  DoubleToStringConvertor::initialize();
+
   try {
     w = new EvalMainWindow(nullptr);
     dac = new DataAccumulator(w->plot(), nullptr);
@@ -81,7 +83,6 @@ int main(int argc, char *argv[])
     goto out;
   }
   HVLCalculator::initialize();
-  DoubleToStringConvertor::initialize();
 
   setupBindings(w, dac);
 
