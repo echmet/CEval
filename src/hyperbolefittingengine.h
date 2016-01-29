@@ -11,6 +11,7 @@
 #include "hyperbolefititems.h"
 #include "hyperbolefittingenginemsgs.h"
 #include "integermappermodel.h"
+#include "inumberformatchangeable.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
 #include "stringmappermodel.h"
@@ -21,9 +22,10 @@
 #include "math/regressor/hyperbole2.h"
 
 
-class HyperboleFittingEngine : public QObject
+class HyperboleFittingEngine : public QObject, public INumberFormatChangeable
 {
   Q_OBJECT
+  Q_INTERFACES(INumberFormatChangeable)
 public:
   enum class FitMode : int {
     SINGLE,
@@ -93,6 +95,7 @@ public:
   QAbstractItemModel *fitModeModel();
   void loadUserSettings(const QVariant &settings);
   QAbstractItemModel *mobilitiesModel();
+  void onNumberFormatChanged(const QLocale *oldLocale) override;
   void refreshModels();
   QVariant saveUserSettings() const;
   QAbstractItemModel *statModeModel();

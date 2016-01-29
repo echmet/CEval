@@ -9,19 +9,21 @@
 #include "../floatingvaluedelegate.h"
 #include "../hyperbolefititems.h"
 #include "../hyperbolefittingenginemsgs.h"
+#include "../inumberformatchangeable.h"
 #include "../scrollareaeventfilter.h"
 
 namespace Ui {
 class HyperboleFitWidget;
 }
 
-class HyperboleFitWidget : public QWidget
+class HyperboleFitWidget : public QWidget, public INumberFormatChangeable
 {
   Q_OBJECT
 public:
   explicit HyperboleFitWidget(QWidget *parent = nullptr);
   ~HyperboleFitWidget();
   void connectToAccumulator(QObject *dac);
+  void onNumberFormatChanged(const QLocale *oldLocale) override;
   void setAnalytesModel(QAbstractItemModel *model);
   void setAnalyteNamesModel(AbstractMapperModel<QString, HyperboleFitParameters::String> *model);
   void setConcentrationsModel(QAbstractItemModel *model);

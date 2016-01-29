@@ -290,6 +290,8 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
     if (!ret)
       throw regressor_initialization_error("Failed to preinitialize double fit regressor");
   }
+
+  DoubleToStringConvertor::notifyOnFormatChanged(this);
 }
 
 HyperboleFittingEngine::~HyperboleFittingEngine()
@@ -1553,6 +1555,25 @@ void HyperboleFittingEngine::onFitModeChanged(const QVariant &v)
     emit enableDoubleFit(true);
     break;
   }
+}
+
+void HyperboleFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
+{
+  Q_UNUSED(oldLocale);
+
+  if (m_currentAnalyte == nullptr || m_currentConcentration == nullptr)
+    return;
+
+  m_concentrationsModel.clear();
+  Analyte::ConcentrationMap::const_iterator cit = m_currentAnalyte->concentrations.cbegin();
+  for (; cit != m_currentAnalyte->concentrations.cend(); cit++) {
+    QStandardItem *item = new QStandardItem(DoubleToStringConvertor::convert(cit.key()));
+    item->setData(cit.key(), Qt::UserRole + 1);
+    m_concentrationsModel.appendRow(item);
+  }
+
+  m_mobilitiesModel.clear();
+  setMobilitiesList(makeMobilitiesList(m_currentConcentration->mobilities()));
 }
 
 void HyperboleFittingEngine::onRedrawDataSeries()

@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
   loadUserSettings(dac);
 
   setDefaultState(w);
+  DoubleToStringConvertor::setInitial();
 
   dac->checkForCrashRecovery();
 

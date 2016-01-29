@@ -18,6 +18,7 @@ public:
   static const QLocale &locale();
   static void notifyOnFormatChanged(QObject *o);
   static QVariant saveUserSettings();
+  static void setInitial();
   static void setParameters(const char type, int digits, const QLocale::Country ctry);
   static char type();
 

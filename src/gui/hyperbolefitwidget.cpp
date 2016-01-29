@@ -304,6 +304,14 @@ void HyperboleFitWidget::onFitModeActivated(const int idx)
   emit fitModeChanged(ui->qcbox_fitMode->currentData(Qt::UserRole + 1));
 }
 
+void HyperboleFitWidget::onNumberFormatChanged(const QLocale *oldLocale)
+{
+  Q_UNUSED(oldLocale);
+
+  ui->qlv_concentrations->setLocale(DoubleToStringConvertor::locale());
+  ui->qlv_mobilities->setLocale(DoubleToStringConvertor::locale());
+}
+
 void HyperboleFitWidget::onRedrawClicked()
 {
   emit redrawDataSeries();

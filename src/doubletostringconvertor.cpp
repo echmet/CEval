@@ -104,6 +104,12 @@ QVariant DoubleToStringConvertor::saveUserSettings()
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }
 
+void DoubleToStringConvertor::setInitial()
+{
+  for (INumberFormatChangeable *nco : s_me->m_listeners)
+    nco->onNumberFormatChanged(&s_me->m_locale);
+}
+
 void DoubleToStringConvertor::setParameters(const char type, const int digits, const QLocale::Country ctry)
 {
   s_me->m_type = type;
