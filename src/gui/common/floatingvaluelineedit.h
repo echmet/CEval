@@ -15,6 +15,7 @@ public:
 
 private slots:
   void ensureSanity(QString text);
+  void onEditingFinished();
 
 };
 
