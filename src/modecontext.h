@@ -27,7 +27,7 @@ public:
   void clearSerieSamples(const int id);
   void deactivate();
   void hideSerie(const int id);
-  void onNumberFormatChanged() override;
+  void onNumberFormatChanged(const QLocale *oldLocale) override;
   void removeSerie(const int id);
   QRectF range() const;
   void replot();

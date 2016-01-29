@@ -10,8 +10,7 @@ FloatingValueLineEdit::FloatingValueLineEdit(QWidget *parent) :
   this->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
   connect(this, &FloatingValueLineEdit::textChanged, this, &FloatingValueLineEdit::ensureSanity);
-
-
+  DoubleToStringConvertor::notifyOnFormatChanged(this);
 }
 
 void FloatingValueLineEdit::ensureSanity(QString text)
@@ -44,6 +43,19 @@ void FloatingValueLineEdit::ensureSanity(QString text)
     QPalette palette = this->palette();
     palette.setColor(QPalette::Base, Qt::red);
     this->setPalette(palette);
+  }
+}
+
+void FloatingValueLineEdit::onNumberFormatChanged(const QLocale *oldLocale)
+{
+  bool ok;
+  double dv;
+
+  dv = oldLocale->toDouble(this->text(), &ok);
+  if (ok) {
+    blockSignals(true);
+    this->setText(DoubleToStringConvertor::convert(dv));
+    blockSignals(false);
   }
 }
 

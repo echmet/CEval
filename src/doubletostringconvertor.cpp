@@ -109,10 +109,14 @@ void DoubleToStringConvertor::setParameters(const char type, const int digits, c
   s_me->m_type = type;
   s_me->m_digits = digits;
 
+  const QLocale *oldLocale = new QLocale(s_me->m_locale);
+
   s_me->m_locale = QLocale(QLocale::AnyLanguage, ctry);
 
   for (INumberFormatChangeable *nco : s_me->m_listeners)
-    nco->onNumberFormatChanged();
+    nco->onNumberFormatChanged(oldLocale);
+
+  delete oldLocale;
 }
 
 char DoubleToStringConvertor::type()

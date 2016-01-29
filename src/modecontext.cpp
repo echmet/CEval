@@ -200,8 +200,10 @@ void ModeContext::hideSerie(const int id)
   m_plotCurves[id]->detach();
 }
 
-void ModeContext::onNumberFormatChanged()
+void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
 {
+  Q_UNUSED(oldLocale)
+
   m_plot->setLocale(DoubleToStringConvertor::locale());
 }
 

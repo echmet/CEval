@@ -292,7 +292,6 @@ private:
   echmet::regressCore::RectangularHyperbole2<double, double> *m_doubleFitRegressor;
 
   QString m_lastDataTablePath;
-  QLocale m_locale;
   const QStringList m_dataTablesNameFilter;
 
 

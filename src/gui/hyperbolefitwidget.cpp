@@ -113,7 +113,7 @@ void HyperboleFitWidget::onAddConcentrationClicked()
 
   while (dlg.exec() == QDialog::Accepted) {
     bool ok;
-    const double d = dlg.textValue().toDouble(&ok);
+    const double d = DoubleToStringConvertor::back(dlg.textValue(), &ok);
     if (!ok) {
       QMessageBox::warning(this, tr("Invalid input"), tr("Non-numeric value"));
       continue;
@@ -135,7 +135,7 @@ void HyperboleFitWidget::onAddMobilityClicked()
 
   while (dlg.exec() == QDialog::Accepted) {
     bool ok;
-    const double d = dlg.textValue().toDouble(&ok);
+    const double d = DoubleToStringConvertor::back(dlg.textValue(), &ok);
     if (!ok) {
       QMessageBox::warning(nullptr, tr("Invalid input"), tr("Non-numeric value"));
       continue;

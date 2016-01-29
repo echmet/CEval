@@ -1042,7 +1042,7 @@ void HyperboleFittingEngine::onAddMobility(const double u)
   try {
     m_currentConcentration->addMobility(u);
 
-    item = new QStandardItem(m_locale.toString(u, 'g', 4));
+    item = new QStandardItem(DoubleToStringConvertor::convert(u));
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add migration time"));
     return;
