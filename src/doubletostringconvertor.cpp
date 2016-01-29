@@ -36,11 +36,6 @@ void DoubleToStringConvertor::initialize()
   s_me = new DoubleToStringConvertor();
 }
 
-QLocale::Country DoubleToStringConvertor::country()
-{
-  return s_me->m_locale.country();
-}
-
 void DoubleToStringConvertor::loadUserSettings(const QVariant &settings)
 {
   if (!settings.canConvert<EMT::StringVariantMap>())
@@ -69,14 +64,7 @@ void DoubleToStringConvertor::loadUserSettings(const QVariant &settings)
 
   if (map.contains(LOCALE_SETTINGS_TAG)) {
     QVariant v = map[LOCALE_SETTINGS_TAG];
-    int ctry;
-    bool ok;
-
-    ctry = v.toInt(&ok);
-    if (ok) {
-      if (ctry > 0 && ctry <= 246)
-        s_me->m_locale = QLocale(QLocale::AnyLanguage, static_cast<QLocale::Country>(ctry));
-    }
+    s_me->m_locale = QLocale(v.toString());
   }
 }
 
@@ -99,7 +87,7 @@ QVariant DoubleToStringConvertor::saveUserSettings()
 
   map[DIGITS_SETTINGS_TAG] = s_me->digits();
   map[NUMBER_FORMAT_SETTINGS_TAG] = s_me->type();
-  map[LOCALE_SETTINGS_TAG] = s_me->m_locale.country();
+  map[LOCALE_SETTINGS_TAG] = s_me->m_locale.name();
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }
@@ -108,16 +96,19 @@ void DoubleToStringConvertor::setInitial()
 {
   for (INumberFormatChangeable *nco : s_me->m_listeners)
     nco->onNumberFormatChanged(&s_me->m_locale);
+
+  QLocale::setDefault(s_me->m_locale);
 }
 
-void DoubleToStringConvertor::setParameters(const char type, const int digits, const QLocale::Country ctry)
+void DoubleToStringConvertor::setParameters(const char type, const int digits, const QString locName)
 {
   s_me->m_type = type;
   s_me->m_digits = digits;
 
   const QLocale *oldLocale = new QLocale(s_me->m_locale);
 
-  s_me->m_locale = QLocale(QLocale::AnyLanguage, ctry);
+  s_me->m_locale = QLocale(locName);
+  QLocale::setDefault(s_me->m_locale);
 
   for (INumberFormatChangeable *nco : s_me->m_listeners)
     nco->onNumberFormatChanged(oldLocale);

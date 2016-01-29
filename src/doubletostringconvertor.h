@@ -13,13 +13,12 @@ public:
   static QString convert(const double d);
   static int digits();
   static void initialize();
-  static QLocale::Country country();
   static void loadUserSettings(const QVariant &settings);
   static const QLocale &locale();
   static void notifyOnFormatChanged(QObject *o);
   static QVariant saveUserSettings();
   static void setInitial();
-  static void setParameters(const char type, int digits, const QLocale::Country ctry);
+  static void setParameters(const char type, int digits, const QString locName);
   static char type();
 
 private:

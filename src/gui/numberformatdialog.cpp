@@ -13,16 +13,17 @@ NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
 
   /* Fill list of available locales */
   {
-    QLocale::Country currentCtry = DoubleToStringConvertor::country();
-    int currentCtryIdx = 0;
-    for (int ctry = 1; ctry <= 246; ctry++) {
-      QLocale::Country tctry = static_cast<QLocale::Country>(ctry);
-
-      ui->qcbox_formatting->addItem(QLocale::countryToString(tctry), ctry);
-      if (tctry == currentCtry)
-        currentCtryIdx = ctry - 1;
+    QString currentName = DoubleToStringConvertor::locale().name();
+    int locIdx = 0;
+    int ctr = 0;
+    QList<QLocale> allLocales = QLocale::matchingLocales(QLocale::Language::AnyLanguage, QLocale::Script::AnyScript, QLocale::Country::AnyCountry);
+    for (const QLocale &loc : allLocales) {
+      ui->qcbox_formatting->addItem(QString("%1 (%2)").arg(loc.nativeCountryName()).arg(loc.bcp47Name()), loc.name());
+      if (loc.name() == currentName)
+        locIdx = ctr;
+      ctr++;
     }
-    ui->qcbox_formatting->setCurrentIndex(currentCtryIdx);
+    ui->qcbox_formatting->setCurrentIndex(locIdx);
   }
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &NumberFormatDialog::onCancelClicked);
@@ -43,7 +44,7 @@ void NumberFormatDialog::onOkClicked()
 {
   char type;
   int digits;
-  int ctry;
+  QString locName;
   bool ok;
 
   if (ui->qcb_trailingZeros->checkState() == Qt::Checked)
@@ -55,9 +56,9 @@ void NumberFormatDialog::onOkClicked()
   if (!ok)
     digits = 5;
 
-  ctry = ui->qcbox_formatting->currentData().toInt();
+  locName = ui->qcbox_formatting->currentData().toString();
 
-  DoubleToStringConvertor::setParameters(type, digits, static_cast<QLocale::Country>(ctry));
+  DoubleToStringConvertor::setParameters(type, digits, locName);
 
   accept();
 }

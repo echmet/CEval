@@ -80,7 +80,6 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   if (CrashHandler::pointer() != nullptr) {
     QObject::connect(CrashHandler::pointer(), &CrashHandler::emergency, m_hyperboleFittingEngine, &HyperboleFittingEngine::onEmergencySave);
   }
-
 }
 
 void DataAccumulator::checkForCrashRecovery()
