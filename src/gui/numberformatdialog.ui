@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>226</width>
-    <height>116</height>
+    <width>317</width>
+    <height>152</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <item row="0" column="0">
       <widget class="QLabel" name="ql_trailingZeros">
        <property name="text">
-        <string>Display trailing zeros:</string>
+        <string>Display trailing zeros</string>
        </property>
       </widget>
      </item>
@@ -33,7 +33,7 @@
      <item row="1" column="0">
       <widget class="QLabel" name="ql_digits">
        <property name="text">
-        <string>Digits:</string>
+        <string>Significant digits</string>
        </property>
       </widget>
      </item>
@@ -43,7 +43,7 @@
      <item row="2" column="0">
       <widget class="QLabel" name="ql_formatting">
        <property name="text">
-        <string>Formatting</string>
+        <string>National format</string>
        </property>
       </widget>
      </item>
