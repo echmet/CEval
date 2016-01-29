@@ -8,8 +8,6 @@
 #include "../hyperbolefittingwidgetconnector.h"
 #include "../doubletostringconvertor.h"
 
-#include <QDebug>
-
 HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::HyperboleFitWidget)
