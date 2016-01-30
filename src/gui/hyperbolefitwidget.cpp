@@ -66,6 +66,8 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
 
     m_saEvFilter = new ScrollAreaEventFilter(f, ui->scrollAreaWidgetContents, this);
   }
+
+  DoubleToStringConvertor::notifyOnFormatChanged(this);
 }
 
 HyperboleFitWidget::~HyperboleFitWidget()

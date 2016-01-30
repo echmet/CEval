@@ -19,6 +19,7 @@ class HyperboleFitWidget;
 class HyperboleFitWidget : public QWidget, public INumberFormatChangeable
 {
   Q_OBJECT
+  Q_INTERFACES(INumberFormatChangeable)
 public:
   explicit HyperboleFitWidget(QWidget *parent = nullptr);
   ~HyperboleFitWidget();
