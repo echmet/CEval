@@ -3,6 +3,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_picker.h"
 #include "qwt_plot_zoomer.h"
+#include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
 #include "gui/adjustplotvisualsdialog.h"
 #include "doubletostringconvertor.h"
@@ -205,6 +206,11 @@ void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
   Q_UNUSED(oldLocale)
 
   m_plot->setLocale(DoubleToStringConvertor::locale());
+
+  m_plot->setAxisScaleDraw(QwtPlot::Axis::xBottom, new QwtScaleDraw);
+  m_plot->setAxisScaleDraw(QwtPlot::Axis::xTop, new QwtScaleDraw);
+  m_plot->setAxisScaleDraw(QwtPlot::Axis::yLeft, new QwtScaleDraw);
+  m_plot->setAxisScaleDraw(QwtPlot::Axis::yRight, new QwtScaleDraw);
 }
 
 void ModeContext::onPointSelected(const QPointF &pos)

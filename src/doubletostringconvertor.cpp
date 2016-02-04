@@ -94,10 +94,10 @@ QVariant DoubleToStringConvertor::saveUserSettings()
 
 void DoubleToStringConvertor::setInitial()
 {
+  QLocale::setDefault(s_me->m_locale);
+
   for (INumberFormatChangeable *nco : s_me->m_listeners)
     nco->onNumberFormatChanged(&s_me->m_locale);
-
-  QLocale::setDefault(s_me->m_locale);
 }
 
 void DoubleToStringConvertor::setParameters(const char type, const int digits, const QString locName)
