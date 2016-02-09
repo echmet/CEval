@@ -1,6 +1,7 @@
 #include "aboutdialog.h"
 #include "ui_aboutdialog.h"
 #include "../globals.h"
+#include <QFontMetrics>
 #include <QSysInfo>
 
 AboutDialog::AboutDialog(QWidget *parent) :
@@ -27,6 +28,11 @@ AboutDialog::AboutDialog(QWidget *parent) :
       l->setOpenExternalLinks(true);
       ui->gridLayout->addWidget(l);
     }
+  }
+
+  {
+    QFontMetricsF fm(ui->ql_thankYouQt->font());
+    setMinimumWidth(fm.boundingRect(ui->ql_thankYouQt->text()).width() * 1.15);
   }
 
   connect(ui->qpb_close, &QPushButton::clicked, this, &AboutDialog::onCloseClicked);
