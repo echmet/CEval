@@ -352,7 +352,7 @@ void HyperboleFitWidget::onRemoveAnalyteClicked()
   if (reply == QMessageBox::Yes) {
     const QModelIndex srcidx = m_analytesSortProxy.mapToSource(idx);
     emit removeAnalyte(srcidx);
-    m_mobilitiesSortProxy.sort(0);
+    m_analytesSortProxy.sort(0);
   }
 }
 
@@ -387,6 +387,7 @@ void HyperboleFitWidget::onRemoveMobilityClicked()
 {
   const QModelIndex srcidx = m_mobilitiesSortProxy.mapToSource(ui->qlv_mobilities->currentIndex());
   emit removeMobility(srcidx);
+  m_mobilitiesSortProxy.sort(0);
 }
 
 void HyperboleFitWidget::onShowChartHorizontalMarker()
