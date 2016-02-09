@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>277</width>
-    <height>436</height>
+    <height>594</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,7 +30,14 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="qcbox_series"/>
+         <widget class="QComboBox" name="qcbox_series">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="ql_lineColor">
@@ -75,6 +82,12 @@
         </item>
         <item row="3" column="1">
          <widget class="QDoubleSpinBox" name="qspbox_lineThickness">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -129,6 +142,12 @@
         </item>
         <item row="5" column="1">
          <widget class="QSpinBox" name="qspbox_pointSize">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -145,7 +164,14 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QComboBox" name="qcbox_pointStyles"/>
+         <widget class="QComboBox" name="qcbox_pointStyles">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="6" column="0">
          <widget class="QLabel" name="ql_pointLineThickness">
@@ -163,6 +189,12 @@
         </item>
         <item row="6" column="1">
          <widget class="QDoubleSpinBox" name="qspbox_pointLineThickness">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -220,6 +252,12 @@
         </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="qspbox_axisFontSize">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -236,7 +274,14 @@
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QComboBox" name="qcbox_axis"/>
+         <widget class="QComboBox" name="qcbox_axis">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="ql_axisBold">
