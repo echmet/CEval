@@ -11,7 +11,7 @@ In ACE mode CEval can assist with evaluation of electrophoretic mobilities and c
 Dependencies
 ---
 
-CEval makes use of the following tools
+CEval makes use of the following tools:
 
 - [Qt 5 toolkit](https://www.qt.io/)
 - [Boost](http://www.boost.org/)
@@ -30,40 +30,40 @@ Prior to building CEval, all hard dependencies have to be available it a binary 
 
   Paths to build dependencies can be set in **CEval.pri** file. The variables to set are following:
 
-  - HPCSPATH - Path to the directory which contains both **libHPCS** shared library and **libHPCS.h** public header file
-  - BOOSTPATH - Path to the directory with the Boost library headers
-  - QWTPATH - Path to the **features/qwt.prf** file
+  - `HPCSPATH` - Path to the directory which contains both **libHPCS** shared library and **libHPCS.h** public header file
+  - `BOOSTPATH` - Path to the directory with the Boost library headers
+  - `QWTPATH` - Path to the **features/qwt.prf** file
 
 2. Building
 
   ### Linux/UNIX
 
-  After you have set up the paths as instructed above, cd to the directory with CEval sources and run the following:
+  After you have set up the paths as instructed above, `cd` to the directory with CEval sources and run the following:
 
        mkdir build
        cd build
        qmake "CONFIG+=Release" ../CEval.pro
        make
 
+  **Remark:** Linux is the only UNIX-based system so far that has been tested to build and run CEval.
+
   ### Windows
 
   It is recommended to install [QtCreator](https://www.qt.io/ide/) and use its user interface to set the project up and build it. While it might be possible to use other compilers, the authors recommend to use the [MinGW toolchain](http://www.mingw.org/) to build CEval.
-
-  Remark: Linux is the only UNIX-based system so far that has been tested to build and run CEval.
 
 3. Run
 
   In order for CEval to use the **HVL_MT** library, the hvl_mt library (usually named **hvl_mt.so, hvl_mt.dll, hvl_mt.dylib**) must be placed in the same directory as CEval's executable.
 
-Pre-build packages
-
-Pre-build packages are available for both Windows and Linux and can be downloaded from here:
-
-<- TODO: Přidat link ->
+Pre-built binaries
+---
+Pre-built binaries for commonly used platforms can be downloaded from here:  
+[TODO](http://the.void#Download)
 
 Usage
 ---
-<- TODO: Asi link na ECHMETí web, až tam budou tutoriály atp. ->
+Tutorial for CEval can be obtained from here:  
+[TODO](http://the.void#Tutorial)
 
 Licensing
 ---

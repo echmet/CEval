@@ -343,7 +343,7 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<ModeContextLimited> c
   if (!m_modeCtx->addSerie(seriesIndex(Series::FIT_B_CURVE), s_fitCurveBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(77, 119, 183), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveBTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::green, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_modeCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(130, 190, 73), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveStatsTitle));
 
   if (!m_modeCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
