@@ -62,6 +62,7 @@ signals:
   void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void chartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
   void concentrationSwitched(const QModelIndex &idx);
+  void displayedAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
   void doEstimate();
   void doFit();
   void doStats(const HyperboleStats::Intervals intr);
@@ -74,7 +75,6 @@ signals:
   void showChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void statModeChanged(const QVariant &v);
   void statUnitsChanged(const QVariant &v);
-  void swapAnalytesChanged(const bool swap);
 
 private slots:
   void onAddAnalyteClicked();
@@ -90,6 +90,7 @@ private slots:
   void onChartVerticalAMarkerValueChanged(const QString &value);
   void onChartVerticalBMarkerValueChanged(const QString &value);
   void onConcentrationsListClicked(const QModelIndex &idx);
+  void onDisplayedAnalyteChanged();
   void onEstimateClicked();
   void onFitClicked();
   void onFitModeActivated(const int idx);
@@ -105,13 +106,11 @@ private slots:
   void onStatRightClicked();
   void onStatModeActivated(const int idx);
   void onStatUnitsActivated(const int idx);
-  void onSwapAnalytesClicked();
 
 public slots:
   void onEnableDoubleFit(const bool enable);
   void onChartHorizontalMarkerIntersectionSet(const double d);
   void onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
-  void onSwapAnalyteNamesModel(const bool swap);
 
 };
 

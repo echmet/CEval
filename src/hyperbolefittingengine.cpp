@@ -218,7 +218,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_secondAnalyte(nullptr),
   m_currentConcentration(nullptr),
   m_currentConcentrationKey(INVAL_CONC_KEY),
-  m_swapAnalytes(false),
+  m_displayedAnalyte(AnalyteId::ANALYTE_A),
   m_showHorizontalMarker(false),
   m_showVerticalAMarker(false),
   m_showVerticalBMarker(false),
@@ -521,8 +521,8 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
       return DoubleHypResults();
   }
 
-  const Analyte::ConcentrationMap &cs1 = (!m_swapAnalytes) ? m_currentAnalyte->concentrations : m_secondAnalyte->concentrations;
-  const Analyte::ConcentrationMap &cs2 = (!m_swapAnalytes) ? m_secondAnalyte->concentrations : m_currentAnalyte->concentrations;
+  const Analyte::ConcentrationMap &cs1 = (m_displayedAnalyte == AnalyteId::ANALYTE_A) ? m_currentAnalyte->concentrations : m_secondAnalyte->concentrations;
+  const Analyte::ConcentrationMap &cs2 = (m_displayedAnalyte == AnalyteId::ANALYTE_B) ? m_secondAnalyte->concentrations : m_currentAnalyte->concentrations;
 
   mat_x.data.New(cs1.size() + cs2.size(), 1);
   mat_y.data.New(cs1.size() + cs2.size(), 1);
@@ -975,12 +975,12 @@ void HyperboleFittingEngine::onAddAnalyte(const QString &name)
                                        { Qt::DisplayRole });
 
   showDataSeries();
-  if (!m_swapAnalytes)
+  if (m_displayedAnalyte == AnalyteId::ANALYTE_A)
     clearAnalyteASeries();
   else
     clearAnalyteBSeries();
 
-  plotPoints(!m_swapAnalytes ? Series::POINTS_A : Series::POINTS_B , m_currentAnalyte);
+  plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_A : Series::POINTS_B , m_currentAnalyte);
 }
 
 void HyperboleFittingEngine::onAddConcentration(const double num)
@@ -1055,7 +1055,7 @@ void HyperboleFittingEngine::onAddMobility(const double u)
   m_mobilitiesModel.appendRow(item);
 
   showDataSeries();
-  plotPoints(!m_swapAnalytes ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
+  plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
 }
 
 void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
@@ -1083,7 +1083,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   m_currentAnalyte = m_analytes[name];
 
   if (m_currentFitMode == FitMode::DOUBLE) {
-    if (!m_swapAnalytes)
+    if (m_displayedAnalyte == AnalyteId::ANALYTE_A)
       clearAnalyteBSeries();
     else
       clearAnalyteASeries();
@@ -1102,7 +1102,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
 
         m_secondAnalyte = m_analytes[name2];
         m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = name2;
-        plotPoints(!m_swapAnalytes ? Series::POINTS_B : Series::POINTS_A , m_secondAnalyte);
+        plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_B : Series::POINTS_A , m_secondAnalyte);
 
         emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
                                              m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
@@ -1118,13 +1118,13 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
                                        m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
                                        { Qt::DisplayRole });
 
-  if (!m_swapAnalytes)
+  if (m_displayedAnalyte == AnalyteId::ANALYTE_A)
     clearAnalyteASeries();
   else
     clearAnalyteBSeries();
 
   showDataSeries();
-  plotPoints(!m_swapAnalytes ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
+  plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
 
   clearAllModels();
   invalidateCurrentConcentration();
@@ -1296,6 +1296,40 @@ void HyperboleFittingEngine::onDeserialize()
 
   QFileInfo finfo(d.absolutePath());
   m_modeCtx->setPlotTitle(finfo.fileName());
+}
+
+
+void HyperboleFittingEngine::onDisplayedAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId)
+{
+  if (m_currentFitMode != FitMode::DOUBLE)
+    return;
+
+  switch (aId) {
+  case HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_A:
+    m_displayedAnalyte = AnalyteId::ANALYTE_A;
+    break;
+  case HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_B:
+    m_displayedAnalyte = AnalyteId::ANALYTE_B;
+    break;
+  default:
+    break;
+  }
+
+  clearAnalyteASeries();
+  clearAnalyteBSeries();
+  if (m_displayedAnalyte == AnalyteId::ANALYTE_A) {
+    if (m_currentAnalyte != nullptr)
+      plotPoints(Series::POINTS_A, m_currentAnalyte);
+
+    if (m_secondAnalyte != nullptr)
+      plotPoints(Series::POINTS_B, m_secondAnalyte);
+  } else {
+    if (m_currentAnalyte != nullptr)
+      plotPoints(Series::POINTS_B, m_currentAnalyte);
+
+    if (m_secondAnalyte != nullptr)
+      plotPoints(Series::POINTS_A, m_secondAnalyte);
+  }
 }
 
 void HyperboleFittingEngine::onDoEstimate()
@@ -1543,11 +1577,11 @@ void HyperboleFittingEngine::onFitModeChanged(const QVariant &v)
     setSingleFitStats();
     clearAnalyteBSeries();
     invalidateAnalyteB();
-    if (m_swapAnalytes) {
+    if (m_displayedAnalyte == AnalyteId::ANALYTE_A) {
       clearAnalyteASeries();
       plotPoints(Series::POINTS_A, m_currentAnalyte);
     }
-    m_swapAnalytes = false;
+    m_displayedAnalyte = AnalyteId::ANALYTE_A;
     emit enableDoubleFit(false);
     break;
   case FitMode::DOUBLE:
@@ -1703,7 +1737,7 @@ void HyperboleFittingEngine::onRemoveConcentration(const QModelIndex &idx)
   m_concentrationsModel.removeRow(idx.row());
 
   showDataSeries();
-  plotPoints(!m_swapAnalytes ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
+  plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
 }
 
 void HyperboleFittingEngine::onRemoveMobility(const QModelIndex &idx)
@@ -1721,7 +1755,7 @@ void HyperboleFittingEngine::onRemoveMobility(const QModelIndex &idx)
   m_mobilitiesModel.removeRow(idx.row());
 
   showDataSeries();
-  plotPoints(!m_swapAnalytes ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
+  plotPoints((m_displayedAnalyte == AnalyteId::ANALYTE_A) ? Series::POINTS_A : Series::POINTS_B, m_currentAnalyte);
 }
 
 void HyperboleFittingEngine::onRenameAnalyte(const QVariant &internalId, const QString &newName, const int idx)
@@ -1908,37 +1942,6 @@ void HyperboleFittingEngine::onStatUnitsChanged(const QVariant &v)
   m_currentStatUnits = v.value<StatUnits>();
 }
 
-void HyperboleFittingEngine::onSwapAnalytesChanged(const bool swap)
-{
-  if (m_currentFitMode != FitMode::DOUBLE)
-    return;
-
-  m_swapAnalytes = swap;
-
-  clearAnalyteASeries();
-  clearAnalyteBSeries();
-  if (!swap) {
-    if (m_currentAnalyte != nullptr)
-      plotPoints(Series::POINTS_A, m_currentAnalyte);
-
-    if (m_secondAnalyte != nullptr)
-      plotPoints(Series::POINTS_B, m_secondAnalyte);
-  } else {
-    if (m_currentAnalyte != nullptr)
-      plotPoints(Series::POINTS_B, m_currentAnalyte);
-
-    if (m_secondAnalyte != nullptr)
-      plotPoints(Series::POINTS_A, m_secondAnalyte);
-  }
-
-  emit swapAnalyteNamesModel(swap);
-}
-
-int constexpr HyperboleFittingEngine::seriesIndex(const Series s)
-{
-  return static_cast<int>(s);
-}
-
 void HyperboleFittingEngine::plotCurve(const Series s, const QVector<QPointF> &data)
 {
   m_modeCtx->setSerieSamples(seriesIndex(s), data);
@@ -1960,7 +1963,7 @@ void HyperboleFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
         curveB.push_back(QPointF(x, (*m_doubleFitRegressor)(mx)));
     }
 
-    if (!m_swapAnalytes) {
+    if (m_displayedAnalyte == AnalyteId::ANALYTE_A) {
       m_modeCtx->setSerieSamples(seriesIndex(Series::FIT_A_CURVE), curveA);
       m_modeCtx->setSerieSamples(seriesIndex(Series::FIT_B_CURVE), curveB);
     } else {
@@ -2037,6 +2040,11 @@ QVariant HyperboleFittingEngine::saveUserSettings() const
   map[LAST_LOADSAVE_PATH_SETTINGS_TAG] = m_lastDataTablePath;
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
+}
+
+int constexpr HyperboleFittingEngine::seriesIndex(const Series s)
+{
+  return static_cast<int>(s);
 }
 
 void HyperboleFittingEngine::setConcentrationsList(const QList<QStandardItem *> &list)

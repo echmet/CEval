@@ -27,6 +27,12 @@ class HyperboleFittingEngine : public QObject, public INumberFormatChangeable
   Q_OBJECT
   Q_INTERFACES(INumberFormatChangeable)
 public:
+  enum class AnalyteId {
+    ANALYTE_A,
+    ANALYTE_B
+  };
+  Q_ENUM(AnalyteId)
+
   enum class FitMode : int {
     SINGLE,
     DOUBLE
@@ -263,7 +269,7 @@ private:
   FitMode m_currentFitMode;
   StatMode m_currentStatMode;
   StatUnits m_currentStatUnits;
-  bool m_swapAnalytes;
+  AnalyteId m_displayedAnalyte;
   bool m_showHorizontalMarker;
   bool m_showVerticalAMarker;
   bool m_showVerticalBMarker;
@@ -332,7 +338,6 @@ signals:
   void enableDoubleFit(const bool enable);
   void chartHorizontalMarkerIntersectionSet(const double d);
   void chartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
-  void swapAnalyteNamesModel(const bool swap);
 
 public slots:
   void onAddAnalyte(const QString &name);
@@ -344,6 +349,7 @@ public slots:
   void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();
+  void onDisplayedAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
   void onDoEstimate();
   void onDoFit();
   void onDoStats(const HyperboleStats::Intervals intr);
@@ -360,7 +366,6 @@ public slots:
   void onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void onStatModeChanged(const QVariant &v);
   void onStatUnitsChanged(const QVariant &v);
-  void onSwapAnalytesChanged(const bool swap);
 };
 
 #endif // HYPERBOLEFITTINGENGINE_H

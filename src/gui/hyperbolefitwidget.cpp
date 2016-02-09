@@ -27,7 +27,8 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qcbox_fitMode, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onFitModeActivated);
   connect(ui->qcbox_statData, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onStatModeActivated);
   connect(ui->qcbox_statUnits, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onStatUnitsActivated);
-  connect(ui->qcb_swapAnalytes, &QCheckBox::toggled, this, &HyperboleFitWidget::onSwapAnalytesClicked);
+  connect(ui->qrb_leftAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onDisplayedAnalyteChanged);
+  connect(ui->qrb_rightAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onDisplayedAnalyteChanged);
 
   connect(ui->qpb_bothConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatBothClicked);
   connect(ui->qpb_leftConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatLeftClicked);
@@ -271,6 +272,14 @@ void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
   emit concentrationSwitched(srcidx);
 }
 
+void HyperboleFitWidget::onDisplayedAnalyteChanged()
+{
+  if (ui->qrb_leftAnalyte->isChecked())
+    emit displayedAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_A);
+  if (ui->qrb_rightAnalyte->isChecked())
+    emit displayedAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_B);
+}
+
 void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
 {
   if (enable)
@@ -283,8 +292,10 @@ void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
       ui->qlv_analytes->setCurrentIndex(list.at(0));
   }
 
-  ui->qcb_swapAnalytes->setEnabled(enable);
-  onSwapAnalytesClicked();
+  ui->qrb_leftAnalyte->setEnabled(enable);
+  ui->qrb_rightAnalyte->setEnabled(enable);
+  if (enable)
+    onDisplayedAnalyteChanged();
 }
 
 void HyperboleFitWidget::onEstimateClicked()
@@ -428,28 +439,6 @@ void HyperboleFitWidget::onStatUnitsActivated(const int idx)
   Q_UNUSED(idx);
 
   emit statUnitsChanged(ui->qcbox_statUnits->currentData(Qt::UserRole + 1));
-}
-
-void HyperboleFitWidget::onSwapAnalytesClicked()
-{
-  bool swap = ui->qcb_swapAnalytes->checkState() == Qt::Checked;
-
-  emit swapAnalytesChanged(swap);
-}
-
-void HyperboleFitWidget::onSwapAnalyteNamesModel(const bool swap)
-{
-  AbstractMapperModel<QString, HyperboleFitParameters::String> *model = static_cast<AbstractMapperModel<QString, HyperboleFitParameters::String> *>(m_analyteNamesMapper.model());
-
-  if (swap) {
-    m_analyteNamesMapper.addMapping(ui->qle_analyteAName, model->indexFromItem(HyperboleFitParameters::String::ANALYTE_B));
-    m_analyteNamesMapper.addMapping(ui->qle_analyteBName, model->indexFromItem(HyperboleFitParameters::String::ANALYTE_A));
-  } else {
-    m_analyteNamesMapper.addMapping(ui->qle_analyteAName, model->indexFromItem(HyperboleFitParameters::String::ANALYTE_A));
-    m_analyteNamesMapper.addMapping(ui->qle_analyteBName, model->indexFromItem(HyperboleFitParameters::String::ANALYTE_B));
-  }
-
-  m_analyteNamesMapper.toFirst();
 }
 
 void HyperboleFitWidget::setAnalyteNamesModel(AbstractMapperModel<QString, HyperboleFitParameters::String> *model)

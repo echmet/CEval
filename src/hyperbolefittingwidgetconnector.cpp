@@ -49,9 +49,8 @@ void HyperboleFittingWidgetConnector::connectAll(QObject *anonWidget, QObject *a
   QObject::connect(w, &HyperboleFitWidget::fitModeChanged, e, &HyperboleFittingEngine::onFitModeChanged);
   QObject::connect(w, &HyperboleFitWidget::statModeChanged, e, &HyperboleFittingEngine::onStatModeChanged);
   QObject::connect(w, &HyperboleFitWidget::statUnitsChanged, e, &HyperboleFittingEngine::onStatUnitsChanged);
-  QObject::connect(w, &HyperboleFitWidget::swapAnalytesChanged, e, &HyperboleFittingEngine::onSwapAnalytesChanged);
+  QObject::connect(w, &HyperboleFitWidget::displayedAnalyteChanged, e, &HyperboleFittingEngine::onDisplayedAnalyteChanged);
   QObject::connect(e, &HyperboleFittingEngine::enableDoubleFit, w, &HyperboleFitWidget::onEnableDoubleFit);
-  QObject::connect(e, &HyperboleFittingEngine::swapAnalyteNamesModel, w, &HyperboleFitWidget::onSwapAnalyteNamesModel);
 
   QObject::connect(w, &HyperboleFitWidget::doEstimate, e, &HyperboleFittingEngine::onDoEstimate);
   QObject::connect(w, &HyperboleFitWidget::doFit, e, &HyperboleFittingEngine::onDoFit);
