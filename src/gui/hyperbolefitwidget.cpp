@@ -98,6 +98,7 @@ void HyperboleFitWidget::onAddAnalyteClicked()
       QString name = dlg.textValue();
       if (name.length() > 0) {
         emit addAnalyte(name);
+        m_analytesSortProxy.sort(0);
         return;
       }
     } else
@@ -155,16 +156,17 @@ void HyperboleFitWidget::onAnalyteListClicked()
   QModelIndexList list2;
 
   /* :-P */
-  if (list.size() > 2) {
+  disconnect(ui->qlv_analytes->selectionModel(), &QItemSelectionModel::selectionChanged, this, &HyperboleFitWidget::onAnalyteListClicked);
+  if (list.size() > 0) {
     ui->qlv_analytes->clearSelection();
-    for (int idx = 0; idx < 2; idx++) {
+    for (int idx = 0; idx < (list.size() > 2 ? 2 : list.size()); idx++) {
       ui->qlv_analytes->setCurrentIndex(list.at(idx));
-      list2.push_back(list.at(idx));
+      list2.push_back(m_analytesSortProxy.mapToSource(list.at(idx)));
     }
 
     emit analyteSwitched(list2);
-  } else
-    emit analyteSwitched(list);
+  }
+  connect(ui->qlv_analytes->selectionModel(), &QItemSelectionModel::selectionChanged, this, &HyperboleFitWidget::onAnalyteListClicked);
 }
 
 void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
@@ -319,6 +321,7 @@ void HyperboleFitWidget::onNumberFormatChanged(const QLocale *oldLocale)
 {
   Q_UNUSED(oldLocale);
 
+  ui->qlv_analytes->setLocale(DoubleToStringConvertor::locale());
   ui->qlv_concentrations->setLocale(DoubleToStringConvertor::locale());
   ui->qlv_mobilities->setLocale(DoubleToStringConvertor::locale());
 }
@@ -347,7 +350,8 @@ void HyperboleFitWidget::onRemoveAnalyteClicked()
   reply = QMessageBox::question(this, tr("Remove analyte?"), QString(tr("Really remove the analyte \"%1\"?")).arg(name),
                                 QMessageBox::Yes | QMessageBox::No);
   if (reply == QMessageBox::Yes) {
-    emit removeAnalyte(idx);
+    const QModelIndex srcidx = m_analytesSortProxy.mapToSource(idx);
+    emit removeAnalyte(srcidx);
     m_mobilitiesSortProxy.sort(0);
   }
 }
@@ -452,7 +456,10 @@ void HyperboleFitWidget::setAnalyteNamesModel(AbstractMapperModel<QString, Hyper
 
 void HyperboleFitWidget::setAnalytesModel(QAbstractItemModel *model)
 {
-  ui->qlv_analytes->setModel(model);
+  m_analytesSortProxy.setSourceModel(model);
+  ui->qlv_analytes->setModel(&m_analytesSortProxy);
+
+  m_analytesSortProxy.setSortRole(Qt::UserRole + 1);
 }
 
 void HyperboleFitWidget::setConcentrationsModel(QAbstractItemModel *model)

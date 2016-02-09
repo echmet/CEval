@@ -46,6 +46,7 @@ private:
   QDataWidgetMapper m_fitResultsMapper;
   QDataWidgetMapper m_analyteNamesMapper;
 
+  QSortFilterProxyModel m_analytesSortProxy;
   QSortFilterProxyModel m_concentrationsSortProxy;
   QSortFilterProxyModel m_mobilitiesSortProxy;
 

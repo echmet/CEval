@@ -1064,8 +1064,6 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   QString name;
   QModelIndexList list = inList;
 
-  qSort(list);
-
   if (list.isEmpty())
     return;
 
