@@ -26,7 +26,7 @@ const QString HyperboleFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A
 const QString HyperboleFittingEngine::s_uCSCaption = tr("Mobility of complex (\u03BC (AS))");
 const QString HyperboleFittingEngine::s_KCSCaption = tr("Complexation constant (K (AS))");
 const QString HyperboleFittingEngine::s_tauCaption = tr("Tau (\u03C4)");
-const QString HyperboleFittingEngine::s_confidenceCaption = tr("Confidence(%)");
+const QString HyperboleFittingEngine::s_confidenceCaption = tr("Confidence");
 const QString HyperboleFittingEngine::s_pValueCaption = tr("P-value");
 
 
@@ -1451,8 +1451,13 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
       break;
     }
 
-    if (!MProfiler(out, *m_singleFitRegressor, paramId))
-        QMessageBox::warning(nullptr, tr("Runtime error"), tr("Profiling failed."));
+    try {
+      if (!MProfiler(out, *m_singleFitRegressor, paramId))
+          QMessageBox::warning(nullptr, tr("Runtime error"), tr("Profiling failed."));
+    } catch (...) {
+        /* Nasty! */
+        QMessageBox::critical(nullptr, tr("Runtime error"), tr("Unhandled error triggered by the profiler. Ingoring and attempting to recover!"));
+    }
 
     break;
   }
