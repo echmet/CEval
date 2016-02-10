@@ -117,9 +117,9 @@ ChemStationFileLoader::Data ChemStationFileLoader::load(const QString &path, con
     return ChemStationFileLoader::Data();
 
   if (fullFile)
-    ret = hpcs_read_mdata(path.toLocal8Bit(), mdata);
+    ret = hpcs_read_mdata(path.toUtf8(), mdata);
   else
-    ret = hpcs_read_mheader(path.toLocal8Bit(), mdata);
+    ret = hpcs_read_mheader(path.toUtf8(), mdata);
   if (ret != HPCS_OK) {
     if (reportErrors) {
       QMessageBox::warning(nullptr, QMessageBox::tr("Cannot load ChemStation file"),
