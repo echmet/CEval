@@ -6,8 +6,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::EvaluationWidget)
 {
-  m_commonParametersWidget = new CommonParametersWidget(this);
-  m_evaluatedPeaksWidget = new EvaluatedPeaksWidget(this);
   m_evaluationParametersAutoMapper = new QDataWidgetMapper(this);
   m_evaluationParametersBooleanMapper = new QDataWidgetMapper(this);
   m_evaluationParametersFloatingMapper = new QDataWidgetMapper(this);
@@ -19,24 +17,12 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationResultsMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
   ui->setupUi(this);
-  ui->qw_commonParametersUpperWidget->setLayout(new QVBoxLayout(nullptr));
-  ui->qw_commonParametersUpperWidget->layout()->setMargin(0);
-  ui->qw_commonParametersUpperWidget->layout()->addWidget(m_commonParametersWidget);
-  ui->qw_commonParametersUpperWidget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-  ui->qw_commonParametersUpperWidget->setMinimumWidth(m_commonParametersWidget->width());
-
-
-  ui->qw_evaluatedPeaksUpperWidget->setLayout(new QVBoxLayout(nullptr));
-  ui->qw_evaluatedPeaksUpperWidget->layout()->setMargin(0);
-  ui->qw_evaluatedPeaksUpperWidget->layout()->addWidget(m_evaluatedPeaksWidget);
 
   connect(ui->qpb_defaultFinderParameters, &QPushButton::clicked, this, &EvaluationWidget::onDefaultFinderParametersClicked);
   connect(ui->qpb_defaultPeakProperties, &QPushButton::clicked, this, &EvaluationWidget::onDefaultPeakPropertiesClicked);
   connect(ui->qcbox_baselineAlgorithm, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onBaselineComboBoxChanged);
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
   connect(ui->qcbox_windowUnits, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onWindowUnitsComboBoxChanged);
-  connect(ui->qcbox_files, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onFileComboBoxChanged);
-  connect(ui->qpb_closeFile, &QPushButton::clicked, this, &EvaluationWidget::onCloseFileClicked);
   connect(ui->qpb_findPeak, &QPushButton::clicked, this, &EvaluationWidget::onFindPeaksClicked);
   connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
@@ -50,8 +36,6 @@ EvaluationWidget::~EvaluationWidget()
 void EvaluationWidget::connectToAccumulator(QObject *dac)
 {
   EvaluationWidgetConnector::connectAll(this, dac);
-  m_commonParametersWidget->connectToAccumulator(dac);
-  m_evaluatedPeaksWidget->connectToAccumulator(dac);
 }
 
 void EvaluationWidget::onBaselineComboBoxChanged(const int idx){
@@ -61,19 +45,11 @@ void EvaluationWidget::onBaselineComboBoxChanged(const int idx){
                                                               EvaluationParametersItems::index(val)));
 }
 
-void EvaluationWidget::onCloseFileClicked()
-{
-  emit closeFile(ui->qcbox_files->currentIndex());
-}
-
 void EvaluationWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier)
 {
   switch (notifier.id) {
   case EvaluationEngineMsgs::ComboBox::BASELINE_ALGORITHM:
     ui->qcbox_baselineAlgorithm->setCurrentIndex(notifier.value);
-    break;
-  case EvaluationEngineMsgs::ComboBox::DATA_FILES:
-    ui->qcbox_files->setCurrentIndex(notifier.value);
     break;
   case EvaluationEngineMsgs::ComboBox::SHOW_WINDOW:
     ui->qcbox_showWindow->setCurrentIndex(notifier.value);
@@ -162,16 +138,6 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
   }
 }
 
-void EvaluationWidget::onFileComboBoxChanged(const int idx)
-{
-  emit fileSwitched(idx);
-}
-
-void EvaluationWidget::onFileSwitched(const int idx)
-{
-  ui->qcbox_files->setCurrentIndex(idx);
-}
-
 void EvaluationWidget::onFindPeaksClicked()
 {
   emit findPeaks();
@@ -196,11 +162,6 @@ void EvaluationWidget::onWindowUnitsComboBoxChanged(const int idx)
   EvaluationParametersItems::ComboWindowUnits val = ui->qcbox_windowUnits->model()->data(midx, Qt::UserRole + 1).value<EvaluationParametersItems::ComboWindowUnits>();
   emit comboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                               EvaluationParametersItems::index(val)));
-}
-
-void EvaluationWidget::setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)
-{
-  m_commonParametersWidget->setCommonParametersModel(model);
 }
 
 void EvaluationWidget::setDefaultState()
@@ -270,11 +231,6 @@ void EvaluationWidget::setEvaluationHvlFitModel(AbstractMapperModel<double, HVLF
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlTUSP, model->indexFromItem(HVLFitResultsItems::Floating::HVL_TUSP));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA1Mobility, model->indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
   m_evaluationHvlFitMapper->toFirst();
-}
-
-void EvaluationWidget::setEvaluationLoadedFilesModel(QAbstractItemModel *model)
-{
-  ui->qcbox_files->setModel(model);
 }
 
 void EvaluationWidget::setEvaluationParametersBooleanModel(AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *model)

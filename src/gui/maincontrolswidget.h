@@ -2,7 +2,7 @@
 #define MAINCONTROLSWIDGET_H
 
 #include <QWidget>
-#include "evaluationwidget.h"
+#include "evaluationupperwidget.h"
 #include "hyperbolefitwidget.h"
 
 namespace Ui {
@@ -20,7 +20,7 @@ public:
 
 private:
   Ui::MainControlsWidget *ui;
-  EvaluationWidget *m_evaluationWidget;
+  EvaluationUpperWidget *m_evaluationUpperWidget;
   HyperboleFitWidget *m_hyperboleFittingWidget;
 
 signals:
