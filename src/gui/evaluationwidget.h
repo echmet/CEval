@@ -23,13 +23,11 @@ public:
   explicit EvaluationWidget(QWidget *parent = nullptr);
   ~EvaluationWidget();
   void connectToAccumulator(QObject *dac);
-  void setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
   void setDefaultState();
   void setEvaluationBaselineModel(QAbstractItemModel *model);
   void setEvaluationHvlFixedModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model);
   void setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLFitParametersItems::Int> *model);
   void setEvaluationHvlFitModel(AbstractMapperModel<double, HVLFitResultsItems::Floating> *model);
-  void setEvaluationLoadedFilesModel(QAbstractItemModel *model);
   void setEvaluationParametersAutoModel(AbstractMapperModel<bool, EvaluationParametersItems::Auto> *model);
   void setEvaluationParametersBooleanModel(AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *model);
   void setEvaluationParametersFloatingModel(AbstractMapperModel<double, EvaluationParametersItems::Floating> *model);
@@ -39,9 +37,6 @@ public:
 
 private:
   Ui::EvaluationWidget *ui;
-  QSplitter m_splitter;
-  CommonParametersWidget *m_commonParametersWidget;
-  EvaluatedPeaksWidget *m_evaluatedPeaksWidget;
   QDataWidgetMapper *m_evaluationParametersAutoMapper;
   QDataWidgetMapper *m_evaluationParametersBooleanMapper;
   QDataWidgetMapper *m_evaluationParametersFloatingMapper;
@@ -53,23 +48,18 @@ private:
   FloatingValueDelegate m_floatingMapperDelegate;
 
 signals:
-  void closeFile(const int idx);
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void doHvlFit();
   void evaluationSetDefault(const EvaluationEngineMsgs::Default msg);
-  void fileSwitched(const int idx);
   void findPeaks();
   void replotHvl();
 
 public slots:
   void onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
-  void onFileSwitched(const int idx);
 
 private slots:
   void onBaselineComboBoxChanged(int idx);
-  void onCloseFileClicked();
   void onDoHvlFitClicked();
-  void onFileComboBoxChanged(int idx);
   void onFindPeaksClicked();
   void onReplotHvl();
   void onShowWindowComboBoxChanged(int idx);

@@ -87,7 +87,9 @@ SOURCES += src/main.cpp \
     src/standardmodecontextsettingshandler.cpp \
     src/serieproperties.cpp \
     src/gui/aboutdialog.cpp \
-    src/scrollareaeventfilter.cpp
+    src/scrollareaeventfilter.cpp \
+    src/gui/evaluationupperwidget.cpp \
+    src/evaluationupperwidgetconnector.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -239,7 +241,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/aboutdialog.h \
     src/hyperbolefittingenginemsgs.h \
     src/scrollareaeventfilter.h \
-    src/inumberformatchangeable.h
+    src/inumberformatchangeable.h \
+    src/gui/evaluationupperwidget.h \
+    src/evaluationupperwidgetconnector.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -255,7 +259,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/hvlfitinprogressdialog.ui \
     src/gui/crashhandlerdialog.ui \
     src/gui/adjustplotvisualsdialog.ui \
-    src/gui/aboutdialog.ui
+    src/gui/aboutdialog.ui \
+    src/gui/evaluationupperwidget.ui
 
 unix {
     LIBS += -ldl

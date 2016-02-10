@@ -1394,7 +1394,7 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
 
   clearPeakPlots();
   fullViewUpdate();
-  if (ctx.finderResults.isValid())
+  if (ctx.finderResults.isValid() && (m_currentDataContext->data != nullptr))
     plotEvaluatedPeak(ctx.finderResults);
 
   return true;

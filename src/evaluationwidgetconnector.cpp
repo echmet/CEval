@@ -25,7 +25,6 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationHvlFixedModel(e->hvlFitFixedModel());
   w->setEvaluationHvlFitIntModel(e->hvlFitIntModel());
   w->setEvaluationHvlFitModel(e->hvlFitModel());
-  w->setEvaluationLoadedFilesModel(e->loadedFilesModel());
   w->setEvaluationParametersAutoModel(e->autoValuesModel());
   w->setEvaluationParametersBooleanModel(e->booleanValuesModel());
   w->setEvaluationParametersFloatingModel(e->floatingValuesModel());
@@ -34,12 +33,8 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
 
   QObject::connect(w, &EvaluationWidget::comboBoxChanged, e, &EvaluationEngine::onComboBoxChanged);
-  QObject::connect(w, &EvaluationWidget::fileSwitched, e, &EvaluationEngine::onEvaluationFileSwitched);
   QObject::connect(w, &EvaluationWidget::evaluationSetDefault, e, &EvaluationEngine::onSetDefault);
-  QObject::connect(e, &EvaluationEngine::evaluationFileAdded, w, &EvaluationWidget::onFileSwitched);
-  QObject::connect(e, &EvaluationEngine::evaluationFileSwitched, w, &EvaluationWidget::onFileSwitched);
   QObject::connect(e, &EvaluationEngine::comboBoxIndexChanged, w, &EvaluationWidget::onComboBoxChangedExt);
-  QObject::connect(w, &EvaluationWidget::closeFile, e, &EvaluationEngine::onCloseCurrentEvaluationFile);
   QObject::connect(w, &EvaluationWidget::findPeaks, e, &EvaluationEngine::onFindPeaks);
   QObject::connect(mw, &EvalMainWindow::loadDataFile, e->dataFileLoader(), &DataFileLoader::onLoadDataFile);
   QObject::connect(w, &EvaluationWidget::doHvlFit, e, &EvaluationEngine::onDoHvlFit);
