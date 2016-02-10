@@ -11,6 +11,7 @@ class ChemStationFileLoader
 {
 public:
   enum class Type {
+    CE_ANALOG,
     CE_CCD,
     CE_CURRENT,
     CE_DAD,

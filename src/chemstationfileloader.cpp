@@ -78,6 +78,9 @@ QTime ChemStationFileLoader::HPCSDateToQTime(const struct HPCS_Date date)
 ChemStationFileLoader::Type ChemStationFileLoader::HPCSTypeToType(const enum HPCS_FileType type)
 {
   switch (type) {
+  case HPCS_TYPE_CE_ANALOG:
+    return ChemStationFileLoader::Type::CE_ANALOG;
+    break;
   case HPCS_TYPE_CE_CCD:
     return ChemStationFileLoader::Type::CE_CCD;
     break;

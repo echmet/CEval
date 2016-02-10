@@ -55,6 +55,9 @@ LoadChemStationDataDialog::~LoadChemStationDataDialog()
 QString LoadChemStationDataDialog::createFileType(const ChemStationFileLoader::Type type)
 {
   switch (type) {
+  case ChemStationFileLoader::Type::CE_ANALOG:
+    return "Analog input";
+    break;
   case ChemStationFileLoader::Type::CE_CCD:
     return "Conductivity";
     break;
