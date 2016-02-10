@@ -4,8 +4,8 @@ const QString Globals::ECHMET_WEB_LINK = "http://echmet.natur.cuni.cz";
 const QString Globals::ORG_NAME = "ECHMET";
 const QString Globals::SOFTWARE_NAME = "CEval";
 const int Globals::VERSION_MAJ = 0;
-const int Globals::VERSION_MIN = 3;
-const QString Globals::VERSION_REV = "c";
+const int Globals::VERSION_MIN = 4;
+const QString Globals::VERSION_REV = "a";
 
 const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\u00FD", "pavel.dubsky@natur.cuni.cz"),
                                                             Globals::DeveloperID("Magda \u00D6rd\u00F6gov\u00E1", "magda.ordogova@natur.cuni.cz"),
