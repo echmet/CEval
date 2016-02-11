@@ -112,6 +112,7 @@ public slots:
   void onEnableDoubleFit(const bool enable);
   void onChartHorizontalMarkerIntersectionSet(const double d);
   void onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
+  void onSortLists();
 
 };
 

@@ -417,6 +417,12 @@ void HyperboleFitWidget::onShowChartVerticalBMarker()
   emit showChartMarker(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, visible, ui->qle_chartVerticalBMarker->text());
 }
 
+void HyperboleFitWidget::onSortLists()
+{
+  m_concentrationsSortProxy.sort(0);
+  m_mobilitiesSortProxy.sort(0);
+}
+
 void HyperboleFitWidget::onStatBothClicked()
 {
   emit doStats(HyperboleStats::Intervals::BOTH);

@@ -63,6 +63,7 @@ void HyperboleFittingWidgetConnector::connectAll(QObject *anonWidget, QObject *a
   QObject::connect(e, &HyperboleFittingEngine::chartVerticalMarkerIntersectionSet, w, &HyperboleFitWidget::onChartVerticalMarkerIntersectionSet);
 
   QObject::connect(w, &HyperboleFitWidget::redrawDataSeries, e, &HyperboleFittingEngine::onRedrawDataSeries);
+  QObject::connect(e, &HyperboleFittingEngine::sortLists, w, &HyperboleFitWidget::onSortLists);
 
   QObject::connect(mw, &EvalMainWindow::loadDataTable, e, &HyperboleFittingEngine::onDeserialize);
   QObject::connect(mw, &EvalMainWindow::saveDataTable, e, &HyperboleFittingEngine::onSerialize);

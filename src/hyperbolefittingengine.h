@@ -338,6 +338,7 @@ signals:
   void enableDoubleFit(const bool enable);
   void chartHorizontalMarkerIntersectionSet(const double d);
   void chartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
+  void sortLists();
 
 public slots:
   void onAddAnalyte(const QString &name);

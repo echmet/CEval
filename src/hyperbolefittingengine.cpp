@@ -915,7 +915,7 @@ QList<QStandardItem *> HyperboleFittingEngine::makeConcentrationsList(const Anal
 
   for (std::shared_ptr<Concentration> c : data) {
     QStandardItem *item = new QStandardItem(DoubleToStringConvertor::convert(c->concentration));
-    item->setData(c->concentration);
+    item->setData(c->concentration, Qt::UserRole + 1);
 
     list.push_back(item);
   }
@@ -929,6 +929,7 @@ QList<QStandardItem *> HyperboleFittingEngine::makeMobilitiesList(const Concentr
 
   for (const double d : data) {
     QStandardItem *item = new QStandardItem(DoubleToStringConvertor::convert(d));
+    item->setData(d, Qt::UserRole + 1);
 
     list.push_back(item);
   }
@@ -1120,6 +1121,8 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   invalidateCurrentConcentration();
 
   setConcentrationsList(makeConcentrationsList(m_currentAnalyte->concentrations));
+
+  emit sortLists();
 }
 
 void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
