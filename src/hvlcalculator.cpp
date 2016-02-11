@@ -78,16 +78,15 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   }
 
   echmet::regressCore::HVLPeak<double, double> regressor(s_me->m_hvlLib);
-  if (in->a0fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a0, in->a0);
-  if (in->a1fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a1, in->a1);
-  if (in->a2fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
-  if (in->a3fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
-
   regressor.Initialize(
       x, y, in->epsilon, in->iterations, true,
       echmet::HVLCore::Coefficients(in->a0, in->a1, in->a2, in->a3),
       in->bsl, in->bslSlope
   );
+  if (in->a0fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a0, in->a0);
+  if (in->a1fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a1, in->a1);
+  if (in->a2fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
+  if (in->a3fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
 
   double s0 = regressor.GetS();
 
