@@ -81,9 +81,9 @@ int TExtremeSearcher::CheckForCentralExtreme()
 //-----------------------------------------------------------------------------
 void TExtremeSearcher::Search()
 {
-    debug.close();
+    /*debug.close();
     debug.clear();
-    debug.open("N:\\Pavel\\PRG\\CPP" "\\debug.txt", std::ios_base::trunc | std::ios_base::out);
+    debug.open("N:\\Pavel\\PRG\\CPP" "\\debug.txt", std::ios_base::trunc | std::ios_base::out);*/
     QCount = ChainPoints / 2 + 1;
 
     Count = Data->Count();
@@ -109,6 +109,6 @@ void TExtremeSearcher::Search()
 
     }
 
-    debug.close();
-    debug.clear();
+    /*debug.close();
+    debug.clear();*/
 }
