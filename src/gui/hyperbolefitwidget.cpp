@@ -27,8 +27,8 @@ HyperboleFitWidget::HyperboleFitWidget(QWidget *parent) :
   connect(ui->qcbox_fitMode, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onFitModeActivated);
   connect(ui->qcbox_statData, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onStatModeActivated);
   connect(ui->qcbox_statUnits, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperboleFitWidget::onStatUnitsActivated);
-  connect(ui->qrb_leftAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onDisplayedAnalyteChanged);
-  connect(ui->qrb_rightAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onDisplayedAnalyteChanged);
+  connect(ui->qrb_leftAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onStatsForAnalyteChanged);
+  connect(ui->qrb_rightAnalyte, &QRadioButton::clicked, this, &HyperboleFitWidget::onStatsForAnalyteChanged);
 
   connect(ui->qpb_bothConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatBothClicked);
   connect(ui->qpb_leftConfIntr, &QPushButton::clicked, this, &HyperboleFitWidget::onStatLeftClicked);
@@ -274,12 +274,12 @@ void HyperboleFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
   emit concentrationSwitched(srcidx);
 }
 
-void HyperboleFitWidget::onDisplayedAnalyteChanged()
+void HyperboleFitWidget::onStatsForAnalyteChanged()
 {
   if (ui->qrb_leftAnalyte->isChecked())
-    emit displayedAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_A);
+    emit statsForAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_A);
   if (ui->qrb_rightAnalyte->isChecked())
-    emit displayedAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_B);
+    emit statsForAnalyteChanged(HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_B);
 }
 
 void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
@@ -297,7 +297,7 @@ void HyperboleFitWidget::onEnableDoubleFit(const bool enable)
   ui->qrb_leftAnalyte->setEnabled(enable);
   ui->qrb_rightAnalyte->setEnabled(enable);
   if (enable)
-    onDisplayedAnalyteChanged();
+    onStatsForAnalyteChanged();
 }
 
 void HyperboleFitWidget::onEstimateClicked()

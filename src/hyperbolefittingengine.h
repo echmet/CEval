@@ -228,7 +228,7 @@ private:
   void clearAnalyteBSeries();
   void displayHypResults(const HypResults *r);
   bool doDeserialize(const QString &path);
-  DoubleHypResults doDoubleEstimate();
+  DoubleHypResults doDoubleEstimate(const bool usedForStats);
   DoubleHypResults doDoubleFit(const DoubleHypResults &dr);
   void doSerialize(const QString &path);
   HypResults doSingleEstimate();
@@ -269,7 +269,7 @@ private:
   FitMode m_currentFitMode;
   StatMode m_currentStatMode;
   StatUnits m_currentStatUnits;
-  AnalyteId m_displayedAnalyte;
+  AnalyteId m_statsForAnalyte;
   bool m_showHorizontalMarker;
   bool m_showVerticalAMarker;
   bool m_showVerticalBMarker;
@@ -349,7 +349,6 @@ public slots:
   void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();
-  void onDisplayedAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
   void onDoEstimate();
   void onDoFit();
   void onDoStats(const HyperboleStats::Intervals intr);
@@ -365,6 +364,7 @@ public slots:
   void onSerialize();
   void onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void onStatModeChanged(const QVariant &v);
+  void onStatsForAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
   void onStatUnitsChanged(const QVariant &v);
 };
 
