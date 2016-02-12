@@ -14,6 +14,8 @@ MainControlsWidget::MainControlsWidget(QWidget *parent) :
   ui->qtab_hypfit->layout()->addWidget(m_hyperboleFittingWidget);
 
   connect(ui->qtabw_tabs, &QTabWidget::currentChanged, this, &MainControlsWidget::onTabSwitched);
+
+  this->setMinimumSize(800, 250);
 }
 
 MainControlsWidget::~MainControlsWidget()
