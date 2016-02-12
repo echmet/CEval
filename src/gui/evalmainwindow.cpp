@@ -63,6 +63,8 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);
   connect(ui->actionSave_data_table, &QAction::triggered, this, &EvalMainWindow::onActionSaveDataTable);
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
+
+  this->setMinimumSize(800, 600);
 }
 
 EvalMainWindow::~EvalMainWindow()
