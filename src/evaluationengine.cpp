@@ -996,7 +996,8 @@ void EvaluationEngine::onDoHvlFit()
     m_currentPeak.finderResults.baselineIntercept,
     m_currentPeak.finderResults.baselineSlope,
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
-    m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS)
+    m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
+    m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS)
   );
 
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
@@ -1147,7 +1148,7 @@ void EvaluationEngine::onReplotHvl()
                                              m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X),
                                              m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X),
                                              timeStep(),
-                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS));
+                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
   HVLCalculator::applyBaseline(vec, m_currentPeak.finderResults.baselineSlope, m_currentPeak.finderResults.baselineIntercept);
   m_modeCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
 

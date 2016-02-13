@@ -104,19 +104,20 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   emit hvlFitDone();
 }
 
-HVLCalculator::HVLParameters HVLCalculator::fit(
-    const QVector<QPointF> &data, const unsigned long fromIdx, const unsigned long toIdx,
+HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const unsigned long fromIdx, const unsigned long toIdx,
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations
-)
+    const double epsilon, const int iterations, int digits = 0)
 {
   Q_ASSERT(s_me != nullptr);
 
   HVLFitInProgressDialog inProgressDlg;
   HVLParameters p;
   HVLInParameters in;
+
+  if (digits > 0)
+    s_me->m_hvlLib->HVLSetPrec(digits);
 
   in.a0 = a0;
   in.a0fixed = a0fixed;

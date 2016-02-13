@@ -67,7 +67,7 @@ public:
     const double a0, const double a1, const double a2, const double a3,
     bool a0fixed, bool a1fixed, bool a2fixed, bool a3fixed,
     const double bsl, const double bslSlope,
-    double epsilon, int iterations
+    double epsilon, int iterations, int digits
   );
 
   static QVector<QPointF> plot(
