@@ -10,6 +10,12 @@
     <height>644</height>
    </rect>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>250</width>
+    <height>0</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
@@ -22,8 +28,14 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>250</width>
+       <height>0</height>
+      </size>
+     </property>
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="qtab_evaluationParameters">
       <property name="sizePolicy">
@@ -31,6 +43,12 @@
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>250</width>
+        <height>0</height>
+       </size>
       </property>
       <attribute name="title">
        <string>Parameters</string>
@@ -44,6 +62,12 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -55,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1017</width>
-            <height>636</height>
+            <width>1016</width>
+            <height>622</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -64,6 +88,12 @@
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
@@ -728,8 +758,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1017</width>
-            <height>824</height>
+            <width>1016</width>
+            <height>812</height>
            </rect>
           </property>
           <property name="sizePolicy">

@@ -15,7 +15,7 @@ MainControlsWidget::MainControlsWidget(QWidget *parent) :
 
   connect(ui->qtabw_tabs, &QTabWidget::currentChanged, this, &MainControlsWidget::onTabSwitched);
 
-  this->setMinimumSize(800, 250);
+  this->setMinimumHeight(250);
 }
 
 MainControlsWidget::~MainControlsWidget()
