@@ -1029,10 +1029,6 @@ void HyperboleFittingEngine::onAddMobility(const double u)
   if (!isEditable())
     return;
 
-  if (u < 0.0) {
-    QMessageBox::warning(nullptr, tr("Invalid input"), tr("Entered migration time value is nonsensical."));
-    return;
-  }
 
   if (m_currentConcentration == nullptr) {
     QMessageBox::information(nullptr, tr("No analyte"), tr("No concentration has been selected. Select the concentration for which you wish to add the migration time first."));
