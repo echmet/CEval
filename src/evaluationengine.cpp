@@ -475,9 +475,23 @@ bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> da
     m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
     m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
   } else {
+    QString xUnit;
+    QString yUnit;
+
     m_modeCtx->setSerieSamples(seriesIndex(Series::SIG), data->data);
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 (%2)").arg(data->xType).arg(data->xUnit));
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 (%2)").arg(data->yType).arg(data->yUnit));
+
+    if (data->xUnit.length() > 0)
+      xUnit = QString("(%1)").arg(data->xUnit);
+    else
+      xUnit = "";
+
+    if (data->yUnit.length() > 0)
+      yUnit = QString("(%1)").arg(data->yUnit);
+    else
+      yUnit = "";
+
+    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(data->xType).arg(xUnit));
+    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(data->yType).arg(yUnit));
   }
 
   m_modeCtx->replot();
