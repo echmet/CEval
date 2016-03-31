@@ -89,7 +89,8 @@ SOURCES += src/main.cpp \
     src/gui/aboutdialog.cpp \
     src/scrollareaeventfilter.cpp \
     src/gui/evaluationupperwidget.cpp \
-    src/evaluationupperwidgetconnector.cpp
+    src/evaluationupperwidgetconnector.cpp \
+    src/gui/setaxistitlesdialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -243,7 +244,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/scrollareaeventfilter.h \
     src/inumberformatchangeable.h \
     src/gui/evaluationupperwidget.h \
-    src/evaluationupperwidgetconnector.h
+    src/evaluationupperwidgetconnector.h \
+    src/gui/setaxistitlesdialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -260,7 +262,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/crashhandlerdialog.ui \
     src/gui/adjustplotvisualsdialog.ui \
     src/gui/aboutdialog.ui \
-    src/gui/evaluationupperwidget.ui
+    src/gui/evaluationupperwidget.ui \
+    src/gui/setaxistitlesdialog.ui
 
 unix {
     LIBS += -ldl

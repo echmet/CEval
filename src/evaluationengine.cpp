@@ -2,6 +2,7 @@
 
 #include "evaluationengine.h"
 #include "gui/addpeakdialog.h"
+#include "gui/setaxistitlesdialog.h"
 #include "custommetatypes.h"
 #include "helpers.h"
 #include "standardmodecontextsettingshandler.h"
@@ -86,11 +87,16 @@ const int EvaluationEngine::s_defaultHvlIterations = 10;
 const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
 
 EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
-                                           const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
+                                           const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx,
+                                           const QString &xAxisType, const QString &xAxisUnit, const QString &yAxisType, const QString &yAxisUnit) :
   data(data),
   name(name),
   commonContext(commonCtx),
-  evaluationContext(evalCtx)
+  evaluationContext(evalCtx),
+  xAxisType(xAxisType),
+  xAxisUnit(xAxisUnit),
+  yAxisType(yAxisType),
+  yAxisUnit(yAxisUnit)
 {
 }
 
@@ -396,6 +402,14 @@ void EvaluationEngine::contextMenuTriggered(const ContextMenuActions &action, co
     valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_REF_POINT));
     valueTo = valueFrom;
     break;
+  case ContextMenuActions::SET_AXIS_TITLES:
+    {
+      SetAxisTitlesDialog dlg(m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit, m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit);
+
+      if (dlg.exec() == QDialog::Accepted)
+        setAxisTitles(dlg.xType(), dlg.xUnit(), dlg.yType(), dlg.yUnit());
+    }
+    break;
   default:
     return;
     break;
@@ -463,6 +477,12 @@ QMenu *EvaluationEngine::createContextMenu()
   a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::SLOPE_REF_POINT));
   m->addAction(a);
 
+  m->addSeparator();
+
+  a = new QAction(tr("Set axis titles"), m);
+  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::SET_AXIS_TITLES));
+  m->addAction(a);
+
   return m;
 }
 
@@ -474,24 +494,9 @@ bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> da
     m_modeCtx->clearAllSerieSamples();
     m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
     m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
-  } else {
-    QString xUnit;
-    QString yUnit;
-
+  } else{
     m_modeCtx->setSerieSamples(seriesIndex(Series::SIG), data->data);
-
-    if (data->xUnit.length() > 0)
-      xUnit = QString("(%1)").arg(data->xUnit);
-    else
-      xUnit = "";
-
-    if (data->yUnit.length() > 0)
-      yUnit = QString("(%1)").arg(data->yUnit);
-    else
-      yUnit = "";
-
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(data->xType).arg(xUnit));
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(data->yType).arg(yUnit));
+    setAxisTitles(m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit, m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit);
   }
 
   m_modeCtx->replot();
@@ -946,7 +951,9 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
   storeCurrentContext();
 
   std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, m_commonParamsEngine->currentContext(),
-                                                                                  freshEvaluationContext()));
+                                                                                  freshEvaluationContext(),
+                                                                                  data->xType, data->xUnit,
+                                                                                  data->yType, data->yUnit));
 
   try {
     m_allDataContexts.insert(fullPath, ctx);
@@ -1292,6 +1299,33 @@ int EvaluationEngine::seriesIndex(const Series iid)
   return static_cast<int>(iid);
 }
 
+void EvaluationEngine::setAxisTitles(const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit)
+{
+  QString _xUnit;
+  QString _yUnit;
+
+  if (m_currentDataContext == nullptr)
+    return;
+
+  m_currentDataContext->xAxisType = xType;
+  m_currentDataContext->xAxisUnit = xUnit;
+  m_currentDataContext->yAxisType = yType;
+  m_currentDataContext->yAxisUnit = yUnit;
+
+  if (m_currentDataContext->xAxisUnit.length() > 0)
+    _xUnit = QString("(%1)").arg(m_currentDataContext->xAxisUnit);
+   else
+    _xUnit = "";
+
+  if (m_currentDataContext->yAxisUnit.length() > 0)
+    _yUnit = QString("(%1)").arg(m_currentDataContext->yAxisUnit);
+  else
+    _yUnit = "";
+
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->xAxisType).arg(_xUnit));
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->yAxisType).arg(_yUnit));
+}
+
 void EvaluationEngine::setDefaultFinderParameters()
 {
   for (int idx = 0; idx < m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX); idx++)
@@ -1426,7 +1460,9 @@ bool EvaluationEngine::storeCurrentContext()
   if (isContextValid()) {
     try {
       std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name,
-                                                                                         m_commonParamsEngine->currentContext(), currentEvaluationContext()));
+                                                                                         m_commonParamsEngine->currentContext(), currentEvaluationContext(),
+                                                                                         m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit,
+                                                                                         m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit));
       m_allDataContexts[m_currentDataContextKey] = oldCtx;
     } catch (std::bad_alloc&) {
       QMessageBox::warning(nullptr, tr("Rutime error"), tr("Cannot store current data context"));

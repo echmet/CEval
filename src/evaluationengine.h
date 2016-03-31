@@ -34,7 +34,8 @@ public:
     PEAK_TO_THIS_Y,
     PEAK_TO_THIS_XY,
     NOISE_REF_POINT,
-    SLOPE_REF_POINT
+    SLOPE_REF_POINT,
+    SET_AXIS_TITLES
   };
   Q_ENUM(ContextMenuActions)
 
@@ -115,12 +116,18 @@ private:
   class DataContext {
   public:
     DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
-                const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx);
+                const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx,
+                const QString &xAxisType = "", const QString &xAxisUnit = "", const QString &yAxisType = "", const QString &yAxisUnit = "");
 
     std::shared_ptr<DataFileLoader::Data> data;
     QString name;
     CommonParametersEngine::Context commonContext;
     EvaluationContext evaluationContext;
+
+    QString xAxisType;
+    QString xAxisUnit;
+    QString yAxisType;
+    QString yAxisUnit;
   };
 
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
@@ -146,6 +153,7 @@ private:
   PeakEvaluator::Parameters makeEvaluatorParameters(const PeakFinder::Parameters &fp, const PeakFinder::Results &fr);
   PeakFinder::Parameters makeFinderParameters(bool autoPeakProps);
   void plotEvaluatedPeak(const PeakFinder::Results &fr);
+  void setAxisTitles(const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit);
   void setDefaultFinderParameters();
   void setDefaultPeakProperties();
   bool setEvaluationContext(const EvaluationContext &ctx);
