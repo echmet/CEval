@@ -32,6 +32,12 @@
      </item>
      <item row="0" column="0">
       <widget class="QLabel" name="ql_delimiter">
+       <property name="toolTip">
+        <string/>
+       </property>
+       <property name="statusTip">
+        <string extracomment="Character that separates columns in the data file"/>
+       </property>
        <property name="text">
         <string>Delimiter:</string>
        </property>
@@ -39,6 +45,9 @@
      </item>
      <item row="2" column="0">
       <widget class="QLabel" name="ql_hasHeader">
+       <property name="toolTip">
+        <string/>
+       </property>
        <property name="text">
         <string>First line is a header:</string>
        </property>
@@ -46,6 +55,9 @@
      </item>
      <item row="2" column="1">
       <widget class="QCheckBox" name="qcb_hasHeader">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -66,6 +78,9 @@
      </item>
      <item row="1" column="0">
       <widget class="QLabel" name="ql_decimalSeparator">
+       <property name="toolTip">
+        <string/>
+       </property>
        <property name="text">
         <string>Decimal separator:</string>
        </property>

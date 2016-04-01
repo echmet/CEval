@@ -1,6 +1,10 @@
 #include "loadcsvfiledialog.h"
 #include "ui_loadcsvfiledialog.h"
 
+const QString LoadCsvFileDialog::s_qlDelimiterToolTip = tr("Character that separates columns in the data file");
+const QString LoadCsvFileDialog::s_qlDecimalSeparatorToolTip = tr("Character that separates integer and decimal parf on a number in the data file");
+const QString LoadCsvFileDialog::s_qlFirstLineIsHeaderToolTip = tr("Check when first line in the data file contains captions of the columns");
+
 LoadCsvFileDialog::Parameters::Parameters() :
   delimiter(""),
   xCaption(""),
@@ -42,6 +46,10 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
 
   ui->qcbox_decimalSeparator->addItem("Period (.)", QChar('.'));
   ui->qcbox_decimalSeparator->addItem("Comma (,)", QChar(','));
+
+  ui->ql_delimiter->setToolTip(s_qlDelimiterToolTip);
+  ui->ql_decimalSeparator->setToolTip(s_qlDecimalSeparatorToolTip);
+  ui->ql_hasHeader->setToolTip(s_qlFirstLineIsHeaderToolTip);
 }
 
 LoadCsvFileDialog::~LoadCsvFileDialog()

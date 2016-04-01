@@ -34,6 +34,10 @@ private:
   Ui::LoadCsvFileDialog *ui;
   Parameters m_parameters;
 
+  static const QString s_qlDelimiterToolTip;
+  static const QString s_qlDecimalSeparatorToolTip;
+  static const QString s_qlFirstLineIsHeaderToolTip;
+
 private slots:
   void onCancelClicked();
   void onHasHeaderClicked();
