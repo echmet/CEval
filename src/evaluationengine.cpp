@@ -406,8 +406,14 @@ void EvaluationEngine::contextMenuTriggered(const ContextMenuActions &action, co
     {
       SetAxisTitlesDialog dlg(m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit, m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit);
 
-      if (dlg.exec() == QDialog::Accepted)
-        setAxisTitles(dlg.xType(), dlg.xUnit(), dlg.yType(), dlg.yUnit());
+      if (dlg.exec() == QDialog::Accepted && m_currentDataContext != nullptr) {
+        m_currentDataContext->xAxisType = dlg.xType();
+        m_currentDataContext->xAxisUnit = dlg.xUnit();
+        m_currentDataContext->yAxisType = dlg.yType();
+        m_currentDataContext->yAxisUnit = dlg.yUnit();
+
+        setAxisTitles();
+      }
     }
     break;
   default:
@@ -496,7 +502,7 @@ bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> da
     m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
   } else{
     m_modeCtx->setSerieSamples(seriesIndex(Series::SIG), data->data);
-    setAxisTitles(m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit, m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit);
+    setAxisTitles();
   }
 
   m_modeCtx->replot();
@@ -1299,31 +1305,26 @@ int EvaluationEngine::seriesIndex(const Series iid)
   return static_cast<int>(iid);
 }
 
-void EvaluationEngine::setAxisTitles(const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit)
+void EvaluationEngine::setAxisTitles()
 {
-  QString _xUnit;
-  QString _yUnit;
+  QString xUnit;
+  QString yUnit;
 
   if (m_currentDataContext == nullptr)
     return;
 
-  m_currentDataContext->xAxisType = xType;
-  m_currentDataContext->xAxisUnit = xUnit;
-  m_currentDataContext->yAxisType = yType;
-  m_currentDataContext->yAxisUnit = yUnit;
-
   if (m_currentDataContext->xAxisUnit.length() > 0)
-    _xUnit = QString("(%1)").arg(m_currentDataContext->xAxisUnit);
+    xUnit = QString("(%1)").arg(m_currentDataContext->xAxisUnit);
    else
-    _xUnit = "";
+    xUnit = "";
 
   if (m_currentDataContext->yAxisUnit.length() > 0)
-    _yUnit = QString("(%1)").arg(m_currentDataContext->yAxisUnit);
+    yUnit = QString("(%1)").arg(m_currentDataContext->yAxisUnit);
   else
-    _yUnit = "";
+    yUnit = "";
 
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->xAxisType).arg(_xUnit));
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->yAxisType).arg(_yUnit));
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->xAxisType).arg(xUnit));
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->yAxisType).arg(yUnit));
 }
 
 void EvaluationEngine::setDefaultFinderParameters()

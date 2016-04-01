@@ -153,7 +153,7 @@ private:
   PeakEvaluator::Parameters makeEvaluatorParameters(const PeakFinder::Parameters &fp, const PeakFinder::Results &fr);
   PeakFinder::Parameters makeFinderParameters(bool autoPeakProps);
   void plotEvaluatedPeak(const PeakFinder::Results &fr);
-  void setAxisTitles(const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit);
+  void setAxisTitles();
   void setDefaultFinderParameters();
   void setDefaultPeakProperties();
   bool setEvaluationContext(const EvaluationContext &ctx);
