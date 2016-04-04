@@ -37,6 +37,8 @@ LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   qtrv_fileSystem->hideColumn(2);
   qtrv_fileSystem->hideColumn(3);
 
+  qtbv_files->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
   ui->panesLayout->addWidget(qs_splitter);
   qs_splitter->addWidget(qtrv_fileSystem);
   qs_splitter->addWidget(qtbv_files);
