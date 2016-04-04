@@ -3,6 +3,7 @@
 
 #include <QModelIndex>
 #include <QObject>
+#include <QSize>
 #include <QVector>
 #include <QPointF>
 #include <memory>
@@ -42,9 +43,11 @@ private:
 
   QString m_lastChemStationPath;
   QString m_lastCsvPath;
+  QSize m_lastChemStationDlgSize;
 
   static const QString LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG;
   static const QString LAST_CSV_LOAD_PATH_SETTINGS_TAG;
+  static const QString LAST_CHEMSTATION_DLG_SIZE_TAG;
 
 signals:
   void dataLoaded(std::shared_ptr<Data> data, const QString &fullPath, const QString &fileName);

@@ -7,6 +7,7 @@
 
 const QString DataFileLoader::LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG("LastChemStationLoadPath");
 const QString DataFileLoader::LAST_CSV_LOAD_PATH_SETTINGS_TAG("LastCsvLoadPath");
+const QString DataFileLoader::LAST_CHEMSTATION_DLG_SIZE_TAG("LastChemStationDlgSize");
 
 DataFileLoader::Data::Data(const QVector<QPointF> data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
   data(data),
@@ -48,7 +49,8 @@ DataFileLoader::Data &DataFileLoader::Data::operator=(const Data &other)
 DataFileLoader::DataFileLoader(QObject *parent) :
   QObject(parent),
   m_lastChemStationPath(QDir::homePath()),
-  m_lastCsvPath(QDir::homePath())
+  m_lastCsvPath(QDir::homePath()),
+  m_lastChemStationDlgSize(QSize(0,0))
 {
 }
 
@@ -94,7 +96,12 @@ void DataFileLoader::loadChemStationFile()
 
   dlg.expandToPath(m_lastChemStationPath);
 
+  if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
+      dlg.resize(m_lastChemStationDlgSize);
+
   ret = dlg.exec();
+  m_lastChemStationDlgSize = dlg.size();
+
   if (ret != QDialog::Accepted)
     return;
   filePath = dlg.lastSelectedFile();
@@ -186,6 +193,12 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
 
     m_lastCsvPath = v.toString();
   }
+
+  if (map.contains(LAST_CHEMSTATION_DLG_SIZE_TAG)) {
+    QVariant v = map[LAST_CHEMSTATION_DLG_SIZE_TAG];
+
+    m_lastChemStationDlgSize = v.toSize();
+  }
 }
 
 void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type)
@@ -207,6 +220,7 @@ QVariant DataFileLoader::saveUserSettings() const
 
   map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG] = m_lastChemStationPath;
   map[LAST_CSV_LOAD_PATH_SETTINGS_TAG] = m_lastCsvPath;
+  map[LAST_CHEMSTATION_DLG_SIZE_TAG] = m_lastChemStationDlgSize;
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }
