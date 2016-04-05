@@ -90,7 +90,8 @@ SOURCES += src/main.cpp \
     src/scrollareaeventfilter.cpp \
     src/gui/evaluationupperwidget.cpp \
     src/evaluationupperwidgetconnector.cpp \
-    src/gui/setaxistitlesdialog.cpp
+    src/gui/setaxistitlesdialog.cpp \
+    src/gui/exportdatatabletocsvdialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -245,7 +246,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/inumberformatchangeable.h \
     src/gui/evaluationupperwidget.h \
     src/evaluationupperwidgetconnector.h \
-    src/gui/setaxistitlesdialog.h
+    src/gui/setaxistitlesdialog.h \
+    src/gui/exportdatatabletocsvdialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -263,7 +265,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/adjustplotvisualsdialog.ui \
     src/gui/aboutdialog.ui \
     src/gui/evaluationupperwidget.ui \
-    src/gui/setaxistitlesdialog.ui
+    src/gui/setaxistitlesdialog.ui \
+    src/gui/exportdatatabletocsvdialog.ui
 
 unix {
     LIBS += -ldl

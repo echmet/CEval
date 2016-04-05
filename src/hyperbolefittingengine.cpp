@@ -10,6 +10,7 @@
 #include "math/regressor/profiler.h"
 #include "doubletostringconvertor.h"
 #include "standardmodecontextsettingshandler.h"
+#include "gui/exportdatatabletocsvdialog.h"
 
 const QString HyperboleFittingEngine::s_dataPointsATitle = tr("Points A");
 const QString HyperboleFittingEngine::s_dataPointsBTitle = tr("Points B");
@@ -248,6 +249,10 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_singleFitRegressor = new echmet::regressCore::RectangularHyperbole<double, double>();
   m_doubleFitRegressor = new echmet::regressCore::RectangularHyperbole2<double, double>();
 
+  m_exportDTToCsvDlg = new ExportDatatableToCsvDialog();
+  if (m_exportDTToCsvDlg == nullptr)
+    throw std::bad_alloc();
+
   connect(&m_fitFixedModel, &BooleanMapperModel<HyperboleFitParameters::Boolean>::dataChanged, this, &HyperboleFittingEngine::onSecondAnalyteSameChanged);
 
   m_lastDataTablePath = QDir::homePath();
@@ -297,6 +302,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
 HyperboleFittingEngine::~HyperboleFittingEngine()
 {
   delete m_singleFitRegressor;
+  delete m_exportDTToCsvDlg;
 }
 
 AbstractMapperModel<QString, HyperboleFitParameters::String> *HyperboleFittingEngine::analyteNamesModel()

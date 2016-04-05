@@ -21,6 +21,7 @@
 #include "math/regressor/hyperbole.h"
 #include "math/regressor/hyperbole2.h"
 
+class ExportDatatableToCsvDialog;
 
 class HyperboleFittingEngine : public QObject, public INumberFormatChangeable
 {
@@ -303,6 +304,8 @@ private:
 
   QString m_lastDataTablePath;
   const QStringList m_dataTablesNameFilter;
+
+  ExportDatatableToCsvDialog *m_exportDTToCsvDlg;
 
 
   static const QString s_dataPointsATitle;
