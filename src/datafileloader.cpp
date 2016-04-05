@@ -127,6 +127,9 @@ void DataFileLoader::loadCsvFile()
   std::shared_ptr<Data> data;
   QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
 
+  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
+    loadDlg.addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
+
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
   openDlg.setFileMode(QFileDialog::ExistingFile);
 
@@ -155,7 +158,8 @@ void DataFileLoader::loadCsvFile()
     break;
   }
 
-  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator, p.hasHeader);
+  const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
+  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator, p.hasHeader, p.encodingId, bom);
   if (!csvData.isValid())
     return;
 

@@ -979,7 +979,8 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
   m_commonParamsEngine->revalidate();
   m_evaluatedPeaksModel.clearEntries();
 
-  setPeakFinderParameters(ctx->data->data.last().x());
+  if (ctx->data->data.length() > 0)
+    setPeakFinderParameters(ctx->data->data.last().x());
 }
 
 void EvaluationEngine::onDeletePeak(const QModelIndex &idx)

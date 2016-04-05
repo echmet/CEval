@@ -2,11 +2,26 @@
 #define CSVFILELOADER_H
 
 #include <QPointF>
+#include <QMap>
 #include <QVector>
 
 class CsvFileLoader
 {
 public:
+  class Encoding {
+  public:
+    explicit Encoding();
+    Encoding(const QString &name, const QByteArray &bom, const QString &displayedName);
+    Encoding(const Encoding &other);
+
+    Encoding &operator=(const Encoding &other);
+
+    const QString name;
+    const QByteArray bom;
+    const bool canHaveBom;
+    const QString displayedName;
+  };
+
   class Data {
   public:
     Data(const QVector<QPointF> &data, const QString &xUnit, const QString &yUnit);
@@ -23,7 +38,10 @@ public:
 
   CsvFileLoader() = delete;
 
-  static Data loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const bool hasHeader);
+  static Data loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const bool hasHeader,
+                       const QString &encodingId, const QByteArray &bom);
+
+  static const QMap<QString, Encoding> SUPPORTED_ENCODINGS;
 
 };
 
