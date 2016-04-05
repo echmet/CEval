@@ -24,13 +24,13 @@ public:
 
   class Data {
   public:
-    Data(const QVector<QPointF> &data, const QString &xUnit, const QString &yUnit);
+    Data(const QVector<QPointF> &data, const QString &xType, const QString &yType);
     Data();
     bool isValid() const;
 
     const QVector<QPointF> data;
-    const QString xUnit;
-    const QString yUnit;
+    const QString xType;
+    const QString yType;
   private:
     bool m_valid;
 

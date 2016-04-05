@@ -167,12 +167,36 @@ void DataFileLoader::loadCsvFile()
   }
 
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
-  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator, p.hasHeader, p.encodingId, bom);
+  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator,
+                                                        p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
+                                                        p.encodingId, bom);
   if (!csvData.isValid())
     return;
 
-  QString xUnit = p.hasHeader ? csvData.xUnit : p.xCaption;
-  QString yUnit = p.hasHeader ? csvData.yUnit : p.yCaption;
+  QString xType;
+  QString yType;
+  QString xUnit;
+  QString yUnit;
+
+  switch (p.header) {
+  case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
+  case LoadCsvFileDialog::HeaderHandling::SKIP_HEADER:
+    xType = p.xType;
+    yType = p.yType;
+    xUnit = p.xUnit;
+    yUnit = p.yUnit;
+    break;
+  case LoadCsvFileDialog::HeaderHandling::HEADER_WITH_UNITS:
+    xType = csvData.xType;
+    yType = csvData.yType;
+    break;
+  case LoadCsvFileDialog::HeaderHandling::HEADER_WITHOUT_UNITS:
+    xType = csvData.xType;
+    yType = csvData.yType;
+    xUnit = p.xUnit;
+    yUnit = p.yUnit;
+    break;
+  }
 
   if (yUnit.length() > 0) {
     if (yUnit.at(yUnit.length() - 1) == '\n')
@@ -180,8 +204,8 @@ void DataFileLoader::loadCsvFile()
   }
 
   data = std::shared_ptr<Data>(new Data(csvData.data,
-                                        "", xUnit,
-                                        "", yUnit));
+                                        xType, xUnit,
+                                        yType, yUnit));
 
   m_lastCsvPath = filePath;
   emit dataLoaded(data, filePath, QFileInfo(filePath).fileName());

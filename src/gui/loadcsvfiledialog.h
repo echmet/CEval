@@ -12,18 +12,29 @@ class LoadCsvFileDialog : public QDialog
 {
   Q_OBJECT
 public:
+  enum class HeaderHandling {
+    NO_HEADER,             /*<! CSV file has no header */
+    SKIP_HEADER,           /*<! CSV file has a header but we do not want to use it */
+    HEADER_WITH_UNITS,     /*<! CSV file header contains the unit of the scale */
+    HEADER_WITHOUT_UNITS   /*<! CSV file header does not contain the unit of the scale */
+  };
+  Q_ENUM(HeaderHandling);
+
   class Parameters {
   public:
     Parameters(const QString &delimiter, const QChar &decimalSeparator,
-               const QString &xCaption, const QString &yCaption, const bool hasHeader,
+               const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
+               const HeaderHandling header,
                const bool readBom, const QString &encodingId);
     Parameters();
 
     const QString delimiter;
     const QChar decimalSeparator;
-    const QString xCaption;
-    const QString yCaption;
-    const bool hasHeader;
+    const QString xType;
+    const QString yType;
+    const QString xUnit;
+    const QString yUnit;
+    const HeaderHandling header;
     const bool readBom;
     const QString encodingId;
 
@@ -47,7 +58,7 @@ private:
 private slots:
   void onCancelClicked();
   void onEncodingChanged(const int idx);
-  void onHasHeaderClicked();
+  void onHeaderHandlingChanged(const int idx);
   void onLoadClicked();
 
 };

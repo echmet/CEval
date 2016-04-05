@@ -8,22 +8,27 @@ const QString LoadCsvFileDialog::s_qlFirstLineIsHeaderToolTip = tr("Check when f
 
 LoadCsvFileDialog::Parameters::Parameters() :
   delimiter(""),
-  xCaption(""),
-  yCaption(""),
-  hasHeader(false),
+  xType(""),
+  yType(""),
+  xUnit(""),
+  yUnit(""),
+  header(HeaderHandling::NO_HEADER),
   readBom(false),
   encodingId("")
 {
 }
 
 LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar &decimalSeparator,
-                                          const QString &xCaption, const QString &yCaption, const bool hasHeader,
+                                          const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
+                                          const HeaderHandling header,
                                           const bool readBom, const QString &encodingId) :
   delimiter(delimiter),
   decimalSeparator(decimalSeparator),
-  xCaption(xCaption),
-  yCaption(yCaption),
-  hasHeader(hasHeader),
+  xType(xType),
+  yType(yType),
+  xUnit(xUnit),
+  yUnit(yUnit),
+  header(header),
   readBom(readBom),
   encodingId(encodingId)
 {
@@ -33,9 +38,11 @@ LoadCsvFileDialog::Parameters &LoadCsvFileDialog::Parameters::operator=(const Pa
 {
   const_cast<QString&>(delimiter) = other.delimiter;
   const_cast<QChar&>(decimalSeparator) = other.decimalSeparator;
-  const_cast<QString&>(xCaption) = other.xCaption;
-  const_cast<QString&>(yCaption) = other.yCaption;
-  const_cast<bool&>(hasHeader) = other.hasHeader;
+  const_cast<QString&>(xType) = other.xType;
+  const_cast<QString&>(yType) = other.yType;
+  const_cast<QString&>(xUnit) = other.xUnit;
+  const_cast<QString&>(yUnit) = other.yUnit;
+  const_cast<HeaderHandling&>(header) = other.header;
   const_cast<bool&>(readBom) = other.readBom;
   const_cast<QString&>(encodingId) = other.encodingId;
 
@@ -49,7 +56,6 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
   ui->setupUi(this);
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &LoadCsvFileDialog::onCancelClicked);
-  connect(ui->qcb_hasHeader, &QCheckBox::clicked, this, &LoadCsvFileDialog::onHasHeaderClicked);
   connect(ui->qpb_load, &QPushButton::clicked, this, &LoadCsvFileDialog::onLoadClicked);
 
   ui->qcbox_encoding->setModel(&m_encodingsModel);
@@ -59,7 +65,6 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
 
   ui->ql_delimiter->setToolTip(s_qlDelimiterToolTip);
   ui->ql_decimalSeparator->setToolTip(s_qlDecimalSeparatorToolTip);
-  ui->ql_hasHeader->setToolTip(s_qlFirstLineIsHeaderToolTip);
 
   /* Set defaut state for BOM checkbox */
   {
@@ -68,7 +73,14 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
     ui->qcb_bom->setEnabled(enable);
   }
 
+  /* Add header handling options */
+  ui->qcbox_headerHandling->addItem(tr("No header"), QVariant::fromValue<HeaderHandling>(HeaderHandling::NO_HEADER));
+  ui->qcbox_headerHandling->addItem(tr("Skip header"), QVariant::fromValue<HeaderHandling>(HeaderHandling::SKIP_HEADER));
+  ui->qcbox_headerHandling->addItem(tr("Header contains units"), QVariant::fromValue<HeaderHandling>(HeaderHandling::HEADER_WITH_UNITS));
+  ui->qcbox_headerHandling->addItem(tr("Header without units"), QVariant::fromValue<HeaderHandling>(HeaderHandling::HEADER_WITHOUT_UNITS));
+
   connect(ui->qcbox_encoding, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &LoadCsvFileDialog::onEncodingChanged);
+  connect(ui->qcbox_headerHandling, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &LoadCsvFileDialog::onHeaderHandlingChanged);
 }
 
 LoadCsvFileDialog::~LoadCsvFileDialog()
@@ -104,12 +116,36 @@ void LoadCsvFileDialog::onEncodingChanged(const int idx)
   ui->qcb_bom->setEnabled(enable);
 }
 
-void LoadCsvFileDialog::onHasHeaderClicked()
+void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
 {
-  bool readOnly = ui->qcb_hasHeader->checkState() == Qt::Checked;
+  QVariant v = ui->qcbox_headerHandling->itemData(idx);
 
-  ui->qle_xCaption->setReadOnly(readOnly);
-  ui->qle_yCaption->setReadOnly(readOnly);
+  if (!v.canConvert<HeaderHandling>())
+    return;
+
+  HeaderHandling h = v.value<HeaderHandling>();
+
+  switch (h) {
+  case HeaderHandling::NO_HEADER:
+  case HeaderHandling::SKIP_HEADER:
+    ui->qle_xType->setEnabled(true);
+    ui->qle_yType->setEnabled(true);
+    ui->qle_xUnit->setEnabled(true);
+    ui->qle_yUnit->setEnabled(true);
+    break;
+  case HeaderHandling::HEADER_WITH_UNITS:
+    ui->qle_xType->setEnabled(false);
+    ui->qle_yType->setEnabled(false);
+    ui->qle_xUnit->setEnabled(false);
+    ui->qle_yUnit->setEnabled(false);
+    break;
+  case HeaderHandling::HEADER_WITHOUT_UNITS:
+    ui->qle_xType->setEnabled(false);
+    ui->qle_yType->setEnabled(false);
+    ui->qle_xUnit->setEnabled(true);
+    ui->qle_yUnit->setEnabled(true);
+    break;
+  }
 }
 
 void LoadCsvFileDialog::onLoadClicked()
@@ -118,10 +154,19 @@ void LoadCsvFileDialog::onLoadClicked()
   if (item == nullptr)
     reject();
 
+  QVariant v = ui->qcbox_headerHandling->currentData();
+
+  if (!v.canConvert<HeaderHandling>())
+    reject();
+
+  HeaderHandling h = v.value<HeaderHandling>();
+
+
   m_parameters = Parameters(ui->qle_delimiter->text(),
                             ui->qcbox_decimalSeparator->currentData().toChar(),
-                            ui->qle_xCaption->text(), ui->qle_yCaption->text(),
-                            ui->qcb_hasHeader->checkState() == Qt::Checked,
+                            ui->qle_xType->text(), ui->qle_yType->text(),
+                            ui->qle_xUnit->text(), ui->qle_yUnit->text(),
+                            h,
                             ui->qcb_bom->checkState() == Qt::Checked,
                             item->data(Qt::UserRole + 1).toString());
 

@@ -49,18 +49,18 @@ CsvFileLoader::Encoding &CsvFileLoader::Encoding::operator=(const CsvFileLoader:
   return *this;
 }
 
-CsvFileLoader::Data::Data(const QVector<QPointF> &data, const QString &xUnit, const QString &yUnit) :
+CsvFileLoader::Data::Data(const QVector<QPointF> &data, const QString &xType, const QString &yType) :
   data(data),
-  xUnit(xUnit),
-  yUnit(yUnit),
+  xType(xType),
+  yType(yType),
   m_valid(true)
 {
 }
 
 CsvFileLoader::Data::Data() :
   data(QVector<QPointF>()),
-  xUnit(""),
-  yUnit(""),
+  xType(""),
+  yType(""),
   m_valid(false)
 {
 }
@@ -75,8 +75,8 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
 {
   QFile dataFile(path);
   QVector<QPointF> points;
-  QString xUnit;
-  QString yUnit;
+  QString xType;
+  QString yType;
   QTextStream stream;
 
   if (!dataFile.open(QIODevice::ReadOnly)) {
@@ -114,8 +114,8 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
                            QString(QObject::tr("The selected file does not appear to have the \"time%1value\" format")).arg(delimiter));
       return Data();
     }
-    xUnit = header.at(0);
-    yUnit = header.at(1);
+    xType = header.at(0);
+    yType = header.at(1);
   }
 
   int lineCnt = hasHeader ? 2 : 1;
@@ -132,41 +132,41 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
     values = line.split(qcDelimiter);
     if (values.size() != 2) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
-      return Data(points, xUnit, yUnit);
+      return Data(points, xType, yType);
     }
 
     s = &values[0];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
-      return Data(points, xUnit, yUnit);
+      return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(lineCnt));
-      return Data(points, xUnit, yUnit);
+      return Data(points, xType, yType);
     }
 
     s = &values[1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
-      return Data(points, xUnit, yUnit);
+      return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(lineCnt));
-      return Data(points, xUnit, yUnit);
+      return Data(points, xType, yType);
     }
 
     points.append(QPointF(x, y));
     lineCnt++;
   }
 
-  return Data(points, xUnit, yUnit);
+  return Data(points, xType, yType);
 }
 
