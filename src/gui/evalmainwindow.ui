@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>21</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -39,7 +39,7 @@
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
-     <string>Options</string>
+     <string>Optio&amp;ns</string>
     </property>
     <addaction name="actionAdjust_plot_appearance"/>
     <addaction name="actionSet_number_format"/>
@@ -62,42 +62,37 @@
   </action>
   <action name="actionLoad_comma_separated_file">
    <property name="text">
-    <string>Load comma-separated file</string>
+    <string>Load &amp;comma-separated file</string>
    </property>
   </action>
   <action name="actionLoad_data_table">
    <property name="text">
-    <string>Load data table</string>
+    <string>Load &amp;data table</string>
    </property>
   </action>
   <action name="actionSave_data_table">
    <property name="text">
-    <string>Save data table</string>
+    <string>&amp;Save data table</string>
    </property>
   </action>
   <action name="actionSet_number_format">
    <property name="text">
-    <string>Set number format</string>
-   </property>
-  </action>
-  <action name="actionCrash_me">
-   <property name="text">
-    <string>Crash me!</string>
+    <string>&amp;Set number format</string>
    </property>
   </action>
   <action name="actionAdjust_plot_appearance">
    <property name="text">
-    <string>Adjust plot appearance</string>
+    <string>&amp;Adjust plot appearance</string>
    </property>
   </action>
   <action name="actionExit">
    <property name="text">
-    <string>Exit</string>
+    <string>&amp;Exit</string>
    </property>
   </action>
   <action name="actionAbout">
    <property name="text">
-    <string>About</string>
+    <string>&amp;About</string>
    </property>
   </action>
  </widget>

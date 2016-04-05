@@ -39,8 +39,12 @@ private:
   static const QString EVALUATIONENGINE_SETTINGS_TAG;
   static const QString HYPERBOLEFITTINGENGINE_SETTINGS_TAG;
 
+signals:
+  void programModeChanged(const DataAccumulatorMsgs::ProgramMode mode);
+
 public slots:
   void onAdjustPlotAppearance();
+  void onExportAction(const DataAccumulatorMsgs::ExportAction action);
   void onTabSwitched(const int idx);
 
 };

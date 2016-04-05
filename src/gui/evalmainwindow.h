@@ -31,20 +31,26 @@ private:
   QSplitter *m_controlsSplitter;
   MainControlsWidget *m_mainControlsWidget;
 
+  QMenu *m_exportHyperboleFitMenu;
+
   void closeEvent(QCloseEvent *ev) override;
+  void makeExportHyperboleFitMenu();
 
 signals:
   void adjustPlotAppearance();
+  void exportAction(const DataAccumulatorMsgs::ExportAction action);
   void loadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type);
   void loadDataTable();
   void saveDataTable();
 
 public slots:
+  void onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode);
 
 private slots:
   void onActionAbout();
   void onActionAdjustPlotAppearance();
   void onActionExit();
+  void onActionExportDataTableCsv();
   void onActionLoadChemStationFile();
   void onActionLoadCsvFile();
   void onActionLoadDataTable();

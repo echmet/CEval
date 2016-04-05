@@ -8,6 +8,17 @@ class DataAccumulatorMsgs : public QObject {
 public:
   DataAccumulatorMsgs() = delete;
 
+  enum class ExportAction {
+    EXPORT_DATATABLE_CSV
+  };
+  Q_ENUM(ExportAction)
+
+  enum class ProgramMode {
+    EVALUATION,
+    HYPERBOLE_FIT
+  };
+
+  Q_ENUM(ProgramMode)
   enum class SeriesType : int {
     MAIN_SIGNAL
   };

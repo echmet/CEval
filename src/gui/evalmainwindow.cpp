@@ -33,6 +33,10 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   m_plot->setMinimumHeight(0);
   m_upmostSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+  /* Prepare export menus */
+  makeExportHyperboleFitMenu();
+  ui->menuBar->insertMenu(ui->menuOptions->menuAction(), m_exportHyperboleFitMenu);
+
   setWindowTitle(Globals::VERSION_STRING());
 
 #ifdef Q_OS_LINUX
@@ -84,6 +88,17 @@ void EvalMainWindow::connectToAccumulator(QObject *dac)
   m_mainControlsWidget->connectToAccumulator(dac);
 }
 
+void EvalMainWindow::makeExportHyperboleFitMenu()
+{
+  m_exportHyperboleFitMenu = new QMenu("Export", this);
+  if (m_exportHyperboleFitMenu == nullptr)
+    return;
+
+  QAction *a = new QAction("Export data table", m_exportHyperboleFitMenu);
+  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionExportDataTableCsv);
+  m_exportHyperboleFitMenu->addAction(a);
+}
+
 void EvalMainWindow::onActionAbout()
 {
   AboutDialog dlg;
@@ -99,6 +114,11 @@ void EvalMainWindow::onActionAdjustPlotAppearance()
 void EvalMainWindow::onActionExit()
 {
   Helpers::exitApplicationWithWarning();
+}
+
+void EvalMainWindow::onActionExportDataTableCsv()
+{
+  emit exportAction(DataAccumulatorMsgs::ExportAction::EXPORT_DATATABLE_CSV);
 }
 
 void EvalMainWindow::onActionLoadChemStationFile()
@@ -127,6 +147,21 @@ void EvalMainWindow::onActionSetNumberFormat()
 
   dlg.setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
   dlg.exec();
+}
+
+void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode)
+{
+  /* Set all export menus invisible */
+  m_exportHyperboleFitMenu->menuAction()->setVisible(false);
+
+  switch (mode) {
+  case DataAccumulatorMsgs::ProgramMode::EVALUATION:
+    /* Nothing to do here yet */
+    break;
+  case DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT:
+    m_exportHyperboleFitMenu->menuAction()->setVisible(true);
+    break;
+  }
 }
 
 QwtPlot *EvalMainWindow::plot()

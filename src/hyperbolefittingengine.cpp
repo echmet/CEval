@@ -778,6 +778,11 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleFit(const Hyp
   return HypResults(u0, uCS, KCS, r.maxX_A, sigma, sfrRef.GetIterationCounter());
 }
 
+void HyperboleFittingEngine::exportToCsv()
+{
+
+}
+
 AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *HyperboleFittingEngine::fitFixedModel()
 {
   return &m_fitFixedModel;

@@ -92,6 +92,7 @@ int main(int argc, char *argv[])
   setDefaultState(w);
   DoubleToStringConvertor::setInitial();
 
+
   dac->checkForCrashRecovery();
 
   aRet =  a.exec();

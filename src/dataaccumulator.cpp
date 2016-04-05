@@ -132,9 +132,18 @@ void DataAccumulator::onAdjustPlotAppearance()
   m_currentModeCtx->adjustAppearance();
 }
 
+void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction action)
+{
+  switch (action) {
+  case DataAccumulatorMsgs::ExportAction::EXPORT_DATATABLE_CSV:
+    m_hyperboleFittingEngine->exportToCsv();
+  }
+}
+
 void DataAccumulator::onTabSwitched(const int idx)
 {
   ModeContextTypes::Types mid = ModeContextTypes::fromID<ModeContextTypes::Types>(idx);
+  DataAccumulatorMsgs::ProgramMode pmode;
 
   if (m_currentModeCtx != nullptr)
     m_currentModeCtx->deactivate();
@@ -143,12 +152,19 @@ void DataAccumulator::onTabSwitched(const int idx)
   m_currentModeCtx = m_modeCtxs[mid];
 
   switch (mid) {
+  case ModeContextTypes::Types::EVALUATION:
+    pmode = DataAccumulatorMsgs::ProgramMode::EVALUATION;
+    break;
   case ModeContextTypes::Types::HYPERBOLE_FIT:
     m_hyperboleFittingEngine->refreshModels();
+    pmode = DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT;
     break;
   default:
+    return;
     break;
   }
+
+  emit programModeChanged(pmode);
 }
 
 QVariant DataAccumulator::saveUserSettings() const

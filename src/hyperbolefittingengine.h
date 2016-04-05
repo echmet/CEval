@@ -94,6 +94,7 @@ public:
   void assignContext(std::shared_ptr<ModeContextLimited> ctx);
   void checkForCrashRecovery();
   QAbstractItemModel *concentrationsModel();
+  void exportToCsv();
   AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *fitFixedModel();
   AbstractMapperModel<double, HyperboleFitResults::Floating> *fitResultsModel();
   AbstractMapperModel<double, HyperboleFitParameters::Floating> *fitFloatModel();

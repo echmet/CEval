@@ -10,5 +10,7 @@ void EvalMainWindowConnector::connectAll(QObject *anonWidget, QObject *anonDac)
   Q_ASSERT(w != nullptr && dac != nullptr);
 
   QObject::connect(w, &EvalMainWindow::adjustPlotAppearance, dac, &DataAccumulator::onAdjustPlotAppearance);
+  QObject::connect(w, &EvalMainWindow::exportAction, dac, &DataAccumulator::onExportAction);
+  QObject::connect(dac, &DataAccumulator::programModeChanged, w, &EvalMainWindow::onProgramModeChanged);
 }
 
