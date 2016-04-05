@@ -787,6 +787,11 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleFit(const Hyp
 
 void HyperboleFittingEngine::exportToCsv()
 {
+  if (m_analytes.size() < 1) {
+    QMessageBox::information(nullptr, QObject::tr("Nothing to export"), QObject::tr("The data table is empty"));
+    return;
+  }
+
   while (m_exportDTToCsvDlg->exec() == QDialog::Accepted) {
     QChar delimiter;
     ExportDatatableToCsvDialog::Parameters p(m_exportDTToCsvDlg->parameters());
