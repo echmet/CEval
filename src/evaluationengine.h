@@ -159,6 +159,7 @@ private:
   bool setEvaluationContext(const EvaluationContext &ctx);
   void setEvaluationResults(PeakFinder::Results fr, PeakEvaluator::Results er);
   bool setPeakContext(const PeakContext &ctx);
+  void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);

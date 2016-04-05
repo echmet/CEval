@@ -25,6 +25,7 @@ const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* PE
 
 const QVector<bool> EvaluationEngine::s_defaultEvaluationBooleanValues({false /* NOISE_CORRECTION */});
 
+/* Do not reorder these before reviewing the rest of the code! */
 const QVector<double> EvaluationEngine::s_defaultEvaluationFloatingValues({0.5, /* NOISE_WINDOW */
                                                                           0.5, /* PEAK_WINDOW */
                                                                           1.0, /* SLOPE_WINDOW */
@@ -978,6 +979,8 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
   setEvaluationContext(ctx->evaluationContext);
   m_commonParamsEngine->revalidate();
   m_evaluatedPeaksModel.clearEntries();
+
+  setPeakFinderParameters(ctx->data->data.last().x());
 }
 
 void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
@@ -1448,6 +1451,32 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
     plotEvaluatedPeak(ctx.finderResults);
 
   return true;
+}
+
+void EvaluationEngine::setPeakFinderParameters(const double maxX)
+{
+  /* Scale search windows accordingly to the X data range if the range is too small */
+
+  if (m_windowUnit != EvaluationParametersItems::ComboWindowUnits::MINUTES)
+    return;
+
+  if (maxX / 2.0 <= s_defaultEvaluationFloatingValues.at(1))
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_WINDOW] = 0.10 * maxX;
+
+  if (maxX / 2.0 <= s_defaultEvaluationFloatingValues.at(2))
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_WINDOW] = 0.10 * maxX;
+
+  if (maxX / 2.0 <= s_defaultEvaluationFloatingValues.at(3))
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = 0.20 * maxX;
+
+  QModelIndex nwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_WINDOW));
+  emit m_evaluationFloatingModel.dataChanged(nwIdx, nwIdx, { Qt::EditRole });
+
+  QModelIndex pwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_WINDOW));
+  emit m_evaluationFloatingModel.dataChanged(pwIdx, pwIdx, { Qt::EditRole });
+
+  QModelIndex swIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_WINDOW));
+  emit m_evaluationFloatingModel.dataChanged(swIdx, swIdx, { Qt::EditRole });
 }
 
 QAbstractItemModel *EvaluationEngine::showWindowModel()
