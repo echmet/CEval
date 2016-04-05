@@ -132,7 +132,7 @@ void HyperboleFitWidget::onAddMobilityClicked()
 {
   QInputDialog dlg(this);
 
-  dlg.setLabelText(tr("Enter migration time"));
+  dlg.setLabelText(tr("Enter mobility of the analyte"));
   dlg.setInputMode(QInputDialog::TextInput);
 
   while (dlg.exec() == QDialog::Accepted) {
