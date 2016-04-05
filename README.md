@@ -24,7 +24,7 @@ Qt 5 toolkit, Boost, Qwt and libHPCS are required to build CEval. HVL_MT is an o
 Build
 ---
 
-Prior to building CEval, all hard dependencies have to be available it a binary form, either by building them from source or by obtaining an appropriate pre-built package. Refer to web presentations of the respective projects for further instructions.
+Prior to building CEval, all hard dependencies have to be available in binary form, either by building them from source or by obtaining an appropriate pre-built package (The binary form requirement does not apply for the Boost libraries). Refer to web presentations of the respective projects for further instructions.
 
 1. Setting up paths to build dependencies
 
@@ -54,6 +54,8 @@ Prior to building CEval, all hard dependencies have to be available it a binary 
 3. Run
 
   In order for CEval to use the **HVL_MT** library, the hvl_mt library (usually named **hvl_mt.so, hvl_mt.dll, hvl_mt.dylib**) must be placed in the same directory as CEval's executable.
+
+  **Remark:** If the Qwt and libHPCS libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib** and **libHPCS.so, libHPCS.dll, libHPCS.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the same directory as CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries.
 
 Pre-built binaries
 ---
