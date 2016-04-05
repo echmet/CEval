@@ -108,8 +108,6 @@ void DataFileLoader::loadChemStationFile()
   QString filePath;
   int ret;
 
-  m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
-
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
       m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
 
@@ -213,6 +211,10 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
 
     m_lastChemStationDlgSize = v.toSize();
   }
+
+  /* Act upon the loaded settings where necessary */
+  if (m_lastChemStationPath.length() > 0)
+    m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
 }
 
 void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type)
