@@ -6,7 +6,8 @@ ExportDatatableToCsvDialog::Parameters::Parameters() :
   exMode(ExportMode::SINGLE_FILE),
   path(""),
   decimalSeparator(QChar('\0')),
-  delimiter("")
+  delimiter(""),
+  precision(0)
 {
 }
 
@@ -14,15 +15,18 @@ ExportDatatableToCsvDialog::Parameters::Parameters(const Parameters &other) :
   exMode(other.exMode),
   path(other.path),
   decimalSeparator(other.decimalSeparator),
-  delimiter(other.delimiter)
+  delimiter(other.delimiter),
+  precision(other.precision)
 {
 }
 
-ExportDatatableToCsvDialog::Parameters::Parameters(const ExportMode exMode, const QString &path, const QChar &decimalSeparator, const QString &delimiter) :
+ExportDatatableToCsvDialog::Parameters::Parameters(const ExportMode exMode, const QString &path, const QChar &decimalSeparator,
+                                                   const QString &delimiter, const int precision) :
   exMode(exMode),
   path(path),
   decimalSeparator(decimalSeparator),
-  delimiter(delimiter)
+  delimiter(delimiter),
+  precision(precision)
 {
 }
 
@@ -56,7 +60,8 @@ ExportDatatableToCsvDialog::Parameters ExportDatatableToCsvDialog::parameters() 
     return Parameters();
   exMode = ui->qcbox_mode->currentData().value<ExportMode>();
 
-  return Parameters(exMode, ui->qle_path->text(), ui->qcbox_decimalSeparator->currentData().toChar(), ui->qle_delimiter->text());
+  return Parameters(exMode, ui->qle_path->text(), ui->qcbox_decimalSeparator->currentData().toChar(),
+                    ui->qle_delimiter->text(), ui->qspbox_numericPrecision->value());
 }
 
 void ExportDatatableToCsvDialog::onBrowseClicked()

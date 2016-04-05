@@ -21,12 +21,13 @@ public:
   public:
     explicit Parameters();
     Parameters(const Parameters &other);
-    Parameters(const ExportMode exMode, const QString &path, const QChar &decimalSeparator, const QString &delimiter);
+    Parameters(const ExportMode exMode, const QString &path, const QChar &decimalSeparator, const QString &delimiter, int precision);
 
     const ExportMode exMode;
     const QString path;
     const QChar decimalSeparator;
     const QString delimiter;
+    const int precision;
 
   };
 

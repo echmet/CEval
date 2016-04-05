@@ -798,6 +798,10 @@ void HyperboleFittingEngine::exportToCsv()
       QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Invalid path specified"));
       continue;
     }
+    if (p.precision < 1) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Nonsensical value of numeric precision"));
+      continue;
+    }
     if (p.delimiter.length() != 1) {
       QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
       continue;
@@ -806,22 +810,53 @@ void HyperboleFittingEngine::exportToCsv()
 
     switch (p.exMode) {
     case ExportDatatableToCsvDialog::ExportMode::SINGLE_FILE:
-      exportToCsvSingleFile(p.path, delimiter, p.decimalSeparator);
+      exportToCsvSingleFile(p.path, delimiter, p.decimalSeparator, p.precision);
       return;
       break;
     }
   }
 }
 
-void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator)
+void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision)
 {
   QFile file(path);
+  QTextStream stream(&file);
   QLocale loc(QLocale::C);
 
-  if (!file.open(QIODevice::WriteOnly)) {
+  if (file.exists()) {
+    if (QMessageBox::question(nullptr, QObject::tr("File exists"), QObject::tr("Selected file already exists, overwrite?")) == QMessageBox::No)
+      return;
+  }
+
+  if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     QMessageBox::warning(nullptr, QObject::tr("I/O error"), QObject::tr("Cannot open output file"));
     return;
   }
+
+  stream.setCodec("UTF-8");
+  stream.setGenerateByteOrderMark(false);
+
+  for (const std::shared_ptr<Analyte> analyte : m_analytes) {
+    stream << analyte->name << delimiter << "\n";
+
+    stream << QObject::tr("Concentration") << delimiter << QObject::tr("Mobilities") << "\n";
+    for (const std::shared_ptr<Concentration> concentration : analyte->concentrations) {
+      QString c = loc.toString(concentration->concentration, 'g', precision);
+      c.replace(loc.decimalPoint(), decimalSeparator);
+
+      stream << c << delimiter;
+      for (const double mobility : concentration->mobilities()) {
+        QString u = loc.toString(mobility, 'g', precision);
+        u.replace(loc.decimalPoint(), decimalSeparator);
+
+        stream << u << delimiter;
+      }
+      stream << "\n";
+    }
+    stream << "\n";
+  }
+
+  file.close();
 }
 
 AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *HyperboleFittingEngine::fitFixedModel()
