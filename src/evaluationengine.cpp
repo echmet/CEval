@@ -513,7 +513,13 @@ bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> da
 
 EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext() const
 {
-  return EvaluationContext(m_allPeaks, m_currentPeakIdx);
+  /* No peak has been added but the evaluation parameters might still have changed.
+   * Make sure we store them all */
+  QVector<PeakContext> allPeaks(m_allPeaks);
+  if (m_currentPeakIdx == 0)
+    allPeaks[0] = duplicatePeakContext();
+
+  return EvaluationContext(allPeaks, m_currentPeakIdx);
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFinder::Results finderResults, const QVector<QPointF> &hvlPlot) const
