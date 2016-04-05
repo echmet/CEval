@@ -52,6 +52,21 @@ DataFileLoader::DataFileLoader(QObject *parent) :
   m_lastCsvPath(QDir::homePath()),
   m_lastChemStationDlgSize(QSize(0,0))
 {
+  m_loadChemStationDataDlg = new LoadChemStationDataDialog();
+  m_loadCsvFileDlg = new LoadCsvFileDialog();
+
+  if (m_loadChemStationDataDlg == nullptr ||
+      m_loadCsvFileDlg == nullptr)
+    throw std::bad_alloc();
+
+  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
+    m_loadCsvFileDlg->addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
+}
+
+DataFileLoader::~DataFileLoader()
+{
+  delete m_loadChemStationDataDlg;
+  delete m_loadCsvFileDlg;
 }
 
 QString DataFileLoader::chemStationTypeToString(const ChemStationFileLoader::Type type)
@@ -90,21 +105,20 @@ QString DataFileLoader::chemStationTypeToString(const ChemStationFileLoader::Typ
 
 void DataFileLoader::loadChemStationFile()
 {
-  LoadChemStationDataDialog dlg;
   QString filePath;
   int ret;
 
-  dlg.expandToPath(m_lastChemStationPath);
+  m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
 
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
-      dlg.resize(m_lastChemStationDlgSize);
+      m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
 
-  ret = dlg.exec();
-  m_lastChemStationDlgSize = dlg.size();
+  ret = m_loadChemStationDataDlg->exec();
+  m_lastChemStationDlgSize = m_loadChemStationDataDlg->size();
 
   if (ret != QDialog::Accepted)
     return;
-  filePath = dlg.lastSelectedFile();
+  filePath = m_loadChemStationDataDlg->lastSelectedFile();
 
   ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(filePath, true);
 
@@ -121,14 +135,10 @@ void DataFileLoader::loadChemStationFile()
 
 void DataFileLoader::loadCsvFile()
 {
-  LoadCsvFileDialog loadDlg;
   LoadCsvFileDialog::Parameters p;
   QString filePath;
   std::shared_ptr<Data> data;
   QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
-
-  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
-    loadDlg.addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
 
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
   openDlg.setFileMode(QFileDialog::ExistingFile);
@@ -143,10 +153,10 @@ void DataFileLoader::loadCsvFile()
   filePath = files.at(0);
 
   while (true) {
-    if (loadDlg.exec() != QDialog::Accepted)
+    if (m_loadCsvFileDlg->exec() != QDialog::Accepted)
       return;
 
-    p = loadDlg.parameters();
+    p = m_loadCsvFileDlg->parameters();
     if (p.delimiter.length() != 1) {
       QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character."));
       continue;

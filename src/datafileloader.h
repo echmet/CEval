@@ -11,6 +11,9 @@
 #include "csvfileloader.h"
 #include "datafileloadermsgs.h"
 
+class LoadChemStationDataDialog;
+class LoadCsvFileDialog;
+
 class DataFileLoader : public QObject
 {
   Q_OBJECT
@@ -33,6 +36,7 @@ public:
   };
 
   explicit DataFileLoader(QObject *parent = nullptr);
+  ~DataFileLoader();
   void loadUserSettings(const QVariant &settings);
   QVariant saveUserSettings() const;
 
@@ -40,6 +44,9 @@ private:
   QString chemStationTypeToString(const ChemStationFileLoader::Type type);
   void loadChemStationFile();
   void loadCsvFile();
+
+  LoadChemStationDataDialog *m_loadChemStationDataDlg;
+  LoadCsvFileDialog *m_loadCsvFileDlg;
 
   QString m_lastChemStationPath;
   QString m_lastCsvPath;
