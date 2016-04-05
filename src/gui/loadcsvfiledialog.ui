@@ -32,7 +32,7 @@
         <string extracomment="Character that separates columns in the data file"/>
        </property>
        <property name="text">
-        <string>Delimiter:</string>
+        <string>Delimiter</string>
        </property>
       </widget>
      </item>
@@ -55,7 +55,7 @@
         <string/>
        </property>
        <property name="text">
-        <string>Decimal separator:</string>
+        <string>Decimal separator</string>
        </property>
       </widget>
      </item>
@@ -162,6 +162,19 @@
    </item>
   </layout>
  </widget>
+ <tabstops>
+  <tabstop>qle_delimiter</tabstop>
+  <tabstop>qcbox_decimalSeparator</tabstop>
+  <tabstop>qcbox_headerHandling</tabstop>
+  <tabstop>qle_xType</tabstop>
+  <tabstop>qle_xUnit</tabstop>
+  <tabstop>qle_yType</tabstop>
+  <tabstop>qle_yUnit</tabstop>
+  <tabstop>qcbox_encoding</tabstop>
+  <tabstop>qcb_bom</tabstop>
+  <tabstop>qpb_load</tabstop>
+  <tabstop>qpb_cancel</tabstop>
+ </tabstops>
  <resources/>
  <connections/>
 </ui>
