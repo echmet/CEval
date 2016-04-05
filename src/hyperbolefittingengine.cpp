@@ -302,6 +302,7 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
 HyperboleFittingEngine::~HyperboleFittingEngine()
 {
   delete m_singleFitRegressor;
+  delete m_doubleFitRegressor;
   delete m_exportDTToCsvDlg;
 }
 
