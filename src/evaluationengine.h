@@ -116,18 +116,12 @@ private:
   class DataContext {
   public:
     DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
-                const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx,
-                const QString &xAxisType = "", const QString &xAxisUnit = "", const QString &yAxisType = "", const QString &yAxisUnit = "");
+                const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx);
 
     std::shared_ptr<DataFileLoader::Data> data;
     QString name;
     CommonParametersEngine::Context commonContext;
     EvaluationContext evaluationContext;
-
-    QString xAxisType;
-    QString xAxisUnit;
-    QString yAxisType;
-    QString yAxisUnit;
   };
 
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);

@@ -24,10 +24,10 @@ public:
     Data &operator=(const Data &other);
 
     const QVector<QPointF> data;
-    const QString xType;
-    const QString xUnit;
-    const QString yType;
-    const QString yUnit;
+    QString xType;
+    QString xUnit;
+    QString yType;
+    QString yUnit;
   private:
      const bool m_valid;
   };

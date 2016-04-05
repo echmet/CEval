@@ -88,16 +88,11 @@ const int EvaluationEngine::s_defaultHvlIterations = 10;
 const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
 
 EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
-                                           const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx,
-                                           const QString &xAxisType, const QString &xAxisUnit, const QString &yAxisType, const QString &yAxisUnit) :
+                                           const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
   data(data),
   name(name),
   commonContext(commonCtx),
-  evaluationContext(evalCtx),
-  xAxisType(xAxisType),
-  xAxisUnit(xAxisUnit),
-  yAxisType(yAxisType),
-  yAxisUnit(yAxisUnit)
+  evaluationContext(evalCtx)
 {
 }
 
@@ -405,13 +400,13 @@ void EvaluationEngine::contextMenuTriggered(const ContextMenuActions &action, co
     break;
   case ContextMenuActions::SET_AXIS_TITLES:
     {
-      SetAxisTitlesDialog dlg(m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit, m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit);
+      SetAxisTitlesDialog dlg(m_currentDataContext->data->xType, m_currentDataContext->data->xUnit, m_currentDataContext->data->yType, m_currentDataContext->data->yUnit);
 
       if (dlg.exec() == QDialog::Accepted && m_currentDataContext != nullptr) {
-        m_currentDataContext->xAxisType = dlg.xType();
-        m_currentDataContext->xAxisUnit = dlg.xUnit();
-        m_currentDataContext->yAxisType = dlg.yType();
-        m_currentDataContext->yAxisUnit = dlg.yUnit();
+        m_currentDataContext->data->xType = dlg.xType();
+        m_currentDataContext->data->xUnit = dlg.xUnit();
+        m_currentDataContext->data->yType = dlg.yType();
+        m_currentDataContext->data->yUnit = dlg.yUnit();
 
         setAxisTitles();
       }
@@ -964,9 +959,7 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
   storeCurrentContext();
 
   std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, m_commonParamsEngine->currentContext(),
-                                                                                  freshEvaluationContext(),
-                                                                                  data->xType, data->xUnit,
-                                                                                  data->yType, data->yUnit));
+                                                                                  freshEvaluationContext()));
 
   try {
     m_allDataContexts.insert(fullPath, ctx);
@@ -1322,18 +1315,18 @@ void EvaluationEngine::setAxisTitles()
   if (m_currentDataContext == nullptr)
     return;
 
-  if (m_currentDataContext->xAxisUnit.length() > 0)
-    xUnit = QString("(%1)").arg(m_currentDataContext->xAxisUnit);
+  if (m_currentDataContext->data->xUnit.length() > 0)
+    xUnit = QString("(%1)").arg(m_currentDataContext->data->xUnit);
    else
     xUnit = "";
 
-  if (m_currentDataContext->yAxisUnit.length() > 0)
-    yUnit = QString("(%1)").arg(m_currentDataContext->yAxisUnit);
+  if (m_currentDataContext->data->yUnit.length() > 0)
+    yUnit = QString("(%1)").arg(m_currentDataContext->data->yUnit);
   else
     yUnit = "";
 
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->xAxisType).arg(xUnit));
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->yAxisType).arg(yUnit));
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->data->xType).arg(xUnit));
+  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->data->yType).arg(yUnit));
 }
 
 void EvaluationEngine::setDefaultFinderParameters()
@@ -1496,9 +1489,7 @@ bool EvaluationEngine::storeCurrentContext()
   if (isContextValid()) {
     try {
       std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name,
-                                                                                         m_commonParamsEngine->currentContext(), currentEvaluationContext(),
-                                                                                         m_currentDataContext->xAxisType, m_currentDataContext->xAxisUnit,
-                                                                                         m_currentDataContext->yAxisType, m_currentDataContext->yAxisUnit));
+                                                                                         m_commonParamsEngine->currentContext(), currentEvaluationContext()));
       m_allDataContexts[m_currentDataContextKey] = oldCtx;
     } catch (std::bad_alloc&) {
       QMessageBox::warning(nullptr, tr("Rutime error"), tr("Cannot store current data context"));
