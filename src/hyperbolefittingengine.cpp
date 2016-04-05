@@ -787,7 +787,41 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleFit(const Hyp
 
 void HyperboleFittingEngine::exportToCsv()
 {
+  while (m_exportDTToCsvDlg->exec() == QDialog::Accepted) {
+    QChar delimiter;
+    ExportDatatableToCsvDialog::Parameters p(m_exportDTToCsvDlg->parameters());
 
+    if (p.decimalSeparator == QChar('\0'))
+      return;
+
+    if (p.path.length() < 1) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Invalid path specified"));
+      continue;
+    }
+    if (p.delimiter.length() != 1) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
+      continue;
+    }
+    delimiter = p.delimiter.at(0);
+
+    switch (p.exMode) {
+    case ExportDatatableToCsvDialog::ExportMode::SINGLE_FILE:
+      exportToCsvSingleFile(p.path, delimiter, p.decimalSeparator);
+      return;
+      break;
+    }
+  }
+}
+
+void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator)
+{
+  QFile file(path);
+  QLocale loc(QLocale::C);
+
+  if (!file.open(QIODevice::WriteOnly)) {
+    QMessageBox::warning(nullptr, QObject::tr("I/O error"), QObject::tr("Cannot open output file"));
+    return;
+  }
 }
 
 AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *HyperboleFittingEngine::fitFixedModel()

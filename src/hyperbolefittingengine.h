@@ -96,6 +96,7 @@ public:
   void checkForCrashRecovery();
   QAbstractItemModel *concentrationsModel();
   void exportToCsv();
+  void exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator);
   AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *fitFixedModel();
   AbstractMapperModel<double, HyperboleFitResults::Floating> *fitResultsModel();
   AbstractMapperModel<double, HyperboleFitParameters::Floating> *fitFloatModel();
