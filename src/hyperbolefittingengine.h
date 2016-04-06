@@ -96,7 +96,7 @@ public:
   void checkForCrashRecovery();
   QAbstractItemModel *concentrationsModel();
   void exportToCsv();
-  void exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision);
+  bool exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision);
   AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *fitFixedModel();
   AbstractMapperModel<double, HyperboleFitResults::Floating> *fitResultsModel();
   AbstractMapperModel<double, HyperboleFitParameters::Floating> *fitFloatModel();
@@ -304,7 +304,9 @@ private:
   echmet::regressCore::RectangularHyperbole2<double, double> *m_doubleFitRegressor;
 
   QString m_lastDataTablePath;
+  QString m_lastExportToCsvPath;
   const QStringList m_dataTablesNameFilter;
+  const QStringList m_exportToCsvNameFilter;
 
   ExportDatatableToCsvDialog *m_exportDTToCsvDlg;
 
@@ -331,10 +333,12 @@ private:
   static const double s_defaultEpsilon;
   static const int s_defaultMaxIterations;
 
+  static const QString CSV_FILE_SUFFIX;
   static const QString DATA_TABLE_FILE_SUFFIX;
   static const double INVAL_CONC_KEY;
   static const QString INVAL_ANALYTE_KEY;
 
+  static const QString LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG;
   static const QString LAST_LOADSAVE_PATH_SETTINGS_TAG;
 
   static int constexpr seriesIndex(const Series p);

@@ -31,14 +31,17 @@ public:
 
   };
 
-  explicit ExportDatatableToCsvDialog(QWidget *parent = nullptr);
+  explicit ExportDatatableToCsvDialog(const QStringList &nameFilter, const QString &lastPath, QWidget *parent = nullptr);
   ~ExportDatatableToCsvDialog();
+  QString lastPath() const;
   Parameters parameters() const;
+  void setLastPath(const QString &path);
 
 private:
   Ui::ExportDatatableToCsvDialog *ui;
 
   QString m_lastPath;
+  const QStringList &m_nameFilter;
 
 private slots:
   void onBrowseClicked();

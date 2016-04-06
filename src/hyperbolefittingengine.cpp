@@ -35,11 +35,13 @@ const double HyperboleFittingEngine::s_defaultViscositySlope = 0.0;
 const double HyperboleFittingEngine::s_defaultEpsilon = 1.0e-9;
 const int HyperboleFittingEngine::s_defaultMaxIterations = 50;
 
+const QString HyperboleFittingEngine::CSV_FILE_SUFFIX("csv");
 const QString HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX("evd");
 const QString HyperboleFittingEngine::EMERG_SAVE_FILE("recovery." + DATA_TABLE_FILE_SUFFIX);
 const double HyperboleFittingEngine::INVAL_CONC_KEY(-1.0);
 const QString HyperboleFittingEngine::INVAL_ANALYTE_KEY("");
 
+const QString HyperboleFittingEngine::LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG("LastExportToCsvPath");
 const QString HyperboleFittingEngine::LAST_LOADSAVE_PATH_SETTINGS_TAG("LastLoadSavePath");
 
 HyperboleFittingEngine::Analyte::Analyte(const QString &name) :
@@ -226,7 +228,10 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_horizontalMarkerPosition(0.0),
   m_verticalAMarkerPosition(0.0),
   m_verticalBMarkerPosition(0.0),
-  m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)")
+  m_lastDataTablePath(QDir::homePath()),
+  m_lastExportToCsvPath(QDir::homePath()),
+  m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)"),
+  m_exportToCsvNameFilter(QStringList() << "Comma separated values (*." + HyperboleFittingEngine::CSV_FILE_SUFFIX + ")")
 {
   initFitModeModel();
   m_currentFitMode = FitMode::SINGLE;
@@ -249,13 +254,11 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_singleFitRegressor = new echmet::regressCore::RectangularHyperbole<double, double>();
   m_doubleFitRegressor = new echmet::regressCore::RectangularHyperbole2<double, double>();
 
-  m_exportDTToCsvDlg = new ExportDatatableToCsvDialog();
+  m_exportDTToCsvDlg = new ExportDatatableToCsvDialog(m_exportToCsvNameFilter, m_lastExportToCsvPath);
   if (m_exportDTToCsvDlg == nullptr)
     throw std::bad_alloc();
 
   connect(&m_fitFixedModel, &BooleanMapperModel<HyperboleFitParameters::Boolean>::dataChanged, this, &HyperboleFittingEngine::onSecondAnalyteSameChanged);
-
-  m_lastDataTablePath = QDir::homePath();
 
   /* Preinitialize regressors */
   {
@@ -794,6 +797,7 @@ void HyperboleFittingEngine::exportToCsv()
 
   while (m_exportDTToCsvDlg->exec() == QDialog::Accepted) {
     QChar delimiter;
+    QString path;
     ExportDatatableToCsvDialog::Parameters p(m_exportDTToCsvDlg->parameters());
 
     if (p.decimalSeparator == QChar('\0'))
@@ -813,16 +817,25 @@ void HyperboleFittingEngine::exportToCsv()
     }
     delimiter = p.delimiter.at(0);
 
+    path = p.path;
+    if (!path.endsWith("." + CSV_FILE_SUFFIX))
+      path.append("." + CSV_FILE_SUFFIX);
+
+    bool ret;
     switch (p.exMode) {
     case ExportDatatableToCsvDialog::ExportMode::SINGLE_FILE:
-      exportToCsvSingleFile(p.path, delimiter, p.decimalSeparator, p.precision);
-      return;
+      ret = exportToCsvSingleFile(path, delimiter, p.decimalSeparator, p.precision);
       break;
+    }
+
+    if (ret == true) {
+      m_lastExportToCsvPath = path;
+      return;
     }
   }
 }
 
-void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision)
+bool HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision)
 {
   QFile file(path);
   QTextStream stream(&file);
@@ -830,12 +843,12 @@ void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QC
 
   if (file.exists()) {
     if (QMessageBox::question(nullptr, QObject::tr("File exists"), QObject::tr("Selected file already exists, overwrite?")) == QMessageBox::No)
-      return;
+      return false;
   }
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
     QMessageBox::warning(nullptr, QObject::tr("I/O error"), QObject::tr("Cannot open output file"));
-    return;
+    return false;
   }
 
   stream.setCodec("UTF-8");
@@ -862,6 +875,8 @@ void HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QC
   }
 
   file.close();
+
+  return true;
 }
 
 AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *HyperboleFittingEngine::fitFixedModel()
@@ -992,6 +1007,13 @@ void HyperboleFittingEngine::loadUserSettings(const QVariant &settings)
     QVariant v = map[LAST_LOADSAVE_PATH_SETTINGS_TAG];
 
     m_lastDataTablePath = v.toString();
+  }
+
+  if (map.contains(LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG)) {
+    QVariant v = map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG];
+
+    m_lastExportToCsvPath = v.toString();
+    m_exportDTToCsvDlg->setLastPath(m_lastExportToCsvPath);
   }
 }
 
@@ -2100,6 +2122,7 @@ QVariant HyperboleFittingEngine::saveUserSettings() const
   EMT::StringVariantMap map = StandardModeContextSettingsHandler::saveUserSettings(*m_modeCtx.get(), seriesIndex(Series::LAST_INDEX));
 
   map[LAST_LOADSAVE_PATH_SETTINGS_TAG] = m_lastDataTablePath;
+  map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG] = m_lastExportToCsvPath;
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }

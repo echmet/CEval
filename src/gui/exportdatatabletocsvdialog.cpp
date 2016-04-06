@@ -30,10 +30,11 @@ ExportDatatableToCsvDialog::Parameters::Parameters(const ExportMode exMode, cons
 {
 }
 
-ExportDatatableToCsvDialog::ExportDatatableToCsvDialog(QWidget *parent) :
+ExportDatatableToCsvDialog::ExportDatatableToCsvDialog(const QStringList &nameFilter, const QString &lastPath, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::ExportDatatableToCsvDialog),
-  m_lastPath(QDir::homePath())
+  m_lastPath(lastPath),
+  m_nameFilter(nameFilter)
 {
   ui->setupUi(this);
 
@@ -74,6 +75,8 @@ void ExportDatatableToCsvDialog::onBrowseClicked()
   exMode = ui->qcbox_mode->currentData().value<ExportMode>();
 
   dlg.setAcceptMode(QFileDialog::AcceptSave);
+  dlg.setNameFilters(m_nameFilter);
+  dlg.setDirectory(QFileInfo(m_lastPath).absoluteDir());
 
   switch (exMode) {
   case ExportMode::SINGLE_FILE:
@@ -95,4 +98,10 @@ void ExportDatatableToCsvDialog::onCancelClicked()
 void ExportDatatableToCsvDialog::onOkClicked()
 {
   accept();
+}
+
+void ExportDatatableToCsvDialog::setLastPath(const QString &path)
+{
+  m_lastPath = path;
+  ui->qle_path->setText(m_lastPath);
 }
