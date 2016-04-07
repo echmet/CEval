@@ -168,7 +168,7 @@ void DataFileLoader::loadCsvFile()
 
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
   CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator,
-                                                        p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
+                                                        p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
                                                         p.encodingId, bom);
   if (!csvData.isValid())
     return;

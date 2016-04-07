@@ -70,7 +70,8 @@ bool CsvFileLoader::Data::isValid() const
   return m_valid;
 }
 
-CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const bool hasHeader,
+CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
+                                            const bool hasHeader, const quint32 linesToSkip,
                                             const QString &encodingId, const QByteArray &bom)
 {
   QFile dataFile(path);
@@ -78,6 +79,7 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
   QString xType;
   QString yType;
   QTextStream stream;
+  quint32 linesRead = 0;
 
   if (!dataFile.open(QIODevice::ReadOnly)) {
     QMessageBox::warning(nullptr, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"
@@ -103,7 +105,12 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
   stream.setDevice(&dataFile);
   stream.setCodec(encodingId.toUtf8());
 
-  if (hasHeader) {
+  if (linesToSkip > 0) {
+    while (linesRead < linesToSkip) {
+      stream.readLine();
+      linesRead++;
+    }
+  } else if (hasHeader) {
     QStringList header;
     QString line;
 
@@ -116,9 +123,10 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
     }
     xType = header.at(0);
     yType = header.at(1);
+
+    linesRead++;
   }
 
-  int lineCnt = hasHeader ? 2 : 1;
   const QChar qcDelimiter = delimiter.toLatin1();
   while (!dataFile.atEnd()) {
     QStringList values;
@@ -131,40 +139,40 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
     line = stream.readLine();
     values = line.split(qcDelimiter);
     if (values.size() != 2) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
     s = &values[0];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(lineCnt));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
     s = &values[1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(lineCnt));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(lineCnt));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
     points.append(QPointF(x, y));
-    lineCnt++;
+    linesRead++;
   }
 
   return Data(points, xType, yType);

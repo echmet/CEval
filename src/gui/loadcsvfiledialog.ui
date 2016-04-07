@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>523</width>
-    <height>268</height>
+    <height>280</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="3" column="0">
+     <item row="4" column="0">
       <widget class="QLabel" name="ql_xType">
        <property name="text">
         <string>X axis type</string>
@@ -36,13 +36,13 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="6" column="1">
       <widget class="QLineEdit" name="qle_yType"/>
      </item>
-     <item row="3" column="1">
+     <item row="4" column="1">
       <widget class="QLineEdit" name="qle_xType"/>
      </item>
-     <item row="4" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="ql_yCaption">
        <property name="text">
         <string>Y axis type</string>
@@ -59,14 +59,17 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="4" column="2">
       <widget class="QLabel" name="ql_xUnit">
        <property name="text">
         <string>X axis unit</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="4" column="3">
+      <widget class="QLineEdit" name="qle_xUnit"/>
+     </item>
+     <item row="7" column="0">
       <widget class="QLabel" name="ql_encodingCaption">
        <property name="text">
         <string>Encoding</string>
@@ -80,18 +83,18 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="3">
-      <widget class="QLineEdit" name="qle_xUnit"/>
+     <item row="6" column="3">
+      <widget class="QLineEdit" name="qle_yUnit"/>
      </item>
-     <item row="4" column="2">
+     <item row="6" column="2">
       <widget class="QLabel" name="ql_yUnit">
        <property name="text">
         <string>Y axis unit</string>
        </property>
       </widget>
      </item>
-     <item row="4" column="3">
-      <widget class="QLineEdit" name="qle_yUnit"/>
+     <item row="1" column="1" colspan="3">
+      <widget class="QComboBox" name="qcbox_decimalSeparator"/>
      </item>
      <item row="0" column="1" colspan="3">
       <widget class="QLineEdit" name="qle_delimiter">
@@ -100,13 +103,10 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="3">
-      <widget class="QComboBox" name="qcbox_decimalSeparator"/>
-     </item>
      <item row="2" column="1" colspan="3">
       <widget class="QComboBox" name="qcbox_headerHandling"/>
      </item>
-     <item row="5" column="1" colspan="3">
+     <item row="7" column="1" colspan="3">
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QComboBox" name="qcbox_encoding">
@@ -139,6 +139,26 @@
         </widget>
        </item>
       </layout>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="ql_linesToSkip">
+       <property name="text">
+        <string>Lines to skip</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="3">
+      <widget class="QSpinBox" name="qspbox_linesToSkip">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="minimum">
+        <number>1</number>
+       </property>
+       <property name="maximum">
+        <number>999999999</number>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

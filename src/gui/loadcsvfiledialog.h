@@ -24,7 +24,7 @@ public:
   public:
     Parameters(const QString &delimiter, const QChar &decimalSeparator,
                const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
-               const HeaderHandling header,
+               const HeaderHandling header, const quint32 linesToSkip,
                const bool readBom, const QString &encodingId);
     Parameters();
 
@@ -35,6 +35,7 @@ public:
     const QString xUnit;
     const QString yUnit;
     const HeaderHandling header;
+    const quint32 linesToSkip;
     const bool readBom;
     const QString encodingId;
 

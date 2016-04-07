@@ -13,6 +13,7 @@ LoadCsvFileDialog::Parameters::Parameters() :
   xUnit(""),
   yUnit(""),
   header(HeaderHandling::NO_HEADER),
+  linesToSkip(0),
   readBom(false),
   encodingId("")
 {
@@ -20,7 +21,7 @@ LoadCsvFileDialog::Parameters::Parameters() :
 
 LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar &decimalSeparator,
                                           const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
-                                          const HeaderHandling header,
+                                          const HeaderHandling header, const quint32 linesToSkip,
                                           const bool readBom, const QString &encodingId) :
   delimiter(delimiter),
   decimalSeparator(decimalSeparator),
@@ -29,6 +30,7 @@ LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar 
   xUnit(xUnit),
   yUnit(yUnit),
   header(header),
+  linesToSkip(linesToSkip),
   readBom(readBom),
   encodingId(encodingId)
 {
@@ -43,6 +45,7 @@ LoadCsvFileDialog::Parameters &LoadCsvFileDialog::Parameters::operator=(const Pa
   const_cast<QString&>(xUnit) = other.xUnit;
   const_cast<QString&>(yUnit) = other.yUnit;
   const_cast<HeaderHandling&>(header) = other.header;
+  const_cast<quint32&>(linesToSkip) = other.linesToSkip;
   const_cast<bool&>(readBom) = other.readBom;
   const_cast<QString&>(encodingId) = other.encodingId;
 
@@ -72,6 +75,9 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
 
     ui->qcb_bom->setEnabled(enable);
   }
+  /* Hide input for skipping lines by default as "No header" is the default value in the ComboBox */
+  ui->ql_linesToSkip->setVisible(false);
+  ui->qspbox_linesToSkip->setVisible(false);
 
   /* Add header handling options */
   ui->qcbox_headerHandling->addItem(tr("No header"), QVariant::fromValue<HeaderHandling>(HeaderHandling::NO_HEADER));
@@ -118,6 +124,7 @@ void LoadCsvFileDialog::onEncodingChanged(const int idx)
 
 void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
 {
+  bool skipLinesVisible = false;
   QVariant v = ui->qcbox_headerHandling->itemData(idx);
 
   if (!v.canConvert<HeaderHandling>())
@@ -127,11 +134,17 @@ void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
 
   switch (h) {
   case HeaderHandling::NO_HEADER:
+    ui->qle_xType->setEnabled(true);
+    ui->qle_yType->setEnabled(true);
+    ui->qle_xUnit->setEnabled(true);
+    ui->qle_yUnit->setEnabled(true);
+    break;
   case HeaderHandling::SKIP_HEADER:
     ui->qle_xType->setEnabled(true);
     ui->qle_yType->setEnabled(true);
     ui->qle_xUnit->setEnabled(true);
     ui->qle_yUnit->setEnabled(true);
+    skipLinesVisible = true;
     break;
   case HeaderHandling::HEADER_WITH_UNITS:
     ui->qle_xType->setEnabled(false);
@@ -146,10 +159,14 @@ void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
     ui->qle_yUnit->setEnabled(true);
     break;
   }
+
+  ui->ql_linesToSkip->setVisible(skipLinesVisible);
+  ui->qspbox_linesToSkip->setVisible(skipLinesVisible);
 }
 
 void LoadCsvFileDialog::onLoadClicked()
 {
+  quint32 linesToSkip;
   QStandardItem *item = m_encodingsModel.item(ui->qcbox_encoding->currentIndex());
   if (item == nullptr)
     reject();
@@ -161,12 +178,16 @@ void LoadCsvFileDialog::onLoadClicked()
 
   HeaderHandling h = v.value<HeaderHandling>();
 
+  if (h == HeaderHandling::SKIP_HEADER)
+    linesToSkip = ui->qspbox_linesToSkip->value();
+  else
+    linesToSkip = 0;
 
   m_parameters = Parameters(ui->qle_delimiter->text(),
                             ui->qcbox_decimalSeparator->currentData().toChar(),
                             ui->qle_xType->text(), ui->qle_yType->text(),
                             ui->qle_xUnit->text(), ui->qle_yUnit->text(),
-                            h,
+                            h, linesToSkip,
                             ui->qcb_bom->checkState() == Qt::Checked,
                             item->data(Qt::UserRole + 1).toString());
 
