@@ -8,6 +8,9 @@ const QString LoadCsvFileDialog::s_qlFirstLineIsHeaderToolTip = tr("Check when f
 
 LoadCsvFileDialog::Parameters::Parameters() :
   delimiter(""),
+  decimalSeparator('\0'),
+  xColumn(0),
+  yColumn(0),
   xType(""),
   yType(""),
   xUnit(""),
@@ -20,11 +23,14 @@ LoadCsvFileDialog::Parameters::Parameters() :
 }
 
 LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar &decimalSeparator,
+                                          const quint32 xColumn, const quint32 yColumn,
                                           const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
                                           const HeaderHandling header, const quint32 linesToSkip,
                                           const bool readBom, const QString &encodingId) :
   delimiter(delimiter),
   decimalSeparator(decimalSeparator),
+  xColumn(xColumn),
+  yColumn(yColumn),
   xType(xType),
   yType(yType),
   xUnit(xUnit),
@@ -40,6 +46,8 @@ LoadCsvFileDialog::Parameters &LoadCsvFileDialog::Parameters::operator=(const Pa
 {
   const_cast<QString&>(delimiter) = other.delimiter;
   const_cast<QChar&>(decimalSeparator) = other.decimalSeparator;
+  const_cast<quint32&>(xColumn) = other.xColumn;
+  const_cast<quint32&>(yColumn) = other.yColumn;
   const_cast<QString&>(xType) = other.xType;
   const_cast<QString&>(yType) = other.yType;
   const_cast<QString&>(xUnit) = other.xUnit;
@@ -185,6 +193,7 @@ void LoadCsvFileDialog::onLoadClicked()
 
   m_parameters = Parameters(ui->qle_delimiter->text(),
                             ui->qcbox_decimalSeparator->currentData().toChar(),
+                            ui->qspbox_xColumn->value(), ui->qspbox_yColumn->value(),
                             ui->qle_xType->text(), ui->qle_yType->text(),
                             ui->qle_xUnit->text(), ui->qle_yUnit->text(),
                             h, linesToSkip,

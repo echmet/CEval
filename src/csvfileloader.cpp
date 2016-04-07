@@ -71,6 +71,7 @@ bool CsvFileLoader::Data::isValid() const
 }
 
 CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
+                                            const quint32 xColumn, const quint32 yColumn,
                                             const bool hasHeader, const quint32 linesToSkip,
                                             const QString &encodingId, const QByteArray &bom)
 {
@@ -80,6 +81,7 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
   QString yType;
   QTextStream stream;
   quint32 linesRead = 0;
+  quint32 highColumn = (yColumn > xColumn) ? yColumn : xColumn;
 
   if (!dataFile.open(QIODevice::ReadOnly)) {
     QMessageBox::warning(nullptr, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"
@@ -116,13 +118,13 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
 
     line = stream.readLine();
     header = line.split(delimiter.toLatin1());
-    if (header.size() != 2) {
+    if (header.size() < highColumn) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"),
-                           QString(QObject::tr("The selected file does not appear to have the \"time%1value\" format")).arg(delimiter));
+                           QString(QObject::tr("The selected file does not appear to have the desired format")).arg(delimiter));
       return Data();
     }
-    xType = header.at(0);
-    yType = header.at(1);
+    xType = header.at(xColumn - 1);
+    yType = header.at(yColumn - 1);
 
     linesRead++;
   }
@@ -138,12 +140,12 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
 
     line = stream.readLine();
     values = line.split(qcDelimiter);
-    if (values.size() != 2) {
+    if (values.size() < highColumn) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
       return Data(points, xType, yType);
     }
 
-    s = &values[0];
+    s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
@@ -157,7 +159,7 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
       return Data(points, xType, yType);
     }
 
-    s = &values[1];
+    s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));

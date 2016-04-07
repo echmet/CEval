@@ -23,6 +23,7 @@ public:
   class Parameters {
   public:
     Parameters(const QString &delimiter, const QChar &decimalSeparator,
+               const quint32 xColumn, const quint32 yColumn,
                const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
                const HeaderHandling header, const quint32 linesToSkip,
                const bool readBom, const QString &encodingId);
@@ -30,6 +31,8 @@ public:
 
     const QString delimiter;
     const QChar decimalSeparator;
+    const quint32 xColumn;
+    const quint32 yColumn;
     const QString xType;
     const QString yType;
     const QString xUnit;

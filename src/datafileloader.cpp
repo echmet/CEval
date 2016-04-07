@@ -163,11 +163,18 @@ void DataFileLoader::loadCsvFile()
       QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
       continue;
     }
+
+    if (p.xColumn == p.yColumn) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columnt cannot be the same"));
+      continue;
+    }
+
     break;
   }
 
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
   CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator,
+                                                        p.xColumn, p.yColumn,
                                                         p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
                                                         p.encodingId, bom);
   if (!csvData.isValid())
