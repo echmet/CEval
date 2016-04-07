@@ -155,7 +155,7 @@ void DataFileLoader::loadCsvFile()
       return;
 
     p = m_loadCsvFileDlg->parameters();
-    if (p.delimiter.length() != 1) {
+    if (p.delimiter.length() != 1 && (p.delimiter.compare("\\t") != 0)) {
       QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character."));
       continue;
     }
@@ -172,8 +172,14 @@ void DataFileLoader::loadCsvFile()
     break;
   }
 
+  QChar delimiter;
+  if (p.delimiter.compare("\\t") == 0)
+    delimiter = '\t';
+  else
+    delimiter = p.delimiter.at(0);
+
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
-  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, QChar(p.delimiter.at(0)), p.decimalSeparator,
+  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, delimiter, p.decimalSeparator,
                                                         p.xColumn, p.yColumn,
                                                         p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
                                                         p.encodingId, bom);
