@@ -165,7 +165,7 @@ void DataFileLoader::loadCsvFile()
     }
 
     if (p.xColumn == p.yColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columnt cannot be the same"));
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columns cannot be the same"));
       continue;
     }
 
