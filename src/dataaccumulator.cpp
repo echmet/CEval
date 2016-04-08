@@ -39,6 +39,13 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   }
 
   try {
+    m_plotExporter = new PlotExporter(this);
+  } catch (std::bad_alloc&) {
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate PlotExporter"));
+    throw;
+  }
+
+  try {
     m_plotZoomer = new QwtPlotZoomer(m_plot->canvas());
     m_plotZoomer->setTrackerMode(QwtPicker::AlwaysOn);
     m_plotZoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::LeftButton, Qt::ShiftModifier);
@@ -137,6 +144,10 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
   switch (action) {
   case DataAccumulatorMsgs::ExportAction::EXPORT_DATATABLE_CSV:
     m_hyperboleFittingEngine->exportToCsv();
+    break;
+  case DataAccumulatorMsgs::ExportAction::EXPORT_PLOT:
+    m_plotExporter->exportToBitmap(m_plot);
+    break;
   }
 }
 

@@ -31,10 +31,11 @@ private:
   QSplitter *m_controlsSplitter;
   MainControlsWidget *m_mainControlsWidget;
 
+  QMenu *m_exportEvaluationMenu;
   QMenu *m_exportHyperboleFitMenu;
 
   void closeEvent(QCloseEvent *ev) override;
-  void makeExportHyperboleFitMenu();
+  void makeExportMenus();
 
 signals:
   void adjustPlotAppearance();
@@ -49,8 +50,10 @@ public slots:
 private slots:
   void onActionAbout();
   void onActionAdjustPlotAppearance();
+  void onActionCurrentPeakToCsv();
   void onActionExit();
   void onActionExportDataTableCsv();
+  void onActionExportPlotAsImage();
   void onActionLoadChemStationFile();
   void onActionLoadCsvFile();
   void onActionLoadDataTable();

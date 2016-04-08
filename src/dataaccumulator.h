@@ -8,6 +8,7 @@
 #include "hyperbolefittingengine.h"
 #include "modecontext.h"
 #include "modecontexttypes.h"
+#include "plotexporter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_picker.h"
 #include "qwt_plot_zoomer.h"
@@ -35,6 +36,8 @@ private:
   QwtPlot *m_plot;
   QwtPlotPicker *m_plotPicker;
   QwtPlotZoomer *m_plotZoomer;
+
+  PlotExporter *m_plotExporter;
 
   static const QString EVALUATIONENGINE_SETTINGS_TAG;
   static const QString HYPERBOLEFITTINGENGINE_SETTINGS_TAG;

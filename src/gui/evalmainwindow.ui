@@ -50,7 +50,15 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuExport">
+    <property name="title">
+     <string>E&amp;xport</string>
+    </property>
+    <addaction name="actionExport_plot_as_image"/>
+    <addaction name="separator"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuExport"/>
    <addaction name="menuOptions"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -93,6 +101,11 @@
   <action name="actionAbout">
    <property name="text">
     <string>&amp;About</string>
+   </property>
+  </action>
+  <action name="actionExport_plot_as_image">
+   <property name="text">
+    <string>Export plot as image</string>
    </property>
   </action>
  </widget>

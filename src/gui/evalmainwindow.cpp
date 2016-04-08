@@ -34,8 +34,11 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   m_upmostSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
   /* Prepare export menus */
-  makeExportHyperboleFitMenu();
-  ui->menuBar->insertMenu(ui->menuOptions->menuAction(), m_exportHyperboleFitMenu);
+  makeExportMenus();
+  ui->menuExport->addMenu(m_exportEvaluationMenu);
+  ui->menuExport->insertMenu(m_exportEvaluationMenu->menuAction(), m_exportHyperboleFitMenu);
+  m_exportHyperboleFitMenu->menuAction()->setVisible(false);
+  m_exportEvaluationMenu->menuAction()->setVisible(false);
 
   setWindowTitle(Globals::VERSION_STRING());
 
@@ -88,15 +91,23 @@ void EvalMainWindow::connectToAccumulator(QObject *dac)
   m_mainControlsWidget->connectToAccumulator(dac);
 }
 
-void EvalMainWindow::makeExportHyperboleFitMenu()
+void EvalMainWindow::makeExportMenus()
 {
-  m_exportHyperboleFitMenu = new QMenu("Export", this);
+  m_exportHyperboleFitMenu = new QMenu(QObject::tr("Hyperbole fit export"), this);
   if (m_exportHyperboleFitMenu == nullptr)
     return;
 
   QAction *a = new QAction("Export data table", m_exportHyperboleFitMenu);
   connect(a, &QAction::triggered, this, &EvalMainWindow::onActionExportDataTableCsv);
   m_exportHyperboleFitMenu->addAction(a);
+
+  m_exportEvaluationMenu = new QMenu(QObject::tr("Export evaluation"), this);
+  if (m_exportEvaluationMenu == nullptr)
+    return;
+
+  a = new QAction("Current peak to CSV", this);
+  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionCurrentPeakToCsv);
+  m_exportEvaluationMenu->addAction(a);
 }
 
 void EvalMainWindow::onActionAbout()
@@ -111,6 +122,11 @@ void EvalMainWindow::onActionAdjustPlotAppearance()
   emit adjustPlotAppearance();
 }
 
+void EvalMainWindow::onActionCurrentPeakToCsv()
+{
+
+}
+
 void EvalMainWindow::onActionExit()
 {
   Helpers::exitApplicationWithWarning();
@@ -119,6 +135,11 @@ void EvalMainWindow::onActionExit()
 void EvalMainWindow::onActionExportDataTableCsv()
 {
   emit exportAction(DataAccumulatorMsgs::ExportAction::EXPORT_DATATABLE_CSV);
+}
+
+void EvalMainWindow::onActionExportPlotAsImage()
+{
+  emit exportAction(DataAccumulatorMsgs::ExportAction::EXPORT_PLOT);
 }
 
 void EvalMainWindow::onActionLoadChemStationFile()
@@ -151,14 +172,13 @@ void EvalMainWindow::onActionSetNumberFormat()
 
 void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode)
 {
-  /* Set all export menus invisible */
-  m_exportHyperboleFitMenu->menuAction()->setVisible(false);
-
   switch (mode) {
   case DataAccumulatorMsgs::ProgramMode::EVALUATION:
-    /* Nothing to do here yet */
+    m_exportHyperboleFitMenu->menuAction()->setVisible(false);
+    m_exportEvaluationMenu->menuAction()->setVisible(true);
     break;
   case DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT:
+    m_exportEvaluationMenu->menuAction()->setVisible(false);
     m_exportHyperboleFitMenu->menuAction()->setVisible(true);
     break;
   }

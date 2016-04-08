@@ -9,7 +9,8 @@ public:
   DataAccumulatorMsgs() = delete;
 
   enum class ExportAction {
-    EXPORT_DATATABLE_CSV
+    EXPORT_DATATABLE_CSV,
+    EXPORT_PLOT
   };
   Q_ENUM(ExportAction)
 
