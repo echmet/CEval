@@ -65,6 +65,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionAbout, &QAction::triggered, this, &EvalMainWindow::onActionAbout);
   connect(ui->actionAdjust_plot_appearance, &QAction::triggered, this, &EvalMainWindow::onActionAdjustPlotAppearance);
   connect(ui->actionExit, &QAction::triggered, this, &EvalMainWindow::onActionExit);
+  connect(ui->actionExport_plot_as_image, &QAction::triggered, this, &EvalMainWindow::onActionExportPlotAsImage);
   connect(ui->actionLoad_ChemStation_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadChemStationFile);
   connect(ui->actionLoad_comma_separated_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvFile);
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);

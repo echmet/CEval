@@ -92,7 +92,8 @@ SOURCES += src/main.cpp \
     src/evaluationupperwidgetconnector.cpp \
     src/gui/setaxistitlesdialog.cpp \
     src/gui/exportdatatabletocsvdialog.cpp \
-    src/plotexporter.cpp
+    src/plotexporter.cpp \
+    src/gui/exportplottoimagedialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -249,7 +250,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/evaluationupperwidgetconnector.h \
     src/gui/setaxistitlesdialog.h \
     src/gui/exportdatatabletocsvdialog.h \
-    src/plotexporter.h
+    src/plotexporter.h \
+    src/gui/exportplottoimagedialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -268,7 +270,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/aboutdialog.ui \
     src/gui/evaluationupperwidget.ui \
     src/gui/setaxistitlesdialog.ui \
-    src/gui/exportdatatabletocsvdialog.ui
+    src/gui/exportdatatabletocsvdialog.ui \
+    src/gui/exportplottoimagedialog.ui
 
 unix {
     LIBS += -ldl
