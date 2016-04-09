@@ -146,7 +146,7 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
     m_hyperboleFittingEngine->exportToCsv();
     break;
   case DataAccumulatorMsgs::ExportAction::EXPORT_PLOT:
-    m_plotExporter->exportToBitmap(m_plot);
+    m_plotExporter->exportPlot(m_plot);
     break;
   }
 }

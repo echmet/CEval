@@ -2,10 +2,11 @@
 #include "ui_exportplottoimagedialog.h"
 #include <QFileDialog>
 
-ExportPlotToImageDialog::Parameters::Parameters(const QString path, const QString format, const QSize dimensions) :
+ExportPlotToImageDialog::Parameters::Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi) :
   path(path),
   format(format),
-  dimensions(dimensions)
+  dimensions(dimensions),
+  dpi(dpi)
 {
 }
 
@@ -13,7 +14,8 @@ ExportPlotToImageDialog::Parameters &ExportPlotToImageDialog::Parameters::operat
 {
   const_cast<QString&>(path) = other.path;
   const_cast<QString&>(format) = other.format;
-  const_cast<QSize&>(dimensions) = other.dimensions;
+  const_cast<QSizeF&>(dimensions) = other.dimensions;
+  const_cast<int&>(dpi) = other.dpi;
 
   return *this;
 }
@@ -80,5 +82,12 @@ void ExportPlotToImageDialog::onOkClicked()
 ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
 {
   return Parameters(ui->qle_path->text(), ui->qcbox_format->currentData().toString(),
-                    QSize(ui->qspbox_width->value(), ui->qspbox_height->value()));
+                    QSizeF(ui->qspbox_width->value(), ui->qspbox_height->value()),
+                    ui->qspbox_dpi->value());
+}
+
+void ExportPlotToImageDialog::setPlotDimensions(const QSizeF &dimensions)
+{
+  ui->qspbox_width->setValue(dimensions.width());
+  ui->qspbox_height->setValue(dimensions.height());
 }

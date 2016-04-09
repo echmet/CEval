@@ -55,6 +55,7 @@
      <string>E&amp;xport</string>
     </property>
     <addaction name="actionExport_plot_as_image"/>
+    <addaction name="actionExport_plot_data_as_CSV"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
@@ -106,6 +107,11 @@
   <action name="actionExport_plot_as_image">
    <property name="text">
     <string>Export plot as image</string>
+   </property>
+  </action>
+  <action name="actionExport_plot_data_as_CSV">
+   <property name="text">
+    <string>Export plot data as CSV</string>
    </property>
   </action>
  </widget>

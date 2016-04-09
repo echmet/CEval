@@ -13,17 +13,19 @@ class ExportPlotToImageDialog : public QDialog
 public:
   class Parameters {
   public:
-    Parameters(const QString path, const QString format, const QSize dimensions);
+    Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi);
     Parameters &operator=(const Parameters &other);
 
     const QString path;
     const QString format;
-    const QSize dimensions;
+    const QSizeF dimensions;
+    const int dpi;
   };
 
   explicit ExportPlotToImageDialog(const QStringList &supportedFormats, QWidget *parent = nullptr);
   ~ExportPlotToImageDialog();
   Parameters parameters() const;
+  void setPlotDimensions(const QSizeF &dimensions);
 
 private:
   Ui::ExportPlotToImageDialog *ui;
