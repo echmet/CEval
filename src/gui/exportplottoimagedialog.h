@@ -34,6 +34,7 @@ private slots:
   void onBrowseClicked();
   void onCancelClicked();
   void onOkClicked();
+  void onFilePathChanged(const QString &path);
 
 };
 

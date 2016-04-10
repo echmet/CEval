@@ -32,6 +32,7 @@ ExportPlotToImageDialog::ExportPlotToImageDialog(const QStringList &supportedFor
   connect(ui->qpb_browse, &QPushButton::clicked, this, &ExportPlotToImageDialog::onBrowseClicked);
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &ExportPlotToImageDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &ExportPlotToImageDialog::onOkClicked);
+  connect(ui->qle_path, &QLineEdit::textChanged, this, &ExportPlotToImageDialog::onFilePathChanged);
 }
 
 ExportPlotToImageDialog::~ExportPlotToImageDialog()
@@ -42,16 +43,29 @@ ExportPlotToImageDialog::~ExportPlotToImageDialog()
 void ExportPlotToImageDialog::onBrowseClicked()
 {
   QFileDialog dlg;
-  QString path;
-  int idx;
 
   dlg.setAcceptMode(QFileDialog::AcceptSave);
 
   if (dlg.exec() != QDialog::Accepted)
     return;
 
-  path = dlg.selectedFiles()[0];
-  idx = path.lastIndexOf(".");
+  ui->qle_path->setText(dlg.selectedFiles()[0]);
+}
+
+void ExportPlotToImageDialog::onCancelClicked()
+{
+  reject();
+}
+
+void ExportPlotToImageDialog::onOkClicked()
+{
+  accept();
+}
+
+void ExportPlotToImageDialog::onFilePathChanged(const QString &path)
+{
+  int idx = path.lastIndexOf(".");
+
   if (idx > -1) {
     QString suffix;
 
@@ -65,18 +79,6 @@ void ExportPlotToImageDialog::onBrowseClicked()
       }
     }
   }
-
-  ui->qle_path->setText(dlg.selectedFiles()[0]);
-}
-
-void ExportPlotToImageDialog::onCancelClicked()
-{
-  reject();
-}
-
-void ExportPlotToImageDialog::onOkClicked()
-{
-  accept();
 }
 
 ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
