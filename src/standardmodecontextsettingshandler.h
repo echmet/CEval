@@ -13,6 +13,7 @@ public:
   static EMT::StringVariantMap saveUserSettings(ModeContextLimited &ctx, int plotCount);
 
 private:
+  static const QString SERIE_VISIBLE_SETTINGS_TAG;
   static const QString LINE_COLOR_SETTINGS_TAG;
   static const QString LINE_THICKNESS_SETTINGS_TAG;
   static const QString POINT_FILLCOLOR_SETTINGS_TAG;

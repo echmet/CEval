@@ -54,6 +54,7 @@ public:
     void fromOther(const SerieVisuals &other);
 
     const int id;
+    bool visible;
     QColor lineColor;
     qreal lineThickness;
     QColor pointColor;
@@ -104,6 +105,7 @@ private slots:
   void onPointStyleSelected(const int idx);
   void onSerieSelected(const int idx);
   void onSetForAllAxesClicked();
+  void onVisibleClicked();
 
 };
 Q_DECLARE_METATYPE(AdjustPlotVisualsDialog::AxisVisuals)

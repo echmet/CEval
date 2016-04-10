@@ -82,9 +82,9 @@ void ExportPlotToImageDialog::onFilePathChanged(const QString &path)
 void ExportPlotToImageDialog::onHeightChanged(const double h)
 {
   if (ui->qcb_keepRatio->checkState() == Qt::Checked) {
-    disconnect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
+    disconnect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onWidthChanged);
     ui->qspbox_width->setValue(m_aspectRatio * h);
-    connect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
+    connect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onWidthChanged);
   }
 }
 
@@ -122,11 +122,11 @@ ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
 void ExportPlotToImageDialog::setPlotDimensions(const QSizeF &dimensions)
 {
   disconnect(ui->qspbox_height, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
-  disconnect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
+  disconnect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onWidthChanged);
   ui->qspbox_width->setValue(dimensions.width());
   ui->qspbox_height->setValue(dimensions.height());
   connect(ui->qspbox_height, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
-  connect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
+  connect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onWidthChanged);
 
   m_aspectRatio = dimensions.width() / dimensions.height();
 }

@@ -30,6 +30,7 @@ AdjustPlotVisualsDialog::SerieVisuals::SerieVisuals(const int id) :
 
 void AdjustPlotVisualsDialog::SerieVisuals::fromOther(const SerieVisuals &other)
 {
+  visible = other.visible;
   lineColor = other.lineColor;
   lineThickness = other.lineThickness;
   pointLineThickness = other.pointLineThickness;
@@ -42,6 +43,7 @@ void AdjustPlotVisualsDialog::SerieVisuals::fromOther(const SerieVisuals &other)
 AdjustPlotVisualsDialog::SerieVisuals &AdjustPlotVisualsDialog::SerieVisuals::operator=(const SerieVisuals &other)
 {
   const_cast<int&>(id) = other.id;
+  visible = other.visible;
   lineColor = other.lineColor;
   lineThickness = other.lineThickness;
   pointLineThickness = other.pointLineThickness;
@@ -67,6 +69,8 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onOkClicked);
 
+  connect(ui->qcb_visible, &QCheckBox::clicked, this, &AdjustPlotVisualsDialog::onVisibleClicked);
+
   connect(ui->qpb_pickLineColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickLineColorClicked);
   connect(ui->qpb_pickPointColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickPointColorClicked);
   connect(ui->qpb_pickPointFillColor, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onPickPointFillColorClicked);
@@ -82,7 +86,6 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   connect(ui->qcbox_series, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onSerieSelected);
   connect(ui->qcbox_pointStyles, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &AdjustPlotVisualsDialog::onPointStyleSelected);
   connect(ui->qcbox_axis, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onAxisSelected);
-
 }
 
 AdjustPlotVisualsDialog::~AdjustPlotVisualsDialog()
@@ -303,6 +306,7 @@ void AdjustPlotVisualsDialog::onSerieSelected(const int idx)
   setPointStyleIndex(sv.pointStyle);
   setPointFillColorBox(sv.pointFillColor);
 
+  ui->qcb_visible->setChecked(sv.visible);
   ui->qspbox_lineThickness->setValue(sv.lineThickness);
   ui->qspbox_pointLineThickness->setValue(sv.pointLineThickness);
   ui->qspbox_pointSize->setValue(sv.pointSize);
@@ -329,6 +333,19 @@ void AdjustPlotVisualsDialog::onSetForAllAxesClicked()
 
     item->setData(QVariant::fromValue<AxisVisuals>(av), Qt::UserRole);
   }
+}
+
+void AdjustPlotVisualsDialog::onVisibleClicked()
+{
+  QStandardItem *item = comboBoxItem(ui->qcbox_series, ui->qcbox_series->currentIndex());
+  if (item == nullptr)
+    return;
+
+  SerieVisuals sv = datatypeFromItem<SerieVisuals>(item);
+
+  sv.visible = ui->qcb_visible->checkState() == Qt::Checked;
+
+  item->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
 }
 
 QString AdjustPlotVisualsDialog::pointStyleName(const PointStyles ps)

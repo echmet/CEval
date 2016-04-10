@@ -76,6 +76,7 @@ void ModeContext::adjustAppearance()
       continue;
 
     AdjustPlotVisualsDialog::SerieVisuals sv(id);
+    sv.visible = curve->isVisible();
     sv.lineColor = style.pen.color();
     sv.lineThickness = style.pen.widthF();
     sv.pointLineThickness = style.symbol()->pen().widthF();
@@ -124,6 +125,8 @@ void ModeContext::adjustAppearance()
     nSym->setSize(sv.pointSize);
 
     curve->setSymbol(nSym);
+
+    curve->setVisible(sv.visible);
   }
 
   QVector<AdjustPlotVisualsDialog::AxisVisuals> avVec = dlg.axisVisuals();
@@ -383,6 +386,7 @@ bool ModeContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &s
   style.curveStyle = c.style();
   style.setSymbol(new QwtSymbol(c.symbol()->style(), c.symbol()->brush(), c.symbol()->pen(), c.symbol()->size()));
   style.pen = c.pen();
+  style.visible = c.isVisible();
 
   return true;
 }
@@ -471,6 +475,7 @@ void ModeContext::setSerieVisualStyle(const int id, SerieProperties::VisualStyle
   style.setSymbolOwned();
   plotCurve->setStyle(style.curveStyle);
   plotCurve->setPen(style.pen);
+  plotCurve->setVisible(style.visible);
 }
 
 void ModeContext::setZoomBase(const QRectF &rect)

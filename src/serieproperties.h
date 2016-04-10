@@ -22,13 +22,16 @@ public:
   public:
     explicit VisualStyle(const QPen pen = QPen(QBrush(Qt::black, Qt::SolidPattern), 1.0),
                          QwtSymbol *symbol = new QwtSymbol(QwtSymbol::Style::NoSymbol),
-                         const QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::CurveStyle::Lines);
+                         const QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::CurveStyle::Lines,
+                         const bool visible = true);
     ~VisualStyle();
-    QwtPlotCurve::CurveStyle curveStyle;
-    QPen pen;
     QwtSymbol *symbol();
     void setSymbol(QwtSymbol *s);
     void setSymbolOwned();
+
+    QwtPlotCurve::CurveStyle curveStyle;
+    QPen pen;
+    bool visible;
 
   private:
     bool m_symbolOwned;
