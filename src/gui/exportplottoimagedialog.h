@@ -29,12 +29,17 @@ public:
 
 private:
   Ui::ExportPlotToImageDialog *ui;
+  double m_aspectRatio;
 
 private slots:
   void onBrowseClicked();
   void onCancelClicked();
-  void onOkClicked();
   void onFilePathChanged(const QString &path);
+  void onHeightChanged(const double h);
+  void onKeepAspectRatioClicked();
+  void onOkClicked();
+  void onWidthChanged(const double w);
+
 
 };
 

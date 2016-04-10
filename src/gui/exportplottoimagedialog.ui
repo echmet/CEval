@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>547</width>
-    <height>178</height>
+    <height>216</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -76,14 +76,14 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="4">
+     <item row="3" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>DPI</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="5">
+     <item row="3" column="1">
       <widget class="QSpinBox" name="qspbox_dpi">
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -99,18 +99,25 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="5">
+     <item row="2" column="4">
+      <widget class="QCheckBox" name="qcb_keepRatio">
+       <property name="text">
+        <string>Keep aspect ratio</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1" colspan="4">
+      <widget class="QComboBox" name="qcbox_format"/>
+     </item>
+     <item row="0" column="1" colspan="3">
+      <widget class="QLineEdit" name="qle_path"/>
+     </item>
+     <item row="0" column="4">
       <widget class="QPushButton" name="qpb_browse">
        <property name="text">
         <string>Browse</string>
        </property>
       </widget>
-     </item>
-     <item row="0" column="1" colspan="4">
-      <widget class="QLineEdit" name="qle_path"/>
-     </item>
-     <item row="1" column="1" colspan="5">
-      <widget class="QComboBox" name="qcbox_format"/>
      </item>
     </layout>
    </item>
