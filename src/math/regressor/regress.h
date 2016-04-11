@@ -279,12 +279,12 @@ template <typename XT, typename YT>
 inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
 :
     m_report_function(nullptr),
+    m_params(MatrixY(params, 1)),
     m_rss(0),
     m_notFixed(params),
     m_nmax(0),
     m_epsilon(1E-9),
     m_damping(true),
-    m_params(MatrixY(params, 1))
 {
 
     Reset();
