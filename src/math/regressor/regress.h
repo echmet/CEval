@@ -6,19 +6,19 @@
 
 #define ECHMET_REGRESS_WEIGHTS         0 // Not Yet Implemented!
 
-#define ECHMET_REGRESS_DEBUG           1
+#define ECHMET_REGRESS_DEBUG           0
 
 #define ECHMET_REGRESS_DEBUG_PATH      "Q:\\Users\\Developer"
 
-#define ECHMET_REGRESS_DEBUG_X         1
-#define ECHMET_REGRESS_DEBUG_Y         1
-#define ECHMET_REGRESS_DEBUG_PARAMS    1
-#define ECHMET_REGRESS_DEBUG_FX        1
-#define ECHMET_REGRESS_DEBUG_ERROR     1
-#define ECHMET_REGRESS_DEBUG_P         1
-#define ECHMET_REGRESS_DEBUG_ALPHA     1
-#define ECHMET_REGRESS_DEBUG_BETA      1
-#define ECHMET_REGRESS_DEBUG_DELTA     1
+#define ECHMET_REGRESS_DEBUG_X         0
+#define ECHMET_REGRESS_DEBUG_Y         0
+#define ECHMET_REGRESS_DEBUG_PARAMS    0
+#define ECHMET_REGRESS_DEBUG_FX        0
+#define ECHMET_REGRESS_DEBUG_ERROR     0
+#define ECHMET_REGRESS_DEBUG_P         0
+#define ECHMET_REGRESS_DEBUG_ALPHA     0
+#define ECHMET_REGRESS_DEBUG_BETA      0
+#define ECHMET_REGRESS_DEBUG_DELTA     0
 
 
 //===========================================================================
@@ -284,7 +284,7 @@ inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
     m_notFixed(params),
     m_nmax(0),
     m_epsilon(1E-9),
-    m_damping(true),
+    m_damping(true)
 {
 
     Reset();
