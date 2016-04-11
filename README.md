@@ -14,6 +14,7 @@ Dependencies
 CEval makes use of the following tools:
 
 - [Qt 5 toolkit](https://www.qt.io/)
+- [Armadillo](http://arma.sourceforge.net/)
 - [Boost](http://www.boost.org/)
 - [Qwt](http://qwt.sourceforge.net/)
 - [libHPCS](https://github.com/echmet/libHPCS)
@@ -33,6 +34,7 @@ Prior to building CEval, all hard dependencies have to be available in binary fo
   - `HPCSPATH` - Path to the directory which contains both **libHPCS** shared library and **libHPCS.h** public header file
   - `BOOSTPATH` - Path to the directory with the Boost library headers
   - `QWTPATH` - Path to the **features/qwt.prf** file
+  - `ARMAPATH` - Path to the directory where the Armadillo library is installed. This path must include the **/lib** and **/include** subdirectories.
 
 2. Building
 
