@@ -9,11 +9,13 @@
 HPCSPATH = $$PWD/libHPCS
 BOOSTPATH = $$PWD/includes
 QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin/features/qwt.prf"
+ARMAPATH = "/home/madcat/Devel/ECHMET/armadillo-bin"
 INCLUDEPATH += $$HPCSPATH
+INCLUDEPATH += $$ARMAPATH/include
 DEPENDPATH += $$HPCSPATH
 
 # Adjust the paths to Qwt library as needed.
 include($$QWTPATH)
 
 # Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L$$HPCSPATH -lHPCS -lpthread
+unix|win32: LIBS += -L$$HPCSPATH -lHPCS -L$$ARMAPATH/lib -larmadillo -lpthread
