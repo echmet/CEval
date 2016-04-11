@@ -113,7 +113,7 @@ public:
   static const QString EMERG_SAVE_FILE;
 
 private:
-  typedef echmet::regressCore::RectangularHyperbole2<double, double>::x_type x_type;
+  typedef echmet::regressCore::RectangularHyperbole2<double, double>::x_type hyp2x_type;
 
   enum class Series : int {
     POINTS_A,

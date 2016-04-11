@@ -1,7 +1,6 @@
 #include "hvlcalculator.h"
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
-#include "math/matrix/core.hpp"
 #include "math/hvl.hpp"
 #include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
@@ -11,6 +10,12 @@
 #include <thread>
 
 #include <QDebug>
+
+#include <vector>
+#include <armadillo>
+
+using namespace arma;
+using namespace std;
 
 HVLCalculator *HVLCalculator::s_me;
 
@@ -65,15 +70,14 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
 {
   unsigned long size = in->toIdx - in->fromIdx;
 
-  echmet::matrix::Core<> x(size, 1);
-  echmet::matrix::Core<> y(size, 1);
-
+  vector<double> x(size, 1);
+  Mat<double>    y(size, 1);
 
 #pragma omp parallel for
   for (unsigned long j = 0; j < size; ++j) {
 
-          x[j][0] = in->data->at(in->fromIdx + j).x();
-          y[j][0] = in->data->at(in->fromIdx + j).y();
+          x[j]   = in->data->at(in->fromIdx + j).x();
+          y(j,0) = in->data->at(in->fromIdx + j).y();
 
   }
 

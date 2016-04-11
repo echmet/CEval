@@ -6,32 +6,31 @@
 
 #define ECHMET_REGRESS_WEIGHTS         0 // Not Yet Implemented!
 
-#define ECHMET_REGRESS_DEBUG           0
+#define ECHMET_REGRESS_DEBUG           1
 
-#define ECHMET_REGRESS_DEBUG_PATH  "N:\\Pavel\\PRG\\CPP"
+#define ECHMET_REGRESS_DEBUG_PATH      "Q:\\Users\\Developer"
 
 #define ECHMET_REGRESS_DEBUG_X         1
 #define ECHMET_REGRESS_DEBUG_Y         1
-#define ECHMET_REGRESS_DEBUG_PARAMS    0
-#define ECHMET_REGRESS_DEBUG_FX        0
-#define ECHMET_REGRESS_DEBUG_ERROR     0
-#define ECHMET_REGRESS_DEBUG_P         0
-#define ECHMET_REGRESS_DEBUG_ALPHA     0
-#define ECHMET_REGRESS_DEBUG_BETA      0
-#define ECHMET_REGRESS_DEBUG_DELTA     0
+#define ECHMET_REGRESS_DEBUG_PARAMS    1
+#define ECHMET_REGRESS_DEBUG_FX        1
+#define ECHMET_REGRESS_DEBUG_ERROR     1
+#define ECHMET_REGRESS_DEBUG_P         1
+#define ECHMET_REGRESS_DEBUG_ALPHA     1
+#define ECHMET_REGRESS_DEBUG_BETA      1
+#define ECHMET_REGRESS_DEBUG_DELTA     1
 
 
 //===========================================================================
 // INCLUDES
 
 #include "../mystd/foostream.h"
-#include "../matrix/core.hpp"
-#include "../matrix/gauss/gauss.hpp"
 #include "../hvl.hpp"
 
 #include <new>
 #include <fstream> // debug
 #include <vector>
+#include <armadillo>
 
 //===========================================================================
 // CODE
@@ -43,7 +42,17 @@ namespace echmet {
 namespace regressCore {
 
 //---------------------------------------------------------------------------
-using namespace echmet::matrix;
+using namespace arma;
+using namespace std;
+
+
+class matrix_error : public logic_error {
+
+    public:
+
+    matrix_error(std::string s) : logic_error(s) {}
+
+};
 
 //---------------------------------------------------------------------------
 #if ECHMET_REGRESS_DEBUG == 1
@@ -53,11 +62,11 @@ typedef std::fstream dbstream;
 #define INSPECT(MATRIX) {                                                      \
     debug << "\n------------------\n"                                          \
           << #MATRIX                                                           \
-          << "[" << MATRIX.data.Height() << "] [" << MATRIX.data.Width() << "]"   \
+          << "[" << MATRIX.n_rows << "] [" << MATRIX.n_cols << "]"   \
           << std::endl;                                                        \
-    for (msize_t i = 0; i != MATRIX.data.Height(); ++i) {                      \
-        for (msize_t j = 0; j != MATRIX.data.Width(); ++j)                     \
-        debug << MATRIX[i][j] << "\t";                                         \
+    for (msize_t i = 0; i != MATRIX.n_rows; ++i) {                      \
+        for (msize_t j = 0; j != MATRIX.n_cols; ++j)                     \
+        debug << MATRIX(i,j) << "\t";                                         \
         debug << std::endl;                                                    \
     }                                                                          \
     debug << std::endl;                                                        \
@@ -75,6 +84,8 @@ typedef foostream dbstream;
 //===========================================================================
 // dcl
 
+typedef size_t msize_t;
+
 //---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double> class RegressFunction {
 
@@ -84,6 +95,8 @@ public:
 
     typedef XT x_type;
     typedef YT y_type;
+
+    typedef Mat<YT> MatrixY;
 
     typedef void (*report_function)(RegressFunction const &);
 
@@ -99,8 +112,8 @@ public:
     // Controllers
 
     bool Initialize  (
-        Core<XT> const & x,
-        Core<YT> const & y,
+        vector<XT> const & x,
+        MatrixY const & y,
         YT eps, unsigned nmax, bool damp
     );
 
@@ -124,11 +137,11 @@ public:
 
     report_function GetReportFunction() const { return m_report_function; }
 
-    Core<YT> const & GetParameters()       const { return m_params; }
-    Core<XT> const & GetXs()               const { return m_x; }
-    Core<YT> const & GetYs()               const { return m_y; }
-    Core<YT> const & GetFx()               const { return m_fx; }
-    Core<YT> const & GetErrors()           const { return m_error; }
+    MatrixY const & GetParameters()       const { return m_params; }
+    vector<XT> const & GetXs()            const { return m_x; }
+    MatrixY const & GetYs()               const { return m_y; }
+    MatrixY const & GetFx()               const { return m_fx; }
+    MatrixY const & GetErrors()           const { return m_error; }
 
     YT      GetRSS()         const { return m_rss; }
     YT      GetImprovement() const { return m_improvement; }
@@ -171,58 +184,58 @@ protected:
     virtual RegressFunction * ACreate() const = 0;
 
     virtual bool AInitialize(
-     Core<YT>       & params,
-     Core<XT> const & x,
-     Core<YT> const & y
+     MatrixY       & params,
+     vector<XT> const & x,
+     MatrixY const & y
     ) = 0;
 
     virtual void AAssign(RegressFunction const &other) = 0;
 
     virtual YT ACalculateFx (
-     XT                      x,
-     Core<YT> const &        params,
-     echmet::matrix::msize_t idx
+     XT               x,
+     MatrixY const &  params,
+     msize_t          idx
     ) const = 0;
 
     virtual YT ACalculateDerivative (
-     XT                      x,
-     Core<YT> const &        params,
-     echmet::matrix::msize_t param_idx,
-     echmet::matrix::msize_t idx
+     XT               x,
+     MatrixY const &  params,
+     msize_t          param_idx,
+     msize_t          idx
     ) const = 0;
 
-    virtual bool AAccepted (YT, Core<YT> const &) const { return true; }
+    virtual bool AAccepted (YT, MatrixY const &) const { return true; }
 
     template<typename ENUM>
-    void SetParam(Core<YT> & params, ENUM id, YT);
+    void SetParam(MatrixY & params, ENUM id, YT);
 
     template<typename ENUM>
-    YT const & GetParam(Core<YT> const & params, ENUM id) const;
+    YT const & GetParam(MatrixY const & params, ENUM id) const;
 
 private:
 
     report_function   m_report_function;
 
     // Initialized in constructor
-    Core<YT>             m_params;          //           [params, 1]
-    std::vector<bool>    m_fixedParams;     //           [params]
-    std::vector<msize_t> m_pindexes;        //           [params]
+    MatrixY          m_params;          //           [params, 1]
+    vector<bool>     m_fixedParams;     //           [params]
+    vector<msize_t>  m_pindexes;        //           [params]
 
-    // Initialized in Initialze
-    Core<XT> m_x;           //data x                     [x, 1]
-    Core<YT> m_y;           //data y                     [x, 1]
-    Core<YT> m_fx;          //fx calculated              [x, 1]
+    // Initialized in Initialize
+    vector<XT>       m_x;   //data x                 [x, 1]
+    MatrixY          m_y;   //data y                 [x, 1]
+    MatrixY          m_fx;  //fx calculated          [x, 1]
 
     // Initialized in CalculateRSS
-    Core<YT> m_error;      //                            [x, 1]
+    MatrixY m_error;      //                         [x, 1]
 
     // Initialized in OnParamsChanged
-    Core<YT> m_p;          //derivation matrix           [not_fixed, x]
+    MatrixY m_p;          //derivation matrix        [not_fixed, x]
 
     // Initialized in Regress
-    Core<YT> m_alpha;      //                            [not_fixed, not_fixed]
-    Core<YT> m_beta;       //                            [not_fixed, 1]
-    Core<YT> m_delta;      //                            [not_fixed, 1]
+    MatrixY m_alpha;      //                         [not_fixed, not_fixed]
+    MatrixY m_beta;       //                         [not_fixed, 1]
+    MatrixY m_delta;      //                         [not_fixed, 1]
 
     // Resetable state variables
 
@@ -270,12 +283,12 @@ inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
     m_notFixed(params),
     m_nmax(0),
     m_epsilon(1E-9),
-    m_damping(true)
+    m_damping(true),
+    m_params(MatrixY(params, 1))
 {
 
     Reset();
 
-    m_params.data.New(params, 1);
     m_fixedParams.resize(params);
     m_pindexes.resize(params);
 
@@ -288,9 +301,8 @@ RegressFunction<XT, YT>::~RegressFunction()
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline bool RegressFunction<XT, YT>::Initialize  (
-    Core<XT> const & x,
-    Core<YT> const & y,
+inline bool RegressFunction<XT, YT>::Initialize  (const vector<XT> &x,
+    const MatrixY &y,
     YT eps, unsigned nmax, bool damp
 )
 {
@@ -306,14 +318,14 @@ inline bool RegressFunction<XT, YT>::Initialize  (
     m_epsilon  = eps;
     m_damping  = damp;
 
-    if (x.size() == 0 || x.size() != y.size()) return false;
+    if (x.size() == 0 || x.size() != y.n_rows) return false;
 
-    m_x.data.RawCopy(x.data);
-    m_y.data.RawCopy(y.data);
+    m_x = x;
+    m_y = y;
 
     if (!AInitialize(m_params, m_x, m_y)) return false;
 
-    m_fx.data.New(m_y.data.Height(), 1);
+    m_fx = MatrixY(m_y.n_rows, 1);
 
     OnParamsChanged();
 
@@ -345,31 +357,26 @@ RegressFunction<XT, YT>::Clone(std::nothrow_t) const
 }
 
 //---------------------------------------------------------------------------
-
-//...........................................................................
-#define ECHMET_REGRESS_ASSIGN(MATRIX) MATRIX.data.RawCopy(other.MATRIX.data)
-
-//...........................................................................
 template <typename XT, typename YT>
 inline void RegressFunction<XT, YT>::Assign(RegressFunction const & other)
 {
 
     m_report_function = other.m_report_function;
 
-    ECHMET_REGRESS_ASSIGN(m_params);
+    m_params = other.m_params;
     m_fixedParams = other.m_fixedParams;
 
-    ECHMET_REGRESS_ASSIGN(m_x);
-    ECHMET_REGRESS_ASSIGN(m_y);
-    ECHMET_REGRESS_ASSIGN(m_fx);
+    m_x = other.m_x;
+    m_y = other.m_y;
+    m_fx = other.m_fx;
 
-    ECHMET_REGRESS_ASSIGN(m_p);
+    m_p = other.m_p;
 
-    ECHMET_REGRESS_ASSIGN(m_error);
+    m_error = other.m_error;
 
-    ECHMET_REGRESS_ASSIGN(m_alpha);
-    ECHMET_REGRESS_ASSIGN(m_beta);
-    ECHMET_REGRESS_ASSIGN(m_delta);
+    m_alpha = other.m_alpha;
+    m_beta = other.m_beta;
+    m_delta = other.m_delta;
 
     m_iterationCounter = other.m_iterationCounter;
 
@@ -391,14 +398,12 @@ inline void RegressFunction<XT, YT>::Assign(RegressFunction const & other)
 
 }
 
-//...........................................................................
-#undef ECHMET_REGRESS_ASSIGN
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool RegressFunction<XT, YT>::Regress() {
 
-    dbstream debug(ECHMET_REGRESS_DEBUG_PATH "\\debug_regress.txt", std::ios_base::trunc | std::ios_base::out);
+    dbstream debug("debug_regress.txt", std::ios_base::trunc | std::ios_base::out);
 
     // INIT
 
@@ -415,8 +420,8 @@ RESTART:;
 
     m_lambda = 1. / 16384.;
 
-    YT           sAccepted = this->GetS();
-    Core<YT>     paramsAccepted(m_params, raw_copy());
+    YT        sAccepted = this->GetS();
+    MatrixY   paramsAccepted(m_params);
 
     // DOIT
 
@@ -424,9 +429,9 @@ RESTART:;
 
         // alpha
         // $$$ alpha = p * p.GetTransposed();
-        m_alpha.data.RawCopy(m_p.data);
+        //m_alpha(m_p);
 
-        m_alpha *= m_p.GetTransposed();
+        m_alpha = m_p * trans(m_p);
 
         if (m_damping) {
 
@@ -435,7 +440,7 @@ RESTART:;
 
             debug << "lambda: " << m_lambda << std::endl;
 
-            m_alpha.GetDiagonal() *= (1 + m_lambda);
+            m_alpha.diag(0) *= (1 + m_lambda);
 
         };
 
@@ -445,8 +450,8 @@ RESTART:;
 
         //beta
         // $$$ beta = p * error;
-        m_beta.data.RawCopy(m_p.data);
-        m_beta *= m_error;
+        //m_beta(m_p);
+        m_beta = m_p * m_error;
 
 #if ECHMET_REGRESS_DEBUG_BETA == 1
         INSPECT(m_beta)
@@ -456,10 +461,11 @@ RESTART:;
 
             //delta
             // $$$ delta = alpha.Inverted() * beta;
-            m_delta.data.RawCopy(m_beta.data);
-            GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
+            //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
 
-        } catch (echmet::matrix::matrix_error &) {
+            m_delta = solve(m_alpha, m_beta);
+
+        } catch (matrix_error &) {
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
             m_accepted = false;
@@ -476,7 +482,7 @@ RESTART:;
         // $$$ params += delta;
         for (unsigned long i = 0, j = 0; i < m_fixedParams.size(); ++i) {
             if (!m_fixedParams[i]) {
-                m_params[i][0] += m_delta[j][0];
+                m_params(i, 0) += m_delta(j, 0);
                 ++j;
             }
         }
@@ -499,7 +505,7 @@ RESTART:;
 
             debug << "\nACCEPTED\n";
 
-            paramsAccepted.data.RawCopy(m_params.data);
+            paramsAccepted = m_params;
             m_improvement = sAccepted - sNew;
             sAccepted     = sNew;
 
@@ -517,7 +523,7 @@ RESTART:;
 
 FINALIZE:;
 
-    m_params.data.RawCopy(paramsAccepted.data);
+    m_params = paramsAccepted;
     OnParamsChanged(true);
 
     if (!m_accepted && m_iterationCounter != m_nmax && !m_aborted) {
@@ -578,7 +584,7 @@ template<typename ENUM>
 inline void RegressFunction<XT, YT>::FixParameter(ENUM id, YT val)
 {
 
-    m_params[static_cast<msize_t>(id)] = val;
+    m_params(static_cast<msize_t>(id), 0) = val;
 
     if (!IsFixedParameter(id)) FixParameter(id);
     else                       OnParamsChanged();
@@ -625,7 +631,7 @@ template <typename XT, typename YT>
 inline msize_t RegressFunction<XT, YT>::GetNCount() const
 {
 
-    return m_y.size();
+    return m_y.n_rows;
 
 }
 
@@ -639,15 +645,17 @@ inline msize_t RegressFunction<XT, YT>::GetPCount() const
 
 }
 
+#if 0
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 inline msize_t RegressFunction<XT, YT>::GetPTotal() const
 {
 
 
-    return m_params.size();
+    return m_params.numRows();
 
 }
+#endif
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
@@ -693,7 +701,7 @@ template<typename ENUM>
 inline YT RegressFunction<XT, YT>::GetParameter(ENUM id) const
 {
 
-    return m_params[static_cast<msize_t>(id)][0];
+    return m_params(static_cast<msize_t>(id), 0);
 
 }
 
@@ -721,18 +729,18 @@ inline YT RegressFunction<XT, YT>::operator()(XT x) const
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 template<typename ENUM>
-const YT & RegressFunction<XT, YT>::GetParam(Core<YT> const & params, ENUM id) const {
+const YT & RegressFunction<XT, YT>::GetParam(MatrixY const & params, ENUM id) const {
 
-    return params[static_cast<msize_t>(id)][0];
+    return params(static_cast<msize_t>(id), 0);
 
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 template<typename ENUM>
-void RegressFunction<XT, YT>::SetParam(Core<YT> & params, ENUM id, YT val){
+void RegressFunction<XT, YT>::SetParam(MatrixY & params, ENUM id, YT val){
 
-    if (!IsFixedParameter(id)) params[static_cast<msize_t>(id)][0] = val;
+    if (!IsFixedParameter(id)) params(static_cast<msize_t>(id), 0) = val;
 
 }
 
@@ -763,8 +771,8 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
 
         Reset();
 
-        m_p.data.New(m_notFixed, m_x.data.Height());
-        for (msize_t i = 0, nfx = 0; i != m_params.size(); ++i)
+        m_p = MatrixY(m_notFixed, m_x.size());
+        for (msize_t i = 0, nfx = 0; i != m_params.n_rows; ++i)
             if (!IsFixedParameter(i)) m_pindexes[nfx++] = i;
 
     }
@@ -786,7 +794,7 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
     }
 
     #if ECHMET_REGRESS_DEBUG_X == 1
-        INSPECT(m_x)
+        //INSPECT(m_x)
     #endif
 
     #if ECHMET_REGRESS_DEBUG_Y == 1
@@ -829,8 +837,8 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
 template <typename XT, typename YT>
 inline void RegressFunction<XT, YT>::CalculateFx () {
 #pragma omp parallel for
-    for (msize_t i = 0; i < m_x.data.Height(); ++i)
-    m_fx[i][0] = ACalculateFx(m_x[i][0], m_params, i);
+    for (msize_t i = 0; i < m_x.size(); ++i)
+    m_fx(i, 0) = ACalculateFx(m_x[i], m_params, i);
 }
 
 //---------------------------------------------------------------------------
@@ -841,12 +849,10 @@ inline void RegressFunction<XT, YT>::CalculateP () {
 
         const msize_t pid = m_pindexes[i];
         #pragma omp parallel for
-        for (msize_t k = 0; k < m_x.data.Height(); ++k)
-            m_p[i][k] = ACalculateDerivative(m_x[k][0], m_params, pid, k);
+        for (msize_t k = 0; k < m_x.size(); ++k)
+            m_p(i,k) = ACalculateDerivative(m_x[k], m_params, pid, k);
 
     }
-
-
 
 #if ECHMET_REGRESS_WEIGHTS == 1
 
@@ -856,10 +862,10 @@ inline void RegressFunction<XT, YT>::CalculateP () {
 
         if (!m_fixedParams[i]) {
 
-            for (msize_t k = 0; k < m_x.data.Height(); ++k)
-                m_p[j][k] =
-                        ACalculateDerivative(m_x[k][0], m_params, i, k) /
-                        m_s[k][0];
+            for (msize_t k = 0; k < m_x.n_rows; ++k)
+                m_p(j+1,k+1) =
+                        ACalculateDerivative(m_x(k+1,1), m_params, i, k) /
+                        m_s(k+1,1);
 
             ++j;
 
@@ -877,7 +883,7 @@ inline void RegressFunction<XT, YT>::CalculateRSS () {
 
     //Error
     // $$$ error = (y - fx) /* / s; */
-    m_error.data.RawCopy(m_y.data);
+    m_error = m_y;
     m_error -= m_fx;
 
 #if ECHMET_REGRESS_WEIGHTS == 1
@@ -891,10 +897,10 @@ inline void RegressFunction<XT, YT>::CalculateRSS () {
 
     // RSS
     // $$$ RSS = (Error.GetTransposed() * Error)[0][0];
-    Core<double, trColumns> RSStmp(m_error.GetTransposed(), raw_copy());
-    RSStmp *= m_error;
+    MatrixY RSStmp(1,1);
+    RSStmp = trans(m_error) * m_error;
 
-    m_rss = RSStmp[0][0];
+    m_rss = RSStmp(0,0);
 
 #endif
 

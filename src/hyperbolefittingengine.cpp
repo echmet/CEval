@@ -1,6 +1,5 @@
 #include "setup.h"
 
-
 #include "hyperbolefittingengine.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -11,6 +10,10 @@
 #include "doubletostringconvertor.h"
 #include "standardmodecontextsettingshandler.h"
 #include "gui/exportdatatabletocsvdialog.h"
+#include "math/regressor/regress.h"
+
+using namespace echmet;
+using namespace regressCore;
 
 const QString HyperboleFittingEngine::s_dataPointsATitle = tr("Points A");
 const QString HyperboleFittingEngine::s_dataPointsBTitle = tr("Points B");
@@ -260,16 +263,16 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
 
   connect(&m_fitFixedModel, &BooleanMapperModel<HyperboleFitParameters::Boolean>::dataChanged, this, &HyperboleFittingEngine::onSecondAnalyteSameChanged);
 
+  typedef Mat<double> MatrixD;
+
   /* Preinitialize regressors */
   {
-    echmet::matrix::Core<double> mat_x;
-    echmet::matrix::Core<double> mat_y;
+    vector<double> mat_x(1, 1);
+    MatrixD        mat_y(1, 1);
     bool ret;
 
-    mat_x.data.New(1, 1);
-    mat_y.data.New(1, 1);
-    mat_x[0][0] = 0;
-    mat_y[0][0] = 0;
+    mat_x[0] = 0;
+    mat_y(0,0) = 0;
 
     ret = m_singleFitRegressor->Initialize(mat_x, mat_y,
                                            m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
@@ -280,14 +283,12 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
         throw regressor_initialization_error("Failed to preinitialize single fit regressor");
   }
   {
-    echmet::matrix::Core<x_type> mat_x;
-    echmet::matrix::Core<double> mat_y;
+    vector<hyp2x_type> mat_x(1, 1);
+    MatrixD            mat_y(1, 1);
     bool ret;
 
-    mat_x.data.New(1, 1);
-    mat_y.data.New(1, 1);
-    mat_x[0][0] = 0;
-    mat_y[0][0] = 0;
+    mat_x[0] = 0;
+    mat_y(0,0) = 0;
 
     ret = m_doubleFitRegressor->Initialize(mat_x, mat_y,
                                            m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
@@ -512,8 +513,11 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
   double maxX = std::numeric_limits<double>::min();
   /* Prevent any ptr vs. var mishaps */
   echmet::regressCore::RectangularHyperbole2<double, double> &dfrRef = *m_doubleFitRegressor;
-  echmet::matrix::Core<x_type> mat_x;
-  echmet::matrix::Core<double> mat_y;
+
+  typedef Mat<double> MatrixD;
+
+  vector<hyp2x_type> mat_x;
+  MatrixD            mat_y;
 
   if (m_currentAnalyte == nullptr || m_secondAnalyte == nullptr)
     return DoubleHypResults();
@@ -535,8 +539,8 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
   const Analyte::ConcentrationMap &cs1 = (!usedForStats) ? m_currentAnalyte->concentrations : ( (m_statsForAnalyte == AnalyteId::ANALYTE_A) ? m_currentAnalyte->concentrations : m_secondAnalyte->concentrations );
   const Analyte::ConcentrationMap &cs2 = (!usedForStats) ? m_secondAnalyte->concentrations : ( (m_statsForAnalyte == AnalyteId::ANALYTE_A) ? m_secondAnalyte->concentrations : m_currentAnalyte->concentrations );
 
-  mat_x.data.New(cs1.size() + cs2.size(), 1);
-  mat_y.data.New(cs1.size() + cs2.size(), 1);
+  mat_x = vector<hyp2x_type> (cs1.size() + cs2.size());
+  mat_y = MatrixD            (cs1.size() + cs2.size(), 1);
 
   // reading 1st
   int idx = 0;
@@ -544,14 +548,14 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
     if (c->concentration > maxX)
       maxX = c->concentration;
 
-    mat_x[idx][0].index = 0;
-    mat_x[idx][0].value = c->concentration;
+    mat_x[idx].index = 0;
+    mat_x[idx].value = c->concentration;
     if (c->mobilities().length() < 1) {
       QMessageBox::warning(nullptr, tr("Invalid data"), QString(tr("There are no mobilities assigned to concentration \"%1\"")).arg(c->concentration));
       return DoubleHypResults();
     }
 
-    mat_y[idx][0] = c->avgMobility();
+    mat_y(idx,0) = c->avgMobility();
 
     ++idx;
   }
@@ -561,14 +565,14 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
     if (c->concentration > maxX)
       maxX = c->concentration;
 
-    mat_x[idx][0].index = 1;
-    mat_x[idx][0].value = c->concentration;
+    mat_x[idx].index = 1;
+    mat_x[idx].value = c->concentration;
     if (c->mobilities().length() < 1) {
       QMessageBox::warning(nullptr, tr("Invalid data"), QString(tr("There are no mobilities assigned to concentration \"%1\"")).arg(c->concentration));
       return DoubleHypResults();
     }
 
-    mat_y[idx][0] = c->avgMobility();
+    mat_y(idx,0) = c->avgMobility();
 
     ++idx;
   }
@@ -695,8 +699,11 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
   double maxX = std::numeric_limits<double>::min();
   /* Prevent any ptr vs. var mishaps */
   echmet::regressCore::RectangularHyperbole<double, double> &sfrRef = *m_singleFitRegressor;
-  echmet::matrix::Core<double> mat_x;
-  echmet::matrix::Core<double> mat_y;
+
+  typedef Mat<double> MatrixD;
+
+  vector<double> mat_x;
+  MatrixD        mat_y;
 
   if (m_currentAnalyte == nullptr)
     return HypResults();
@@ -715,20 +722,20 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
 
   const Analyte::ConcentrationMap &cs = m_currentAnalyte->concentrations;
 
-  mat_x.data.New(cs.size(), 1);
-  mat_y.data.New(cs.size(), 1);
+  mat_x = vector<double>(cs.size());
+  mat_y = MatrixD(cs.size(), 1);
   int idx = 0;
   for (std::shared_ptr<const Concentration> c : cs) {
     if (c->concentration > maxX)
       maxX = c->concentration;
 
-    mat_x[idx][0] = c->concentration;
+    mat_x[idx] = c->concentration;
     if (c->mobilities().length() < 1) {
       QMessageBox::warning(nullptr, tr("Invalid data"), QString(tr("There are no mobilities assigned to concentration \"%1\"")).arg(c->concentration));
       return HypResults();
     }
 
-    mat_y[idx][0] = c->avgMobility();
+    mat_y(idx,0) = c->avgMobility();
 
     ++idx;
   }
@@ -1485,7 +1492,7 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
     MProfiler.toTau = tau;
     MProfiler.twoSided = twoSided;
 
-    echmet::matrix::msize_t paramId;
+    msize_t paramId;
 
     switch (m_currentStatUnits) {
     case StatUnits::P_VALUE:
@@ -1503,13 +1510,13 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
     switch (m_currentStatMode) {
     case StatMode::MOBILITY_A:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperboleParams::u0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::u0);
       break;
     case StatMode::MOBILITY_CS_A:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperboleParams::uS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::uS);
       break;
     case StatMode::K_CS_A:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperboleParams::KS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::KS);
       break;
     default:
       return;
@@ -1535,7 +1542,7 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
     MProfiler.toTau = tau;
     MProfiler.twoSided = twoSided;
 
-    echmet::matrix::msize_t paramId;
+    msize_t paramId;
 
     switch (m_currentStatUnits) {
     case StatUnits::P_VALUE:
@@ -1553,22 +1560,22 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
     switch (m_currentStatMode) {
     case StatMode::MOBILITY_B:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::u0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::u0);
       break;
     case StatMode::MOBILITY_CS_B:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::uS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::uS);
       break;
     case StatMode::K_CS_B:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::KS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::KS);
       break;
     case StatMode::D_MOBILITY:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::du0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::du0);
       break;
     case StatMode::D_MOBILITY_CS:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::duS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::duS);
       break;
     case StatMode::D_K_CS:
-      paramId = static_cast<echmet::matrix::msize_t>(echmet::regressCore::RectangularHyperbole2Params::dKS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::dKS);
       break;
     default:
       return;

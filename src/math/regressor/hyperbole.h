@@ -24,13 +24,17 @@ template<typename XT = double, typename YT = double> class RectangularHyperbole
 : public RegressFunction<XT, YT> {
 public:
 
+    typedef Mat<YT> MatrixY;
+
+    typedef size_t msize_t;
+
  RectangularHyperbole ();
 
  ~RectangularHyperbole ();
 
  bool Initialize (
-     Core<XT> const & x,
-     Core<YT> const & y,
+     vector<XT> const & x,
+     MatrixY const & y,
      YT eps, unsigned nmax, bool dumping,
      YT u0Setting = YT(0),
      YT viscoeff =  YT(0)
@@ -41,27 +45,27 @@ protected:
  virtual RectangularHyperbole * ACreate() const override;
 
  virtual bool AInitialize(
-     Core<YT>       & params,
-     Core<XT> const & x,
-     Core<YT> const & y
+     MatrixY       & params,
+     vector<XT> const & x,
+     MatrixY const & y
  ) override;
 
  virtual void AAssign(RegressFunction<XT, YT> const & other) override;
 
  virtual YT ACalculateFx (
-     XT                      x,
-     Core<YT> const &        params,
-     echmet::matrix::msize_t
+     XT                     x,
+     MatrixY const &        params,
+     msize_t
  ) const override;
 
  virtual YT ACalculateDerivative (
      XT                      x,
-     Core<YT> const &        params,
-     echmet::matrix::msize_t param_idx,
-     echmet::matrix::msize_t
+     MatrixY const &         params,
+     msize_t param_idx,
+     msize_t
  ) const override;
 
- virtual bool AAccepted (YT, Core<YT> const & params) const override;
+ virtual bool AAccepted (YT, MatrixY const & params) const override;
 
 private:
 
@@ -89,8 +93,8 @@ RectangularHyperbole<XT, YT>::~RectangularHyperbole ()
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 inline bool RectangularHyperbole<XT, YT>::Initialize(
-    Core<XT> const & x,
-    Core<YT> const & y,
+    vector<XT> const & x,
+    MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
     YT u0Setting, YT viscoeff
 
@@ -119,9 +123,9 @@ inline RectangularHyperbole<XT, YT> * RectangularHyperbole<XT, YT>::ACreate() co
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool RectangularHyperbole<XT, YT>::AInitialize(
-    Core<YT>       & params,
-    Core<XT> const & x,
-    Core<YT> const & y
+    MatrixY       & params,
+    vector<XT> const & x,
+    MatrixY const & y
 )
 {
 
@@ -132,9 +136,9 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
     YT   u0 = 0.;
     bool found = false;
     for (long i = 0; !found && i != count; ++i)
-        if ( x[i][0] == YT(0)) {
+        if ( x[i] == 0.) {
             found = true;
-            u0 = y[i][0];
+            u0 = y(i, 0);
         }
 
     if (!found) u0 = m_u0Setting;
@@ -153,7 +157,7 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
     for (long i = 0; i != count; ++i) {
 
         // reading x and y
-        _X = x[i][0]; _Y = y[i][0];
+        _X = x[i]; _Y = y(i, 0);
 
         if (_X == YT(0) || _Y == YT(0)) continue;
 
@@ -213,7 +217,7 @@ void RectangularHyperbole<XT, YT>::AAssign(RegressFunction<XT, YT> const & other
 template <typename XT, typename YT>
 YT RectangularHyperbole<XT, YT>::ACalculateFx (
         XT x,
-        Core<YT> const & params,
+        MatrixY const & params,
         msize_t
 ) const {
 
@@ -231,9 +235,9 @@ YT RectangularHyperbole<XT, YT>::ACalculateFx (
 template <typename XT, typename YT>
 YT RectangularHyperbole<XT, YT>::ACalculateDerivative (
     XT                      x,
-    Core<YT> const &        params,
-    echmet::matrix::msize_t param_idx,
-    echmet::matrix::msize_t
+    MatrixY const &         params,
+    msize_t param_idx,
+    msize_t
 ) const {
 
     YT u0 = this->GetParam(params, RectangularHyperboleParams::u0);
@@ -257,7 +261,7 @@ YT RectangularHyperbole<XT, YT>::ACalculateDerivative (
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool RectangularHyperbole<XT, YT>::AAccepted (YT, Core<YT> const & params)
+bool RectangularHyperbole<XT, YT>::AAccepted (YT, MatrixY const & params)
 const {
 
 #if 0

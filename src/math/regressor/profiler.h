@@ -51,14 +51,14 @@ public:
 
     bool Apply (
         std::vector<std::pair<y_type, y_type> > & out,
-        regressor_type const                         & f,
-        matrix::msize_t                           param_id
+        regressor_type const                    & f,
+        msize_t                                 param_id
     );
 
     bool operator()(
         std::vector<std::pair<y_type, y_type> > & out,
-        regressor_type const                         & f,
-        matrix::msize_t                           param_id
+        regressor_type const                    & f,
+        msize_t                                 param_id
     )
     { return Apply(out, f, param_id); }
 
@@ -69,9 +69,9 @@ private:
 
     bool profile(
         std::vector<std::pair<y_type, y_type>> & out,
-        regressor_type const             & f,
-        echmet::matrix::msize_t       param_id,
-        y_type                        sign
+        regressor_type const         & f,
+        msize_t                      param_id,
+        y_type                       sign
     );
 
 };
@@ -104,7 +104,7 @@ template<typename XT, typename YT>
 bool Profiler<XT, YT>::Apply(
     std::vector<std::pair<y_type, y_type> > & out,
     regressor_type const                    & f,
-    matrix::msize_t                           param_id
+    msize_t                           param_id
 ) {
 
     delete m_reg;
@@ -133,8 +133,8 @@ bool Profiler<XT, YT>::Apply(
 template<typename XT, typename YT>
 bool Profiler<XT, YT>::profile(
     std::vector< std::pair<y_type, y_type> > & out,
-    regressor_type const                          & f,
-    echmet::matrix::msize_t                  param_id,
+    regressor_type const                     & f,
+    msize_t                                  param_id,
     y_type                                   sign
 ){
 

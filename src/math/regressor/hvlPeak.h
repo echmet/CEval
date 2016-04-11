@@ -27,14 +27,18 @@ template<typename XT = double, typename YT = double> class HVLPeak
 : public RegressFunction<XT, YT> {
 public:
 
+    typedef Mat<YT> MatrixY;
+
+    typedef size_t msize_t;
+
     math::HVL_dll const * dll;
 
     HVLPeak (math::HVL_dll const * dll = nullptr);
     ~HVLPeak();
 
     bool Initialize (
-         Core<XT> const & x,
-         Core<YT> const & y,
+         vector<XT> const & x,
+         MatrixY const & y,
          YT eps, unsigned nmax, bool dumping,
          HVLCore::Coefficients c, YT bsl, YT bslSlope
     );
@@ -44,27 +48,27 @@ protected:
     virtual HVLPeak * ACreate() const override;
 
     virtual bool AInitialize(
-        Core<YT>       & params,
-        Core<XT> const & x,
-        Core<YT> const & y
+        MatrixY          & params,
+        vector<XT> const & x,
+        MatrixY    const & y
     ) override;
 
     virtual void AAssign(RegressFunction<XT, YT> const & other) override;
 
     virtual YT ACalculateFx (
          XT                      x,
-         Core<YT> const &        params,
-         echmet::matrix::msize_t
+         MatrixY const &         params,
+         msize_t
     ) const override;
 
     virtual YT ACalculateDerivative (
-         XT                      x,
-         Core<YT> const &        params,
-         echmet::matrix::msize_t param_idx,
-         echmet::matrix::msize_t
+         XT               x,
+         MatrixY const &  params,
+         msize_t          param_idx,
+         msize_t
     ) const override;
 
-    virtual bool AAccepted (YT, Core<YT> const & params) const override;
+    virtual bool AAccepted (YT, MatrixY const & params) const override;
 
 private:
 
@@ -93,8 +97,8 @@ HVLPeak<XT, YT>::~HVLPeak ()
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool HVLPeak<XT, YT>::Initialize (
-    Core<XT> const & x,
-    Core<YT> const & y,
+    vector<XT> const & x,
+    MatrixY const & y,
     YT eps, unsigned nmax, bool dumping,
     HVLCore::Coefficients c, YT bsl, YT bslSlope
 )
@@ -124,9 +128,9 @@ HVLPeak<XT, YT> * HVLPeak<XT, YT>::ACreate() const
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool HVLPeak<XT, YT>::AInitialize(
-    Core<YT>       & params,
-    Core<XT> const &,
-    Core<YT> const &
+    MatrixY       & params,
+    vector<XT> const &,
+    MatrixY const &
 )
 {
 
@@ -159,7 +163,7 @@ void HVLPeak<XT, YT>::AAssign(RegressFunction<XT, YT> const & other)
 template <typename XT, typename YT>
 YT HVLPeak<XT, YT>::ACalculateFx (
         XT x,
-        Core<YT> const & params,
+        MatrixY const & params,
         msize_t
 ) const {
 
@@ -175,10 +179,10 @@ YT HVLPeak<XT, YT>::ACalculateFx (
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 YT HVLPeak<XT, YT>::ACalculateDerivative (
-    XT                      x,
-    Core<YT> const &        params,
-    echmet::matrix::msize_t param_idx,
-    echmet::matrix::msize_t
+    XT               x,
+    MatrixY const &  params,
+    msize_t          param_idx,
+    msize_t
 ) const {
 
     YT a0 = this->GetParam(params, HVLPeakParams::a0);
@@ -200,7 +204,7 @@ YT HVLPeak<XT, YT>::ACalculateDerivative (
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool HVLPeak<XT, YT>::AAccepted (YT, Core<YT> const & params)
+bool HVLPeak<XT, YT>::AAccepted (YT, MatrixY const & params)
 const {
 
 

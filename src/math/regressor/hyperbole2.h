@@ -6,6 +6,8 @@
 
 #include "regress.h"
 
+#include <boost/type_traits/is_pod.hpp>
+
 //===========================================================================
 // CODE
 
@@ -50,6 +52,15 @@ dbstream & operator<<(dbstream & db, RectangularHyperbole2XType<XT> const & val)
 } // namespace regressCore
 } // namespace echmet
 
+namespace std {
+
+template< class XT >
+struct is_arithmetic<echmet::regressCore::RectangularHyperbole2XType<XT> > :
+    std::integral_constant<bool, true>
+{};
+
+}
+
 namespace boost {
 
 // required for echmet::matrix interface
@@ -81,10 +92,6 @@ namespace echmet {
 namespace regressCore {
 
 //---------------------------------------------------------------------------
-
-using namespace echmet::matrix;
-
-//---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double>
 class RectangularHyperbole2
 : public RegressFunction<RectangularHyperbole2XType<XT>, YT> {
@@ -92,13 +99,17 @@ public:
 
     typedef RectangularHyperbole2XType<XT> x_type;
 
+    typedef Mat<YT> MatrixY;
+
+    typedef size_t msize_t;
+
     RectangularHyperbole2 ();
 
     virtual ~RectangularHyperbole2 () override;
 
     bool Initialize (
-        Core<x_type> const & x,
-        Core<YT>     const & fx,
+        vector<x_type> const & x,
+        MatrixY const & fx,
         YT eps, unsigned nmax, bool dumping,
         YT u01Setting = YT(0), YT u02Setting = YT(0), YT visckoef = YT(0)
     );
@@ -113,27 +124,27 @@ protected:
  virtual RectangularHyperbole2 * ACreate() const override;
 
  virtual bool AInitialize(
-     Core<YT>           & params,
-     Core<x_type> const & x,
-     Core<YT>     const & y
+     MatrixY       & params,
+     vector<x_type> const & x,
+     MatrixY const & y
  ) override;
 
  virtual void AAssign(RegressFunction<x_type, YT> const & other) override;
 
  virtual YT ACalculateFx (
-     x_type                   x,
-     Core<YT> const &        params,
-     echmet::matrix::msize_t
+     x_type                 x,
+     MatrixY const &        params,
+     msize_t
  ) const override;
 
  virtual YT ACalculateDerivative (
-     x_type                      x,
-     Core<YT> const &           params,
-     echmet::matrix::msize_t    param_idx,
-     echmet::matrix::msize_t
+     x_type           x,
+     MatrixY const &  params,
+     msize_t          param_idx,
+     msize_t
  ) const override;
 
- virtual bool AAccepted (YT, Core<YT> const & params) const override;
+ virtual bool AAccepted (YT, MatrixY const & params) const override;
 
 };
 
@@ -163,8 +174,8 @@ RectangularHyperbole2<XT, YT>
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 inline bool RectangularHyperbole2<XT, YT>::Initialize(
-    Core<x_type> const & x,
-    Core<YT>     const & y,
+    vector<x_type> const & x,
+    MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
     YT u01Setting, YT u02Setting, YT viscoeff
 
@@ -187,16 +198,16 @@ RectangularHyperbole2<XT, YT> *
 RectangularHyperbole2<XT, YT>::ACreate() const
 {
 
-    return new RectangularHyperbole2();
+    return  new RectangularHyperbole2();
 
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool RectangularHyperbole2<XT, YT>::AInitialize(
-    Core<YT>           & params,
-    Core<x_type> const & x,
-    Core<YT>     const & y
+    MatrixY       & params,
+    vector<x_type> const & x,
+    MatrixY const & y
 )
 {
 
@@ -207,9 +218,9 @@ bool RectangularHyperbole2<XT, YT>::AInitialize(
     YT   u0[2] = {YT(0)};
     bool found[2] = {false};
     for (long i = 0; i != count; ++i)
-        if ( x[i][0].value == 0.) {
-            found[x[i][0].index] = true;
-            u0[ x[i][0].index ] = y[i][0];
+        if ( x[i].value == XT(0.)) {
+            found[x[i].index] = true;
+            u0[ x[i].index ] = y(i,0);
         }
 
     for (int i = 0; i != 2; ++i) if (!found[i]) u0[i] = m_u0Setting[i];
@@ -233,7 +244,7 @@ bool RectangularHyperbole2<XT, YT>::AInitialize(
     for (long i = 0; i != count; ++i) {
 
         // reading x and y
-        _X = x[i][0]; _Y = y[i][0];
+        _X = x[i]; _Y = y(i,0);
 
         if (_X.value == YT(0) || _Y == (_Y - u0[_X.index]) ) continue;
 
@@ -325,7 +336,7 @@ template <typename XT, typename YT>
 YT RectangularHyperbole2<XT, YT>
 ::ACalculateFx (
         x_type           x,
-        Core<YT> const & params,
+        MatrixY const & params,
         msize_t
 ) const {
 
@@ -358,10 +369,10 @@ YT RectangularHyperbole2<XT, YT>
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 YT RectangularHyperbole2<XT, YT>::ACalculateDerivative (
-    x_type                  x,
-    Core<YT> const &        params,
-    echmet::matrix::msize_t param_idx,
-    echmet::matrix::msize_t
+    x_type              x,
+    MatrixY const &     params,
+    msize_t param_idx,
+    msize_t
 ) const {
 
     // init
@@ -413,7 +424,7 @@ YT RectangularHyperbole2<XT, YT>::ACalculateDerivative (
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool RectangularHyperbole2<XT, YT>
-::AAccepted (YT, Core<YT> const & params)
+::AAccepted (YT, MatrixY const & params)
 const {
 
 #if 0
@@ -427,10 +438,10 @@ const {
 
         fabs(u0)       < YT(1000.) &&
         fabs(uS)       < YT(1000.) &&
-        KS            > YT(0.)    &&
+        KS             > YT(0.)    &&
         fabs(u0 + du0) < YT(1000.) &&
         fabs(uS + duS) < YT(1000.) &&
-        KS + dKS      > YT(0.)
+        KS + dKS       > YT(0.)
     ;
 #else
         (void)params;
