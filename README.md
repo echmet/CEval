@@ -62,12 +62,12 @@ Prior to building CEval, all hard dependencies have to be available in binary fo
 Pre-built binaries
 ---
 Pre-built binaries for commonly used platforms can be downloaded from here:  
-[TODO](http://the.void#Download)
+[ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
 
 Usage
 ---
 Tutorial for CEval can be obtained from here:  
-[TODO](http://the.void#Tutorial)
+[ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
 
 Licensing
 ---
