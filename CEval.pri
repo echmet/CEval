@@ -18,4 +18,4 @@ DEPENDPATH += $$HPCSPATH
 include($$QWTPATH)
 
 # Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L$$HPCSPATH -lHPCS -L$$ARMAPATH/lib -larmadillo -lpthread
+unix|win32: LIBS += -L$$HPCSPATH -lHPCS /home/madcat/Devel/ECHMET/OpenBLAS-bin/lib/libopenblas.a -lgfortran -lpthread
