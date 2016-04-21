@@ -116,7 +116,7 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, Evalu
                                            const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues, const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                                            const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                                           const PeakFinder::Results finderResults, const QVector<QPointF> &hvlPlot) :
+                                           const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot) :
   autoValues(autoValues), boolValues(boolValues), floatingValues(floatingValues),
   resultsValues(resultsValues), hvlValues(hvlValues),
   windowUnit(windowUnit), showWindow(showWindow), baselineAlgorithm(baselineAlgorithm),
@@ -128,7 +128,7 @@ EvaluationEngine::PeakContext::PeakContext() :
   windowUnit(EvaluationParametersItems::ComboWindowUnits::LAST_INDEX),
   showWindow(EvaluationParametersItems::ComboShowWindow::LAST_INDEX),
   baselineAlgorithm(EvaluationParametersItems::ComboBaselineAlgorithm::LAST_INDEX),
-  finderResults(PeakFinder::Results()),
+  finderResults(PeakFinderResults()),
   peakName("")
 {
 }
@@ -149,7 +149,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<EvaluationParametersItems::ComboWindowUnits&>(windowUnit) = other.windowUnit;
   const_cast<EvaluationParametersItems::ComboShowWindow&>(showWindow) = other.showWindow;
   const_cast<EvaluationParametersItems::ComboBaselineAlgorithm&>(baselineAlgorithm) = other.baselineAlgorithm;
-  const_cast<PeakFinder::Results&>(finderResults) = other.finderResults;
+  const_cast<PeakFinderResults&>(finderResults) = other.finderResults;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
 
   return *this;
@@ -439,7 +439,7 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
   return EvaluationContext(allPeaks, m_currentPeakIdx);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFinder::Results finderResults, const QVector<QPointF> &hvlPlot) const
+EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot) const
 {
   return PeakContext(m_evaluationAutoValues, m_evaluationBooleanValues,
                      m_evaluationFloatingValues, m_resultsNumericValues,
@@ -468,10 +468,10 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const
                      MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     PeakFinder::Results(), QVector<QPointF>());
+                     PeakFinderResults(), QVector<QPointF>());
 }
 
-void EvaluationEngine::displayAutomatedResults(const PeakFinder::Results &fr, const PeakEvaluator::Results &er)
+void EvaluationEngine::displayAutomatedResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er)
 {
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = fr.peakFromX;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = fr.peakFromY;
@@ -556,7 +556,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
 void EvaluationEngine::findPeak(const bool useCurrentPeak)
 {
   SelectPeakDialog dialog;
-  PeakFinder::Results fr;
+  PeakFinderResults fr;
 
   if (!isContextValid())
     return;
@@ -564,15 +564,21 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   if (m_currentDataContext->data->data.length() == 0)
     return;
 
-  PeakFinder::Parameters fp = makeFinderParameters(!useCurrentPeak);
+  AssistedPeakFinder::Parameters fp = makeFinderParameters(!useCurrentPeak);
+  fp.selPeakDialog = &dialog;
+
+  if (useCurrentPeak)
+    fp.inTPiCoarse = m_currentPeak.finderResults.tPiCoarse;
 
   connect(&dialog, &SelectPeakDialog::listClicked, this, &EvaluationEngine::onProvisionalPeakSelected);
   connect(&dialog, &SelectPeakDialog::closedSignal, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
 
-  if (useCurrentPeak)
-    fr = PeakFinder::find(fp, &dialog, m_currentPeak.finderResults.tPiCoarse);
-  else
-    fr = PeakFinder::find(fp, &dialog, -1.0);
+  try {
+    fr = AssistedPeakFinder::find(fp);
+  } catch (std::bad_alloc &) {
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Not enough memory to find peaks"));
+    return;
+  }
 
   if (!fr.isValid())
     return;
@@ -657,7 +663,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const
                      MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     PeakFinder::Results(), QVector<QPointF>());
+                     PeakFinderResults(), QVector<QPointF>());
 }
 
 void EvaluationEngine::fullViewUpdate()
@@ -701,7 +707,7 @@ QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks
   return peaks;
 }
 
-PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const PeakFinder::Parameters &fp, const PeakFinder::Results &fr)
+PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const AssistedPeakFinder::Parameters &fp, const PeakFinderResults &fr)
 {
   PeakEvaluator::Parameters p(fp.data);
 
@@ -724,9 +730,9 @@ PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const PeakFi
   return p;
 }
 
-PeakFinder::Parameters EvaluationEngine::makeFinderParameters(bool autoPeakProps)
+AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters(const bool autoPeakProps)
 {
-  PeakFinder::Parameters p(m_currentDataContext->data->data);
+  AssistedPeakFinder::Parameters p(m_currentDataContext->data->data);
 
   p.autoFrom = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::FROM);
   p.autoNoise = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::NOISE);
@@ -774,6 +780,8 @@ PeakFinder::Parameters EvaluationEngine::makeFinderParameters(bool autoPeakProps
   p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
   p.to = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::TO);
   p.windowUnits = m_windowUnit;
+
+  p.inTPiCoarse = -1;
 
   return p;
 }
@@ -1181,7 +1189,7 @@ void EvaluationEngine::onUpdateCurrentPeak()
   findPeak(true);
 }
 
-void EvaluationEngine::plotEvaluatedPeak(const PeakFinder::Results &fr)
+void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
 {
   /* Mark the EOF  */
   {
@@ -1427,7 +1435,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
 
-void EvaluationEngine::setEvaluationResults(PeakFinder::Results fr, PeakEvaluator::Results er)
+void EvaluationEngine::setEvaluationResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er)
 {
   /* Results from peak evaluator */
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_FULL] = er.nFull;

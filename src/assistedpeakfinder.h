@@ -1,17 +1,16 @@
-#ifndef PEAKFINDER_H
-#define PEAKFINDER_H
+#ifndef ASSISTEDPEAKFINDER_H
+#define ASSISTEDPEAKFINDER_H
 
-#include <QPointF>
-#include <QVector>
-#include <memory>
+#include "abstractpeakfinder.h"
 #include "evaluationparametersitems.h"
 #include "gui/selectpeakdialog.h"
 #include "math/extremesearching.h"
 
-class PeakFinder
+
+class AssistedPeakFinder : public AbstractPeakFinder<AssistedPeakFinder>
 {
 public:
-  class Parameters {
+  class Parameters : public AbstractParameters {
   public:
     explicit Parameters() = delete;
     Parameters(const QVector<QPointF> &data);
@@ -59,53 +58,14 @@ public:
     EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
     EvaluationParametersItems::ComboShowWindow showWindow;
     EvaluationParametersItems::ComboWindowUnits windowUnits;
+
+    /* Additional data needed by the algorithm */
+    SelectPeakDialog *selPeakDialog;
+    long inTPiCoarse;
   };
 
-  class Results {
-  public:
-    explicit Results();
-    Results(const Results &other);
-    bool isValid() const;
-    void validate();
-
-    long fromIndex;
-    long toIndex;
-    long indexAtMax;
-    long fromPeakIndex;
-    long toPeakIndex;
-
-    long tPiCoarse;
-
-    double maxY;
-    double minY;
-    double peakFromX;
-    double peakFromY;
-    double peakToX;
-    double peakToY;
-    double peakX;
-    double peakHeight;
-    double peakHeightBaseline;
-    double noiseRefPoint;
-    double slopeRefPoint;
-    double twPLeft;
-    double twPRight;
-    double baselineSlope;
-    double baselineIntercept;
-    double noise;
-    double slopeThreshold;
-    double slopeWindow;
-
-    std::shared_ptr<QVector<QPointF>> seriesA;
-    std::shared_ptr<QVector<QPointF>> seriesB;
-
-  private:
-    bool m_valid;
-
-  };
-
-  PeakFinder() = delete;
-
-  static Results find(const Parameters &p, SelectPeakDialog *selPeakDialog, const long inTPiCoarse = -1);
+protected:
+  virtual PeakFinderResults findInternal(const AbstractParameters &ap) throw(std::bad_cast) override;
 
 private:
   enum EState {stTop = 0, stBeforeInflex = 1, stAfterInflex = 2, stBottom = 3};

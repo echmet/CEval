@@ -1,4 +1,4 @@
-#include "peakfinder.h"
+#include "assistedpeakfinder.h"
 #include "helpers.h"
 #include "foundpeaksmodel.h"
 #include <QMessageBox>
@@ -13,52 +13,57 @@
     while (t##PARAM##i > 0 && Data.at(t##PARAM##i).x() >= t##PARAM) --t##PARAM##i;\
 }
 
-PeakFinder::TSearchHandler::TSearchHandler(const QVector<QPointF> &Data, long Begin, long End) :
+AssistedPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
+  data(data)
+{
+}
+
+AssistedPeakFinder::TSearchHandler::TSearchHandler(const QVector<QPointF> &Data, long Begin, long End) :
   m_Data(Data), m_Begin(Begin), m_End(End)
 {
 }
 
-PeakFinder::TSearchHandler::TSearchHandler(TSearchHandler &T) :
+AssistedPeakFinder::TSearchHandler::TSearchHandler(TSearchHandler &T) :
   m_Data(T.m_Data), m_Begin(T.m_Begin), m_End(T.m_End)
 {
 }
 
-double PeakFinder::TSearchHandler::GetX(long I)
+double AssistedPeakFinder::TSearchHandler::GetX(long I)
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].x();
 }
 
-double PeakFinder::TSearchHandler::GetY(long I)
+double AssistedPeakFinder::TSearchHandler::GetY(long I)
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].y();
 }
 
-long PeakFinder::TSearchHandler::Count()
+long AssistedPeakFinder::TSearchHandler::Count()
 {
   return (m_End == -1 ? m_Data.size() : m_End) - m_Begin;
 }
 
-PeakFinder::TPeaksSearcher::TPeaksSearcher(TSearchHandler *S, long ChainPoints, double Noise, bool LeftBoundary, bool RightBoundary) :
+AssistedPeakFinder::TPeaksSearcher::TPeaksSearcher(TSearchHandler *S, long ChainPoints, double Noise, bool LeftBoundary, bool RightBoundary) :
   TExtremeSearcher(S, ChainPoints, Noise, LeftBoundary, RightBoundary)
 {
 }
 
-PeakFinder::TPeaksSearcher::TPeaksSearcher(TPeaksSearcher &T) :
+AssistedPeakFinder::TPeaksSearcher::TPeaksSearcher(TPeaksSearcher &T) :
   TExtremeSearcher(T)
 {
 }
 
-void PeakFinder::TPeaksSearcher::Search()
+void AssistedPeakFinder::TPeaksSearcher::Search()
 {
   Extremes.clear();
   TExtremeSearcher::Search();
 }
 
-void PeakFinder::TPeaksSearcher::OnMaximum(double Value, long Index)
+void AssistedPeakFinder::TPeaksSearcher::OnMaximum(double Value, long Index)
 {
   Q_UNUSED(Value);
 
@@ -68,7 +73,7 @@ void PeakFinder::TPeaksSearcher::OnMaximum(double Value, long Index)
   Extremes.push_back(Index + h->m_Begin);
 }
 
-void PeakFinder::TPeaksSearcher::OnMinimum(double Value, long Index)
+void AssistedPeakFinder::TPeaksSearcher::OnMinimum(double Value, long Index)
 {
   Q_UNUSED(Value);
 
@@ -78,66 +83,7 @@ void PeakFinder::TPeaksSearcher::OnMinimum(double Value, long Index)
   Extremes.push_back(Index + h->m_Begin);
 }
 
-PeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
-  data(data)
-{
-}
-
-PeakFinder::Results::Results() :
-  tPiCoarse(-1),
-  m_valid(false)
-{
-}
-
-PeakFinder::Results::Results(const Results &other) :
-  fromIndex(other.fromIndex),
-  toIndex(other.toIndex),
-  indexAtMax(other.indexAtMax),
-  fromPeakIndex(other.fromPeakIndex),
-  toPeakIndex(other.toPeakIndex),
-  tPiCoarse(other.tPiCoarse),
-  maxY(other.maxY),
-  minY(other.minY),
-  peakFromX(other.peakFromX),
-  peakFromY(other.peakFromY),
-  peakToX(other.peakToX),
-  peakToY(other.peakToY),
-  peakX(other.peakX),
-  peakHeight(other.peakHeight),
-  peakHeightBaseline(other.peakHeightBaseline),
-  noiseRefPoint(other.noiseRefPoint),
-  slopeRefPoint(other.slopeRefPoint),
-  twPLeft(other.twPLeft),
-  twPRight(other.twPRight),
-  baselineSlope(other.baselineSlope),
-  baselineIntercept(other.baselineIntercept),
-  noise(other.noise),
-  slopeThreshold(other.slopeThreshold),
-  slopeWindow(other.slopeWindow),
-  m_valid(other.m_valid)
-{
-  if (other.seriesA == nullptr)
-    seriesA = nullptr;
-  else
-    seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesA));
-
-  if (other.seriesB == nullptr)
-    seriesB = nullptr;
-  else
-    seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesB));
-}
-
-bool PeakFinder::Results::isValid() const
-{
-  return m_valid;
-}
-
-void PeakFinder::Results::validate()
-{
-  m_valid = true;
-}
-
-bool PeakFinder::checkBounds(const unsigned long i, const QVector<QPointF> &data)
+bool AssistedPeakFinder::checkBounds(const unsigned long i, const QVector<QPointF> &data)
 {
   if (i >= static_cast<unsigned long>(data.length())) {
     QMessageBox::critical(nullptr, QObject::tr("Logic error"), QString(QObject::tr("Data index out of bounds, idx = %1, data length = %2\n"
@@ -148,7 +94,7 @@ bool PeakFinder::checkBounds(const unsigned long i, const QVector<QPointF> &data
   return true;
 }
 
-PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selPeakDialog, const long inTPiCoarse)
+PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast)
 {
   double MaxValue, MinValue, SummValue;
   double SummX, SummXX, SummY, SummXY;
@@ -161,21 +107,22 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   double BSLSlope, BSLIntercept;
   std::shared_ptr<QVector<QPointF>> seriesA;
   std::shared_ptr<QVector<QPointF>> seriesB;
-  Results r;
+  PeakFinderResults r;
+  const Parameters &p = dynamic_cast<const Parameters&>(ap);
 
   try {
     seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>());
     seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>());
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, QObject::tr("Insufficient memory"), QObject::tr("Cannot find peak"));
-    return Results();
+    return PeakFinderResults();
   }
 
   const QVector<QPointF> &Data = p.data;
   const long C = Data.size();
 
   if (C == 0)
-    return Results();
+    return PeakFinderResults();
 
   double XMin = Data.front().x();
   double XMax = Data.back().x();
@@ -183,7 +130,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   double YMax = Helpers::maxYValue(Data);
 
   if (XMax == XMin)
-    return Results();
+    return PeakFinderResults();
 
   double ppm = C / (XMax - XMin); /* Points per minute */
 
@@ -204,7 +151,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     //SEARCH_I(BEG)
 
     if (!checkBounds(tBEGi, Data))
-        return Results();
+        return PeakFinderResults();
   }
 
   if (p.autoTo) {
@@ -221,7 +168,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     //++tENDi;
 
     if (!checkBounds(tENDi, Data))
-        return Results();
+        return PeakFinderResults();
   }
 
   long NoiseWindow;
@@ -248,7 +195,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     SEARCH_I(A)
 
     if (!checkBounds(tAi, Data))
-      return Results();
+      return PeakFinderResults();
   }
 
   if (p.autoPeakX) {
@@ -259,7 +206,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     SEARCH_I(P)
 
     if (!checkBounds(tPi, Data))
-      return Results();
+      return PeakFinderResults();
   }
 
   if (p.autoPeakToX) {
@@ -270,7 +217,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     SEARCH_I(B)
 
     if (!checkBounds(tBi, Data))
-      return Results();
+      return PeakFinderResults();
   }
 
   /* Initialize noise reference point */
@@ -282,7 +229,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
   }
   SEARCH_I(nrp)
   if (!checkBounds(tnrpi, Data))
-    return Results();
+    return PeakFinderResults();
 
   /* Noise */
   double Noise;
@@ -382,7 +329,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     SEARCH_I(srp)
 
     if (!checkBounds(tsrpi, Data))
-      return Results();
+      return PeakFinderResults();
   }
 
   /* SlopeThreshold, SlopeSensitivity */
@@ -451,14 +398,14 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
       /* No peak has been found */
       if (maxima.size() == 0) {
         QMessageBox::information(nullptr, QObject::tr("No peak"), QObject::tr("No peaks were found for the given parameters."));
-        return Results();
+        return PeakFinderResults();
       }
       /* Only one peak has been found, select it right away */
       else if (maxima.size() == 1)
         tPi = maxima.at(0);
       /* More than one peak have been found */
       else {
-        if (inTPiCoarse < 0 || inTPiCoarse > Data.length() - 1) {
+        if (p.inTPiCoarse < 0 || p.inTPiCoarse > Data.length() - 1) {
           QVector<FoundPeaksModel::Peak> modelData;
           int dlgRet;
           int peakNumber;
@@ -468,30 +415,30 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
             modelData.push_back(FoundPeaksModel::Peak(Data.at(idx).x(), idx));
 
           FoundPeaksModel model(modelData);
-          selPeakDialog->bindModel(&model);
-          selPeakDialog->setPeakWindow(PeakWindow);
-          dlgRet = selPeakDialog->exec();
-          emit selPeakDialog->closedSignal();
+          p.selPeakDialog->bindModel(&model);
+          p.selPeakDialog->setPeakWindow(PeakWindow);
+          dlgRet = p.selPeakDialog->exec();
+          emit p.selPeakDialog->closedSignal();
           if (dlgRet != QDialog::Accepted)
-            return Results();
+            return PeakFinderResults();
 
-          peakNumber = selPeakDialog->selectedPeak();
+          peakNumber = p.selPeakDialog->selectedPeak();
           if (peakNumber < 0 || peakNumber >= modelData.length()) {
             QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid index for selected peak."));
-            return Results();
+            return PeakFinderResults();
           }
 
           tPi = model.data(model.index(peakNumber, 0), Qt::UserRole + 1).toInt(&ok);
           if (!ok) {
             QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid data for selected peak"));
-            return Results();
+            return PeakFinderResults();
           }
           if (tPi < 0 || tPi >= Data.length()) {
             QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QString(QObject::tr("Peak's tPi (%1) is out of bounds <0; %2>")).arg(tPi).arg(Data.length()));
-            return Results();
+            return PeakFinderResults();
           }
         } else {
-        tPi = inTPiCoarse;
+        tPi = p.inTPiCoarse;
         }
       }
     }
@@ -584,7 +531,7 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
     SEARCH_I(P);
 
     if (!checkBounds(tPi, Data))
-      return Results();
+      return PeakFinderResults();
 
     #ifdef DISABLED
       // Algiritmus > smernice == 0
@@ -1115,4 +1062,3 @@ PeakFinder::Results PeakFinder::find(const Parameters &p, SelectPeakDialog *selP
 
   return r;
 }
-

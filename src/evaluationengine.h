@@ -17,7 +17,7 @@
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
 #include "peakevaluator.h"
-#include "peakfinder.h"
+#include "assistedpeakfinder.h"
 
 class AddPeakDialog;
 class QMenu;
@@ -97,7 +97,7 @@ private:
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                          const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                         const PeakFinder::Results finderResults, const QVector<QPointF> &hvlPlot);
+                         const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot);
     explicit PeakContext();
     void setPeakName(const QString &name);
 
@@ -109,7 +109,7 @@ private:
     const EvaluationParametersItems::ComboWindowUnits windowUnit;
     const EvaluationParametersItems::ComboShowWindow showWindow;
     const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
-    const PeakFinder::Results finderResults;
+    const PeakFinderResults finderResults;
     const QVector<QPointF> hvlPlot;
     const QString peakName;
 
@@ -145,9 +145,9 @@ private:
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
-  PeakContext currentPeakContext(const PeakFinder::Results finderResults, const QVector<QPointF> &hvlPlot) const;
+  PeakContext currentPeakContext(const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot) const;
   void disconnectPeakUpdate();
-  void displayAutomatedResults(const PeakFinder::Results &fr, const PeakEvaluator::Results &er);
+  void displayAutomatedResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er);
   PeakContext duplicatePeakContext() const;
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
@@ -158,16 +158,16 @@ private:
   void fullViewUpdate();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
-  PeakEvaluator::Parameters makeEvaluatorParameters(const PeakFinder::Parameters &fp, const PeakFinder::Results &fr);
-  PeakFinder::Parameters makeFinderParameters(bool autoPeakProps);
-  void plotEvaluatedPeak(const PeakFinder::Results &fr);
+  PeakEvaluator::Parameters makeEvaluatorParameters(const AssistedPeakFinder::Parameters &fp, const PeakFinderResults &fr);
+  AssistedPeakFinder::Parameters makeFinderParameters(const bool autoPeakProps);
+  void plotEvaluatedPeak(const PeakFinderResults &fr);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
   void setDefaultPeakProperties();
   bool setEvaluationContext(const EvaluationContext &ctx);
-  void setEvaluationResults(PeakFinder::Results fr, PeakEvaluator::Results er);
+  void setEvaluationResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er);
   bool setPeakContext(const PeakContext &ctx);
   void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();

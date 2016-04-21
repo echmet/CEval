@@ -50,7 +50,6 @@ SOURCES += src/main.cpp \
     src/gui/selectpeakdialog.cpp \
     src/foundpeaksmodel.cpp \
     src/math/extremesearching.cpp \
-    src/peakfinder.cpp \
     src/peakevaluator.cpp \
     src/math/functions.cpp \
     src/math/alglib/ap.cpp \
@@ -94,7 +93,9 @@ SOURCES += src/main.cpp \
     src/gui/setaxistitlesdialog.cpp \
     src/gui/exportdatatabletocsvdialog.cpp \
     src/plotexporter.cpp \
-    src/gui/exportplottoimagedialog.cpp
+    src/gui/exportplottoimagedialog.cpp \
+    src/abstractpeakfinder.cpp \
+    src/assistedpeakfinder.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -126,7 +127,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/selectpeakdialog.h \
     src/foundpeaksmodel.h \
     src/math/extremesearching.h \
-    src/peakfinder.h \
     src/evaluationresultsitems.h \
     src/peakevaluator.h \
     src/math/hvlestimate.h \
@@ -252,7 +252,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/setaxistitlesdialog.h \
     src/gui/exportdatatabletocsvdialog.h \
     src/plotexporter.h \
-    src/gui/exportplottoimagedialog.h
+    src/gui/exportplottoimagedialog.h \
+    src/abstractpeakfinder.h \
+    src/assistedpeakfinder.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
