@@ -156,6 +156,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
 }
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
+  m_userInteractionState(UserInteractionState::PEAK_POSTPROCESSING),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
@@ -173,9 +174,9 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   }
 
   try {
-    m_contextMenu = createContextMenu();
+    createContextMenus();
   } catch (std::bad_alloc&) {
-    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate ContextMenu"));
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate context menus"));
     throw;
   }
 
@@ -216,7 +217,8 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 EvaluationEngine::~EvaluationEngine()
 {
   delete m_addPeakDlg;
-  delete m_contextMenu;
+  delete m_findPeakMenu;
+  delete m_postProcessMenu;
 }
 
 void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
@@ -325,104 +327,6 @@ void EvaluationEngine::connectPeakUpdate()
   connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
-void EvaluationEngine::contextMenuTriggered(const ContextMenuActions &action, const QPointF &point)
-{
-  QModelIndex autoFrom;
-  QModelIndex autoTo;
-  QModelIndex valueFrom;
-  QModelIndex valueTo;
-
-  switch (action) {
-  case ContextMenuActions::PEAK_FROM_THIS_X:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
-    autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::PEAK_FROM_THIS_Y:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
-    autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::PEAK_FROM_THIS_XY:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
-    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
-    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
-    break;
-  case ContextMenuActions::PEAK_TO_THIS_X:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
-    autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::PEAK_TO_THIS_Y:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
-    autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::PEAK_TO_THIS_XY:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
-    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
-    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
-    break;
-  case ContextMenuActions::NOISE_REF_POINT:
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = point.x();
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::SLOPE_REF_POINT:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::SLOPE_REF_POINT] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = point.x();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::SLOPE_REF_POINT));
-    autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_REF_POINT));
-    valueTo = valueFrom;
-    break;
-  case ContextMenuActions::SET_AXIS_TITLES:
-    {
-      SetAxisTitlesDialog dlg(m_currentDataContext->data->xType, m_currentDataContext->data->xUnit, m_currentDataContext->data->yType, m_currentDataContext->data->yUnit);
-
-      if (dlg.exec() == QDialog::Accepted && m_currentDataContext != nullptr) {
-        m_currentDataContext->data->xType = dlg.xType();
-        m_currentDataContext->data->xUnit = dlg.xUnit();
-        m_currentDataContext->data->yType = dlg.yType();
-        m_currentDataContext->data->yUnit = dlg.yUnit();
-
-        setAxisTitles();
-      }
-    }
-    break;
-  default:
-    return;
-    break;
-  }
-
-  if (autoFrom.isValid())
-    emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
-  if (valueFrom.isValid())
-    emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
-}
-
 void EvaluationEngine::clearPeakPlots()
 {
   m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE));
@@ -438,54 +342,72 @@ void EvaluationEngine::clearPeakPlots()
   m_modeCtx->replot();
 }
 
-QMenu *EvaluationEngine::createContextMenu()
+void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 {
   QAction *a;
-  QMenu *m = new QMenu;
 
-  a = new QAction(tr("Peak from this X"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_FROM_THIS_X));
-  m->addAction(a);
+  m_postProcessMenu = new QMenu;
+  m_findPeakMenu = new QMenu;
 
-  a = new QAction(tr("Peak from this Y"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_FROM_THIS_Y));
-  m->addAction(a);
+  /* Create Find peak menu */
 
-  a = new QAction(tr("Peak from this X,Y"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_FROM_THIS_XY));
-  m->addAction(a);
+  a = new QAction(tr("Peak from here"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE));
+  m_findPeakMenu->addAction(a);
 
-  m->addSeparator();
+  a = new QAction(tr("Valley from here"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::VALLEY_FROM_HERE));
+  m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Peak to this X"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_TO_THIS_X));
-  m->addAction(a);
+  m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Peak to this Y"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_TO_THIS_Y));
-  m->addAction(a);
+  a = new QAction(tr("Set noise reference point"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::NOISE_REF_POINT));
+  m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Peak to this X,Y"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::PEAK_TO_THIS_XY));
-  m->addAction(a);
+  a = new QAction(tr("Set slope reference point"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SLOPE_REF_POINT));
+  m_findPeakMenu->addAction(a);
 
-  m->addSeparator();
+  m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Set noise reference point"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::NOISE_REF_POINT));
-  m->addAction(a);
+  a = new QAction(tr("Set axis titles"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_AXIS_TITLES));
+  m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Set slope reference point"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::SLOPE_REF_POINT));
-  m->addAction(a);
+  /* Create Post process menu */
 
-  m->addSeparator();
+  a = new QAction(tr("Peak from this X"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_X));
+  m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Set axis titles"), m);
-  a->setData(QVariant::fromValue<ContextMenuActions>(ContextMenuActions::SET_AXIS_TITLES));
-  m->addAction(a);
+  a = new QAction(tr("Peak from this Y"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_Y));
+  m_postProcessMenu->addAction(a);
 
-  return m;
+  a = new QAction(tr("Peak from this X,Y"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_XY));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
+  a = new QAction(tr("Peak to this X"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_X));
+  m_postProcessMenu->addAction(a);
+
+  a = new QAction(tr("Peak to this Y"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_Y));
+  m_postProcessMenu->addAction(a);
+
+  a = new QAction(tr("Peak to this X,Y"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_XY));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
+  a = new QAction(tr("Set axis titles"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_AXIS_TITLES));
+  m_postProcessMenu->addAction(a);
 }
 
 bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name)
@@ -685,6 +607,38 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   }
 
   connectPeakUpdate();
+}
+
+void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
+{
+  QModelIndex autoFrom;
+  QModelIndex autoTo;
+  QModelIndex valueFrom;
+  QModelIndex valueTo;
+
+  switch (action) {
+  case FindPeakMenuActions::NOISE_REF_POINT:
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = point.x();
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
+    valueTo = valueFrom;
+    break;
+  case FindPeakMenuActions::SLOPE_REF_POINT:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::SLOPE_REF_POINT] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = point.x();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::SLOPE_REF_POINT));
+    autoTo = autoFrom;
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_REF_POINT));
+    valueTo = valueFrom;
+    break;
+  case FindPeakMenuActions::SET_AXIS_TITLES:
+    showSetAxisTitlesDialog();
+    break;
+  }
+
+  if (autoFrom.isValid())
+    emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
+  if (valueFrom.isValid())
+    emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
 }
 
 EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() const
@@ -1109,14 +1063,27 @@ out:
 
 void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &cursor)
 {
+  QAction *trig;
+
   if (!isContextValid())
     return;
 
-  QAction *trig = m_contextMenu->exec(cursor);
-  if (trig == nullptr)
-    return;
+  switch (m_userInteractionState) {
+  case UserInteractionState::FINDING_PEAK:
+    trig = m_findPeakMenu->exec(cursor);
+    if (trig == nullptr)
+      return;
 
-  contextMenuTriggered(trig->data().value<ContextMenuActions>(), point);
+    findPeakMenuTriggered(trig->data().value<FindPeakMenuActions>(), point);
+    break;
+  case UserInteractionState::PEAK_POSTPROCESSING:
+    trig = m_postProcessMenu->exec(cursor);
+    if (trig == nullptr)
+      return;
+
+    postProcessMenuTriggered(trig->data().value<PostProcessMenuActions>(), point);
+    break;
+  }
 }
 
 void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const long peakWindow)
@@ -1288,6 +1255,80 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinder::Results &fr)
   }
 
   m_modeCtx->replot();
+}
+
+void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)
+{
+  QModelIndex autoFrom;
+  QModelIndex autoTo;
+  QModelIndex valueFrom;
+  QModelIndex valueTo;
+
+  switch (action) {
+  case PostProcessMenuActions::PEAK_FROM_THIS_X:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
+    autoTo = autoFrom;
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
+    valueTo = valueFrom;
+    break;
+  case PostProcessMenuActions::PEAK_FROM_THIS_Y:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
+    autoTo = autoFrom;
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
+    valueTo = valueFrom;
+    break;
+  case PostProcessMenuActions::PEAK_FROM_THIS_XY:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
+    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
+    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
+    break;
+  case PostProcessMenuActions::PEAK_TO_THIS_X:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
+    autoTo = autoFrom;
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
+    valueTo = valueFrom;
+    break;
+  case PostProcessMenuActions::PEAK_TO_THIS_Y:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
+    autoTo = autoFrom;
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
+    valueTo = valueFrom;
+    break;
+  case PostProcessMenuActions::PEAK_TO_THIS_XY:
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
+    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
+    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
+    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
+    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
+    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
+    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
+    break;
+  case PostProcessMenuActions::SET_AXIS_TITLES:
+    showSetAxisTitlesDialog();
+    break;
+  default:
+    return;
+    break;
+  }
+
+  if (autoFrom.isValid())
+    emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
+  if (valueFrom.isValid())
+    emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
 }
 
 AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine::resultsValuesModel()
@@ -1477,6 +1518,23 @@ void EvaluationEngine::setPeakFinderParameters(const double maxX)
 
   QModelIndex swIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_WINDOW));
   emit m_evaluationFloatingModel.dataChanged(swIdx, swIdx, { Qt::EditRole });
+}
+
+void EvaluationEngine::showSetAxisTitlesDialog()
+{
+  if (m_currentDataContext == nullptr)
+    return;
+
+  SetAxisTitlesDialog dlg(m_currentDataContext->data->xType, m_currentDataContext->data->xUnit, m_currentDataContext->data->yType, m_currentDataContext->data->yUnit);
+
+  if (dlg.exec() == QDialog::Accepted) {
+    m_currentDataContext->data->xType = dlg.xType();
+    m_currentDataContext->data->xUnit = dlg.xUnit();
+    m_currentDataContext->data->yType = dlg.yType();
+    m_currentDataContext->data->yUnit = dlg.yUnit();
+
+    setAxisTitles();
+  }
 }
 
 QAbstractItemModel *EvaluationEngine::showWindowModel()

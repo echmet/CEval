@@ -26,18 +26,32 @@ class EvaluationEngine : public QObject
 {
   Q_OBJECT
 public:
-  enum class ContextMenuActions {
+  enum class FindPeakMenuActions {
+    PEAK_FROM_HERE,
+    VALLEY_FROM_HERE,
+    NOISE_REF_POINT,
+    SLOPE_REF_POINT,
+    SET_AXIS_TITLES
+  };
+  Q_ENUM(FindPeakMenuActions)
+
+  enum class PostProcessMenuActions {
     PEAK_FROM_THIS_X,
     PEAK_FROM_THIS_Y,
     PEAK_FROM_THIS_XY,
     PEAK_TO_THIS_X,
     PEAK_TO_THIS_Y,
     PEAK_TO_THIS_XY,
-    NOISE_REF_POINT,
-    SLOPE_REF_POINT,
     SET_AXIS_TITLES
   };
-  Q_ENUM(ContextMenuActions)
+  Q_ENUM(PostProcessMenuActions)
+
+  enum class UserInteractionState {
+    FINDING_PEAK,
+    MANUAL_PEAK_INTEGRATION,
+    PEAK_POSTPROCESSING
+  };
+  Q_ENUM(UserInteractionState)
 
   explicit EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent = nullptr);
   ~EvaluationEngine();
@@ -127,8 +141,7 @@ private:
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
   void connectPeakUpdate();
-  void contextMenuTriggered(const ContextMenuActions &action, const QPointF &point);
-  QMenu *createContextMenu();
+  void createContextMenus() throw(std::bad_alloc);
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
@@ -139,6 +152,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeak(bool useCurrentPeak);
+  void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const;
   void fullViewUpdate();
@@ -147,6 +161,8 @@ private:
   PeakEvaluator::Parameters makeEvaluatorParameters(const PeakFinder::Parameters &fp, const PeakFinder::Results &fr);
   PeakFinder::Parameters makeFinderParameters(bool autoPeakProps);
   void plotEvaluatedPeak(const PeakFinder::Results &fr);
+  void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
+  void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
   void setDefaultPeakProperties();
@@ -170,7 +186,9 @@ private:
 
   DataFileLoader *m_dataFileLoader;
   AddPeakDialog *m_addPeakDlg;
-  QMenu *m_contextMenu;
+  QMenu *m_findPeakMenu;
+  QMenu *m_postProcessMenu;
+  UserInteractionState m_userInteractionState;
 
   CommonParametersEngine *m_commonParamsEngine;
   std::shared_ptr<ModeContextLimited> m_modeCtx;
