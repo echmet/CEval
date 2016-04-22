@@ -1252,7 +1252,7 @@ void EvaluationEngine::onReplotHvl()
   HVLCalculator::applyBaseline(vec, m_currentPeak.finderResults.baselineSlope, m_currentPeak.finderResults.baselineIntercept);
   m_modeCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
 
-  m_modeCtx->replot();
+  m_modeCtx->replot(false);
 }
 
 void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
@@ -1357,7 +1357,7 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
     m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE_TO), blTo);
   }
 
-  m_modeCtx->replot();
+  m_modeCtx->replot(false);
 }
 
 void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)

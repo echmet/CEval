@@ -378,11 +378,12 @@ void ModeContext::removeSerie(const int id)
   m_plotCurves.remove(id);
 }
 
-void ModeContext::replot()
+void ModeContext::replot(const bool zoomOut)
 {
   if (!m_active)
     return;
 
+  const QRectF &currentZoom = m_plotZoomer->zoomRect();
   const QRectF &rect = uniteBoundingRects();
 
   if (m_boundingRect != rect) {
@@ -399,6 +400,11 @@ void ModeContext::replot()
   }
   m_plot->replot();
   setZoomBase(rect);
+
+  if (!zoomOut) {
+    if (rect.contains(currentZoom))
+      m_plotZoomer->zoom(currentZoom);
+  }
 }
 
 bool ModeContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)

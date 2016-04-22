@@ -55,9 +55,9 @@ QRectF ModeContextLimited::range() const
   return m_modeCtx->range();
 }
 
-void ModeContextLimited::replot()
+void ModeContextLimited::replot(const bool zoomOut)
 {
-  m_modeCtx->replot();
+  m_modeCtx->replot(zoomOut);
 }
 
 bool ModeContextLimited::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)

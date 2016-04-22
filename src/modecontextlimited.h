@@ -20,7 +20,7 @@ public:
   void hideSerie(const int id);
   void removeSerie(const int id);
   QRectF range() const;
-  void replot();
+  void replot(const bool zoomOut = true);
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title);
   void setAxisFont(const SerieProperties::Axis axis, const QFont &f);
