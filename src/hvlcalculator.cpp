@@ -112,7 +112,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations, int digits = 0)
+    const double epsilon, const int iterations, int digits = 0, const bool showStats = false)
 {
   Q_ASSERT(s_me != nullptr);
 
@@ -149,22 +149,24 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   inProgressDlg.exec();
   fitThr.join();
 
-  QMessageBox::information(
-    nullptr,
-    QObject::tr("HVL Fit"),
-    QString(QObject::tr(
-        "Iterations: %1 :\nold value -> new value :\n"
-        "Sigma : %2 -> %3\n"
-        "a1  : %4 -> %5\n"
-        "Time elapsed (sec): %6"
-     ))
-     .arg(p.iterations)
-     .arg(p.s0, 10)
-     .arg(p.s, 10)
-     .arg(a1, 10)
-     .arg(p.a1, 10)
-     .arg(static_cast<double>(stopwatch.elapsed()) / 1000.0)
-  );
+  if (showStats) {
+    QMessageBox::information(
+      nullptr,
+      QObject::tr("HVL Fit"),
+      QString(QObject::tr(
+          "Iterations: %1 :\nold value -> new value :\n"
+          "Sigma : %2 -> %3\n"
+          "a1  : %4 -> %5\n"
+          "Time elapsed (sec): %6"
+       ))
+      .arg(p.iterations)
+      .arg(p.s0, 10)
+      .arg(p.s, 10)
+      .arg(a1, 10)
+      .arg(p.a1, 10)
+      .arg(static_cast<double>(stopwatch.elapsed()) / 1000.0)
+    );
+  }
 
   return p;
 }

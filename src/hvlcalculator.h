@@ -65,9 +65,10 @@ public:
   static HVLParameters fit(
     const QVector<QPointF> &data, const unsigned long fromIdx, const unsigned long toIdx,
     const double a0, const double a1, const double a2, const double a3,
-    bool a0fixed, bool a1fixed, bool a2fixed, bool a3fixed,
+    const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    double epsilon, int iterations, int digits
+    const double epsilon, const int iterations, const int digits,
+    const bool showStats
   );
 
   static QVector<QPointF> plot(

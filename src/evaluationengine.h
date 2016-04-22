@@ -272,7 +272,7 @@ public slots:
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void onDeletePeak(const QModelIndex &idx);
-  void onDoHvlFit();
+  void onDoHvlFit(const bool showStats);
   void onEvaluationFileSwitched(const int idx);
   void onFindPeaks();
   void onPeakSwitched(const QModelIndex &idx);

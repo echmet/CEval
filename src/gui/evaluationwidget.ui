@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1016</width>
-            <height>622</height>
+            <width>1017</width>
+            <height>636</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -758,8 +758,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1016</width>
-            <height>812</height>
+            <width>1017</width>
+            <height>824</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1318,7 +1318,7 @@ padding-right: 2em;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="qpb_doHvlFit">
+                 <widget class="ShiftPushButton" name="qpb_doHvlFit">
                   <property name="styleSheet">
                    <string notr="true">padding-top: 0.5em;
 padding-bottom: 0.5em;
@@ -1716,6 +1716,11 @@ padding-right: 3em;</string>
    <class>QMappedCheckBox</class>
    <extends>QCheckBox</extends>
    <header>src/gui/common/qmappedcheckbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ShiftPushButton</class>
+   <extends>QPushButton</extends>
+   <header>src/gui/common/shiftpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

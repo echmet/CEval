@@ -49,7 +49,7 @@ private:
 
 signals:
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
-  void doHvlFit();
+  void doHvlFit(const bool showStats);
   void evaluationSetDefault(const EvaluationEngineMsgs::Default msg);
   void findPeaks();
   void replotHvl();
@@ -60,6 +60,7 @@ public slots:
 private slots:
   void onBaselineComboBoxChanged(int idx);
   void onDoHvlFitClicked();
+  void onDoHvlFitClickedModified();
   void onFindPeaksClicked();
   void onReplotHvl();
   void onShowWindowComboBoxChanged(int idx);

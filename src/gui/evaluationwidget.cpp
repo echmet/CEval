@@ -24,7 +24,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
   connect(ui->qcbox_windowUnits, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onWindowUnitsComboBoxChanged);
   connect(ui->qpb_findPeak, &QPushButton::clicked, this, &EvaluationWidget::onFindPeaksClicked);
-  connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
+  connect(ui->qpb_doHvlFit, &ShiftPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
+  connect(ui->qpb_doHvlFit, &ShiftPushButton::modifierClicked, this, &EvaluationWidget::onDoHvlFitClickedModified);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
 }
 
@@ -74,7 +75,12 @@ void EvaluationWidget::onDefaultPeakPropertiesClicked()
 
 void EvaluationWidget::onDoHvlFitClicked()
 {
-  emit doHvlFit();
+  emit doHvlFit(false);
+}
+
+void EvaluationWidget::onDoHvlFitClickedModified()
+{
+  emit doHvlFit(true);
 }
 
 void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)

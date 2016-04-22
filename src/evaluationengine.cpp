@@ -1023,7 +1023,7 @@ void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
   setPeakContext(m_currentPeak);
 }
 
-void EvaluationEngine::onDoHvlFit()
+void EvaluationEngine::onDoHvlFit(const bool showStats)
 {
   if (!isContextValid())
     return;
@@ -1051,7 +1051,8 @@ void EvaluationEngine::onDoHvlFit()
     m_currentPeak.finderResults.baselineSlope,
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
-    m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS)
+    m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
+    showStats
   );
 
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
