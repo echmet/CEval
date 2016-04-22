@@ -79,6 +79,7 @@ const QString EvaluationEngine::s_serieFinderSystemBTitle = QString(tr("Finder A
 const QString EvaluationEngine::s_serieHVLTitle = QString(tr("HVL"));
 const QString EvaluationEngine::s_serieBaselineFromTitle = QString(tr("Baseline from"));
 const QString EvaluationEngine::s_serieBaselineToTitle = QString(tr("Baseline from"));
+const QString EvaluationEngine::s_serieProvisionalBaseline = QString(tr("Provisional baseline"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
@@ -226,8 +227,6 @@ void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
 {
   m_modeCtx = ctx;
 
-
-  if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE), s_serieBaselineTitle, SerieProperties::VisualStyle(QPen(Qt::red))))
   if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE), s_serieBaselineTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieBaselineTitle));
 
@@ -260,6 +259,9 @@ void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
 
   if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE_TO), s_serieBaselineFromTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(132, 172, 172), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieBaselineToTitle));
+
+  if (!m_modeCtx->addSerie(seriesIndex(Series::PROV_BASELINE), s_serieProvisionalBaseline, SerieProperties::VisualStyle(QPen(QBrush(QColor(23, 73, 255), Qt::SolidPattern), SERIES_WIDTH))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieProvisionalBaseline));
 
   connect(m_modeCtx.get(), &ModeContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 

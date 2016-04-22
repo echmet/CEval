@@ -85,6 +85,7 @@ private:
     PROV_PEAK,
     BASELINE_FROM,
     BASELINE_TO,
+    PROV_BASELINE,
     LAST_INDEX
   };
 
@@ -240,6 +241,7 @@ private:
   static const QString s_serieHVLTitle;
   static const QString s_serieBaselineFromTitle;
   static const QString s_serieBaselineToTitle;
+  static const QString s_serieProvisionalBaseline;
 
   static const QString s_emptyCtxKey;
 
