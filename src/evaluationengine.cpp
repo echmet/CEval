@@ -1080,6 +1080,7 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
     m_currentPeakIdx = 0;
     m_currentPeak = m_allPeaks.at(0);
     setPeakContext(m_currentPeak);
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
     goto out;
   }
 
@@ -1090,6 +1091,8 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
   m_currentPeakIdx = row;
   m_currentPeak = m_allPeaks.at(row);
   setPeakContext(m_currentPeak);
+
+  m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
 out:
   connectPeakUpdate();
@@ -1489,13 +1492,20 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   m_allPeaks = ctx.peaks;
   m_currentPeakIdx = ctx.lastIndex;
 
-  if (m_currentPeakIdx < 0 || m_currentPeakIdx >= m_allPeaks.length())
+  if (m_currentPeakIdx < 0 || m_currentPeakIdx >= m_allPeaks.length()) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
     return false;
+  }
 
   m_currentPeak = m_allPeaks.at(m_currentPeakIdx);
 
   m_modeCtx->clearAllSerieSamples();
   setPeakContext(m_currentPeak);
+
+  if (m_currentPeakIdx == 0)
+    m_userInteractionState = UserInteractionState::FINDING_PEAK; /* "Default" placeholder peak, enable finding */
+  else
+    m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
