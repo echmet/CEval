@@ -34,6 +34,12 @@ public:
   };
   Q_ENUM(FindPeakMenuActions)
 
+  enum class ManualIntegrationMenuActions {
+    FINISH,
+    CANCEL
+  };
+  Q_ENUM(ManualIntegrationMenuActions)
+
   enum class PostProcessMenuActions {
     PEAK_FROM_THIS_X,
     PEAK_FROM_THIS_Y,
@@ -161,6 +167,7 @@ private:
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults &fr);
   AssistedPeakFinder::Parameters makeFinderParameters(const bool autoPeakProps);
+  void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const PeakFinderResults &fr);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
   void processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults &fr, const bool useCurrentPeak = false);
@@ -189,6 +196,7 @@ private:
   DataFileLoader *m_dataFileLoader;
   AddPeakDialog *m_addPeakDlg;
   QMenu *m_findPeakMenu;
+  QMenu *m_manualIntegrationMenu;
   QMenu *m_postProcessMenu;
   UserInteractionState m_userInteractionState;
 

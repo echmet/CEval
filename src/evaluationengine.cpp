@@ -220,6 +220,7 @@ EvaluationEngine::~EvaluationEngine()
 {
   delete m_addPeakDlg;
   delete m_findPeakMenu;
+  delete m_manualIntegrationMenu;
   delete m_postProcessMenu;
 }
 
@@ -350,8 +351,9 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 {
   QAction *a;
 
-  m_postProcessMenu = new QMenu;
   m_findPeakMenu = new QMenu;
+  m_manualIntegrationMenu = new QMenu;
+  m_postProcessMenu = new QMenu;
 
   /* Create Find peak menu */
 
@@ -374,6 +376,15 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   a = new QAction(tr("Set axis titles"), m_findPeakMenu);
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_AXIS_TITLES));
   m_findPeakMenu->addAction(a);
+
+  /* Create Manual integration menu */
+  a = new QAction(tr("Peak to here"), m_manualIntegrationMenu);
+  a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH));
+  m_manualIntegrationMenu->addAction(a);
+
+  a = new QAction(tr("Cancel"), m_manualIntegrationMenu);
+  a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::CANCEL));
+  m_manualIntegrationMenu->addAction(a);
 
   /* Create Post process menu */
 
@@ -821,6 +832,20 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters(const bool
   return p;
 }
 
+void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point)
+{
+  switch (action) {
+  case ManualIntegrationMenuActions::CANCEL:
+    m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_modeCtx->replot();
+    break;
+  case ManualIntegrationMenuActions::FINISH:
+    findPeakManually(m_manualPeakFrom, point);
+    break;
+  }
+}
+
 AbstractMapperModel<double, EvaluationParametersItems::Floating> *EvaluationEngine::floatingValuesModel()
 {
   return &m_evaluationFloatingModel;
@@ -1147,7 +1172,11 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
     findPeakMenuTriggered(trig->data().value<FindPeakMenuActions>(), point);
     break;
   case UserInteractionState::MANUAL_PEAK_INTEGRATION:
-    findPeakManually(m_manualPeakFrom, point);
+    trig = m_manualIntegrationMenu->exec(cursor);
+    if (trig == nullptr)
+      return;
+
+    manualIntegrationMenuTriggered(trig->data().value<ManualIntegrationMenuActions>(), point);
     break;
   case UserInteractionState::PEAK_POSTPROCESSING:
     trig = m_postProcessMenu->exec(cursor);
