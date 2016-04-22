@@ -80,7 +80,7 @@
         <item>
          <widget class="QPushButton" name="qpb_cancelSelection">
           <property name="text">
-           <string>Cancel selection</string>
+           <string>Deselect peak</string>
           </property>
          </widget>
         </item>
