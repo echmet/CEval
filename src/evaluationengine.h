@@ -28,7 +28,6 @@ class EvaluationEngine : public QObject
 public:
   enum class FindPeakMenuActions {
     PEAK_FROM_HERE,
-    VALLEY_FROM_HERE,
     NOISE_REF_POINT,
     SLOPE_REF_POINT,
     SET_AXIS_TITLES
@@ -153,7 +152,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeak(bool useCurrentPeak);
-  void findPeakManually(const QPointF &from, const QPointF &to, const bool valley);
+  void findPeakManually(const QPointF &from, const QPointF &to);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const;
@@ -194,7 +193,6 @@ private:
   UserInteractionState m_userInteractionState;
 
   QPointF m_manualPeakFrom;
-  bool m_manualPeakValley;
 
   CommonParametersEngine *m_commonParamsEngine;
   std::shared_ptr<ModeContextLimited> m_modeCtx;
@@ -270,6 +268,7 @@ public slots:
   void onEvaluationFileSwitched(const int idx);
   void onFindPeaks();
   void onPeakSwitched(const QModelIndex &idx);
+  void onPlotPointHovered(const QPointF &point, const QPoint &cursor);
   void onPlotPointSelected(const QPointF &point, const QPoint &cursor);
   void onReadEof();
   void onReplotHvl();

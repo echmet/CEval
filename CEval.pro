@@ -96,7 +96,8 @@ SOURCES += src/main.cpp \
     src/gui/exportplottoimagedialog.cpp \
     src/abstractpeakfinder.cpp \
     src/assistedpeakfinder.cpp \
-    src/manualpeakfinder.cpp
+    src/manualpeakfinder.cpp \
+    src/ploteventfilter.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -256,7 +257,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/exportplottoimagedialog.h \
     src/abstractpeakfinder.h \
     src/assistedpeakfinder.h \
-    src/manualpeakfinder.h
+    src/manualpeakfinder.h \
+    src/ploteventfilter.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

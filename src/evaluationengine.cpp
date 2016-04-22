@@ -263,6 +263,7 @@ void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
   if (!m_modeCtx->addSerie(seriesIndex(Series::PROV_BASELINE), s_serieProvisionalBaseline, SerieProperties::VisualStyle(QPen(QBrush(QColor(23, 73, 255), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieProvisionalBaseline));
 
+  connect(m_modeCtx.get(), &ModeContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_modeCtx.get(), &ModeContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
   /* Default series titles */
@@ -356,10 +357,6 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 
   a = new QAction(tr("Peak from here"), m_findPeakMenu);
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE));
-  m_findPeakMenu->addAction(a);
-
-  a = new QAction(tr("Valley from here"), m_findPeakMenu);
-  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::VALLEY_FROM_HERE));
   m_findPeakMenu->addAction(a);
 
   m_findPeakMenu->addSeparator();
@@ -592,9 +589,12 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   processFoundPeak(m_currentDataContext->data->data, fr, useCurrentPeak);
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool valley)
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
 {
   PeakFinderResults fr;
+
+  /* Erase the provisional baseline */
+  m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
   if (!isContextValid())
     return;
@@ -608,7 +608,6 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   p.fromY = from.y();
   p.toX = to.x();
   p.toY = to.y();
-  p.valley = valley;
 
   try {
     fr = ManualPeakFinder::find(p);
@@ -657,12 +656,6 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
   switch (action) {
   case FindPeakMenuActions::PEAK_FROM_HERE:
     m_manualPeakFrom = point;
-    m_manualPeakValley = false;
-    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
-    break;
-  case FindPeakMenuActions::VALLEY_FROM_HERE:
-    m_manualPeakFrom = point;
-    m_manualPeakValley = true;
     m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
     break;
   case FindPeakMenuActions::NOISE_REF_POINT:
@@ -1116,6 +1109,28 @@ out:
   connectPeakUpdate();
 }
 
+void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cursor)
+{
+  Q_UNUSED(cursor)
+
+  if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
+    const double k = (point.y() - m_manualPeakFrom.y()) / (point.x() - m_manualPeakFrom.x());
+    const double step = (point.x() - m_manualPeakFrom.x()) / 500.0;
+
+    QVector<QPointF> line;
+    double x = m_manualPeakFrom.x();
+    while (x < point.x()) {
+      const double vf = k * (x - m_manualPeakFrom.x()) + m_manualPeakFrom.y();
+
+      line.push_back(QPointF(x, vf));
+      x += step;
+    }
+
+    m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), line);
+    m_modeCtx->replot();
+  }
+}
+
 void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &cursor)
 {
   QAction *trig;
@@ -1132,7 +1147,7 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
     findPeakMenuTriggered(trig->data().value<FindPeakMenuActions>(), point);
     break;
   case UserInteractionState::MANUAL_PEAK_INTEGRATION:
-    findPeakManually(m_manualPeakFrom, point, m_manualPeakValley);
+    findPeakManually(m_manualPeakFrom, point);
     break;
   case UserInteractionState::PEAK_POSTPROCESSING:
     trig = m_postProcessMenu->exec(cursor);

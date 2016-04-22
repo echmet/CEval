@@ -56,25 +56,18 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   baselineSlope = (p.toY - p.fromY) / (p.toX - p.fromX);
   baselineIntercept = p.fromY - p.fromX * baselineSlope;
 
-
-  if (p.valley) {
-    heightAt = [&p, baselineSlope, baselineIntercept](const long idx) {
-      return baselineSlope * p.data.at(idx).x() - baselineIntercept - p.data.at(idx).y();
-    };
-  } else {
-    heightAt = [&p, baselineSlope, baselineIntercept](const long idx) {
-      return p.data.at(idx).y() - baselineSlope * p.data.at(idx).x() - baselineIntercept;
-    };
-  }
+  heightAt = [&p, baselineSlope, baselineIntercept](const long idx) {
+    return p.data.at(idx).y() - baselineSlope * p.data.at(idx).x() - baselineIntercept;
+  };
 
   {
     /* Find the extreme. The extreme can be either above or below
     * the baseline, only the absolute value matters */
-    double maxDiff = heightAt(fromIndex);
+    double maxDiff = std::abs(heightAt(fromIndex));
     tPi = fromIndex;
     peakX = p.data.at(fromIndex).x();
     for (long idx = fromIndex; idx <= toIndex; idx++) {
-      const double diff = heightAt(idx);
+      const double diff = std::abs(heightAt(idx));
 
       if (diff > maxDiff) {
         tPi = idx;
@@ -91,7 +84,7 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   do {
     twPLefti--;
     twPLeft = heightAt(twPLefti);
-  } while ((twPLefti > fromIndex) && (std::abs(peakHeightBaseline) / 2.0 < twPLeft));
+  } while ((twPLefti > fromIndex) && (std::abs(peakHeightBaseline) / 2.0 < std::abs(twPLeft)));
 
   twPLeft = p.data.at(twPLefti).x();
 
@@ -99,7 +92,7 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   do {
     twPRighti++;
     twPRight = heightAt(twPRighti);
-  } while (twPRighti < toIndex && std::abs(peakHeightBaseline) / 2.0 < twPRight);
+  } while ((twPRighti < toIndex) && std::abs(peakHeightBaseline) / 2.0 < std::abs(twPRight));
 
   twPRight = p.data.at(twPRighti).x();
 

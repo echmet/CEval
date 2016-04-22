@@ -33,9 +33,11 @@ private:
   std::shared_ptr<ModeContext> m_modeCtx;
 
 signals:
+  void pointHovered(const QPointF &point, const QPoint &cursor);
   void pointSelected(const QPointF &point, const QPoint &cursor);
 
 private slots:
+  void onPointHovered(const QPointF &point, const QPoint &cursor);
   void onPointSelected(const QPointF &point, const QPoint &cursor);
 
 };

@@ -5,6 +5,7 @@ ModeContextLimited::ModeContextLimited(std::shared_ptr<ModeContext> modeCtx, QOb
   QObject(parent),
   m_modeCtx(modeCtx)
 {
+  connect(m_modeCtx.get(), &ModeContext::pointHovered, this, &ModeContextLimited::onPointHovered);
   connect(m_modeCtx.get(), &ModeContext::pointSelected, this, &ModeContextLimited::onPointSelected);
 }
 
@@ -32,6 +33,11 @@ void ModeContextLimited::clearSerieSamples(const int id)
 void ModeContextLimited::hideSerie(const int id)
 {
   m_modeCtx->hideSerie(id);
+}
+
+void ModeContextLimited::onPointHovered(const QPointF &point, const QPoint &cursor)
+{
+  emit pointHovered(point, cursor);
 }
 
 void ModeContextLimited::onPointSelected(const QPointF &point, const QPoint &cursor)

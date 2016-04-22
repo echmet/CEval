@@ -9,16 +9,19 @@
 #include "inumberformatchangeable.h"
 #include "gui/adjustplotvisualsdialog.h"
 
+class PlotEventFilter;
 class QwtPlot;
 class QwtPlotCurve;
 class QwtPlotPicker;
 class QwtPlotZoomer;
+class QwtScaleMap;
 
 class ModeContext : public QObject, public INumberFormatChangeable {
   Q_OBJECT
   Q_INTERFACES(INumberFormatChangeable)
 public:
   explicit ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent = nullptr);
+  ~ModeContext();
   void activate();
   bool addSerie(const int id, const QString &title, SerieProperties::VisualStyle &style);
   void adjustAppearance();
@@ -49,6 +52,7 @@ private:
   QMap<SerieProperties::Axis, QString> m_axisTitles;
   QString m_plotTitle;
   QRectF m_boundingRect;
+  PlotEventFilter *m_eventFilter;
 
   int pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const;
   AdjustPlotVisualsDialog::PointStyles qwtSymbolStypeToPointStyle(const int qwtSymbol) const;
@@ -57,9 +61,11 @@ private:
   QRectF uniteBoundingRects() const;
 
 signals:
+  void pointHovered(const QPointF &point, const QPoint &cursor);
   void pointSelected(const QPointF &point, const QPoint &cursor);
 
 private slots:
+  void onPointHovered(const QPoint &pos);
   void onPointSelected(const QPointF &pos);
 
 };

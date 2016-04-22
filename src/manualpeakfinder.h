@@ -16,7 +16,6 @@ public:
     double fromY;
     double toX;
     double toY;
-    bool valley;
   };
 
 protected:

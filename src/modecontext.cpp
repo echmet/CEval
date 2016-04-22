@@ -7,14 +7,23 @@
 #include "qwt_scale_widget.h"
 #include "gui/adjustplotvisualsdialog.h"
 #include "doubletostringconvertor.h"
+#include "ploteventfilter.h"
 
 ModeContext::ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent) :
   QObject(parent),
   m_active(false),
   m_plot(plot),
   m_plotPicker(picker),
-  m_plotZoomer(zoomer)
+  m_plotZoomer(zoomer),
+  m_eventFilter(new PlotEventFilter(this))
 {
+}
+
+ModeContext::~ModeContext()
+{
+  m_plot->canvas()->removeEventFilter(m_eventFilter);
+
+  delete m_eventFilter;
 }
 
 void ModeContext::activate()
@@ -34,7 +43,10 @@ void ModeContext::activate()
   for (const SerieProperties::Axis a : m_axisFont.keys())
     setAxisFont(a, m_axisFont[a]);
 
+  m_plot->canvas()->installEventFilter(m_eventFilter);
+
   connect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &ModeContext::onPointSelected);
+  connect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &ModeContext::onPointHovered);
 
   replot();
 }
@@ -193,7 +205,10 @@ void ModeContext::deactivate()
 
   m_boundingRect = QRectF();
 
+  m_plot->canvas()->removeEventFilter(m_eventFilter);
+
   disconnect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &ModeContext::onPointSelected);
+  disconnect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &ModeContext::onPointHovered);
 }
 
 void ModeContext::hideSerie(const int id)
@@ -214,6 +229,16 @@ void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
   m_plot->setAxisScaleDraw(QwtPlot::Axis::xTop, new QwtScaleDraw);
   m_plot->setAxisScaleDraw(QwtPlot::Axis::yLeft, new QwtScaleDraw);
   m_plot->setAxisScaleDraw(QwtPlot::Axis::yRight, new QwtScaleDraw);
+}
+
+void ModeContext::onPointHovered(const QPoint &pos)
+{
+  qreal x = m_plot->canvasMap(QwtPlot::Axis::xBottom).invTransform(pos.x());
+  qreal y = m_plot->canvasMap(QwtPlot::Axis::yLeft).invTransform(pos.y());
+
+  QPointF point(x, y);
+
+  emit pointHovered(point, pos);
 }
 
 void ModeContext::onPointSelected(const QPointF &pos)
