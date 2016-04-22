@@ -585,6 +585,7 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
 
   if (!fr.isValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    clearPeakPlots();
     return;
   }
 
