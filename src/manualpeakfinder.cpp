@@ -11,6 +11,7 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double baselineSlope;
+  double baselineIntercept;
   double peakHeightBaseline;
   long tPi;
   long fromIndex;
@@ -26,7 +27,6 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   /* Convert time values to indices */
   {
     long ctr = 0;
-
     while (ctr < p.data.length()) {
       const double vx = p.data.at(ctr).x();
 
@@ -54,15 +54,16 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
 
 
   baselineSlope = (p.toY - p.fromY) / (p.toX - p.fromX);
+  baselineIntercept = p.fromY - p.fromX * baselineSlope;
 
 
   if (p.valley) {
-    heightAt = [&p, baselineSlope](const long idx) {
-      return (baselineSlope * (p.data.at(idx).x() - p.fromX) + p.fromY) - p.data.at(idx).y();
+    heightAt = [&p, baselineSlope, baselineIntercept](const long idx) {
+      return baselineSlope * p.data.at(idx).x() - baselineIntercept - p.data.at(idx).y();
     };
   } else {
-    heightAt = [&p, baselineSlope](const long idx) {
-      return p.data.at(idx).y() - (baselineSlope * (p.data.at(idx).x() - p.fromX) + p.fromY);
+    heightAt = [&p, baselineSlope, baselineIntercept](const long idx) {
+      return p.data.at(idx).y() - baselineSlope * p.data.at(idx).x() - baselineIntercept;
     };
   }
 
@@ -83,27 +84,27 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
     }
   }
 
-  peakHeightBaseline = p.data.at(tPi).y() - ((baselineSlope * (peakX - p.fromX)) + p.fromY);
+  peakHeightBaseline = heightAt(tPi);
 
   /* Width of peak at half of its height */
   twPLefti = tPi;
   do {
     twPLefti--;
-    twPLeft = p.data.at(twPLefti).y() - (baselineSlope * (p.data.at(twPLefti).x() - p.fromX) + p.fromY);
-  } while ((twPLefti > fromIndex) && (std::abs(peakHeightBaseline) / 2.0 < std::abs(twPLeft)));
+    twPLeft = heightAt(twPLefti);
+  } while ((twPLefti > fromIndex) && (std::abs(peakHeightBaseline) / 2.0 < twPLeft));
 
   twPLeft = p.data.at(twPLefti).x();
 
   twPRighti = tPi;
   do {
     twPRighti++;
-    twPRight = p.data.at(twPRighti).y() - (baselineSlope * (p.data.at(twPRighti).x() - p.fromX) + p.fromY);
-  } while (twPRighti < toIndex && std::abs(peakHeightBaseline) / 2.0 < std::abs(twPRight));
+    twPRight = heightAt(twPRighti);
+  } while (twPRighti < toIndex && std::abs(peakHeightBaseline) / 2.0 < twPRight);
 
   twPRight = p.data.at(twPRighti).x();
 
 
-  r.baselineIntercept = p.fromY;
+  r.baselineIntercept = baselineIntercept;
   r.baselineSlope = baselineSlope;
   r.fromIndex = 0; /* This value makes no sense in manual mode */
   r.fromPeakIndex = fromIndex;

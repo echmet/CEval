@@ -619,7 +619,12 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     return;
   }
 
-  processFoundPeak(m_currentDataContext->data->data, fr);
+  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
+  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
+  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
+  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
+
+  processFoundPeak(m_currentDataContext->data->data, fr, true);
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
