@@ -621,10 +621,27 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     return;
   }
 
+  /* Force assisted finder parameters implied by the manual lookup */
+  disconnectPeakUpdate();
   m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
   m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
   m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
   m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
+  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_X] = false;
+
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = fr.noiseRefPoint;
+
+  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X)),
+                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y)),
+                                         { Qt::DisplayRole });
+  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_X)),
+                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_X)),
+                                         { Qt::DisplayRole });
+
+  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
+                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
+                                             { Qt::EditRole });
+  connectPeakUpdate();
 
   processFoundPeak(m_currentDataContext->data->data, fr, true);
 }

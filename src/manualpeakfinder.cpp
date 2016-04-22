@@ -103,6 +103,18 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
 
   twPRight = p.data.at(twPRighti).x();
 
+  /* Attempt to guess noise and slope reference point by
+   * setting them a few points after the begin of the signal trace.
+   * The idea is to hopefully skip any sudden signal changes that commonly
+   * appear at the beginning of the record.
+   * Note that this is by no means an universal solution !*/
+  {
+    const int fivePercent = 0.05 * p.data.length();
+
+    r.noiseRefPoint = p.data.at(fivePercent).x();
+    r.slopeRefPoint = p.data.at(fivePercent).x();
+  }
+
 
   r.baselineIntercept = baselineIntercept;
   r.baselineSlope = baselineSlope;
@@ -112,7 +124,6 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   r.maxY = Helpers::maxYValue(p.data);
   r.minY = Helpers::minYValue(p.data);
   r.noise = 0.0; /* This value makes no sense in manual mode */
-  r.noiseRefPoint = 0.0; /* This value makes no sense in manual mode */
   r.peakFromX = p.fromX; /* Copy the input value because we are in manual mode */
   r.peakFromY = p.fromY; /* Copy the input value because we are in manual mode */
   r.peakHeight = p.data.at(tPi).y();
@@ -122,7 +133,6 @@ PeakFinderResults ManualPeakFinder::findInternal(const AbstractParameters &ap) t
   r.peakX = peakX;
   r.seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>()); /* We're not gonna take it [manual mode] */
   r.seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>()); /* We don't want nothing, not a thing from you [manual mode] */
-  r.slopeRefPoint = 0.0; /* This value makes no sense in manual mode */
   r.slopeThreshold = 0.0; /* This value makes no sense in manual mode */
   r.slopeWindow = 0.0; /* This value makes no sense in manual mode */
   r.toIndex = p.data.length() - 1; /* This value makes no sense in manual mode */
