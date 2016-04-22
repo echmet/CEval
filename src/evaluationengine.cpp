@@ -5,6 +5,7 @@
 #include "gui/setaxistitlesdialog.h"
 #include "custommetatypes.h"
 #include "helpers.h"
+#include "manualpeakfinder.h"
 #include "standardmodecontextsettingshandler.h"
 #include <QMenu>
 #include <QMessageBox>
@@ -156,7 +157,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
 }
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
-  m_userInteractionState(UserInteractionState::PEAK_POSTPROCESSING),
+  m_userInteractionState(UserInteractionState::FINDING_PEAK),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
@@ -580,39 +581,45 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
     return;
   }
 
-  if (!fr.isValid())
+  if (!fr.isValid()) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    return;
+  }
+
+  processFoundPeak(m_currentDataContext->data->data, fr, useCurrentPeak);
+}
+
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool valley)
+{
+  PeakFinderResults fr;
+
+  if (!isContextValid())
     return;
 
-  PeakEvaluator::Parameters ep = makeEvaluatorParameters(fp, fr);
-  PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
+  if (m_currentDataContext->data->data.length() == 0)
+    return;
 
-  /* Prevent infinite signal-slot loop by disconnecting signals that
-   * recalculate the peak every time the evaluation parameters change */
-  disconnectPeakUpdate();
 
-  if (!useCurrentPeak)
-    setDefaultPeakProperties();
+  ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
+  p.fromX = from.x();
+  p.fromY = from.y();
+  p.toX = to.x();
+  p.toY = to.y();
+  p.valley = valley;
 
-  displayAutomatedResults(fr, er);
-  setEvaluationResults(fr, er);
-
-  QVector<QPointF> hvlPlot;
-  if (HVLCalculator::available()) {
-    hvlPlot = HVLCalculator::plot(er.peakArea, er.HVL_a1, er.HVL_a2, er.HVL_a3, fr.peakFromX, fr.peakToX, timeStep(), 50);
-    HVLCalculator::applyBaseline(hvlPlot, fr.baselineSlope, fr.baselineIntercept);
+  try {
+    fr = ManualPeakFinder::find(p);
+  } catch (std::bad_alloc &) {
+    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Not enough memory to evaluate peak"));
+    return;
   }
 
-  m_currentPeak = currentPeakContext(fr, hvlPlot);
-
-  clearPeakPlots();
-  plotEvaluatedPeak(fr);
-
-  if (m_currentPeakIdx > 0 && useCurrentPeak) {
-    m_allPeaks[m_currentPeakIdx] = m_currentPeak;
-    m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, fr.peakX, er.peakArea);
+  if (!fr.isValid()) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    return;
   }
 
-  connectPeakUpdate();
+  processFoundPeak(m_currentDataContext->data->data, fr);
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
@@ -623,6 +630,16 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
   QModelIndex valueTo;
 
   switch (action) {
+  case FindPeakMenuActions::PEAK_FROM_HERE:
+    m_manualPeakFrom = point;
+    m_manualPeakValley = false;
+    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+    break;
+  case FindPeakMenuActions::VALLEY_FROM_HERE:
+    m_manualPeakFrom = point;
+    m_manualPeakValley = true;
+    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+    break;
   case FindPeakMenuActions::NOISE_REF_POINT:
     m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = point.x();
     valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
@@ -707,9 +724,9 @@ QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks
   return peaks;
 }
 
-PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const AssistedPeakFinder::Parameters &fp, const PeakFinderResults &fr)
+PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults &fr)
 {
-  PeakEvaluator::Parameters p(fp.data);
+  PeakEvaluator::Parameters p(data);
 
   p.BSLIntercept = fr.baselineIntercept;
   p.BSLSlope = fr.baselineSlope;
@@ -719,7 +736,7 @@ PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const Assist
   p.HP_BSL = fr.peakHeightBaseline;
   p.tAi = fr.fromPeakIndex;
   p.tBi = fr.toPeakIndex;
-  p.tEOF = fp.tEOF;
+  p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
   p.tP = fr.peakX;
   p.tWPLeft = fr.twPLeft;
   p.tWPRight = fr.twPRight;
@@ -854,6 +871,8 @@ void EvaluationEngine::onCancelEvaluatedPeakSelection()
   m_currentPeakIdx = 0;
 
   setPeakContext(m_currentPeak);
+
+  m_userInteractionState = UserInteractionState::FINDING_PEAK;
 }
 
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
@@ -1083,6 +1102,9 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
       return;
 
     findPeakMenuTriggered(trig->data().value<FindPeakMenuActions>(), point);
+    break;
+  case UserInteractionState::MANUAL_PEAK_INTEGRATION:
+    findPeakManually(m_manualPeakFrom, point, m_manualPeakValley);
     break;
   case UserInteractionState::PEAK_POSTPROCESSING:
     trig = m_postProcessMenu->exec(cursor);
@@ -1337,6 +1359,42 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
   if (valueFrom.isValid())
     emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
+}
+
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults &fr, const bool useCurrentPeak)
+{
+  PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
+  PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
+
+  /* Prevent infinite signal-slot loop by disconnecting signals that
+   * recalculate the peak every time the evaluation parameters change */
+  disconnectPeakUpdate();
+
+  if (!useCurrentPeak)
+    setDefaultPeakProperties();
+
+  displayAutomatedResults(fr, er);
+  setEvaluationResults(fr, er);
+
+  QVector<QPointF> hvlPlot;
+  if (HVLCalculator::available()) {
+    hvlPlot = HVLCalculator::plot(er.peakArea, er.HVL_a1, er.HVL_a2, er.HVL_a3, fr.peakFromX, fr.peakToX, timeStep(), 50);
+    HVLCalculator::applyBaseline(hvlPlot, fr.baselineSlope, fr.baselineIntercept);
+  }
+
+  m_currentPeak = currentPeakContext(fr, hvlPlot);
+
+  clearPeakPlots();
+  plotEvaluatedPeak(fr);
+
+  if (m_currentPeakIdx > 0 && useCurrentPeak) {
+    m_allPeaks[m_currentPeakIdx] = m_currentPeak;
+    m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, fr.peakX, er.peakArea);
+  }
+
+  connectPeakUpdate();
+
+  m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 }
 
 AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine::resultsValuesModel()

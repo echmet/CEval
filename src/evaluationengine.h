@@ -152,16 +152,18 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeak(bool useCurrentPeak);
+  void findPeakManually(const QPointF &from, const QPointF &to, const bool valley);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const;
   void fullViewUpdate();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
-  PeakEvaluator::Parameters makeEvaluatorParameters(const AssistedPeakFinder::Parameters &fp, const PeakFinderResults &fr);
+  PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults &fr);
   AssistedPeakFinder::Parameters makeFinderParameters(const bool autoPeakProps);
   void plotEvaluatedPeak(const PeakFinderResults &fr);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
+  void processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults &fr, const bool useCurrentPeak = false);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
@@ -189,6 +191,9 @@ private:
   QMenu *m_findPeakMenu;
   QMenu *m_postProcessMenu;
   UserInteractionState m_userInteractionState;
+
+  QPointF m_manualPeakFrom;
+  bool m_manualPeakValley;
 
   CommonParametersEngine *m_commonParamsEngine;
   std::shared_ptr<ModeContextLimited> m_modeCtx;
