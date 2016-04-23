@@ -402,8 +402,7 @@ void ModeContext::replot(const bool zoomOut)
   setZoomBase(rect);
 
   if (!zoomOut) {
-    if (rect.contains(currentZoom))
-      m_plotZoomer->zoom(currentZoom);
+    m_plotZoomer->zoom(currentZoom);
   }
 }
 

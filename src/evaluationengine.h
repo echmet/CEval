@@ -47,6 +47,7 @@ public:
     PEAK_TO_THIS_X,
     PEAK_TO_THIS_Y,
     PEAK_TO_THIS_XY,
+    DO_HVL_FIT,
     SET_AXIS_TITLES
   };
   Q_ENUM(PostProcessMenuActions)

@@ -388,6 +388,12 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 
   /* Create Post process menu */
 
+  a = new QAction(tr("Do HVL fit"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::DO_HVL_FIT));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
   a = new QAction(tr("Peak from this X"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_X));
   m_postProcessMenu->addAction(a);
@@ -1419,6 +1425,9 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
     valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
     valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
+    break;
+  case PostProcessMenuActions::DO_HVL_FIT:
+    onDoHvlFit(false);
     break;
   case PostProcessMenuActions::SET_AXIS_TITLES:
     showSetAxisTitlesDialog();
