@@ -10,19 +10,13 @@
 #include <QMenu>
 #include <QMessageBox>
 
-const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* PEAK_FROM_X */
-                                                                     true, /* PEAK_FROM_Y */
-                                                                     true, /* PEAK_TO_X */
-                                                                     true, /* PEAK_TO_Y */
-                                                                     true, /* SLOPE_WINDOW */
+const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SLOPE_WINDOW */
                                                                      true, /* NOISE */
                                                                      true, /* SLOPE_REF_POINT */
                                                                      true, /* SLOPE_THRESHOLD */
                                                                      true, /* FROM */
-                                                                     true, /* TO */
-                                                                     true, /* PEAK_X */
-                                                                     true, /* PEAK_HEIGHT */
-                                                                     true  /* PEAK WIDTH */});
+                                                                     true  /* TO */
+                                                                    });
 
 const QVector<bool> EvaluationEngine::s_defaultEvaluationBooleanValues({false /* NOISE_CORRECTION */});
 
@@ -37,14 +31,8 @@ const QVector<double> EvaluationEngine::s_defaultEvaluationFloatingValues({0.5, 
                                                                           0.0, /* NOISE_REF_POINT*/
                                                                           0.0, /* SLOPE_REF_POINT */
                                                                           0.0, /* FROM */
-                                                                          0.0, /* TO */
-                                                                          0.0, /*PEAK_FROM_X */
-                                                                          0.0, /* PEAK_FROM_Y */
-                                                                          0.0, /* PEAK_TO_X */
-                                                                          0.0, /* PEAK_TO_Y */
-                                                                          0.0, /* PEAK_X */
-                                                                          0.0, /* PEAK_HEIGHT */
-                                                                          0.0  /* PEAK_WIDTH */});
+                                                                          0.0  /* TO */
+                                                                          });
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>>
 EvaluationEngine::s_windowUnitsValues({ ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(tr("Minutes"), EvaluationParametersItems::ComboWindowUnits::MINUTES),
@@ -490,13 +478,6 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const
 
 void EvaluationEngine::displayAutomatedResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er)
 {
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = fr.peakFromX;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = fr.peakFromY;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = fr.peakToX;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = fr.peakToY;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_HEIGHT] = fr.peakHeight;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_X] = fr.peakX;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_WIDTH] = er.widthHalfLeft;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = fr.noise;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = fr.slopeWindow;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = fr.slopeThreshold;
@@ -581,11 +562,8 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   if (m_currentDataContext->data->data.length() == 0)
     return;
 
-  AssistedPeakFinder::Parameters fp = makeFinderParameters(!useCurrentPeak);
+  AssistedPeakFinder::Parameters fp = makeFinderParameters();
   fp.selPeakDialog = &dialog;
-
-  if (useCurrentPeak)
-    fp.inTPiCoarse = m_currentPeak.finderResults.tPiCoarse;
 
   connect(&dialog, &SelectPeakDialog::listClicked, this, &EvaluationEngine::onProvisionalPeakSelected);
   connect(&dialog, &SelectPeakDialog::closedSignal, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
@@ -640,20 +618,8 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
 
   /* Force assisted finder parameters implied by the manual lookup */
   disconnectPeakUpdate();
-  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
-  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
-  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
-  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
-  m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_X] = false;
 
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = fr.noiseRefPoint;
-
-  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X)),
-                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y)),
-                                         { Qt::DisplayRole });
-  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_X)),
-                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_X)),
-                                         { Qt::DisplayRole });
 
   emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
                                              m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
@@ -776,35 +742,16 @@ PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVecto
   p.tWPLeft = fr.twPLeft;
   p.tWPRight = fr.twPRight;
   p.voltage = m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE);
-  p.autoWidthHalfLeft = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_WIDTH);
-  p.widthHalfLeft = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_WIDTH);
 
   return p;
 }
 
-AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters(const bool autoPeakProps)
+AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
 {
   AssistedPeakFinder::Parameters p(m_currentDataContext->data->data);
 
   p.autoFrom = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::FROM);
   p.autoNoise = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::NOISE);
-  if (autoPeakProps) {
-    p.autoPeakFromX = true;
-    p.autoPeakFromY = true;
-    p.autoPeakToX = true;
-    p.autoPeakToY = true;
-    p.autoPeakX = true;
-    p.autoPeakHeight = true;
-    p.autoPeakWidth = true;
-  } else {
-    p.autoPeakFromX = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_FROM_X);
-    p.autoPeakFromY = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_FROM_Y);
-    p.autoPeakHeight = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_HEIGHT);
-    p.autoPeakToX = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_TO_X);
-    p.autoPeakToY = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_TO_Y);
-    p.autoPeakX = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_X);
-    p.autoPeakWidth = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::PEAK_WIDTH);
-  }
   p.autoSlopeRefPoint = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::SLOPE_REF_POINT);
   p.autoSlopeThreshold = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::SLOPE_THRESHOLD);
   p.autoSlopeWindow = m_evaluationAutoValues.at(EvaluationParametersItems::Auto::SLOPE_WINDOW);
@@ -817,13 +764,7 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters(const bool
   p.noiseCorrection = m_evaluationBooleanValues.at(EvaluationParametersItems::Boolean::NOISE_CORRECTION);
   p.noisePoint = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::NOISE_REF_POINT);
   p.noiseWindow = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::NOISE_WINDOW);
-  p.peakFromX = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_FROM_X);
-  p.peakFromY = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_FROM_Y);
-  p.peakHeight = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_HEIGHT);
-  p.peakToX = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_TO_X);
-  p.peakToY = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_TO_Y);
   p.peakWindow = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_WINDOW);
-  p.peakX = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::PEAK_X);
   p.showWindow = m_showWindow;
   p.slopeRefPoint = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_REF_POINT);
   p.slopeSensitivity = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_SENSITIVITY);
@@ -1267,11 +1208,9 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
   case EvaluationEngineMsgs::Default::FINDER_PARAMETERS:
     return setDefaultFinderParameters();
     break;
-  case EvaluationEngineMsgs::Default::PEAK_PROPERTIES:
-    return setDefaultPeakProperties();
-    break;
   }
 }
+
 
 void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
@@ -1375,56 +1314,40 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
 
   switch (action) {
   case PostProcessMenuActions::PEAK_FROM_THIS_X:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
     autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
     valueTo = valueFrom;
     break;
   case PostProcessMenuActions::PEAK_FROM_THIS_Y:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
     autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
     valueTo = valueFrom;
     break;
   case PostProcessMenuActions::PEAK_FROM_THIS_XY:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_X] = false;
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_FROM_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_X] = point.x();
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_FROM_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
-    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
-    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
+    autoTo = QModelIndex(); /* Disfunctional for the time being */
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
+    valueTo = QModelIndex(); /* Disfunctional for the time being */
     break;
   case PostProcessMenuActions::PEAK_TO_THIS_X:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
     autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
     valueTo = valueFrom;
     break;
   case PostProcessMenuActions::PEAK_TO_THIS_Y:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
     autoTo = autoFrom;
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
     valueTo = valueFrom;
     break;
   case PostProcessMenuActions::PEAK_TO_THIS_XY:
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_X] = false;
-    m_evaluationAutoValues[EvaluationParametersItems::Auto::PEAK_TO_Y] = false;
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_X] = point.x();
-    m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_TO_Y] = point.y();
-    autoFrom = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
-    autoTo = m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
-    valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
-    valueTo = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
+    autoFrom = QModelIndex(); /* Disfunctional for the time being */
+    autoTo = QModelIndex(); /* Disfunctional for the time being */
+    valueFrom = QModelIndex(); /* Disfunctional for the time being */
+    valueTo = QModelIndex(); /* Disfunctional for the time being */
     break;
   case PostProcessMenuActions::DO_HVL_FIT:
     onDoHvlFit(false);
@@ -1436,11 +1359,6 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     return;
     break;
   }
-
-  if (autoFrom.isValid())
-    emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
-  if (valueFrom.isValid())
-    emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
 }
 
 void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults &fr, const bool useCurrentPeak)
@@ -1451,9 +1369,6 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
   /* Prevent infinite signal-slot loop by disconnecting signals that
    * recalculate the peak every time the evaluation parameters change */
   disconnectPeakUpdate();
-
-  if (!useCurrentPeak)
-    setDefaultPeakProperties();
 
   displayAutomatedResults(fr, er);
   setEvaluationResults(fr, er);
@@ -1547,16 +1462,6 @@ void EvaluationEngine::setDefaultFinderParameters()
                                                                    EvaluationParametersItems::index(EvaluationParametersItems::ComboShowWindow::NONE)));
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                                    EvaluationParametersItems::index(EvaluationParametersItems::ComboWindowUnits::MINUTES)));
-}
-
-void EvaluationEngine::setDefaultPeakProperties()
-{
-  for (int idx = 0; idx < m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::SLOPE_WINDOW); idx++)
-    m_evaluationAutoValues.setItemAt(idx, s_defaultEvaluationAutoValues.at(idx));
-  m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, 0),
-                                    m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y)),
-                                    { Qt::EditRole });
-
 }
 
 bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)

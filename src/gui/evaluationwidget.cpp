@@ -19,7 +19,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   ui->setupUi(this);
 
   connect(ui->qpb_defaultFinderParameters, &QPushButton::clicked, this, &EvaluationWidget::onDefaultFinderParametersClicked);
-  connect(ui->qpb_defaultPeakProperties, &QPushButton::clicked, this, &EvaluationWidget::onDefaultPeakPropertiesClicked);
   connect(ui->qcbox_baselineAlgorithm, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onBaselineComboBoxChanged);
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
   connect(ui->qcbox_windowUnits, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onWindowUnitsComboBoxChanged);
@@ -68,11 +67,6 @@ void EvaluationWidget::onDefaultFinderParametersClicked()
   emit evaluationSetDefault(EvaluationEngineMsgs::Default::FINDER_PARAMETERS);
 }
 
-void EvaluationWidget::onDefaultPeakPropertiesClicked()
-{
-  emit evaluationSetDefault(EvaluationEngineMsgs::Default::PEAK_PROPERTIES);
-}
-
 void EvaluationWidget::onDoHvlFitClicked()
 {
   emit doHvlFit(false);
@@ -108,18 +102,6 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
     case EvaluationParametersItems::Auto::NOISE:
       ui->qle_noise->setReadOnly(value);
       break;
-    case EvaluationParametersItems::Auto::PEAK_FROM_X:
-      ui->qle_peakFromX->setReadOnly(value);
-      break;
-    case EvaluationParametersItems::Auto::PEAK_FROM_Y:
-      ui->qle_peakFromY->setReadOnly(value);
-      break;
-    case EvaluationParametersItems::Auto::PEAK_TO_X:
-      ui->qle_peakToX->setReadOnly(value);
-      break;
-    case EvaluationParametersItems::Auto::PEAK_TO_Y:
-      ui->qle_peakToY->setReadOnly(value);
-      break;
     case EvaluationParametersItems::Auto::SLOPE_REF_POINT:
       ui->qle_slopeRefPoint->setReadOnly(value);
       break;
@@ -128,15 +110,6 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
       break;
     case EvaluationParametersItems::Auto::SLOPE_WINDOW:
       ui->qle_slopeWindow->setReadOnly(value);
-      break;
-    case EvaluationParametersItems::Auto::PEAK_X:
-      ui->qle_peakX->setReadOnly(value);
-      break;
-    case EvaluationParametersItems::Auto::PEAK_HEIGHT:
-      ui->qle_peakHeight->setReadOnly(value);
-    break;
-    case EvaluationParametersItems::Auto::PEAK_WIDTH:
-      ui->qle_peakWidthHalf->setReadOnly(value);
       break;
     default:
       break;
@@ -173,26 +146,18 @@ void EvaluationWidget::onWindowUnitsComboBoxChanged(const int idx)
 void EvaluationWidget::setDefaultState()
 {
   emit evaluationSetDefault(EvaluationEngineMsgs::Default::FINDER_PARAMETERS);
-  emit evaluationSetDefault(EvaluationEngineMsgs::Default::PEAK_PROPERTIES);
 }
 
 void EvaluationWidget::setEvaluationParametersAutoModel(AbstractMapperModel<bool, EvaluationParametersItems::Auto> *model)
 {
   m_evaluationParametersAutoMapper->setModel(model);
 
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakFromX, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_X));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakFromY, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_FROM_Y));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeaktoX, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_X));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakToY, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_TO_Y));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoFrom, model->indexFromItem(EvaluationParametersItems::Auto::FROM));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoTo, model->indexFromItem(EvaluationParametersItems::Auto::TO));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoNoise, model->indexFromItem(EvaluationParametersItems::Auto::NOISE));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoSlopeRefPoint, model->indexFromItem(EvaluationParametersItems::Auto::SLOPE_REF_POINT));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoSlopeThreshold, model->indexFromItem(EvaluationParametersItems::Auto::SLOPE_THRESHOLD));
   m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoSlopeWindow, model->indexFromItem(EvaluationParametersItems::Auto::SLOPE_WINDOW));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakX, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_X));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakHeight, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_HEIGHT));
-  m_evaluationParametersAutoMapper->addMapping(ui->qcb_autoPeakWidthHalf, model->indexFromItem(EvaluationParametersItems::Auto::PEAK_WIDTH));
   m_evaluationParametersAutoMapper->toFirst();
 
   connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex,QVector<int>)), this, SLOT(onEvaluationAutoModelChanged(QModelIndex, QModelIndex, QVector<int>)));
@@ -263,13 +228,6 @@ void EvaluationWidget::setEvaluationParametersFloatingModel(AbstractMapperModel<
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_to, model->indexFromItem(EvaluationParametersItems::Floating::TO));
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_noiseRefPoint, model->indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_slopeRefPoint, model->indexFromItem(EvaluationParametersItems::Floating::SLOPE_REF_POINT));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakFromX, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_X));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakFromY, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_FROM_Y));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakToX, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_X));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakToY, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_TO_Y));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakX, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_X));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakHeight, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_HEIGHT));
-  m_evaluationParametersFloatingMapper->addMapping(ui->qle_peakWidthHalf, model->indexFromItem(EvaluationParametersItems::Floating::PEAK_WIDTH));
   m_evaluationParametersFloatingMapper->toFirst();
 }
 

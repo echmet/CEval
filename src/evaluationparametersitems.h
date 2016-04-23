@@ -10,19 +10,12 @@ public:
   EvaluationParametersItems(QObject *parent) = delete;
 
   enum class Auto : int {
-    PEAK_FROM_X,
-    PEAK_FROM_Y,
-    PEAK_TO_X,
-    PEAK_TO_Y,
     SLOPE_WINDOW,
     NOISE,
     SLOPE_REF_POINT,
     SLOPE_THRESHOLD,
     FROM,
     TO,
-    PEAK_X,
-    PEAK_HEIGHT,
-    PEAK_WIDTH,
     LAST_INDEX
   };
 
@@ -43,13 +36,6 @@ public:
     SLOPE_REF_POINT,
     FROM,
     TO,
-    PEAK_FROM_X,
-    PEAK_FROM_Y,
-    PEAK_TO_X,
-    PEAK_TO_Y,
-    PEAK_X,
-    PEAK_HEIGHT,
-    PEAK_WIDTH,
     LAST_INDEX
   };
 

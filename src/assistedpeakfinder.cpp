@@ -187,38 +187,14 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
 
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
-  if (p.autoPeakFromX) {
-    tA = tBEG;
-    tAi = tBEGi;
-  } else {
-    tA = p.peakFromX;
-    SEARCH_I(A)
+  tA = tBEG;
+  tAi = tBEGi;
 
-    if (!checkBounds(tAi, Data))
-      return PeakFinderResults();
-  }
+  tP = tA;
+  tPi = tAi;
 
-  if (p.autoPeakX) {
-    tP = tA;
-    tPi = tAi;
-  } else {
-    tP = p.peakX;
-    SEARCH_I(P)
-
-    if (!checkBounds(tPi, Data))
-      return PeakFinderResults();
-  }
-
-  if (p.autoPeakToX) {
-    tB = tEND;
-    tBi = tENDi - 1;
-  } else {
-    tB = p.peakToX;
-    SEARCH_I(B)
-
-    if (!checkBounds(tBi, Data))
-      return PeakFinderResults();
-  }
+  tB = tEND;
+  tBi = tENDi - 1;
 
   /* Initialize noise reference point */
   tnrp = p.noisePoint;
@@ -386,7 +362,7 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
   #undef _Y
 
   /* Time of peak */
-  if (p.autoPeakX) {
+  {
     TSearchHandler Handler(Data, tPi);
     TPeaksSearcher Searcher(&Handler, PeakWindow, Noise * p.noiseCoefficient);
     Searcher.Search();
@@ -450,7 +426,7 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
   /* * SlopeWindow (Peak top) , H, zpresneni TP* */
 
   /* * (SlopeWindow , HP, TP)::Hledani okna * */
-  if (p.autoSlopeWindow || p.autoPeakHeight || p.autoPeakX ||
+  if (p.autoSlopeWindow ||
       p.showWindow == EvaluationParametersItems::ComboShowWindow::PEAK_HEIGHT /* SystemWindows::PEAK_TOP */) {
     diR = tPi;
     diL = tPi;
@@ -519,19 +495,15 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
   }
 
   /* * (SlopeWindow || HP || TP)::HP * */
-  if (p.autoPeakHeight)
-    HP = SummValue / (diR - diL);
-  else
-    HP = p.peakHeight;
+  HP = SummValue / (diR - diL);
 
   /* * (SlopeWindow || HP || TP)::TP * */
-  if (p.autoPeakX) {
-    // Algoritmus > Vycentrovani tP vzhledem k nalezenemu oknu
-    tP = (Data[diL].x() + Data[diR-1].x()) / 2;
-    SEARCH_I(P);
+  // Algoritmus > Vycentrovani tP vzhledem k nalezenemu oknu
+  tP = (Data[diL].x() + Data[diR-1].x()) / 2;
+  SEARCH_I(P);
 
-    if (!checkBounds(tPi, Data))
-      return PeakFinderResults();
+  if (!checkBounds(tPi, Data))
+    return PeakFinderResults();
 
     #ifdef DISABLED
       // Algiritmus > smernice == 0
@@ -621,7 +593,6 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
     #undef Y
     tP = Data[tPi].x();
   #endif //DISABLED
-  } //(SlopeWindow || HP || TP)::TP:: else neni - uz vyse
 
   /* * (SlopeWindow || HP || TP)::SystemWindow * */
   if (p.showWindow == EvaluationParametersItems::ComboShowWindow::PEAK_HEIGHT /* LkP.Window == SystemWindows::PEAK_TOP */) {
@@ -639,236 +610,226 @@ PeakFinderResults AssistedPeakFinder::findInternal(const AbstractParameters &ap)
   //T2 se pocita v EvalChiru - zde ne, ale radsi to nemenim...
 
   /* * BSL A::tA * */
-  if (p.autoPeakFromX) {
-    if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
-      diL = tPi - NoiseWindow;
-      if (diL < tBEGi)
-        diL = tBEGi;
-
-      diR = diL + NoiseWindow;
-      if (diR > tENDi)
-        diR = tENDi;
-
-      while (
-        diL > tBEGi &&
-        Data[--diR].y() - Data[--diL].y() > Noise_2
-      );
-
-      tAi = (diR + diL)  / 2;
-    } else { //BSL A::tA::Algirithm == Noise
-      // toto usporadani plati pro budouci posun Window k NIZSIM hodnotam t
-      // Priorita zachovani sirky SlopeWindow
-      diL = tPi - (SlopeWindow / 2);
-      if (diL < tBEGi)
-        diL = tBEGi;
-
-      diR = diL + SlopeWindow;
-      if (diR > tENDi) {
-        diR = tENDi;
-        diL = diR - SlopeWindow;
-        if (diL < tBEGi)
-          diL = tBEGi;
-      }
-
-      #define SLOPE tA
-      #define OLD SummValue
-      EState State = stTop;
-
-      #define _X MaxValue
-      #define _Y MinValue
-      SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-      for (long i = diL; i < diR; ++i) {
-        _X = Data[i].x();
-        _Y = Data[i].y();
-        SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
-      }
-
-      if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
-        SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
-      else
-        SLOPE = 0.0;
-
-      while (diL > tBEGi && State != stBottom) {
-        --diL;
-        --diR;
-        _X = Data[diR].x();
-        _Y = Data[diR].y();
-        SummX -= _X;
-        SummXX -= _X*_X;
-        SummY -= _Y;
-        SummXY -= _X*_Y;
-        OLD = SLOPE;
-
-        _X = Data[diL].x();
-        _Y = Data[diL].y();
-        SummX += _X;
-        SummXX += _X*_X;
-        SummY += _Y;
-        SummXY += _X*_Y;
-        if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
-          SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
-        else SLOPE = 0.0;
-
-        if ((State == stTop && SLOPE > OLD && 2*(SLOPE - OLD) / (SLOPE + OLD) >= SlopeSensitivity) ||
-            (State == stBeforeInflex && SLOPE < OLD && 2*(OLD - SLOPE) / (SLOPE + OLD) >= SlopeSensitivity) ||
-            (State == stAfterInflex && (SLOPE <= SlopeThreshold ||
-                                        SLOPE < 0 ||
-                                        2*fabs(SLOPE - OLD) / (SLOPE + OLD) < SlopeSensitivity)))
-          State = static_cast<EState>(static_cast<std::underlying_type<EState>::type>(State) + 1);
-
-      } //BSL::tA::Algirithm == Slope::while State != stBottom
-      #undef SLOPE
-      #undef OLD
-
-      tAi = diR - SlopeWindow / 2;
-      if (tAi < tBEGi)
-        tAi = tBEGi;
-    } //else BSL:tA::Algirithm == Noise
-
-    tA = Data[tAi].x();
-  } //BSL::tA::ReadOnly
-  // else bylo v Inicializaci
-
-  /* * BSL A::HA  * */
-  if (p.autoPeakFromY) {
-    if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
-      diL = tAi - NoiseWindow / 2;
-      diR  = diL + NoiseWindow;
-    } else {
-      diL = tAi - SlopeWindow / 2;
-      diR  = diL + SlopeWindow;
-    }
+  if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
+    diL = tPi - NoiseWindow;
     if (diL < tBEGi)
       diL = tBEGi;
 
+    diR = diL + NoiseWindow;
     if (diR > tENDi)
       diR = tENDi;
 
-    HA = Data[diL].y();
-    for (long i = diL+1; i < diR; ++i)
-      HA += Data[i].y();
+    while (
+      diL > tBEGi &&
+      Data[--diR].y() - Data[--diL].y() > Noise_2
+    );
 
-    if (diR != diL)
-      HA /= (diR - diL);
-  } else
-    HA = p.peakFromY;
+    tAi = (diR + diL)  / 2;
+  } else { //BSL A::tA::Algirithm == Noise
+    // toto usporadani plati pro budouci posun Window k NIZSIM hodnotam t
+    // Priorita zachovani sirky SlopeWindow
+    diL = tPi - (SlopeWindow / 2);
+    if (diL < tBEGi)
+      diL = tBEGi;
+
+    diR = diL + SlopeWindow;
+    if (diR > tENDi) {
+      diR = tENDi;
+      diL = diR - SlopeWindow;
+      if (diL < tBEGi)
+        diL = tBEGi;
+    }
+
+    #define SLOPE tA
+    #define OLD SummValue
+    EState State = stTop;
+
+    #define _X MaxValue
+    #define _Y MinValue
+    SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
+    for (long i = diL; i < diR; ++i) {
+      _X = Data[i].x();
+      _Y = Data[i].y();
+      SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
+    }
+
+    if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
+      SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
+    else
+      SLOPE = 0.0;
+
+    while (diL > tBEGi && State != stBottom) {
+      --diL;
+      --diR;
+      _X = Data[diR].x();
+      _Y = Data[diR].y();
+      SummX -= _X;
+      SummXX -= _X*_X;
+      SummY -= _Y;
+      SummXY -= _X*_Y;
+      OLD = SLOPE;
+
+      _X = Data[diL].x();
+      _Y = Data[diL].y();
+      SummX += _X;
+      SummXX += _X*_X;
+      SummY += _Y;
+      SummXY += _X*_Y;
+      if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
+        SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
+      else SLOPE = 0.0;
+
+      if ((State == stTop && SLOPE > OLD && 2*(SLOPE - OLD) / (SLOPE + OLD) >= SlopeSensitivity) ||
+          (State == stBeforeInflex && SLOPE < OLD && 2*(OLD - SLOPE) / (SLOPE + OLD) >= SlopeSensitivity) ||
+          (State == stAfterInflex && (SLOPE <= SlopeThreshold ||
+                                      SLOPE < 0 ||
+                                      2*fabs(SLOPE - OLD) / (SLOPE + OLD) < SlopeSensitivity)))
+        State = static_cast<EState>(static_cast<std::underlying_type<EState>::type>(State) + 1);
+
+    } //BSL::tA::Algirithm == Slope::while State != stBottom
+    #undef SLOPE
+    #undef OLD
+
+    tAi = diR - SlopeWindow / 2;
+    if (tAi < tBEGi)
+      tAi = tBEGi;
+  } //else BSL:tA::Algirithm == Noise
+
+  tA = Data[tAi].x();
+
+  /* * BSL A::HA  * */
+  if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
+    diL = tAi - NoiseWindow / 2;
+    diR  = diL + NoiseWindow;
+  } else {
+    diL = tAi - SlopeWindow / 2;
+    diR  = diL + SlopeWindow;
+  }
+  if (diL < tBEGi)
+    diL = tBEGi;
+
+  if (diR > tENDi)
+    diR = tENDi;
+
+  HA = Data[diL].y();
+  for (long i = diL+1; i < diR; ++i)
+    HA += Data[i].y();
+
+  if (diR != diL)
+    HA /= (diR - diL);
 
   /* * BSL B * */
   //BSL B musi byt zde, pro BSL B se muze pocitat nove SlopeWindow pro T2
   //T2 se pocita v EvalChiru - zde ne, ale radsi to nemenim...
 
   /* * BSL B::tB * */
-  if (p.autoPeakToX) {
-    if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
-      diR = tPi + NoiseWindow; if (diR > tENDi) diR = tENDi;
-      diL = diR - NoiseWindow; if (diL < tBEGi) diL = tBEGi;
-      while ( diR < tENDi &&
-              (Data[diL++].y() - Data[diR++].y()) > Noise_2
-             );
+  if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
+    diR = tPi + NoiseWindow; if (diR > tENDi) diR = tENDi;
+    diL = diR - NoiseWindow; if (diL < tBEGi) diL = tBEGi;
+    while ( diR < tENDi &&
+            (Data[diL++].y() - Data[diR++].y()) > Noise_2
+           );
 
-     tBi = (diR + diL)  / 2;
-    } else { //BSL B::tB::Algirithm == Noise
-      // toto usporadani plati pro budouci posun Window k VYSSIM hodnotam t
-      // Priorita zachovani sirky SlopeWindow
-      const long CC = tENDi - 1;
-      diR = tPi + (SlopeWindow / 2);
+   tBi = (diR + diL)  / 2;
+  } else { //BSL B::tB::Algirithm == Noise
+    // toto usporadani plati pro budouci posun Window k VYSSIM hodnotam t
+    // Priorita zachovani sirky SlopeWindow
+    const long CC = tENDi - 1;
+    diR = tPi + (SlopeWindow / 2);
+    if (diR > CC)
+      diR = CC;
+
+    diL = diR - SlopeWindow;
+    if (diL < -1) {
+      diL = -1;
+      diR = diL + SlopeWindow;
       if (diR > CC)
         diR = CC;
+    }
 
-      diL = diR - SlopeWindow;
-      if (diL < -1) {
-        diL = -1;
-        diR = diL + SlopeWindow;
-        if (diR > CC)
-          diR = CC;
-      }
+    #define SLOPE tB
+    #define OLD SummValue
 
-      #define SLOPE tB
-      #define OLD SummValue
+    EState State = stTop;
 
-      EState State = stTop;
+    #define _X MaxValue
+    #define _Y MinValue
+    SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
+    for (long i = diR; i > diL; --i) {
+      _X = Data[i].x();
+      _Y = Data[i].y();
+      SummX += _X;
+      SummXX += _X*_X;
+      SummY += _Y;
+      SummXY += _X*_Y;
+    }
 
-      #define _X MaxValue
-      #define _Y MinValue
-      SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-      for (long i = diR; i > diL; --i) {
-        _X = Data[i].x();
-        _Y = Data[i].y();
-        SummX += _X;
-        SummXX += _X*_X;
-        SummY += _Y;
-        SummXY += _X*_Y;
-      }
+    if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
+      SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
+    else
+      SLOPE = 0.0;
 
-      if ((SLOPE = ((diR-diL) * SummXX - SummX * SummX)))
-        SLOPE = ((diR-diL) * SummXY - SummX * SummY) / SLOPE;
-      else
-        SLOPE = 0.0;
+    while (diR < CC &&  State != stBottom) {
+      ++diR;
+      ++diL;
+      _X = Data[diL].x();
+      _Y = Data[diL].y();
+      SummX -= _X;
+      SummXX -= _X*_X;
+      SummY -= _Y;
+      SummXY -= _X*_Y;
+      OLD = SLOPE;
 
-      while (diR < CC &&  State != stBottom) {
-        ++diR;
-        ++diL;
-        _X = Data[diL].x();
-        _Y = Data[diL].y();
-        SummX -= _X;
-        SummXX -= _X*_X;
-        SummY -= _Y;
-        SummXY -= _X*_Y;
-        OLD = SLOPE;
+      _X = Data[diR].x();
+      _Y = Data[diR].y();
+      SummX += _X;
+      SummXX += _X*_X;
+      SummY += _Y;
+      SummXY += _X*_Y;
 
-        _X = Data[diR].x();
-        _Y = Data[diR].y();
-        SummX += _X;
-        SummXX += _X*_X;
-        SummY += _Y;
-        SummXY += _X*_Y;
+      if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
+        SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
+      else SLOPE = 0.0;
 
-        if ((SLOPE = (SlopeWindow * SummXX - SummX * SummX)))
-          SLOPE = (SlopeWindow * SummXY - SummX * SummY) / SLOPE;
-        else SLOPE = 0.0;
+      if ((State == stTop && SLOPE < OLD && 2*(OLD - SLOPE) / (SLOPE + OLD) >= SlopeSensitivity) ||
+          (State == stBeforeInflex && SLOPE > OLD && 2*(SLOPE - OLD) / (SLOPE + OLD) >= SlopeSensitivity) ||
+          (State == stAfterInflex && (SLOPE >= SlopeThreshold || SLOPE > 0 || 2*fabs(SLOPE - OLD) / (SLOPE + OLD) < SlopeSensitivity)))
+        State = static_cast<EState>(static_cast<std::underlying_type<EState>::type>(State) + 1);
 
-        if ((State == stTop && SLOPE < OLD && 2*(OLD - SLOPE) / (SLOPE + OLD) >= SlopeSensitivity) ||
-            (State == stBeforeInflex && SLOPE > OLD && 2*(SLOPE - OLD) / (SLOPE + OLD) >= SlopeSensitivity) ||
-            (State == stAfterInflex && (SLOPE >= SlopeThreshold || SLOPE > 0 || 2*fabs(SLOPE - OLD) / (SLOPE + OLD) < SlopeSensitivity)))
-          State = static_cast<EState>(static_cast<std::underlying_type<EState>::type>(State) + 1);
+    } //BSL::tB::Algirithm == Slope::while State != stBottom
+    #undef SLOPE
+    #undef OLD
 
-      } //BSL::tB::Algirithm == Slope::while State != stBottom
-      #undef SLOPE
-      #undef OLD
+    tBi = diL + SlopeWindow / 2;
+    if (tBi >= tENDi)
+      tBi = tENDi - 1;
 
-      tBi = diL + SlopeWindow / 2;
-      if (tBi >= tENDi)
-        tBi = tENDi - 1;
-
-    } //else BSL:tB::Algirithm == Noise
+  } //else BSL:tB::Algirithm == Noise
 
     tB = Data[tBi].x();
-  } //BSL::tB::ReadOnly
+  //BSL::tB::ReadOnly
   // else bylo v Inicializaci
 
   /* * BSL B::HB  * */
-  if (p.autoPeakToY) {
-    if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
+  if (p.baselineAlgorithm == EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) {
       diL = tBi - NoiseWindow / 2;
       diR  = diL + NoiseWindow;
-    } else {
-      diL = tBi - SlopeWindow / 2;
-      diR  = diL + SlopeWindow;
-    }
-    if (diL < tBEGi)
-      diL = tBEGi;
+  } else {
+    diL = tBi - SlopeWindow / 2;
+    diR  = diL + SlopeWindow;
+  }
+  if (diL < tBEGi)
+    diL = tBEGi;
 
-    if (diR > tENDi)
-      diR = tENDi;
+  if (diR > tENDi)
+    diR = tENDi;
 
-    HB = Data[diL].y();
-    for (long i = diL+1; i < diR; ++i)
-      HB += Data[i].y();
+  HB = Data[diL].y();
+  for (long i = diL+1; i < diR; ++i)
+    HB += Data[i].y();
 
-    if (diR != diL)
-      HB /= (diR - diL);
-  } else
-    HB = p.peakToY;
+  if (diR != diL)
+    HB /= (diR - diL);
 
   /* * Kresleni SystemWindow : Peak(s) * */
   //az ted, times mohly byt jeste zpresneny pri vypoctu H

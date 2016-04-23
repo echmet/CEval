@@ -19,13 +19,6 @@ public:
     /* Autos */
     bool autoFrom;
     bool autoNoise;
-    bool autoPeakFromX;
-    bool autoPeakFromY;
-    bool autoPeakHeight;
-    bool autoPeakX;
-    bool autoPeakToX;
-    bool autoPeakToY;
-    bool autoPeakWidth;
     bool autoSlopeRefPoint;
     bool autoSlopeThreshold;
     bool autoSlopeWindow;
@@ -40,12 +33,6 @@ public:
     double noiseCoefficient;
     double noisePoint;
     double noiseWindow;
-    double peakFromX;
-    double peakFromY;
-    double peakHeight;
-    double peakX;
-    double peakToX;
-    double peakToY;
     double peakWindow;
     double slopeRefPoint;
     double slopeSensitivity;

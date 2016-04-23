@@ -16,7 +16,6 @@ public:
   Q_ENUM(ComboBox)
 
   enum class Default {
-    PEAK_PROPERTIES,
     FINDER_PARAMETERS
   };
   Q_ENUM(EvaluationEngineMsgs::Default)

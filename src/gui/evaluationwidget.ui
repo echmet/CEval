@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1017</width>
-            <height>636</height>
+            <width>1037</width>
+            <height>537</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -96,276 +96,6 @@
            </size>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_5">
-           <item>
-            <widget class="QGroupBox" name="qgb_peakProperties">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="title">
-              <string>Peak properties</string>
-             </property>
-             <layout class="QVBoxLayout" name="verticalLayout_6">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_5">
-                <property name="spacing">
-                 <number>6</number>
-                </property>
-                <item>
-                 <spacer name="horizontalSpacer_2">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeType">
-                   <enum>QSizePolicy::Expanding</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>20</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                 </spacer>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="qpb_defaultPeakProperties">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="text">
-                   <string>Set to default</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_2">
-                <item>
-                 <layout class="QGridLayout" name="gridLayout">
-                  <item row="2" column="5">
-                   <widget class="FloatingValueLineEdit" name="qle_peakHeight"/>
-                  </item>
-                  <item row="0" column="2">
-                   <widget class="QMappedCheckBox" name="qcb_autoPeakFromX">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="2">
-                   <widget class="QMappedCheckBox" name="qcb_autoPeaktoX">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="6">
-                   <widget class="QCheckBox" name="qcb_autoPeakHeight">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="4">
-                   <widget class="QLabel" name="ql_peakFromY">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Peak from Y</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="4">
-                   <widget class="QLabel" name="ql_peakToY">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Peak to Y</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="3">
-                   <spacer name="horizontalSpacer">
-                    <property name="orientation">
-                     <enum>Qt::Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                     <enum>QSizePolicy::Expanding</enum>
-                    </property>
-                    <property name="sizeHint" stdset="0">
-                     <size>
-                      <width>20</width>
-                      <height>20</height>
-                     </size>
-                    </property>
-                   </spacer>
-                  </item>
-                  <item row="1" column="1">
-                   <widget class="FloatingValueLineEdit" name="qle_peakToX">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="0">
-                   <widget class="QLabel" name="ql_peakToX">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Peak to X</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="6">
-                   <widget class="QMappedCheckBox" name="qcb_autoPeakToY">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="5">
-                   <widget class="FloatingValueLineEdit" name="qle_peakFromY">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="FloatingValueLineEdit" name="qle_peakFromX">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="1" column="5">
-                   <widget class="FloatingValueLineEdit" name="qle_peakToY">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="minimumSize">
-                     <size>
-                      <width>100</width>
-                      <height>0</height>
-                     </size>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="2">
-                   <widget class="QCheckBox" name="qcb_autoPeakX">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="4">
-                   <widget class="QLabel" name="ql_peakHeight">
-                    <property name="text">
-                     <string>Peak height</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="0">
-                   <widget class="QLabel" name="ql_peakX">
-                    <property name="text">
-                     <string>Peak max at X</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="6">
-                   <widget class="QMappedCheckBox" name="qcb_autoPeakFromY">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="ql_peakFromX">
-                    <property name="sizePolicy">
-                     <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                     </sizepolicy>
-                    </property>
-                    <property name="text">
-                     <string>Peak from X</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="2" column="1">
-                   <widget class="FloatingValueLineEdit" name="qle_peakX"/>
-                  </item>
-                  <item row="3" column="0">
-                   <widget class="QLabel" name="ql_peakWidthHalf">
-                    <property name="text">
-                     <string>Width 1/2 left (min)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="3" column="1">
-                   <widget class="FloatingValueLineEdit" name="qle_peakWidthHalf"/>
-                  </item>
-                  <item row="3" column="2">
-                   <widget class="QCheckBox" name="qcb_autoPeakWidthHalf">
-                    <property name="text">
-                     <string>Auto</string>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </widget>
-           </item>
            <item>
             <widget class="QGroupBox" name="qgb_finderParameters">
              <property name="sizePolicy">
@@ -718,6 +448,19 @@
                  </widget>
                 </item>
                </layout>
+              </item>
+              <item>
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
               </item>
              </layout>
             </widget>
@@ -1725,21 +1468,6 @@ padding-right: 3em;</string>
  </customwidgets>
  <tabstops>
   <tabstop>scrollArea</tabstop>
-  <tabstop>qpb_defaultPeakProperties</tabstop>
-  <tabstop>qle_peakFromX</tabstop>
-  <tabstop>qcb_autoPeakFromX</tabstop>
-  <tabstop>qle_peakToX</tabstop>
-  <tabstop>qcb_autoPeaktoX</tabstop>
-  <tabstop>qle_peakX</tabstop>
-  <tabstop>qcb_autoPeakX</tabstop>
-  <tabstop>qle_peakWidthHalf</tabstop>
-  <tabstop>qcb_autoPeakWidthHalf</tabstop>
-  <tabstop>qle_peakFromY</tabstop>
-  <tabstop>qcb_autoPeakFromY</tabstop>
-  <tabstop>qle_peakToY</tabstop>
-  <tabstop>qcb_autoPeakToY</tabstop>
-  <tabstop>qle_peakHeight</tabstop>
-  <tabstop>qcb_autoPeakHeight</tabstop>
   <tabstop>qpb_defaultFinderParameters</tabstop>
   <tabstop>qcbox_windowUnits</tabstop>
   <tabstop>qle_noiseWindow</tabstop>

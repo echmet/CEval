@@ -67,7 +67,6 @@ private slots:
   void onWindowUnitsComboBoxChanged(int idx);
   void onEvaluationAutoModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onDefaultFinderParametersClicked();
-  void onDefaultPeakPropertiesClicked();
 };
 
 #endif // EVALUATIONWIDGET_H

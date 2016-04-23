@@ -167,7 +167,7 @@ private:
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults &fr);
-  AssistedPeakFinder::Parameters makeFinderParameters(const bool autoPeakProps);
+  AssistedPeakFinder::Parameters makeFinderParameters();
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const PeakFinderResults &fr);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
@@ -175,7 +175,6 @@ private:
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
-  void setDefaultPeakProperties();
   bool setEvaluationContext(const EvaluationContext &ctx);
   void setEvaluationResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er);
   bool setPeakContext(const PeakContext &ctx);
