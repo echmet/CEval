@@ -41,12 +41,9 @@ public:
   Q_ENUM(ManualIntegrationMenuActions)
 
   enum class PostProcessMenuActions {
-    PEAK_FROM_THIS_X,
-    PEAK_FROM_THIS_Y,
-    PEAK_FROM_THIS_XY,
-    PEAK_TO_THIS_X,
-    PEAK_TO_THIS_Y,
-    PEAK_TO_THIS_XY,
+    MOVE_PEAK_FROM,
+    MOVE_PEAK_TO,
+    DESELECT_PEAK,
     DO_HVL_FIT,
     SET_AXIS_TITLES
   };
@@ -165,7 +162,7 @@ private:
   PeakContext duplicatePeakContext() const throw(std::bad_alloc);
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
-  void findPeak(bool useCurrentPeak);
+  void findPeakAssisted();
   void findPeakManually(const QPointF &from, const QPointF &to);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
@@ -181,7 +178,7 @@ private:
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults *fr, const bool useCurrentPeak = false);
+  void processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults *fr, const bool updateCurrentPeak = false);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();

@@ -418,30 +418,18 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Peak from this X"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_X));
+  a = new QAction(tr("Move peak start here"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Peak from this Y"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_Y));
-  m_postProcessMenu->addAction(a);
-
-  a = new QAction(tr("Peak from this X,Y"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_FROM_THIS_XY));
+  a = new QAction(tr("Move peak end here"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_TO));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Peak to this X"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_X));
-  m_postProcessMenu->addAction(a);
-
-  a = new QAction(tr("Peak to this Y"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_Y));
-  m_postProcessMenu->addAction(a);
-
-  a = new QAction(tr("Peak to this X,Y"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::PEAK_TO_THIS_XY));
+  a = new QAction(tr("Deselect peak"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::DESELECT_PEAK));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
@@ -591,7 +579,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
   }
 }
 
-void EvaluationEngine::findPeak(const bool useCurrentPeak)
+void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
   AssistedPeakFinder::AssistedPeakFinderResults *fr;
@@ -628,7 +616,7 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   displayAutomatedResults(fr);
   connectPeakUpdate();
 
-  processFoundPeak(m_currentDataContext->data->data, fr, useCurrentPeak);
+  processFoundPeak(m_currentDataContext->data->data, fr, false);
 
   delete fr;
 }
@@ -645,7 +633,6 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
 
   if (m_currentDataContext->data->data.length() == 0)
     return;
-
 
   ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
   p.fromX = from.x();
@@ -666,7 +653,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
     return;
   }
 
-  processFoundPeak(m_currentDataContext->data->data, fr, true);
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false));
 
   delete fr;
 }
@@ -1075,7 +1062,7 @@ void EvaluationEngine::onEvaluationFileSwitched(const int idx)
 
 void EvaluationEngine::onFindPeaks()
 {
-  findPeak(false);
+  findPeakAssisted();
 }
 
 void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)
@@ -1268,7 +1255,8 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  findPeak(true);
+  findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY),
+                   QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY));
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults *fr,
@@ -1365,41 +1353,14 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   QModelIndex valueTo;
 
   switch (action) {
-  case PostProcessMenuActions::PEAK_FROM_THIS_X:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = autoFrom;
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = valueFrom;
+  case PostProcessMenuActions::MOVE_PEAK_FROM:
+    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY));
     break;
-  case PostProcessMenuActions::PEAK_FROM_THIS_Y:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = autoFrom;
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = valueFrom;
-    break;
-  case PostProcessMenuActions::PEAK_FROM_THIS_XY:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = QModelIndex(); /* Disfunctional for the time being */
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = QModelIndex(); /* Disfunctional for the time being */
-    break;
-  case PostProcessMenuActions::PEAK_TO_THIS_X:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = autoFrom;
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = valueFrom;
-    break;
-  case PostProcessMenuActions::PEAK_TO_THIS_Y:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = autoFrom;
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = valueFrom;
-    break;
-  case PostProcessMenuActions::PEAK_TO_THIS_XY:
-    autoFrom = QModelIndex(); /* Disfunctional for the time being */
-    autoTo = QModelIndex(); /* Disfunctional for the time being */
-    valueFrom = QModelIndex(); /* Disfunctional for the time being */
-    valueTo = QModelIndex(); /* Disfunctional for the time being */
+  case PostProcessMenuActions::MOVE_PEAK_TO:
+    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point);
+  break;
+  case PostProcessMenuActions::DESELECT_PEAK:
+    onCancelEvaluatedPeakSelection();
     break;
   case PostProcessMenuActions::DO_HVL_FIT:
     onDoHvlFit(false);
@@ -1413,7 +1374,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults *fr, const bool useCurrentPeak)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults *fr, const bool updateCurrentPeak)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -1435,7 +1396,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakIndex, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight);
 
-  if (m_currentPeakIdx > 0 && useCurrentPeak) {
+  if (m_currentPeakIdx > 0 && updateCurrentPeak) {
     m_allPeaks[m_currentPeakIdx] = m_currentPeak;
     m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }
