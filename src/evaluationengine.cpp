@@ -317,6 +317,7 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   m_findPeakMenu->addAction(a);
 
   /* Create Manual integration menu */
+
   a = new QAction(tr("Peak to here"), m_manualIntegrationMenu);
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH));
   m_manualIntegrationMenu->addAction(a);
@@ -332,12 +333,6 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   m_manualIntegrationMenu->addAction(a);
 
   /* Create Post process menu */
-
-  a = new QAction(tr("Do HVL fit"), m_postProcessMenu);
-  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::DO_HVL_FIT));
-  m_postProcessMenu->addAction(a);
-
-  m_postProcessMenu->addSeparator();
 
   a = new QAction(tr("Move peak start here"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
@@ -1361,9 +1356,6 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     break;
   case PostProcessMenuActions::DESELECT_PEAK:
     onCancelEvaluatedPeakSelection();
-    break;
-  case PostProcessMenuActions::DO_HVL_FIT:
-    onDoHvlFit(false);
     break;
   case PostProcessMenuActions::SET_AXIS_TITLES:
     showSetAxisTitlesDialog();

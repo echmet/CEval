@@ -48,7 +48,6 @@ public:
     MOVE_PEAK_TO,
     MOVE_PEAK_TO_SIGSNAP,
     DESELECT_PEAK,
-    DO_HVL_FIT,
     SET_AXIS_TITLES
   };
   Q_ENUM(PostProcessMenuActions)
