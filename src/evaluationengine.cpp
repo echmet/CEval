@@ -1388,6 +1388,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
   }
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
+  onDoHvlFit(false);
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakIndex, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight);
