@@ -16,7 +16,7 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
 
   /* Convert time values to indices */
   {
-    long ctr = 0;
+    int ctr = 0;
     while (ctr < p.data.length()) {
       const double vx = p.data.at(ctr).x();
 

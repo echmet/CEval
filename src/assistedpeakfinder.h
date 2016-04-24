@@ -74,20 +74,20 @@ protected:
 private:
   enum EState {stTop = 0, stBeforeInflex = 1, stAfterInflex = 2, stBottom = 3};
 
-  static bool checkBounds(const unsigned long i, const QVector<QPointF> &data);
+  static bool checkBounds(const int i, const QVector<QPointF> &data);
 
   class TSearchHandler : public TExtremeSearcher::TDataHandler {
   public:
     QVector<QPointF> m_Data;
-    long m_Begin;
-    long m_End;
+    int m_Begin;
+    int m_End;
 
-    TSearchHandler(const QVector<QPointF> &Data, long Begin = 0, long End = -1);
+    TSearchHandler(const QVector<QPointF> &Data, int Begin = 0, int End = -1);
     TSearchHandler(TSearchHandler &T);
 
-    virtual double GetX(long I);
-    virtual double GetY(long I);
-    virtual long Count();
+    virtual double GetX(int I);
+    virtual double GetY(int I);
+    virtual int Count();
   };
 
   class TPeaksSearcher : public TExtremeSearcher {
@@ -95,13 +95,13 @@ private:
     typedef std::vector<long> container_type;
     container_type Extremes;
 
-    TPeaksSearcher(TSearchHandler *S, long ChainPoints, double Noise, bool LeftBoundary = false, bool RightBoundary = false);
+    TPeaksSearcher(TSearchHandler *S, int ChainPoints, double Noise, bool LeftBoundary = false, bool RightBoundary = false);
     TPeaksSearcher(TPeaksSearcher &T);
     virtual void Search();
 
   protected:
-    virtual void OnMaximum(double Value, long Index);
-    virtual void OnMinimum(double Value, long Index);
+    virtual void OnMaximum(double Value, int Index);
+    virtual void OnMinimum(double Value, int Index);
   };
 
 };

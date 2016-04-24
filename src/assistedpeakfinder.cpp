@@ -8,7 +8,7 @@
   if (t##PARAM##i < 0) t##PARAM##i = 0;\
   if (t##PARAM##i >= C) t##PARAM##i = C - 1;\
   if (Data.at(t##PARAM##i).x() < t##PARAM)\
-    for (long CC = C-1;t##A##i < CC && Data.at(t##PARAM##i).x() < t##PARAM; ++t##PARAM##i);\
+    for (int CC = C-1;t##A##i < CC && Data.at(t##PARAM##i).x() < t##PARAM; ++t##PARAM##i);\
  else\
     while (t##PARAM##i > 0 && Data.at(t##PARAM##i).x() >= t##PARAM) --t##PARAM##i;\
 }
@@ -72,7 +72,7 @@ AssistedPeakFinder::AssistedPeakFinderResults *AssistedPeakFinder::AssistedPeakF
   return new AssistedPeakFinderResults(*this);
 }
 
-AssistedPeakFinder::TSearchHandler::TSearchHandler(const QVector<QPointF> &Data, long Begin, long End) :
+AssistedPeakFinder::TSearchHandler::TSearchHandler(const QVector<QPointF> &Data, int Begin, int End) :
   m_Data(Data), m_Begin(Begin), m_End(End)
 {
 }
@@ -82,26 +82,26 @@ AssistedPeakFinder::TSearchHandler::TSearchHandler(TSearchHandler &T) :
 {
 }
 
-double AssistedPeakFinder::TSearchHandler::GetX(long I)
+double AssistedPeakFinder::TSearchHandler::GetX(int I)
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].x();
 }
 
-double AssistedPeakFinder::TSearchHandler::GetY(long I)
+double AssistedPeakFinder::TSearchHandler::GetY(int I)
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].y();
 }
 
-long AssistedPeakFinder::TSearchHandler::Count()
+int AssistedPeakFinder::TSearchHandler::Count()
 {
   return (m_End == -1 ? m_Data.size() : m_End) - m_Begin;
 }
 
-AssistedPeakFinder::TPeaksSearcher::TPeaksSearcher(TSearchHandler *S, long ChainPoints, double Noise, bool LeftBoundary, bool RightBoundary) :
+AssistedPeakFinder::TPeaksSearcher::TPeaksSearcher(TSearchHandler *S, int ChainPoints, double Noise, bool LeftBoundary, bool RightBoundary) :
   TExtremeSearcher(S, ChainPoints, Noise, LeftBoundary, RightBoundary)
 {
 }
@@ -117,7 +117,7 @@ void AssistedPeakFinder::TPeaksSearcher::Search()
   TExtremeSearcher::Search();
 }
 
-void AssistedPeakFinder::TPeaksSearcher::OnMaximum(double Value, long Index)
+void AssistedPeakFinder::TPeaksSearcher::OnMaximum(double Value, int Index)
 {
   Q_UNUSED(Value);
 
@@ -127,7 +127,7 @@ void AssistedPeakFinder::TPeaksSearcher::OnMaximum(double Value, long Index)
   Extremes.push_back(Index + h->m_Begin);
 }
 
-void AssistedPeakFinder::TPeaksSearcher::OnMinimum(double Value, long Index)
+void AssistedPeakFinder::TPeaksSearcher::OnMinimum(double Value, int Index)
 {
   Q_UNUSED(Value);
 
@@ -137,9 +137,9 @@ void AssistedPeakFinder::TPeaksSearcher::OnMinimum(double Value, long Index)
   Extremes.push_back(Index + h->m_Begin);
 }
 
-bool AssistedPeakFinder::checkBounds(const unsigned long i, const QVector<QPointF> &data)
+bool AssistedPeakFinder::checkBounds(const int i, const QVector<QPointF> &data)
 {
-  if (i >= static_cast<unsigned long>(data.length())) {
+  if (i >= data.length()) {
     QMessageBox::critical(nullptr, QObject::tr("Logic error"), QString(QObject::tr("Data index out of bounds, idx = %1, data length = %2\n"
                                                                                    "Check evaluation parameters.")).arg(i).arg(data.length()));
     return false;
