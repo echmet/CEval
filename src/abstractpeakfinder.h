@@ -38,7 +38,7 @@ public:
     AbstractParameters() {}
   };
 
-  static PeakFinderResults *find(const AbstractParameters &p) throw(std::bad_alloc)
+  static std::shared_ptr<PeakFinderResults> find(const AbstractParameters &p) throw(std::bad_alloc)
   {
     if (s_me == nullptr)
       initialize();
@@ -46,13 +46,13 @@ public:
     try {
       return s_me->findInternal(p);
     } catch (std::bad_cast) {
-      return new PeakFinderResults();
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
     }
   }
 
 
 protected:
-  virtual PeakFinderResults *findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc) = 0;
+  virtual std::shared_ptr<PeakFinderResults> findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc) = 0;
 
   static AbstractPeakFinder<Derived> *s_me;
 

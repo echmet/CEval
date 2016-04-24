@@ -5,14 +5,14 @@ ManualPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
 {
 }
 
-PeakFinderResults *ManualPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
+std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   int fromIndex;
   int toIndex;
-  PeakFinderResults *r;
+  std::shared_ptr<PeakFinderResults> r;
 
-  r = new PeakFinderResults();
+  r = std::make_shared<PeakFinderResults>();
 
   /* Convert time values to indices */
   {

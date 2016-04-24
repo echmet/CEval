@@ -69,7 +69,7 @@ public:
   };
 
 protected:
-  virtual AssistedPeakFinderResults *findInternal(const AbstractParameters &ap) throw(std::bad_cast, std::bad_alloc) override;
+  virtual std::shared_ptr<PeakFinderResults> findInternal(const AbstractParameters &ap) throw(std::bad_cast, std::bad_alloc) override;
 
 private:
   enum EState {stTop = 0, stBeforeInflex = 1, stAfterInflex = 2, stBottom = 3};

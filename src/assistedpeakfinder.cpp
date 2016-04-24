@@ -148,7 +148,7 @@ bool AssistedPeakFinder::checkBounds(const unsigned long i, const QVector<QPoint
   return true;
 }
 
-AssistedPeakFinder::AssistedPeakFinderResults *AssistedPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
+std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double MaxValue, MinValue, SummValue;
@@ -162,9 +162,9 @@ AssistedPeakFinder::AssistedPeakFinderResults *AssistedPeakFinder::findInternal(
   double BSLSlope, BSLIntercept;
   std::shared_ptr<QVector<QPointF>> seriesA;
   std::shared_ptr<QVector<QPointF>> seriesB;
-  AssistedPeakFinderResults *r;
+  std::shared_ptr<AssistedPeakFinderResults> r;
 
-  r = new AssistedPeakFinderResults();
+  r = std::make_shared<AssistedPeakFinderResults>();
 
   try {
     seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>());

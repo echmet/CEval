@@ -4,7 +4,7 @@ EvaluationEngine::PeakContext::PeakContext() :
   windowUnit(EvaluationParametersItems::ComboWindowUnits::LAST_INDEX),
   showWindow(EvaluationParametersItems::ComboShowWindow::LAST_INDEX),
   baselineAlgorithm(EvaluationParametersItems::ComboBaselineAlgorithm::LAST_INDEX),
-  finderResults(new PeakFinderResults()),
+  finderResults(std::make_shared<PeakFinderResults>()),
   peakIndex(-1),
   baselineSlope(0.0),
   baselineIntercept(0.0),
@@ -21,7 +21,7 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, Evalu
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
                                            const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                                            const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                                           const PeakFinderResults *finderResults,
+                                           const std::shared_ptr<PeakFinderResults> &finderResults,
                                            const int peakIndex, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot) :
   autoValues(autoValues), boolValues(boolValues), floatingValues(floatingValues),
@@ -49,18 +49,13 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   windowUnit(other.windowUnit),
   showWindow(other.showWindow),
   baselineAlgorithm(other.baselineAlgorithm),
-  finderResults(other.finderResults->copy()),
+  finderResults(other.finderResults),
   peakIndex(other.peakIndex),
   baselineSlope(other.baselineSlope),
   baselineIntercept(other.baselineIntercept),
   hvlPlot(other.hvlPlot),
   peakName(other.peakName)
 {
-}
-
-EvaluationEngine::PeakContext::~PeakContext()
-{
-  delete finderResults;
 }
 
 void EvaluationEngine::PeakContext::setPeakName(const QString &name)
@@ -99,9 +94,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
   const_cast<QString&>(peakName) = other.peakName;
-
-  delete finderResults;
-  finderResults = other.finderResults->copy();
+  const_cast<std::shared_ptr<PeakFinderResults>&>(finderResults) = other.finderResults;
 
   return *this;
 }
