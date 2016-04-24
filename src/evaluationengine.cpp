@@ -1635,11 +1635,11 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
   m_currentDataContext = m_allDataContexts[key];
   m_currentDataContextKey = key;
 
-  //disconnectPeakUpdate();
+  disconnect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
   m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
   setEvaluationContext(m_currentDataContext->evaluationContext);
   m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
-  //connectPeakUpdate();
+  connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)
