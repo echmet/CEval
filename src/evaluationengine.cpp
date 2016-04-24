@@ -145,7 +145,8 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   peakIndex(other.peakIndex),
   baselineSlope(other.baselineSlope),
   baselineIntercept(other.baselineIntercept),
-  hvlPlot(other.hvlPlot)
+  hvlPlot(other.hvlPlot),
+  peakName(other.peakName)
 {
 }
 
@@ -174,6 +175,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<double&>(baselineSlope) = other.baselineSlope;
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
+  const_cast<QString&>(peakName) = other.peakName;
 
   delete finderResults;
   finderResults = other.finderResults->copy();
