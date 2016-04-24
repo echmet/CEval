@@ -21,6 +21,7 @@ public:
     explicit HVLParameters();
     explicit HVLParameters(const double a0, const double a1, const double a2, const double a3, const double chiSquared);
     bool isValid() const;
+    void validate();
 
     double a0;
     double a1;

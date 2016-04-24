@@ -36,6 +36,11 @@ bool HVLCalculator::HVLParameters::isValid() const
   return m_valid;
 }
 
+void HVLCalculator::HVLParameters::validate()
+{
+  m_valid = true;
+}
+
 HVLCalculator::HVLInParameters::HVLInParameters()
 {
 }
@@ -104,6 +109,7 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   out->s0 = s0;
   out->chiSquared = 0.0;
   out->iterations = regressor.GetIterationCounter();
+  out->validate();
 
   emit hvlFitDone();
 }
@@ -122,6 +128,11 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 
   if (digits > 0)
     s_me->m_hvlLib->HVLSetPrec(digits);
+
+  if (!(epsilon > 0.0)) {
+    QMessageBox::warning(nullptr, tr("Invalid parameter"), tr("Value of \"epsilon\" must be positive"));
+    return p;
+  }
 
   in.a0 = a0;
   in.a0fixed = a0fixed;

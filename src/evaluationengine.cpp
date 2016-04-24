@@ -1014,6 +1014,9 @@ void EvaluationEngine::onDoHvlFit(const bool showStats)
     showStats
   );
 
+  if (!p.isValid())
+    return;
+
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = p.a1;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = p.a2;
