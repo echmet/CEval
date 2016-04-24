@@ -486,42 +486,6 @@ QAbstractItemModel *EvaluationEngine::evaluatedPeaksModel()
   return &m_evaluatedPeaksModel;
 }
 
-AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *EvaluationEngine::hvlFitFixedModel()
-{
-  return &m_hvlFixedModel;
-}
-
-AbstractMapperModel<int, HVLFitParametersItems::Int> *EvaluationEngine::hvlFitIntModel()
-{
-  return &m_hvlFitIntModel;
-}
-
-AbstractMapperModel<double, HVLFitResultsItems::Floating> *EvaluationEngine::hvlFitModel()
-{
-  return &m_hvlFitModel;
-}
-
-QAbstractItemModel *EvaluationEngine::loadedFilesModel()
-{
-  return &m_loadedFilesModel;
-}
-
-void EvaluationEngine::loadUserSettings(const QVariant &settings)
-{
-  if (!settings.canConvert<EMT::StringVariantMap>())
-    return;
-
-  StandardModeContextSettingsHandler::loadUserSettings(settings, *m_modeCtx.get());
-
-  EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
-
-  if (map.contains(DATAFILELOADER_SETTINGS_TAG)) {
-    QVariant v = map[DATAFILELOADER_SETTINGS_TAG];
-
-    m_dataFileLoader->loadUserSettings(v);
-  }
-}
-
 void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
@@ -713,6 +677,22 @@ void EvaluationEngine::fullViewUpdate()
                                                                    EvaluationParametersItems::index(m_baselineAlgorithm)));
 }
 
+AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *EvaluationEngine::hvlFitFixedModel()
+{
+  return &m_hvlFixedModel;
+}
+
+AbstractMapperModel<int, HVLFitParametersItems::Int> *EvaluationEngine::hvlFitIntModel()
+{
+  return &m_hvlFitIntModel;
+}
+
+AbstractMapperModel<double, HVLFitResultsItems::Floating> *EvaluationEngine::hvlFitModel()
+{
+  return &m_hvlFitModel;
+}
+
+
 bool EvaluationEngine::isContextValid() const
 {
   return (m_currentDataContextKey.compare(s_emptyCtxKey) == 0) ? false : true;
@@ -730,6 +710,27 @@ QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks
   }
 
   return peaks;
+}
+
+QAbstractItemModel *EvaluationEngine::loadedFilesModel()
+{
+  return &m_loadedFilesModel;
+}
+
+void EvaluationEngine::loadUserSettings(const QVariant &settings)
+{
+  if (!settings.canConvert<EMT::StringVariantMap>())
+    return;
+
+  StandardModeContextSettingsHandler::loadUserSettings(settings, *m_modeCtx.get());
+
+  EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
+
+  if (map.contains(DATAFILELOADER_SETTINGS_TAG)) {
+    QVariant v = map[DATAFILELOADER_SETTINGS_TAG];
+
+    m_dataFileLoader->loadUserSettings(v);
+  }
 }
 
 PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr)

@@ -130,8 +130,8 @@ public:
   }
 
   static void execCFIT();
-  static QString hvlstrToQString(void *str);
   static bool exitApplicationWithWarning();
+  static QString hvlstrToQString(void *str);
 };
 
 #endif // HELPERS_H
