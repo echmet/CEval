@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include "globals.h"
 #include "math/hvl.hpp"
+#include <signal.h>
 
 QString Helpers::hvlstrToQString(void *str) {
   const hvlstr_t _str = static_cast<const hvlstr_t>(str);
@@ -13,6 +14,11 @@ QString Helpers::hvlstrToQString(void *str) {
 #else
   #error "No platform type has been specified!"
 #endif // HVL_PLATFORM_
+}
+
+void Helpers::execCFIT()
+{
+  raise(SIGABRT);
 }
 
 bool Helpers::exitApplicationWithWarning()

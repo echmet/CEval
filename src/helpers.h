@@ -129,6 +129,7 @@ public:
     return v.at(idx).y();
   }
 
+  static void execCFIT();
   static QString hvlstrToQString(void *str);
   static bool exitApplicationWithWarning();
 };

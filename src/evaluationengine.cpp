@@ -386,8 +386,13 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
   /* No peak has been added but the evaluation parameters might still have changed.
    * Make sure we store them all */
   QVector<PeakContext> allPeaks(m_allPeaks);
-  if (m_currentPeakIdx == 0)
-    allPeaks[0] = duplicatePeakContext();
+  if (m_currentPeakIdx == 0) {
+    try {
+      allPeaks[0] = duplicatePeakContext();
+    } catch (std::bad_alloc &) {
+      QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Insufficient memory to execute EvaluationEngine::duplicatePeakContext(). Application may misbehave."));
+    }
+  }
 
   return EvaluationContext(allPeaks, m_currentPeakIdx);
 }
@@ -653,7 +658,13 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() c
 {
   QVector<PeakContext> fresh;
 
-  fresh.push_back(duplicatePeakContext());
+  try {
+    fresh.push_back(duplicatePeakContext());
+  } catch (std::bad_alloc &) {
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Insufficient memory to execute EvaluationEngine::freshEvaluationContext(). Application cannon continue."));
+    Helpers::execCFIT();
+  }
+
   return EvaluationContext(fresh, 0);
 }
 
@@ -852,7 +863,12 @@ void EvaluationEngine::onAddPeak()
 
 void EvaluationEngine::onCancelEvaluatedPeakSelection()
 {
-  m_currentPeak = duplicatePeakContext();
+  try {
+    m_currentPeak = duplicatePeakContext();
+  } catch (std::bad_alloc &) {
+    QMessageBox::warning(nullptr, tr("Insufficent memory"), tr("Insufficient memory to execute EvaluationEngine::duplicatePeakContext(). Application may misbehave."));
+  }
+
   m_currentPeakIdx = 0;
 
   setPeakContext(m_currentPeak);
