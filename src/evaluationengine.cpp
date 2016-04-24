@@ -227,7 +227,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
   connect(m_dataFileLoader, &DataFileLoader::dataLoaded, this, &EvaluationEngine::onDataLoaded);
   connect(&m_hvlFitModel, &FloatingMapperModel<HVLFitResultsItems::Floating>::dataChanged, this, &EvaluationEngine::onHvlResultsModelChanged);
-  connectPeakUpdate();
 
   m_addPeakDlg = new AddPeakDialog();
 
@@ -238,6 +237,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_currentDataContextKey = s_emptyCtxKey;
 
   connect(this, &EvaluationEngine::updateTEof, m_commonParamsEngine, &CommonParametersEngine::onUpdateTEof);
+  connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
 EvaluationEngine::~EvaluationEngine()
@@ -343,17 +343,6 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
     return (vP_Eff / E) / 1.0e-9;
   else
     return std::numeric_limits<double>::infinity();
-}
-
-void EvaluationEngine::connectPeakUpdate()
-{
-  connect(&m_evaluationAutoModel, &BooleanMapperModel<EvaluationParametersItems::Auto>::dataChanged,
-          this, &EvaluationEngine::onUpdateCurrentPeak);
-  connect(&m_evaluationFloatingModel, &FloatingMapperModel<EvaluationParametersItems::Floating>::dataChanged,
-          this, &EvaluationEngine::onUpdateCurrentPeak);
-  connect(&m_evaluationBooleanModel, &BooleanMapperModel<EvaluationParametersItems::Boolean>::dataChanged,
-          this, &EvaluationEngine::onUpdateCurrentPeak);
-  connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
 void EvaluationEngine::clearPeakPlots()
@@ -479,17 +468,6 @@ EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFin
                      finderResults->copy(), peakIndex, baselineSlope, baselineIntercept, hvlPlot);
 }
 
-void EvaluationEngine::disconnectPeakUpdate()
-{
-  disconnect(&m_evaluationAutoModel, &BooleanMapperModel<EvaluationParametersItems::Auto>::dataChanged,
-             this, &EvaluationEngine::onUpdateCurrentPeak);
-  disconnect(&m_evaluationFloatingModel, &FloatingMapperModel<EvaluationParametersItems::Floating>::dataChanged,
-             this, &EvaluationEngine::onUpdateCurrentPeak);
-  disconnect(&m_evaluationBooleanModel, &BooleanMapperModel<EvaluationParametersItems::Boolean>::dataChanged,
-             this, &EvaluationEngine::onUpdateCurrentPeak);
-  disconnect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
-}
-
 EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const throw(std::bad_alloc)
 {
   /* Despite its name this function only copies the parameters of current
@@ -610,11 +588,7 @@ void EvaluationEngine::findPeakAssisted()
     return;
   }
 
-#warning Do not forget the TODO here!
-  //TODO: Do not update peaks automatically when the assisted finder parameters change
-  disconnectPeakUpdate();
   displayAutomatedResults(fr);
-  connectPeakUpdate();
 
   processFoundPeak(m_currentDataContext->data->data, fr, false);
 
@@ -1086,7 +1060,7 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
 void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
 {
   int row;
-  disconnectPeakUpdate();
+  //disconnectPeakUpdate();
 
   if (!idx.isValid()) {
     m_currentPeakIdx = 0;
@@ -1107,7 +1081,8 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
 out:
-  connectPeakUpdate();
+  return;
+  //connectPeakUpdate();
 }
 
 void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cursor)
@@ -1379,10 +1354,6 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
 
-  /* Prevent infinite signal-slot loop by disconnecting signals that
-   * recalculate the peak every time the evaluation parameters change */
-  disconnectPeakUpdate();
-
   setEvaluationResults(fr, er);
 
   QVector<QPointF> hvlPlot;
@@ -1400,8 +1371,6 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
     m_allPeaks[m_currentPeakIdx] = m_currentPeak;
     m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }
-
-  connectPeakUpdate();
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 }
@@ -1650,11 +1619,11 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
   m_currentDataContext = m_allDataContexts[key];
   m_currentDataContextKey = key;
 
-  disconnectPeakUpdate();
+  //disconnectPeakUpdate();
   m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
   setEvaluationContext(m_currentDataContext->evaluationContext);
   m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
-  connectPeakUpdate();
+  //connectPeakUpdate();
 }
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)

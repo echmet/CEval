@@ -151,13 +151,11 @@ private:
 
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
-  void connectPeakUpdate();
   void createContextMenus() throw(std::bad_alloc);
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
   PeakContext currentPeakContext(const PeakFinderResults *finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
-  void disconnectPeakUpdate();
   void displayAutomatedResults(const AssistedPeakFinder::AssistedPeakFinderResults *fr);
   PeakContext duplicatePeakContext() const throw(std::bad_alloc);
   QVector<double> emptyHvlValues() const;
