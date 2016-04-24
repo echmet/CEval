@@ -296,6 +296,10 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE));
   m_findPeakMenu->addAction(a);
 
+  a = new QAction(tr("Peak from here (snap to signal)"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE_SIGSNAP));
+  m_findPeakMenu->addAction(a);
+
   m_findPeakMenu->addSeparator();
 
   a = new QAction(tr("Set noise reference point"), m_findPeakMenu);
@@ -317,6 +321,12 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH));
   m_manualIntegrationMenu->addAction(a);
 
+  a = new QAction(tr("Peak to here (snap to signal)"), m_manualIntegrationMenu);
+  a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH_SIGSNAP));
+  m_manualIntegrationMenu->addAction(a);
+
+  m_manualIntegrationMenu->addSeparator();
+
   a = new QAction(tr("Cancel"), m_manualIntegrationMenu);
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::CANCEL));
   m_manualIntegrationMenu->addAction(a);
@@ -333,8 +343,16 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
   m_postProcessMenu->addAction(a);
 
+  a = new QAction(tr("Move peak start here (snap to signal)"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP));
+  m_postProcessMenu->addAction(a);
+
   a = new QAction(tr("Move peak end here"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_TO));
+  m_postProcessMenu->addAction(a);
+
+  a = new QAction(tr("Move peak end here (snap to signal)"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_TO_SIGSNAP));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
@@ -541,7 +559,7 @@ void EvaluationEngine::findPeakAssisted()
   delete fr;
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
 {
   PeakFinderResults *fr;
 
@@ -556,9 +574,26 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
 
   ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
   p.fromX = from.x();
-  p.fromY = from.y();
+  if (snapFrom) {
+    try {
+      p.fromY = Helpers::yForX(from.x(), m_currentDataContext->data->data);
+    } catch (std::out_of_range &) {
+      QMessageBox::warning(nullptr, tr("Invalid value of \"from X\""), tr("Invalid value"));
+      return;
+    }
+  } else
+    p.fromY = from.y();
+
   p.toX = to.x();
-  p.toY = to.y();
+  if (snapTo) {
+    try {
+      p.toY = Helpers::yForX(to.x(), m_currentDataContext->data->data);
+    } catch (std::out_of_range &) {
+      QMessageBox::warning(nullptr, tr("Invalid value of \"to X\""), tr("Invalid value"));
+      return;
+    }
+  } else
+    p.toY = to.y();
 
   try {
     fr = ManualPeakFinder::find(p);
@@ -587,7 +622,17 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
 
   switch (action) {
   case FindPeakMenuActions::PEAK_FROM_HERE:
+    m_manualPeakSnapFrom = false;
     m_manualPeakFrom = point;
+    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+    break;
+  case FindPeakMenuActions::PEAK_FROM_HERE_SIGSNAP:
+    try {
+      m_manualPeakFrom = QPointF(point.x(), Helpers::yForX(point.x(), m_currentDataContext->data->data));
+    } catch (std::out_of_range &) {
+      return;
+    }
+    m_manualPeakSnapFrom = true;
     m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
     break;
   case FindPeakMenuActions::NOISE_REF_POINT:
@@ -744,7 +789,10 @@ void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMen
     m_modeCtx->replot();
     break;
   case ManualIntegrationMenuActions::FINISH:
-    findPeakManually(m_manualPeakFrom, point);
+    findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, false);
+    break;
+  case ManualIntegrationMenuActions::FINISH_SIGSNAP:
+    findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, true);
     break;
   }
 }
@@ -1201,7 +1249,8 @@ void EvaluationEngine::onUpdateCurrentPeak()
     return;
 
   findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY),
-                   QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY));
+                   QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY),
+                   false, false);
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults *fr,
@@ -1299,11 +1348,17 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
 
   switch (action) {
   case PostProcessMenuActions::MOVE_PEAK_FROM:
-    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY));
+    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false);
+    break;
+  case PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP:
+    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), true, false);
     break;
   case PostProcessMenuActions::MOVE_PEAK_TO:
-    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point);
-  break;
+    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, false);
+    break;
+  case PostProcessMenuActions::MOVE_PEAK_TO_SIGSNAP:
+    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, true);
+    break;
   case PostProcessMenuActions::DESELECT_PEAK:
     onCancelEvaluatedPeakSelection();
     break;

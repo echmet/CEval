@@ -28,6 +28,7 @@ class EvaluationEngine : public QObject
 public:
   enum class FindPeakMenuActions {
     PEAK_FROM_HERE,
+    PEAK_FROM_HERE_SIGSNAP,
     NOISE_REF_POINT,
     SLOPE_REF_POINT,
     SET_AXIS_TITLES
@@ -36,13 +37,16 @@ public:
 
   enum class ManualIntegrationMenuActions {
     FINISH,
+    FINISH_SIGSNAP,
     CANCEL
   };
   Q_ENUM(ManualIntegrationMenuActions)
 
   enum class PostProcessMenuActions {
     MOVE_PEAK_FROM,
+    MOVE_PEAK_FROM_SIGSNAP,
     MOVE_PEAK_TO,
+    MOVE_PEAK_TO_SIGSNAP,
     DESELECT_PEAK,
     DO_HVL_FIT,
     SET_AXIS_TITLES
@@ -171,7 +175,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
-  void findPeakManually(const QPointF &from, const QPointF &to);
+  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const throw(std::bad_alloc);
@@ -216,6 +220,7 @@ private:
   UserInteractionState m_userInteractionState;
 
   QPointF m_manualPeakFrom;
+  bool m_manualPeakSnapFrom;
 
   CommonParametersEngine *m_commonParamsEngine;
   std::shared_ptr<ModeContextLimited> m_modeCtx;

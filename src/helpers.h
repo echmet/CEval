@@ -111,6 +111,24 @@ public:
     return std::isfinite(t) && (t > 0.0);
   }
 
+  static qreal yForX(const qreal x, const QVector<QPointF> &v) {
+    int idx = 0;
+
+    if (v.size() == 0)
+      throw std::out_of_range("Vector contains no data");
+
+    if (v.at(0).x() > x)
+      throw std::out_of_range("Value of X is lower than the lowest X value in the vector");
+
+    while (v.at(idx).x() < x && idx < v.size())
+      idx++;
+
+    if (idx >= v.size())
+      throw std::out_of_range("Value of X is higher than the highest X value in the vector");
+
+    return v.at(idx).y();
+  }
+
   static QString hvlstrToQString(void *str);
   static bool exitApplicationWithWarning();
 };
