@@ -334,11 +334,11 @@ void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
 
   /* Create Post process menu */
 
-  a = new QAction(tr("Move peak start here"), m_postProcessMenu);
+  a = new QAction(tr("Move peak beginning here"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Move peak start here (snap to signal)"), m_postProcessMenu);
+  a = new QAction(tr("Move peak beginning here (snap to signal)"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP));
   m_postProcessMenu->addAction(a);
 
