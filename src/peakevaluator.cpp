@@ -102,7 +102,6 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
       r.uEOF = std::numeric_limits<double>::infinity();
   }
 
-#warning X axis in minutes is assumed here!
   /* Peak */
   if (r.peakX > 0.0)
     r.vP = Detector / (r.peakX * 60.0);

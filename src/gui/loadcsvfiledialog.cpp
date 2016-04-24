@@ -23,7 +23,7 @@ LoadCsvFileDialog::Parameters::Parameters() :
 }
 
 LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar &decimalSeparator,
-                                          const quint32 xColumn, const quint32 yColumn,
+                                          const int xColumn, const int yColumn,
                                           const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
                                           const HeaderHandling header, const quint32 linesToSkip,
                                           const bool readBom, const QString &encodingId) :
@@ -46,8 +46,8 @@ LoadCsvFileDialog::Parameters &LoadCsvFileDialog::Parameters::operator=(const Pa
 {
   const_cast<QString&>(delimiter) = other.delimiter;
   const_cast<QChar&>(decimalSeparator) = other.decimalSeparator;
-  const_cast<quint32&>(xColumn) = other.xColumn;
-  const_cast<quint32&>(yColumn) = other.yColumn;
+  const_cast<int&>(xColumn) = other.xColumn;
+  const_cast<int&>(yColumn) = other.yColumn;
   const_cast<QString&>(xType) = other.xType;
   const_cast<QString&>(yType) = other.yType;
   const_cast<QString&>(xUnit) = other.xUnit;

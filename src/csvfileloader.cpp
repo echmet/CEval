@@ -71,7 +71,7 @@ bool CsvFileLoader::Data::isValid() const
 }
 
 CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
-                                            const quint32 xColumn, const quint32 yColumn,
+                                            const int xColumn, const int yColumn,
                                             const bool hasHeader, const quint32 linesToSkip,
                                             const QString &encodingId, const QByteArray &bom)
 {
@@ -81,7 +81,7 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
   QString yType;
   QTextStream stream;
   quint32 linesRead = 0;
-  quint32 highColumn = (yColumn > xColumn) ? yColumn : xColumn;
+  int highColumn = (yColumn > xColumn) ? yColumn : xColumn;
 
   if (!dataFile.open(QIODevice::ReadOnly)) {
     QMessageBox::warning(nullptr, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"

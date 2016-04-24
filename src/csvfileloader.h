@@ -39,7 +39,7 @@ public:
   CsvFileLoader() = delete;
 
   static Data loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
-                       const quint32 xColumn, const quint32 yColumn,
+                       const int xColumn, const int yColumn,
                        const bool hasHeader, const quint32 linesToSkip,
                        const QString &encodingId, const QByteArray &bom);
 

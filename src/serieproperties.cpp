@@ -3,9 +3,9 @@
 SerieProperties::VisualStyle::VisualStyle(const QPen pen, QwtSymbol *symbol, const QwtPlotCurve::CurveStyle curveStyle, const bool visible) :
   curveStyle(curveStyle),
   pen(pen),
+  visible(visible),
   m_symbolOwned(false),
-  m_symbol(symbol),
-  visible(visible)
+  m_symbol(symbol)
 {
 }
 
