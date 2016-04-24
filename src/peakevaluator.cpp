@@ -20,11 +20,59 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   const QVector<QPointF> &Data = p.data;
   double Detector = p.detector * 1.0E-2; /* Conversion from centimeters */
   double E;
+  int twPLefti;
+  double twPLeft;
+  int twPRighti;
+  double twPRight;
 
   /* -- Calculated results -- */
   /* --> System */
   double Capillary = p.capillary * 1.0E-2; /* Conversion from centimeters */
   double Voltage = p.voltage * 1.0E+3; /* Conversion from kilovolts */
+
+  r.baselineSlope = (p.toY - p.fromY) / (p.toX - p.fromX);
+  r.baselineIntercept = p.fromY - p.fromX * r.baselineSlope;
+
+  auto heightAt = [&](const int idx) {
+    return p.data.at(idx).y() - r.baselineSlope * p.data.at(idx).x() - r.baselineIntercept;
+  };
+
+  {
+    /* Find the extreme. The extreme can be either above or below
+    * the baseline, only the absolute value matters */
+    double maxDiff = std::abs(heightAt(p.fromIndex));
+    r.peakIndex = p.fromIndex;
+    r.peakX = p.data.at(p.fromIndex).x();
+    for (int idx = p.fromIndex; idx <= p.toIndex; idx++) {
+      const double diff = std::abs(heightAt(idx));
+
+      if (diff > maxDiff) {
+        r.peakIndex = idx;
+        r.peakX = p.data.at(idx).x();
+        maxDiff = diff;
+      }
+    }
+  }
+
+  r.peakHeightBaseline = heightAt(r.peakIndex);
+  r.peakHeight = p.data.at(r.peakIndex).y();
+
+  /* Width of peak at half of its height */
+  twPLefti = r.peakIndex;
+  do {
+    twPLefti--;
+    twPLeft = heightAt(twPLefti);
+  } while ((twPLefti > p.fromIndex) && (std::abs(r.peakHeightBaseline) / 2.0 < std::abs(twPLeft)));
+
+  twPLeft = p.data.at(twPLefti).x();
+
+  twPRighti = r.peakIndex;
+  do {
+    twPRighti++;
+    twPRight = heightAt(twPRighti);
+  } while ((twPRighti < p.toIndex) && std::abs(r.peakHeightBaseline) / 2.0 < std::abs(twPRight));
+
+  twPRight = p.data.at(twPRighti).x();
 
   if (p.capillary > 0.0)
     E = Voltage / Capillary;
@@ -54,9 +102,10 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
       r.uEOF = std::numeric_limits<double>::infinity();
   }
 
+#warning X axis in minutes is assumed here!
   /* Peak */
-  if (p.tP > 0.0)
-    r.vP = Detector / (p.tP * 60.0);
+  if (r.peakX > 0.0)
+    r.vP = Detector / (r.peakX * 60.0);
   else
     r.vP = std::numeric_limits<double>::infinity();
 
@@ -73,11 +122,9 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   if (std::isfinite(E) && std::isfinite(r.vP_Eff))
     r.uP_Eff = r.vP_Eff / E;
 
-  if (p.autoWidthHalfLeft) {
-    r.widthHalfLeft = p.tP - p.tWPLeft;
-    r.widthHalfRight = p.tWPRight - p.tP;
-  } else
-    r.widthHalfLeft = r.widthHalfRight = p.widthHalfLeft;
+
+  r.widthHalfLeft = r.peakX - twPLeft;
+  r.widthHalfRight = twPRight - r.peakX;
 
   r.widthHalfFull = r.widthHalfLeft + r.widthHalfRight;
 
@@ -96,15 +143,15 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   }
 
   if (Helpers::isSensible(r.sigmaHalfLeft)) {
-    r.nLeft = p.tP / r.sigmaHalfLeft;
+    r.nLeft = r.peakX / r.sigmaHalfLeft;
     r.nLeft *= r.nLeft;
   }
   if (Helpers::isSensible(r.sigmaHalfRight)) {
-    r.nRight = p.tP / r.sigmaHalfRight;
+    r.nRight = r.peakX / r.sigmaHalfRight;
     r.nRight *= r.nRight;
   }
   if (Helpers::isSensible(r.sigmaHalfFull)) {
-    r.nFull = p.tP / r.sigmaHalfFull;
+    r.nFull = r.peakX / r.sigmaHalfFull;
     r.nFull *= r.nFull;
   }
 
@@ -119,12 +166,12 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
 
 
   /* Subtracting baseline */
-  if (Data.length() > 1 && p.tAi >= 0 && p.tBi > p.tAi && p.tBi < Data.length()) {
+  if (Data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < Data.length()) {
     QVector<double> peak_subtracted;
 
-    peak_subtracted.reserve(p.tBi - p.tAi);
-    for (long i = p.tAi; i <= p.tBi; i++)
-      peak_subtracted.push_back(Data[i].y() - (p.BSLSlope * Data[i].x() + p.BSLIntercept));
+    peak_subtracted.reserve(p.toIndex - p.fromIndex);
+    for (int i = p.fromIndex; i <= p.toIndex; i++)
+      peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
 
      r.peakArea = 0.0;
 
@@ -144,31 +191,26 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
     /* Height (5 %) */
     int i_w005, j_w005;
 
-    for (i_w005 = 0; i_w005 < peak_subtracted.size() && std::fabs(peak_subtracted[i_w005]) <= std::fabs(0.05 * p.HP_BSL); ++i_w005);
+    for (i_w005 = 0; i_w005 < peak_subtracted.size() && std::abs(peak_subtracted[i_w005]) <= std::abs(0.05 * r.peakHeightBaseline); ++i_w005);
 
-    double width005Left = p.tP - Data[i_w005 + p.tAi].x();
+    double width005Left = r.peakX - Data[i_w005 + p.fromIndex].x();
 
-    for (j_w005 = (peak_subtracted.size() - 1); j_w005 > i_w005 && std::fabs(peak_subtracted[j_w005]) <= std::fabs(0.05 * p.HP_BSL); --j_w005);
+    for (j_w005 = (peak_subtracted.size() - 1); j_w005 > i_w005 && std::abs(peak_subtracted[j_w005]) <= std::abs(0.05 * r.peakHeightBaseline); --j_w005);
 
-    double width005Right = Data[j_w005 + p.tAi].x() - p.tP;
+    double width005Right = Data[j_w005 + p.fromIndex].x() - r.peakX;
 
     r.HVL_width005 = width005Left + width005Right;
     r.HVL_width005Left = width005Left;
     r.HVL_width005Right = width005Right;
 
 
-    r.seriesAOne.push_back(QPointF(Data[i_w005 + p.tAi].x(), p.BSLSlope * Data[i_w005].x() + p.BSLIntercept));
-    r.seriesATwo.push_back(QPointF(Data[i_w005 + p.tAi].x(), p.HP_BSL));
-    r.seriesBOne.push_back(QPointF(Data[i_w005 + p.tAi].x(), p.BSLSlope * Data[i_w005].x() + p.BSLIntercept));
-    r.seriesBTwo.push_back(QPointF(Data[i_w005 + p.tAi].x(), p.HP_BSL));
-
-    /*R.SRS1A = XYPair(Data[i_w005 + P.TAi].X, P.BSLSlope * Data[i_w005].X + P.BSLIntercept);
-    R.SRS1B = XYPair(Data[i_w005 + P.TAi].X, P.HP_BSL);
-    R.SRS2A = XYPair(Data[i_w005 + P.TAi].X, P.BSLSlope * Data[i_w005].X + P.BSLIntercept);
-    R.SRS2B = XYPair(Data[i_w005 + P.TAi].X, P.HP_BSL);*/
+    r.seriesAOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.baselineSlope * Data[i_w005].x() + r.baselineIntercept));
+    r.seriesATwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
+    r.seriesBOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline * Data[i_w005].x() + r.baselineIntercept));
+    r.seriesBTwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
 
     /* HVL Estimation */
-    r.HVL_tP = p.tP;
+    r.HVL_tP = r.peakX;
     r.HVL_tUSP = (width005Right + width005Left) / (2 * width005Left);
 
     r.HVL_migT = r.HVL_tP;
@@ -194,7 +236,7 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   } else {
     QMessageBox::warning(nullptr, QObject::tr("Evaluation error"), QString(QObject::tr("Some of the evaluation parameters are not valid, peak area and HVL estimation values"
                                                                                        " cannot be calculated\n\n"
-                                                                                       "Data length: %1, tAi: %2, tBi: %3")).arg(Data.length()).arg(p.tAi).arg(p.tBi));
+                                                                                       "Data length: %1, tAi: %2, tBi: %3")).arg(Data.length()).arg(p.fromIndex).arg(p.toIndex));
   }
 
   /* Convert velocities and mobilities to mode readable values */

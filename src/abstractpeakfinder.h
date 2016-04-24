@@ -9,38 +9,18 @@ class PeakFinderResults {
 public:
   explicit PeakFinderResults();
   PeakFinderResults(const PeakFinderResults &other);
+  virtual ~PeakFinderResults();
+  virtual PeakFinderResults *copy() const;
   bool isValid() const;
   void validate();
 
-  long fromIndex;
-  long toIndex;
-  long indexAtMax;
-  long fromPeakIndex;
-  long toPeakIndex;
+  int fromIndex;
+  int toIndex;
 
-  long tPiCoarse;
-
-  double maxY;
-  double minY;
   double peakFromX;
   double peakFromY;
   double peakToX;
   double peakToY;
-  double peakX;
-  double peakHeight;
-  double peakHeightBaseline;
-  double noiseRefPoint;
-  double slopeRefPoint;
-  double twPLeft;
-  double twPRight;
-  double baselineSlope;
-  double baselineIntercept;
-  double noise;
-  double slopeThreshold;
-  double slopeWindow;
-
-  std::shared_ptr<QVector<QPointF>> seriesA;
-  std::shared_ptr<QVector<QPointF>> seriesB;
 
 private:
   bool m_valid;
@@ -58,7 +38,7 @@ public:
     AbstractParameters() {}
   };
 
-  static PeakFinderResults find(const AbstractParameters &p) throw(std::bad_alloc)
+  static PeakFinderResults *find(const AbstractParameters &p) throw(std::bad_alloc)
   {
     if (s_me == nullptr)
       initialize();
@@ -66,13 +46,13 @@ public:
     try {
       return s_me->findInternal(p);
     } catch (std::bad_cast) {
-      return PeakFinderResults();
+      return new PeakFinderResults();
     }
   }
 
 
 protected:
-  virtual PeakFinderResults findInternal(const AbstractParameters &ap) throw (std::bad_cast) = 0;
+  virtual PeakFinderResults *findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc) = 0;
 
   static AbstractPeakFinder<Derived> *s_me;
 

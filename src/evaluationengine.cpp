@@ -100,27 +100,58 @@ EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operat
   return *this;
 }
 
+EvaluationEngine::PeakContext::PeakContext() :
+  windowUnit(EvaluationParametersItems::ComboWindowUnits::LAST_INDEX),
+  showWindow(EvaluationParametersItems::ComboShowWindow::LAST_INDEX),
+  baselineAlgorithm(EvaluationParametersItems::ComboBaselineAlgorithm::LAST_INDEX),
+  finderResults(new PeakFinderResults()),
+  peakIndex(-1),
+  baselineSlope(0.0),
+  baselineIntercept(0.0),
+  peakName("")
+{
+}
+
 EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &autoValues,
                                            const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &boolValues,
                                            const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &floatingValues,
                                            const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues, const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                                            const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                                           const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot) :
+                                           const PeakFinderResults *finderResults,
+                                           const int peakIndex, const double baselineSlope, const double baselineIntercept,
+                                           const QVector<QPointF> &hvlPlot) :
   autoValues(autoValues), boolValues(boolValues), floatingValues(floatingValues),
   resultsValues(resultsValues), hvlValues(hvlValues),
   windowUnit(windowUnit), showWindow(showWindow), baselineAlgorithm(baselineAlgorithm),
-  finderResults(finderResults), hvlPlot(hvlPlot), peakName("")
+  finderResults(finderResults),
+  peakIndex(peakIndex),
+  baselineSlope(baselineSlope),
+  baselineIntercept(baselineIntercept),
+  hvlPlot(hvlPlot), peakName("")
 {
 }
 
-EvaluationEngine::PeakContext::PeakContext() :
-  windowUnit(EvaluationParametersItems::ComboWindowUnits::LAST_INDEX),
-  showWindow(EvaluationParametersItems::ComboShowWindow::LAST_INDEX),
-  baselineAlgorithm(EvaluationParametersItems::ComboBaselineAlgorithm::LAST_INDEX),
-  finderResults(PeakFinderResults()),
-  peakName("")
+EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
+  autoValues(other.autoValues),
+  boolValues(other.boolValues),
+  floatingValues(other.floatingValues),
+  resultsValues(other.resultsValues),
+  hvlValues(other.hvlValues),
+  windowUnit(other.windowUnit),
+  showWindow(other.showWindow),
+  baselineAlgorithm(other.baselineAlgorithm),
+  finderResults(other.finderResults->copy()),
+  peakIndex(other.peakIndex),
+  baselineSlope(other.baselineSlope),
+  baselineIntercept(other.baselineIntercept),
+  hvlPlot(other.hvlPlot)
 {
+}
+
+EvaluationEngine::PeakContext::~PeakContext()
+{
+  delete finderResults;
 }
 
 void EvaluationEngine::PeakContext::setPeakName(const QString &name)
@@ -139,8 +170,13 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<EvaluationParametersItems::ComboWindowUnits&>(windowUnit) = other.windowUnit;
   const_cast<EvaluationParametersItems::ComboShowWindow&>(showWindow) = other.showWindow;
   const_cast<EvaluationParametersItems::ComboBaselineAlgorithm&>(baselineAlgorithm) = other.baselineAlgorithm;
-  const_cast<PeakFinderResults&>(finderResults) = other.finderResults;
+  const_cast<int&>(peakIndex) = other.peakIndex;
+  const_cast<double&>(baselineSlope) = other.baselineSlope;
+  const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
+
+  delete finderResults;
+  finderResults = other.finderResults->copy();
 
   return *this;
 }
@@ -444,13 +480,15 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
   return EvaluationContext(allPeaks, m_currentPeakIdx);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFinderResults finderResults, const QVector<QPointF> &hvlPlot) const
+EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const PeakFinderResults *finderResults,
+                                                                   const int peakIndex, const double baselineSlope, const double baselineIntercept,
+                                                                   const QVector<QPointF> &hvlPlot) const
 {
   return PeakContext(m_evaluationAutoValues, m_evaluationBooleanValues,
                      m_evaluationFloatingValues, m_resultsNumericValues,
                      m_hvlFitValues,
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     finderResults, hvlPlot);
+                     finderResults->copy(), peakIndex, baselineSlope, baselineIntercept, hvlPlot);
 }
 
 void EvaluationEngine::disconnectPeakUpdate()
@@ -464,7 +502,7 @@ void EvaluationEngine::disconnectPeakUpdate()
   disconnect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const
+EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const throw(std::bad_alloc)
 {
   /* Despite its name this function only copies the parameters of current
    * peak context, the results are created empty */
@@ -473,15 +511,15 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const
                      MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     PeakFinderResults(), QVector<QPointF>());
+                     new PeakFinderResults(), -1, 0.0, 0.0, QVector<QPointF>());
 }
 
-void EvaluationEngine::displayAutomatedResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er)
+void EvaluationEngine::displayAutomatedResults(const AssistedPeakFinder::AssistedPeakFinderResults *fr)
 {
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = fr.noise;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = fr.slopeWindow;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = fr.slopeThreshold;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = fr.slopeRefPoint;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = fr->noise;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = fr->slopeWindow;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = fr->slopeThreshold;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = fr->slopeRefPoint;
 
   emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
                                              m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)),
@@ -495,6 +533,8 @@ QVector<double> EvaluationEngine::emptyHvlValues() const
 
   for (int idx = 0; idx < m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::LAST_INDEX); idx++)
       empty.push_back(0.0);
+
+  empty[m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_EPSILON)] = s_defaultHvlEpsilon;
 
   return empty;
 }
@@ -554,7 +594,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
 void EvaluationEngine::findPeak(const bool useCurrentPeak)
 {
   SelectPeakDialog dialog;
-  PeakFinderResults fr;
+  AssistedPeakFinder::AssistedPeakFinderResults *fr;
 
   if (!isContextValid())
     return;
@@ -569,24 +609,33 @@ void EvaluationEngine::findPeak(const bool useCurrentPeak)
   connect(&dialog, &SelectPeakDialog::closedSignal, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
 
   try {
-    fr = AssistedPeakFinder::find(fp);
+    fr = static_cast<AssistedPeakFinder::AssistedPeakFinderResults *>(AssistedPeakFinder::find(fp));
   } catch (std::bad_alloc &) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Not enough memory to find peaks"));
     return;
   }
 
-  if (!fr.isValid()) {
+  if (!fr->isValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
     clearPeakPlots();
+    delete fr;
     return;
   }
 
+#warning Do not forget the TODO here!
+  //TODO: Do not update peaks automatically when the assisted finder parameters change
+  disconnectPeakUpdate();
+  displayAutomatedResults(fr);
+  connectPeakUpdate();
+
   processFoundPeak(m_currentDataContext->data->data, fr, useCurrentPeak);
+
+  delete fr;
 }
 
 void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
 {
-  PeakFinderResults fr;
+  PeakFinderResults *fr;
 
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
@@ -611,22 +660,15 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to)
     return;
   }
 
-  if (!fr.isValid()) {
+  if (!fr->isValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    delete fr;
     return;
   }
 
-  /* Force assisted finder parameters implied by the manual lookup */
-  disconnectPeakUpdate();
-
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = fr.noiseRefPoint;
-
-  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
-                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT)),
-                                             { Qt::EditRole });
-  connectPeakUpdate();
-
   processFoundPeak(m_currentDataContext->data->data, fr, true);
+
+  delete fr;
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
@@ -673,7 +715,7 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() c
   return EvaluationContext(fresh, 0);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const
+EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const throw(std::bad_alloc)
 {
   return PeakContext(MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(s_defaultEvaluationAutoValues),
                      MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(s_defaultEvaluationBooleanValues),
@@ -681,7 +723,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const
                      MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     PeakFinderResults(), QVector<QPointF>());
+                     new PeakFinderResults(), -1, 0.0, 0.0, QVector<QPointF>());
 }
 
 void EvaluationEngine::fullViewUpdate()
@@ -697,6 +739,9 @@ void EvaluationEngine::fullViewUpdate()
                                             { Qt::EditRole });
   emit m_resultsFloatingModel.dataChanged(m_resultsFloatingModel.index(0, 0),
                                           m_resultsFloatingModel.index(0, m_resultsFloatingModel.indexFromItem(EvaluationResultsItems::Floating::LAST_INDEX)));
+
+  emit m_hvlFitModel.dataChanged(m_hvlFitModel.index(0, 0),
+                                 m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::LAST_INDEX)));
 
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                                    EvaluationParametersItems::index(m_windowUnit)));
@@ -725,22 +770,20 @@ QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks
   return peaks;
 }
 
-PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults &fr)
+PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const PeakFinderResults *fr)
 {
   PeakEvaluator::Parameters p(data);
 
-  p.BSLIntercept = fr.baselineIntercept;
-  p.BSLSlope = fr.baselineSlope;
   p.capillary = m_commonParamsEngine->value(CommonParametersItems::Floating::CAPILLARY);
   p.detector = m_commonParamsEngine->value(CommonParametersItems::Floating::DETECTOR);
   p.E = m_commonParamsEngine->value(CommonParametersItems::Floating::FIELD);
-  p.HP_BSL = fr.peakHeightBaseline;
-  p.tAi = fr.fromPeakIndex;
-  p.tBi = fr.toPeakIndex;
+  p.fromIndex = fr->fromIndex;
+  p.toIndex = fr->toIndex;
   p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
-  p.tP = fr.peakX;
-  p.tWPLeft = fr.twPLeft;
-  p.tWPRight = fr.twPRight;
+  p.fromX = fr->peakFromX;
+  p.fromY = fr->peakFromY;
+  p.toX = fr->peakToX;
+  p.toY = fr->peakToY;
   p.voltage = m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE);
 
   return p;
@@ -774,8 +817,6 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
   p.to = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::TO);
   p.windowUnits = m_windowUnit;
 
-  p.inTPiCoarse = -1;
-
   return p;
 }
 
@@ -805,7 +846,7 @@ void EvaluationEngine::onAddPeak()
 
   /* Peak has no meaningful evaluation resutls,
    * do not add it */
-  if (!m_currentPeak.finderResults.isValid())
+  if (!m_currentPeak.finderResults->isValid())
     return;
 
   m_addPeakDlg->setInformation(m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
@@ -977,7 +1018,7 @@ void EvaluationEngine::onDoHvlFit(const bool showStats)
 
   /* Peak has no meaningful evaluation resutls,
    * do not add it */
-  if (!m_currentPeak.finderResults.isValid())
+  if (!m_currentPeak.finderResults->isValid())
     return;
 
   if (!HVLCalculator::available())
@@ -985,7 +1026,7 @@ void EvaluationEngine::onDoHvlFit(const bool showStats)
 
   HVLCalculator::HVLParameters p = HVLCalculator::fit(
     m_currentDataContext->data->data,
-    m_currentPeak.finderResults.fromPeakIndex, m_currentPeak.finderResults.toPeakIndex,
+    m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex,
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
@@ -994,8 +1035,8 @@ void EvaluationEngine::onDoHvlFit(const bool showStats)
     m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A1),
     m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A2),
     m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A3),
-    m_currentPeak.finderResults.baselineIntercept,
-    m_currentPeak.finderResults.baselineSlope,
+    m_currentPeak.baselineIntercept,
+    m_currentPeak.baselineSlope,
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
@@ -1170,7 +1211,7 @@ void EvaluationEngine::onReadEof()
   if (!isContextValid())
     return;
 
-  if (!m_currentPeak.finderResults.isValid())
+  if (!m_currentPeak.finderResults->isValid())
     return;
 
   double tEOF = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X);
@@ -1182,7 +1223,7 @@ void EvaluationEngine::onReplotHvl()
   if (!isContextValid())
     return;
 
-  if (!m_currentPeak.finderResults.isValid())
+  if (!m_currentPeak.finderResults->isValid())
     return;
 
   if (!HVLCalculator::available())
@@ -1196,7 +1237,8 @@ void EvaluationEngine::onReplotHvl()
                                              m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X),
                                              timeStep(),
                                              m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
-  HVLCalculator::applyBaseline(vec, m_currentPeak.finderResults.baselineSlope, m_currentPeak.finderResults.baselineIntercept);
+
+  HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
   m_modeCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
 
   m_modeCtx->replot(false);
@@ -1223,13 +1265,17 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!isContextValid())
     return;
 
-  if (!m_currentPeak.finderResults.isValid())
+  if (!m_currentPeak.finderResults->isValid())
     return;
 
   findPeak(true);
 }
 
-void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
+void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults *fr,
+                                         const int peakIndex, const double peakX,
+                                         const double minY, const double maxY,
+                                         const double widthHalfLeft, const double widthHalfRight,
+                                         const double peakHeight)
 {
   /* Mark the EOF  */
   {
@@ -1238,8 +1284,8 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
     if (tEOF > 0.0) {
       QVector<QPointF> vec;
 
-      vec.push_back(QPointF(tEOF, fr.minY));
-      vec.push_back(QPointF(tEOF, fr.maxY));
+      vec.push_back(QPointF(tEOF, minY));
+      vec.push_back(QPointF(tEOF, maxY));
       m_modeCtx->setSerieSamples(seriesIndex(Series::EOF_MARK), vec);
     }
   }
@@ -1248,8 +1294,8 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
   {
     QVector<QPointF> blVec;
 
-    blVec.push_back(QPointF(fr.peakFromX, fr.peakFromY));
-    blVec.push_back(QPointF(fr.peakToX, fr.peakToY));
+    blVec.push_back(QPointF(fr->peakFromX, fr->peakFromY));
+    blVec.push_back(QPointF(fr->peakToX, fr->peakToY));
 
     m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE), blVec);
   }
@@ -1259,11 +1305,11 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
     QVector<QPointF> tpVec;
     QPointF b;
 
-    tpVec.push_back(QPointF(fr.peakX, fr.minY));
-    if (fr.indexAtMax < m_currentDataContext->data->data.length())
-      b = QPointF(fr.peakX, m_currentDataContext->data->data.at(fr.indexAtMax).y());
+    tpVec.push_back(QPointF(peakX, minY));
+    if (peakIndex < m_currentDataContext->data->data.length())
+      b = QPointF(peakX, m_currentDataContext->data->data.at(peakIndex).y());
     else
-      b = QPointF(fr.peakX, fr.maxY);
+      b = QPointF(peakX, maxY);
 
     tpVec.push_back(b);
     m_modeCtx->setSerieSamples(seriesIndex(Series::PEAK_TIME), tpVec);
@@ -1273,15 +1319,21 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
   {
     QVector<QPointF> hpVec;
 
-    hpVec.push_back(QPointF(fr.twPLeft, fr.peakHeight));
-    hpVec.push_back(QPointF(fr.twPRight, fr.peakHeight));
+    hpVec.push_back(QPointF(peakX - widthHalfLeft, peakHeight));
+    hpVec.push_back(QPointF(widthHalfRight + peakX, peakHeight));
 
     m_modeCtx->setSerieSamples(seriesIndex(Series::PEAK_HEIGHT), hpVec);
   }
 
-  if (m_currentPeak.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
-    m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *fr.seriesA);
-    m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *fr.seriesB);
+  {
+    const AssistedPeakFinder::AssistedPeakFinderResults *afr = dynamic_cast<const AssistedPeakFinder::AssistedPeakFinderResults *>(fr);
+
+    if (afr != nullptr) {
+      if (m_currentPeak.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
+        m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *afr->seriesA);
+         m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *afr->seriesB);
+      }
+    }
   }
 
   /* HVL estimate */
@@ -1292,11 +1344,11 @@ void EvaluationEngine::plotEvaluatedPeak(const PeakFinderResults &fr)
     QVector<QPointF> blFrom;
     QVector<QPointF> blTo;
 
-    blFrom.push_back(QPointF(fr.peakFromX, fr.peakFromY));
-    blFrom.push_back(QPointF(fr.peakFromX, m_currentDataContext->data->data.at(fr.fromPeakIndex).y()));
+    blFrom.push_back(QPointF(fr->peakFromX, fr->peakFromY));
+    blFrom.push_back(QPointF(fr->peakFromX, m_currentDataContext->data->data.at(fr->fromIndex).y()));
 
-    blTo.push_back(QPointF(fr.peakToX, fr.peakToY));
-    blTo.push_back(QPointF(fr.peakToX, m_currentDataContext->data->data.at(fr.toPeakIndex).y()));
+    blTo.push_back(QPointF(fr->peakToX, fr->peakToY));
+    blTo.push_back(QPointF(fr->peakToX, m_currentDataContext->data->data.at(fr->toIndex).y()));
 
     m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE_FROM), blFrom);
     m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE_TO), blTo);
@@ -1361,7 +1413,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults &fr, const bool useCurrentPeak)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const PeakFinderResults *fr, const bool useCurrentPeak)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -1370,23 +1422,22 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const Peak
    * recalculate the peak every time the evaluation parameters change */
   disconnectPeakUpdate();
 
-  displayAutomatedResults(fr, er);
   setEvaluationResults(fr, er);
 
   QVector<QPointF> hvlPlot;
   if (HVLCalculator::available()) {
-    hvlPlot = HVLCalculator::plot(er.peakArea, er.HVL_a1, er.HVL_a2, er.HVL_a3, fr.peakFromX, fr.peakToX, timeStep(), 50);
-    HVLCalculator::applyBaseline(hvlPlot, fr.baselineSlope, fr.baselineIntercept);
+    hvlPlot = HVLCalculator::plot(er.peakArea, er.HVL_a1, er.HVL_a2, er.HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
+    HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
   }
 
-  m_currentPeak = currentPeakContext(fr, hvlPlot);
+  m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
 
   clearPeakPlots();
-  plotEvaluatedPeak(fr);
+  plotEvaluatedPeak(fr, er.peakIndex, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight);
 
   if (m_currentPeakIdx > 0 && useCurrentPeak) {
     m_allPeaks[m_currentPeakIdx] = m_currentPeak;
-    m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, fr.peakX, er.peakArea);
+    m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }
 
   connectPeakUpdate();
@@ -1487,7 +1538,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
 
-void EvaluationEngine::setEvaluationResults(const PeakFinderResults &fr, const PeakEvaluator::Results &er)
+void EvaluationEngine::setEvaluationResults(const PeakFinderResults *fr, const PeakEvaluator::Results &er)
 {
   /* Results from peak evaluator */
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_FULL] = er.nFull;
@@ -1515,13 +1566,13 @@ void EvaluationEngine::setEvaluationResults(const PeakFinderResults &fr, const P
   m_resultsNumericValues[EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL] = er.widthHalfMFull;
   m_resultsNumericValues[EvaluationResultsItems::Floating::WIDTH_HALF_MET_LEFT] = er.widthHalfMLeft;
   m_resultsNumericValues[EvaluationResultsItems::Floating::WIDTH_HALF_MET_RIGHT] = er.widthHalfMRight;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_FROM_X] = fr.peakFromX;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_FROM_Y] = fr.peakFromY;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_TO_X] = fr.peakToX;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_TO_Y] = fr.peakToY;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_X] = fr.peakX;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT] = fr.peakHeight;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = fr.peakHeightBaseline;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_FROM_X] = fr->peakFromX;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_FROM_Y] = fr->peakFromY;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_TO_X] = fr->peakToX;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_TO_Y] = fr->peakToY;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_X] = er.peakX;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT] = er.peakHeight;
+  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = er.peakHeightBaseline;
 
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = er.peakArea;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = er.HVL_a1;
@@ -1542,14 +1593,21 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
   m_evaluationBooleanValues = ctx.boolValues;
   m_evaluationFloatingValues = ctx.floatingValues;
   m_resultsNumericValues = ctx.resultsValues;
+  m_hvlFitValues = ctx.hvlValues;
   m_windowUnit = ctx.windowUnit;
   m_showWindow = ctx.showWindow;
   m_baselineAlgorithm = ctx.baselineAlgorithm;
 
   clearPeakPlots();
   fullViewUpdate();
-  if (ctx.finderResults.isValid() && (m_currentDataContext->data != nullptr))
-    plotEvaluatedPeak(ctx.finderResults);
+  if (ctx.finderResults->isValid() && (m_currentDataContext->data != nullptr))
+    plotEvaluatedPeak(ctx.finderResults,
+                      ctx.peakIndex,
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X),
+                      Helpers::minYValue(m_currentDataContext->data->data), Helpers::maxYValue(m_currentDataContext->data->data),
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT),
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT));
 
   return true;
 }

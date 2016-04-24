@@ -51,8 +51,25 @@ public:
     long inTPiCoarse;
   };
 
+  class AssistedPeakFinderResults : public PeakFinderResults {
+  public:
+    explicit AssistedPeakFinderResults();
+    AssistedPeakFinderResults(const AssistedPeakFinderResults &other);
+    AssistedPeakFinderResults &operator=(const AssistedPeakFinderResults &other);
+    virtual AssistedPeakFinderResults *copy() const override;
+
+    double noiseRefPoint;
+    double slopeRefPoint;
+    double noise;
+    double slopeThreshold;
+    double slopeWindow;
+
+    std::shared_ptr<QVector<QPointF>> seriesA;
+    std::shared_ptr<QVector<QPointF>> seriesB;
+  };
+
 protected:
-  virtual PeakFinderResults findInternal(const AbstractParameters &ap) throw(std::bad_cast) override;
+  virtual AssistedPeakFinderResults *findInternal(const AbstractParameters &ap) throw(std::bad_cast, std::bad_alloc) override;
 
 private:
   enum EState {stTop = 0, stBeforeInflex = 1, stAfterInflex = 2, stBottom = 3};

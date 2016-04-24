@@ -19,7 +19,7 @@ public:
   };
 
 protected:
-  PeakFinderResults findInternal(const AbstractParameters &ap) throw(std::bad_cast) override;
+  PeakFinderResults *findInternal(const AbstractParameters &ap) throw(std::bad_cast, std::bad_alloc) override;
 
 };
 

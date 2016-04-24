@@ -13,25 +13,19 @@ public:
     explicit Parameters() = delete;
     explicit Parameters(const QVector<QPointF> &data);
 
-    bool autoWidthHalfLeft;
+    int fromIndex;
+    int toIndex;
 
-    long tAi;
-    long tBi;
+    double fromX;
+    double fromY;
+    double toX;
+    double toY;
 
     double capillary;
     double detector;
     double E;
     double tEOF;
-    double tP;
-    double tWPLeft;
-    double tWPRight;
     double voltage;
-
-    double BSLSlope;
-    double BSLIntercept;
-    double HP_BSL;
-
-    double widthHalfLeft;
 
     const QVector<QPointF> &data;
   };
@@ -45,6 +39,18 @@ public:
     double uP_Eff;
     double vP;
     double vP_Eff;
+
+    double minY;
+    double maxY;
+
+    double baselineSlope;
+    double baselineIntercept;
+
+    int peakIndex;
+    double peakX;
+
+    double peakHeight;
+    double peakHeightBaseline;
 
     double peakArea;
 
