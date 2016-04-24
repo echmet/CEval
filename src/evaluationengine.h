@@ -100,6 +100,8 @@ private:
                          const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &floatingValues,
                          const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                         const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                         const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
                          const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                          const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
                          const PeakFinderResults *finderResults,
@@ -107,6 +109,10 @@ private:
                          const QVector<QPointF> &hvlPlot);
     PeakContext(const PeakContext &other);
     ~PeakContext();
+    void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
+                       const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
+                       const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitFixedValues);
+    void updateHvlPlot(const QVector<QPointF> &plot);
     void setPeakName(const QString &name);
 
     const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> autoValues;
@@ -114,6 +120,8 @@ private:
     const MappedVectorWrapper<double, EvaluationParametersItems::Floating> floatingValues;
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
+    const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
+    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
     const EvaluationParametersItems::ComboWindowUnits windowUnit;
     const EvaluationParametersItems::ComboShowWindow showWindow;
     const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
@@ -156,6 +164,8 @@ private:
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
   PeakContext currentPeakContext(const PeakFinderResults *finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
+  QVector<bool> defaultHvlFixedValues() const;
+  QVector<int> defaultHvlIntValues() const;
   void displayAutomatedResults(const AssistedPeakFinder::AssistedPeakFinderResults *fr);
   PeakContext duplicatePeakContext() const throw(std::bad_alloc);
   QVector<double> emptyHvlValues() const;
@@ -290,6 +300,7 @@ public slots:
 
 private slots:
   void onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, const QString &fullPath, const QString &fileName);
+  void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const long peakWindow);
   void onUnhighlightProvisionalPeak();
