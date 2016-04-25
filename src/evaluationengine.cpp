@@ -544,7 +544,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     try {
       p.fromY = Helpers::yForX(from.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
-      QMessageBox::warning(nullptr, tr("Invalid value of \"from X\""), tr("Invalid value"));
+      QMessageBox::warning(nullptr,tr("Invalid value"), tr("Invalid value of \"from X\""));
       return;
     }
   } else
@@ -555,7 +555,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     try {
       p.toY = Helpers::yForX(to.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
-      QMessageBox::warning(nullptr, tr("Invalid value of \"to X\""), tr("Invalid value"));
+      QMessageBox::warning(nullptr, tr("Invalid value"), tr("Invalid value of \"to X\""));
       return;
     }
   } else
