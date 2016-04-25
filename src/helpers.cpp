@@ -35,3 +35,26 @@ bool Helpers::exitApplicationWithWarning()
 
   return false;
 }
+
+qreal Helpers::yForX(const qreal x, const QVector<QPointF> &v)
+{
+  int idx = 0;
+
+  if (v.size() == 0)
+    throw std::out_of_range("Vector contains no data");
+
+  if (v.at(0).x() > x)
+    throw std::out_of_range("Value of X is lower than the lowest X value in the vector");
+
+  while (idx < v.size()) {
+    if (v.at(idx).x() >= x)
+      break;
+
+    idx++;
+  }
+
+  if (idx >= v.size())
+    throw std::out_of_range("Value of X is higher than the highest X value in the vector");
+
+  return v.at(idx).y();
+}
