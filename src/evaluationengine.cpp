@@ -1116,14 +1116,36 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
 {
   Q_UNUSED(cursor)
 
-  if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
-    const double k = (point.y() - m_manualPeakFrom.y()) / (point.x() - m_manualPeakFrom.x());
-    const double step = (point.x() - m_manualPeakFrom.x()) / 500.0;
+  if (!isContextValid())
+    return;
 
+  if (m_currentDataContext->data->data.size() < 2)
+    return;
+
+  if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
     QVector<QPointF> line;
-    double x = m_manualPeakFrom.x();
-    while (x < point.x()) {
-      const double vf = k * (x - m_manualPeakFrom.x()) + m_manualPeakFrom.y();
+    double x;
+    double fx;
+    double tx;
+    double fy;
+    double ty;
+    if (m_manualPeakFrom.x() < point.x()) {
+      fx = m_manualPeakFrom.x();
+      tx = point.x();
+      fy = m_manualPeakFrom.y();
+      ty = point.y();
+    } else {
+      fx = point.x();
+      tx = m_manualPeakFrom.x();
+      fy = point.y();
+      ty = m_manualPeakFrom.y();
+    }
+    const double k = (ty - fy) / (tx - fx);
+    const double step = (m_currentDataContext->data->data.at(1).x() - m_currentDataContext->data->data.at(0).x()) / 10.0;
+
+    x = fx;
+    while (x <= tx) {
+      const double vf = k * (x - fx) + fy;
 
       line.push_back(QPointF(x, vf));
       x += step;
@@ -1386,6 +1408,12 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
+
+  if (!er.isValid()) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    clearPeakPlots();
+    return;
+  }
 
   setEvaluationResults(fr, er);
 

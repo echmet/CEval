@@ -32,6 +32,10 @@ public:
 
   class Results {
   public:
+    explicit Results();
+    bool isValid() const;
+    void validate();
+
     /*double E;*/
     double uEOF;
     double vEOF;
@@ -91,6 +95,9 @@ public:
     QVector<QPointF> seriesATwo;
     QVector<QPointF> seriesBOne;
     QVector<QPointF> seriesBTwo;
+
+  private:
+    bool m_isValid;
   };
 
   PeakEvaluator() = delete;

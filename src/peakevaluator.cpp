@@ -13,6 +13,20 @@ PeakEvaluator::Parameters::Parameters(const QVector<QPointF> &data) :
 {
 }
 
+PeakEvaluator::Results::Results() :
+  m_isValid(false)
+{
+}
+
+bool PeakEvaluator::Results::isValid() const
+{
+  return m_isValid;
+}
+
+void PeakEvaluator::Results::validate()
+{
+  m_isValid = true;
+}
 
 PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &p)
 {
@@ -24,6 +38,9 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   double twPLeft;
   int twPRighti;
   double twPRight;
+
+  if (p.toIndex - p.fromIndex < 1)
+    return r;
 
   /* -- Calculated results -- */
   /* --> System */
@@ -168,7 +185,7 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   if (Data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < Data.length()) {
     QVector<double> peak_subtracted;
 
-    peak_subtracted.reserve(p.toIndex - p.fromIndex);
+    peak_subtracted.reserve(p.toIndex - p.fromIndex + 1);
     for (int i = p.fromIndex; i <= p.toIndex; i++)
       peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
 
@@ -253,6 +270,7 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   if (std::isfinite(r.vP_Eff))
     r.vP_Eff /= 1.0e-3;
 
+  r.validate();
 
   return r;
 }
