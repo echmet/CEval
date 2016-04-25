@@ -528,11 +528,15 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
-  if (!isContextValid())
+  if (!isContextValid()) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
     return;
+  }
 
-  if (m_currentDataContext->data->data.length() == 0)
+  if (m_currentDataContext->data->data.length() == 0) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
     return;
+  }
 
   ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
   p.fromX = from.x();
@@ -561,6 +565,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     fr = ManualPeakFinder::find(p);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Not enough memory to evaluate peak"));
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
     return;
   }
 
