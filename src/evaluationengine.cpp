@@ -530,11 +530,13 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
 
   if (!isContextValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_modeCtx->replot();
     return;
   }
 
   if (m_currentDataContext->data->data.length() == 0) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_modeCtx->replot();
     return;
   }
 
@@ -565,16 +567,18 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     fr = ManualPeakFinder::find(p);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Not enough memory to evaluate peak"));
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    return;
+    goto err_out;
   }
 
-  if (!fr->isValid()) {
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    return;
-  }
+  if (!fr->isValid())
+    goto err_out;
 
   processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false));
+  return;
+
+err_out:
+  m_userInteractionState = UserInteractionState::FINDING_PEAK;
+  m_modeCtx->replot();
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)

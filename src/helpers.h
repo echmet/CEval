@@ -120,8 +120,12 @@ public:
     if (v.at(0).x() > x)
       throw std::out_of_range("Value of X is lower than the lowest X value in the vector");
 
-    while (v.at(idx).x() < x && idx < v.size())
+    while (idx < v.size()) {
+      if (v.at(idx).x() >= x)
+        break;
+
       idx++;
+    }
 
     if (idx >= v.size())
       throw std::out_of_range("Value of X is higher than the highest X value in the vector");

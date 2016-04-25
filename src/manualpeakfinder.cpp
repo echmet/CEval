@@ -69,6 +69,9 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
     toY = p.toY;
   }
 
+  if (p.data.first().x() > fromX || p.data.last().x() < toX)
+    return r;
+
   r->peakFromX = fromX;
   r->peakFromY = fromY;
   r->peakToX = toX;
