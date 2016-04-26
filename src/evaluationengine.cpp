@@ -1553,11 +1553,14 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   m_evaluationFloatingValues = ctx.afFloatingValues;
 
   emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, 0),
-                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX)));
+                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX)),
+                                         { Qt::DisplayRole });
   emit m_evaluationBooleanModel.dataChanged(m_evaluationBooleanModel.index(0, 0),
-                                            m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX)));
+                                            m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX)),
+                                            { Qt::DisplayRole });
   emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
-                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)));
+                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)),
+                                             { Qt::EditRole });
 
 
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
