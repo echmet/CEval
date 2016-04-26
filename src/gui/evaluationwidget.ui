@@ -1048,6 +1048,13 @@
                  </spacer>
                 </item>
                 <item>
+                 <widget class="QCheckBox" name="qcb_showHvlStats">
+                  <property name="text">
+                   <string>Show HVL fit stats</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="qpb_replotHvl">
                   <property name="styleSheet">
                    <string notr="true">padding-top: 0.5em;
@@ -1061,7 +1068,7 @@ padding-right: 2em;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="ShiftPushButton" name="qpb_doHvlFit">
+                 <widget class="QPushButton" name="qpb_doHvlFit">
                   <property name="styleSheet">
                    <string notr="true">padding-top: 0.5em;
 padding-bottom: 0.5em;
@@ -1459,11 +1466,6 @@ padding-right: 3em;</string>
    <class>QMappedCheckBox</class>
    <extends>QCheckBox</extends>
    <header>src/gui/common/qmappedcheckbox.h</header>
-  </customwidget>
-  <customwidget>
-   <class>ShiftPushButton</class>
-   <extends>QPushButton</extends>
-   <header>src/gui/common/shiftpushbutton.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

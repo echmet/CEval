@@ -23,9 +23,9 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
   connect(ui->qcbox_windowUnits, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onWindowUnitsComboBoxChanged);
   connect(ui->qpb_findPeak, &QPushButton::clicked, this, &EvaluationWidget::onFindPeaksClicked);
-  connect(ui->qpb_doHvlFit, &ShiftPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
-  connect(ui->qpb_doHvlFit, &ShiftPushButton::modifierClicked, this, &EvaluationWidget::onDoHvlFitClickedModified);
+  connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
+  connect(ui->qcb_showHvlStats, &QCheckBox::toggled, this, &EvaluationWidget::onShowHvlFitStatsToggled);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -69,12 +69,7 @@ void EvaluationWidget::onDefaultFinderParametersClicked()
 
 void EvaluationWidget::onDoHvlFitClicked()
 {
-  emit doHvlFit(false);
-}
-
-void EvaluationWidget::onDoHvlFitClickedModified()
-{
-  emit doHvlFit(true);
+  emit doHvlFit();
 }
 
 void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)
@@ -125,6 +120,11 @@ void EvaluationWidget::onFindPeaksClicked()
 void EvaluationWidget::onReplotHvl()
 {
   emit replotHvl();
+}
+
+void EvaluationWidget::onShowHvlFitStatsToggled()
+{
+  emit showHvlFitStats(ui->qcb_showHvlStats->checkState() == Qt::Checked);
 }
 
 void EvaluationWidget::onShowWindowComboBoxChanged(const int idx)

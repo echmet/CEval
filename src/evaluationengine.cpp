@@ -102,6 +102,7 @@ EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operat
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
   m_userInteractionState(UserInteractionState::FINDING_PEAK),
+  m_showHvlFitStats(false),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
@@ -991,7 +992,7 @@ void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
   setPeakContext(m_currentPeak);
 }
 
-void EvaluationEngine::onDoHvlFit(const bool showStats)
+void EvaluationEngine::onDoHvlFit()
 {
   if (!isContextValid())
     return;
@@ -1020,7 +1021,7 @@ void EvaluationEngine::onDoHvlFit(const bool showStats)
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
-    showStats
+    m_showHvlFitStats
   );
 
   if (!p.isValid())
@@ -1275,6 +1276,11 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
   }
 }
 
+void EvaluationEngine::onShowHvlFitStatsChanged(const bool show)
+{
+  m_showHvlFitStats = show;
+}
+
 
 void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
@@ -1433,7 +1439,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   }
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
-  onDoHvlFit(false);
+  onDoHvlFit();
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakIndex, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight);

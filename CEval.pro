@@ -98,7 +98,6 @@ SOURCES += src/main.cpp \
     src/assistedpeakfinder.cpp \
     src/manualpeakfinder.cpp \
     src/ploteventfilter.cpp \
-    src/gui/common/shiftpushbutton.cpp \
     src/peakcontext.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
@@ -260,8 +259,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/abstractpeakfinder.h \
     src/assistedpeakfinder.h \
     src/manualpeakfinder.h \
-    src/ploteventfilter.h \
-    src/gui/common/shiftpushbutton.h
+    src/ploteventfilter.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
