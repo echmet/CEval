@@ -86,9 +86,15 @@ EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data>
 {
 }
 
-EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex) :
+EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex,
+                                                       const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                                                       const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                                                       const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) :
   peaks(peaks),
-  lastIndex(lastIndex)
+  lastIndex(lastIndex),
+  afAutoValues(afAutoValues),
+  afBoolValues(afBoolValues),
+  afFloatingValues(afFloatingValues)
 {
 }
 
@@ -395,15 +401,17 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
     }
   }
 
-  return EvaluationContext(allPeaks, m_currentPeakIdx);
+  return EvaluationContext(allPeaks, m_currentPeakIdx,
+                           m_evaluationAutoValues,
+                           m_evaluationBooleanValues,
+                           m_evaluationFloatingValues);
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const std::shared_ptr<PeakFinderResults> &finderResults,
                                                                    const int peakIndex, const double baselineSlope, const double baselineIntercept,
                                                                    const QVector<QPointF> &hvlPlot) const
 {
-  return PeakContext(m_evaluationAutoValues, m_evaluationBooleanValues,
-                     m_evaluationFloatingValues, m_resultsNumericValues,
+  return PeakContext(m_resultsNumericValues,
                      m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues,
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
                      finderResults, peakIndex, baselineSlope, baselineIntercept, hvlPlot);
@@ -435,9 +443,7 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const thr
 {
   /* Despite its name this function only copies the parameters of current
    * peak context, the results are created empty */
-  return PeakContext(m_evaluationAutoValues, m_evaluationBooleanValues,
-                     m_evaluationFloatingValues,
-                     MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
+  return PeakContext(MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_hvlFitIntValues,
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
@@ -639,15 +645,15 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() c
     Helpers::execCFIT();
   }
 
-  return EvaluationContext(fresh, 0);
+  return EvaluationContext(fresh, 0,
+                           MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(s_defaultEvaluationAutoValues),
+                           MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(s_defaultEvaluationBooleanValues),
+                           MappedVectorWrapper<double, EvaluationParametersItems::Floating>(s_defaultEvaluationFloatingValues));
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const throw(std::bad_alloc)
 {
-  return PeakContext(MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(s_defaultEvaluationAutoValues),
-                     MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(s_defaultEvaluationBooleanValues),
-                     MappedVectorWrapper<double, EvaluationParametersItems::Floating>(s_defaultEvaluationFloatingValues),
-                     MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
+  return PeakContext(MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      MappedVectorWrapper<int, HVLFitParametersItems::Int>(defaultHvlIntValues()),
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
@@ -1542,6 +1548,18 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   else
     m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
+  m_evaluationAutoValues = ctx.afAutoValues;
+  m_evaluationBooleanValues = ctx.afBoolValues;
+  m_evaluationFloatingValues = ctx.afFloatingValues;
+
+  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, 0),
+                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX)));
+  emit m_evaluationBooleanModel.dataChanged(m_evaluationBooleanModel.index(0, 0),
+                                            m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX)));
+  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
+                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)));
+
+
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
 
@@ -1596,9 +1614,6 @@ void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResu
 
 bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
 {
-  m_evaluationAutoValues = ctx.autoValues;
-  m_evaluationBooleanValues = ctx.boolValues;
-  m_evaluationFloatingValues = ctx.floatingValues;
   m_resultsNumericValues = ctx.resultsValues;
   m_hvlFitValues = ctx.hvlValues;
   m_hvlFitFixedValues = ctx.hvlFitFixedValues;

@@ -12,10 +12,7 @@ EvaluationEngine::PeakContext::PeakContext() :
 {
 }
 
-EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &autoValues,
-                                           const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &boolValues,
-                                           const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &floatingValues,
-                                           const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
@@ -24,7 +21,6 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, Evalu
                                            const std::shared_ptr<PeakFinderResults> &finderResults,
                                            const int peakIndex, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot) :
-  autoValues(autoValues), boolValues(boolValues), floatingValues(floatingValues),
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
@@ -39,9 +35,6 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<bool, Evalu
 }
 
 EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
-  autoValues(other.autoValues),
-  boolValues(other.boolValues),
-  floatingValues(other.floatingValues),
   resultsValues(other.resultsValues),
   hvlValues(other.hvlValues),
   hvlFitIntValues(other.hvlFitIntValues),
@@ -79,9 +72,6 @@ void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot)
 
 EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const PeakContext &other)
 {
-  const_cast<MappedVectorWrapper<bool, EvaluationParametersItems::Auto>&>(autoValues) = other.autoValues;
-  const_cast<MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>&>(boolValues) = other.boolValues;
-  const_cast<MappedVectorWrapper<double, EvaluationParametersItems::Floating>&>(floatingValues) = other.floatingValues;
   const_cast<MappedVectorWrapper<double, EvaluationResultsItems::Floating>&>(resultsValues) = other.resultsValues;
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues) = other.hvlValues;
   const_cast<MappedVectorWrapper<int, HVLFitParametersItems::Int>&>(hvlFitIntValues) = other.hvlFitIntValues;

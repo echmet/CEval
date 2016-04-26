@@ -98,10 +98,7 @@ private:
   class PeakContext {
   public:
     explicit PeakContext();
-    explicit PeakContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &autoValues,
-                         const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &boolValues,
-                         const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &floatingValues,
-                         const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+    explicit PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
@@ -117,9 +114,6 @@ private:
     void updateHvlPlot(const QVector<QPointF> &plot);
     void setPeakName(const QString &name);
 
-    const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> autoValues;
-    const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> boolValues;
-    const MappedVectorWrapper<double, EvaluationParametersItems::Floating> floatingValues;
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
     const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
@@ -139,10 +133,17 @@ private:
 
   class EvaluationContext {
   public:
-    EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex);
+    EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex,
+                      const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                      const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                      const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues);
 
     const QVector<PeakContext> peaks;
     const int lastIndex;
+    const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> afAutoValues;
+    const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> afBoolValues;
+    const MappedVectorWrapper<double, EvaluationParametersItems::Floating> afFloatingValues;
+
 
     EvaluationContext &operator=(const EvaluationContext &other);
 
