@@ -513,7 +513,7 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
-            <widget class="QGroupBox" name="qgb_eofResults">
+            <widget class="CollapsibleGroupBox" name="qgb_eofResults">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -592,7 +592,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="qgb_peakResults">
+            <widget class="CollapsibleGroupBox" name="qgb_peakResults">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -848,7 +848,7 @@
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="qgb_peakHVLResults">
+            <widget class="CollapsibleGroupBox" name="qgb_peakHVLResults">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1086,7 +1086,7 @@ padding-right: 2em;</string>
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="qgb_peakDimensions">
+            <widget class="CollapsibleGroupBox" name="qgb_peakDimensions">
              <property name="sizePolicy">
               <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
                <horstretch>0</horstretch>
@@ -1466,6 +1466,12 @@ padding-right: 3em;</string>
    <class>QMappedCheckBox</class>
    <extends>QCheckBox</extends>
    <header>src/gui/common/qmappedcheckbox.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CollapsibleGroupBox</class>
+   <extends>QGroupBox</extends>
+   <header>src/gui/common/collapsiblegroupbox.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <tabstops>

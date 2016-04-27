@@ -99,7 +99,8 @@ SOURCES += src/main.cpp \
     src/manualpeakfinder.cpp \
     src/ploteventfilter.cpp \
     src/peakcontext.cpp \
-    src/gui/common/collapseexpandbutton.cpp
+    src/gui/common/collapseexpandbutton.cpp \
+    src/gui/common/collapsiblegroupbox.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -261,7 +262,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/assistedpeakfinder.h \
     src/manualpeakfinder.h \
     src/ploteventfilter.h \
-    src/gui/common/collapseexpandbutton.h
+    src/gui/common/collapseexpandbutton.h \
+    src/gui/common/collapsiblegroupbox.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
