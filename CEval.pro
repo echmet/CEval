@@ -98,7 +98,8 @@ SOURCES += src/main.cpp \
     src/assistedpeakfinder.cpp \
     src/manualpeakfinder.cpp \
     src/ploteventfilter.cpp \
-    src/peakcontext.cpp
+    src/peakcontext.cpp \
+    src/gui/common/collapseexpandbutton.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -259,7 +260,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/abstractpeakfinder.h \
     src/assistedpeakfinder.h \
     src/manualpeakfinder.h \
-    src/ploteventfilter.h
+    src/ploteventfilter.h \
+    src/gui/common/collapseexpandbutton.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
