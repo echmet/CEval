@@ -3,6 +3,8 @@
 
 #include <QPushButton>
 
+class QPen;
+
 class CollapseExpandButton : public QPushButton
 {
   Q_OBJECT
@@ -20,14 +22,21 @@ public:
   Q_ENUM(Transition)
 
   explicit CollapseExpandButton(QWidget *parent = nullptr);
+  ~CollapseExpandButton();
   void setState(const State state);
   State state() const;
 
 protected:
   void paintEvent(QPaintEvent *ev);
+  void resizeEvent(QResizeEvent *ev);
 
 private:
+  void buildPainterPaths(const QSize &size);
   State m_currentState;
+
+  QPen *m_pen;
+  QPainterPath m_collapsedPath;
+  QPainterPath m_expandedPath;
 
   static const int LINE_WIDTH;
 
