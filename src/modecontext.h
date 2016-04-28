@@ -54,8 +54,10 @@ private:
   QRectF m_boundingRect;
   PlotEventFilter *m_eventFilter;
 
+  Qt::PenStyle lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::LineStyles ls) const;
   int pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const;
   AdjustPlotVisualsDialog::PointStyles qwtSymbolStypeToPointStyle(const int qwtSymbol) const;
+  AdjustPlotVisualsDialog::LineStyles qtPenStyleToLineStyle(const int qtPenStyle) const;
   void setAxisTitleFont(const int a, const QFont &f);
   void setZoomBase(const QRectF &rect);
   QRectF uniteBoundingRects() const;

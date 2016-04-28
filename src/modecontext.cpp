@@ -96,6 +96,7 @@ void ModeContext::adjustAppearance()
     sv.pointFillColor = style.symbol()->brush().color();
     sv.pointSize = style.symbol()->size().width();
     sv.pointStyle = qwtSymbolStypeToPointStyle(style.symbol()->style());
+    sv.lineStyle = qtPenStyleToLineStyle(style.pen.style());
 
     dlg.addSerieVisuals(curve->title().text(), sv);
   }
@@ -122,8 +123,10 @@ void ModeContext::adjustAppearance()
     std::shared_ptr<QwtPlotCurve> curve = m_plotCurves[sv.id];
     QPen p = curve->pen();
 
+    const Qt::PenStyle ps = lineStyleToQtPenStyle(sv.lineStyle);
     p.setColor(sv.lineColor);
     p.setWidthF(sv.lineThickness);
+    p.setStyle(ps);
     curve->setPen(p);
 
     const QwtSymbol *cSym = curve->symbol();
@@ -217,6 +220,28 @@ void ModeContext::hideSerie(const int id)
     return;
 
   m_plotCurves[id]->detach();
+}
+
+Qt::PenStyle ModeContext::lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::LineStyles ls) const
+{
+  switch (ls) {
+  case AdjustPlotVisualsDialog::LineStyles::DASH:
+    return Qt::DashLine;
+    break;
+  case AdjustPlotVisualsDialog::LineStyles::DASH_DOT:
+    return Qt::DashDotLine;
+    break;
+  case AdjustPlotVisualsDialog::LineStyles::DASH_DOT_DOT:
+    return Qt::DashDotDotLine;
+    break;
+  case AdjustPlotVisualsDialog::LineStyles::DOT:
+    return Qt::DotLine;
+    break;
+  case AdjustPlotVisualsDialog::LineStyles::SOLID:
+  default:
+    return Qt::SolidLine;
+    break;
+  }
 }
 
 void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
@@ -358,6 +383,28 @@ AdjustPlotVisualsDialog::PointStyles ModeContext::qwtSymbolStypeToPointStyle(con
     break;
   default:
     return AdjustPlotVisualsDialog::PointStyles::NO_SYMBOL;
+    break;
+  }
+}
+
+AdjustPlotVisualsDialog::LineStyles ModeContext::qtPenStyleToLineStyle(const int qtPenStyle) const
+{
+  switch (qtPenStyle) {
+  case Qt::DashLine:
+    return AdjustPlotVisualsDialog::LineStyles::DASH;
+    break;
+  case Qt::DashDotLine:
+    return AdjustPlotVisualsDialog::LineStyles::DASH_DOT;
+    break;
+  case Qt::DashDotDotLine:
+    return AdjustPlotVisualsDialog::LineStyles::DASH_DOT_DOT;
+    break;
+  case Qt::DotLine:
+    return AdjustPlotVisualsDialog::LineStyles::DOT;
+    break;
+  case Qt::SolidLine:
+  default:
+    return AdjustPlotVisualsDialog::LineStyles::SOLID;
     break;
   }
 }

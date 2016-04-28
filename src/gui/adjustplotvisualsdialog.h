@@ -15,6 +15,16 @@ class AdjustPlotVisualsDialog : public QDialog
 {
   Q_OBJECT
 public:
+  enum class LineStyles : int {
+    SOLID,
+    DASH,
+    DOT,
+    DASH_DOT,
+    DASH_DOT_DOT,
+    LAST_INDEX
+  };
+  Q_ENUM(LineStyles)
+
   enum class PointStyles : int {
     NO_SYMBOL,
     ELLIPSE,
@@ -62,6 +72,7 @@ public:
     int pointSize;
     qreal pointLineThickness;
     PointStyles pointStyle;
+    LineStyles lineStyle;
 
     SerieVisuals &operator=(const SerieVisuals &other);
   };
@@ -74,6 +85,7 @@ public:
   QVector<AxisVisuals> axisVisuals() const;
   QVector<SerieVisuals> serieVisuals() const;
 
+  static QString lineStyleName(const LineStyles ls);
   static QString pointStyleName(const PointStyles ps);
 
 private:
@@ -82,8 +94,10 @@ private:
   QString backgroundColorToStyleSheet(const QColor &c) const;
   QStandardItem *comboBoxItem(const QComboBox *qcbox, const int idx) const;
   template<typename T> T datatypeFromItem(const QStandardItem *item) const;
+  void fillLineStylesComboBox();
   void fillPointStylesComboBox();
   void setLineColorBox(const QColor &c);
+  void setLineStyleIndex(const LineStyles ls);
   void setPointColorBox(const QColor &c);
   void setPointFillColorBox(const QColor &c);
   void setPointStyleIndex(const PointStyles ps);
@@ -96,6 +110,7 @@ private slots:
   void onAxisSelected(const int idx);
   void onCancelClicked();
   void onOkClicked();
+  void onLineStyleSelected(const int idx);
   void onPickLineColorClicked();
   void onPickPointColorClicked();
   void onPickPointFillColorClicked();

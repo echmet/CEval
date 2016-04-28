@@ -2,6 +2,7 @@
 
 const QString StandardModeContextSettingsHandler::SERIE_VISIBLE_SETTINGS_TAG("Serie-Visible");
 const QString StandardModeContextSettingsHandler::LINE_COLOR_SETTINGS_TAG("Line-Color");
+const QString StandardModeContextSettingsHandler::LINE_STYLE_SETTINGS_TAG("Line-Style");
 const QString StandardModeContextSettingsHandler::LINE_THICKNESS_SETTINGS_TAG("Line-Thickness");
 const QString StandardModeContextSettingsHandler::POINT_COLOR_SETTINGS_TAG("Point-Color");
 const QString StandardModeContextSettingsHandler::POINT_FILLCOLOR_SETTINGS_TAG("Point-FillColor");
@@ -42,6 +43,16 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
         if (v.canConvert<bool>()) {
           bool b = v.value<bool>();
           vs.visible = b;
+        }
+      }
+
+
+      if (innerMap.contains(LINE_STYLE_SETTINGS_TAG)) {
+        QVariant v = innerMap[LINE_STYLE_SETTINGS_TAG];
+
+        if (v.canConvert<int>()) {
+          Qt::PenStyle ps = static_cast<Qt::PenStyle>(v.value<int>());
+          vs.pen.setStyle(ps);
         }
       }
 
@@ -157,6 +168,7 @@ EMT::StringVariantMap StandardModeContextSettingsHandler::saveUserSettings(ModeC
 
     map.insert(SERIE_VISIBLE_SETTINGS_TAG, vs.visible);
     map.insert(LINE_COLOR_SETTINGS_TAG, vs.pen.color());
+    map.insert(LINE_STYLE_SETTINGS_TAG, QVariant::fromValue<int>(vs.pen.style()));
     map.insert(LINE_THICKNESS_SETTINGS_TAG, vs.pen.widthF());
     map.insert(POINT_COLOR_SETTINGS_TAG, vs.symbol()->pen().color());
     map.insert(POINT_FILLCOLOR_SETTINGS_TAG, vs.symbol()->brush().color());

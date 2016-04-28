@@ -38,6 +38,7 @@ void AdjustPlotVisualsDialog::SerieVisuals::fromOther(const SerieVisuals &other)
   pointFillColor = other.pointFillColor;
   pointSize = other.pointSize;
   pointStyle = other.pointStyle;
+  lineStyle = other.lineStyle;
 }
 
 AdjustPlotVisualsDialog::SerieVisuals &AdjustPlotVisualsDialog::SerieVisuals::operator=(const SerieVisuals &other)
@@ -51,6 +52,7 @@ AdjustPlotVisualsDialog::SerieVisuals &AdjustPlotVisualsDialog::SerieVisuals::op
   pointFillColor = other.pointFillColor;
   pointSize = other.pointSize;
   pointStyle = other.pointStyle;
+  lineStyle = other.lineStyle;
 
   return *this;
 }
@@ -64,6 +66,7 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   ui->ql_pointColorClr->setAutoFillBackground(true);
   ui->ql_pointFillColorClr->setAutoFillBackground(true);
 
+  fillLineStylesComboBox();
   fillPointStylesComboBox();
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &AdjustPlotVisualsDialog::onCancelClicked);
@@ -84,6 +87,7 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   connect(ui->qcb_axisBold, &QCheckBox::stateChanged, this, &AdjustPlotVisualsDialog::onAxisFontBoldChanged);
 
   connect(ui->qcbox_series, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onSerieSelected);
+  connect(ui->qcbox_lineStyles, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onLineStyleSelected);
   connect(ui->qcbox_pointStyles, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &AdjustPlotVisualsDialog::onPointStyleSelected);
   connect(ui->qcbox_axis, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onAxisSelected);
 }
@@ -128,6 +132,16 @@ T AdjustPlotVisualsDialog::datatypeFromItem(const QStandardItem *item) const
   Q_ASSERT(v.canConvert<T>());
 
   return v.value<T>();
+}
+
+void AdjustPlotVisualsDialog::fillLineStylesComboBox()
+{
+  QComboBox *qcbox = ui->qcbox_lineStyles;
+
+  for (int idx = 0; idx < static_cast<int>(LineStyles::LAST_INDEX); idx++) {
+    LineStyles ls = static_cast<LineStyles>(idx);
+    qcbox->addItem(lineStyleName(ls), QVariant::fromValue<LineStyles>(ls));
+  }
 }
 
 void AdjustPlotVisualsDialog::fillPointStylesComboBox()
@@ -178,6 +192,22 @@ void AdjustPlotVisualsDialog::onAxisSelected(const int idx)
 void AdjustPlotVisualsDialog::onCancelClicked()
 {
   reject();
+}
+
+void AdjustPlotVisualsDialog::onLineStyleSelected(const int idx)
+{
+  QStandardItem *pointItem = comboBoxItem(ui->qcbox_lineStyles, idx);
+  QStandardItem *serieItem = comboBoxItem(ui->qcbox_series, ui->qcbox_series->currentIndex());
+
+  if (pointItem == nullptr || serieItem == nullptr)
+    return;
+
+  LineStyles ls = datatypeFromItem<LineStyles>(pointItem);
+  SerieVisuals sv = datatypeFromItem<SerieVisuals>(serieItem);
+
+  sv.lineStyle = ls;
+
+  serieItem->setData(QVariant::fromValue<SerieVisuals>(sv), Qt::UserRole);
 }
 
 void AdjustPlotVisualsDialog::onLineThicknessChanged(const double t)
@@ -302,6 +332,7 @@ void AdjustPlotVisualsDialog::onSerieSelected(const int idx)
   SerieVisuals sv = datatypeFromItem<SerieVisuals>(item);
 
   setLineColorBox(sv.lineColor);
+  setLineStyleIndex(sv.lineStyle);
   setPointColorBox(sv.pointColor);
   setPointStyleIndex(sv.pointStyle);
   setPointFillColorBox(sv.pointFillColor);
@@ -310,6 +341,28 @@ void AdjustPlotVisualsDialog::onSerieSelected(const int idx)
   ui->qspbox_lineThickness->setValue(sv.lineThickness);
   ui->qspbox_pointLineThickness->setValue(sv.pointLineThickness);
   ui->qspbox_pointSize->setValue(sv.pointSize);
+}
+
+QString AdjustPlotVisualsDialog::lineStyleName(const LineStyles ls)
+{
+  switch (ls) {
+  case LineStyles::DASH:
+    return tr("Dashed");
+    break;
+  case LineStyles::DASH_DOT:
+    return tr("Dash-dotted");
+    break;
+  case LineStyles::DASH_DOT_DOT:
+    return tr("Dash-dot-dotted");
+    break;
+  case LineStyles::DOT:
+    return tr("Dotted");
+    break;
+  case LineStyles::SOLID:
+    return tr("Solid");
+  default:
+    return "";
+  }
 }
 
 void AdjustPlotVisualsDialog::onSetForAllAxesClicked()
@@ -422,6 +475,23 @@ void AdjustPlotVisualsDialog::setPointColorBox(const QColor &c)
 void AdjustPlotVisualsDialog::setPointFillColorBox(const QColor &c)
 {
   ui->ql_pointFillColorClr->setStyleSheet(backgroundColorToStyleSheet(c));
+}
+
+void AdjustPlotVisualsDialog::setLineStyleIndex(const LineStyles ls)
+{
+  QStandardItemModel *model = qobject_cast<QStandardItemModel *>(ui->qcbox_lineStyles->model());
+  if (model == nullptr)
+    return;
+
+  for (int idx = 0; idx < model->rowCount(); idx++) {
+    QStandardItem *item = model->item(idx);
+    LineStyles ils = datatypeFromItem<LineStyles>(item);
+
+    if (ils == ls) {
+      ui->qcbox_lineStyles->setCurrentIndex(idx);
+      return;
+    }
+  }
 }
 
 void AdjustPlotVisualsDialog::setPointStyleIndex(const PointStyles ps)

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>277</width>
-    <height>594</height>
+    <height>620</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,14 +39,14 @@
           </property>
          </widget>
         </item>
-        <item row="3" column="0">
+        <item row="4" column="0">
          <widget class="QLabel" name="ql_lineColor">
           <property name="text">
            <string>Line color</string>
           </property>
          </widget>
         </item>
-        <item row="3" column="1">
+        <item row="4" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout">
           <item>
            <widget class="QLabel" name="ql_lineColorClr">
@@ -73,14 +73,14 @@
           </item>
          </layout>
         </item>
-        <item row="4" column="0">
+        <item row="5" column="0">
          <widget class="QLabel" name="ql_lineThickness">
           <property name="text">
            <string>Line thickness</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
+        <item row="5" column="1">
          <widget class="QDoubleSpinBox" name="qspbox_lineThickness">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -99,21 +99,21 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
+        <item row="6" column="0">
          <widget class="QLabel" name="ql_pointColor">
           <property name="text">
            <string>Point color</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
+        <item row="7" column="0">
          <widget class="QLabel" name="ql_pointSize">
           <property name="text">
            <string>Point size</string>
           </property>
          </widget>
         </item>
-        <item row="5" column="1">
+        <item row="6" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QLabel" name="ql_pointColorClr">
@@ -140,7 +140,7 @@
           </item>
          </layout>
         </item>
-        <item row="6" column="1">
+        <item row="7" column="1">
          <widget class="QSpinBox" name="qspbox_pointSize">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -173,21 +173,21 @@
           </property>
          </widget>
         </item>
-        <item row="7" column="0">
+        <item row="8" column="0">
          <widget class="QLabel" name="ql_pointLineThickness">
           <property name="text">
            <string>Point line thinckness</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
+        <item row="9" column="0">
          <widget class="QLabel" name="ql_pointFillColor">
           <property name="text">
            <string>Point fill color</string>
           </property>
          </widget>
         </item>
-        <item row="7" column="1">
+        <item row="8" column="1">
          <widget class="QDoubleSpinBox" name="qspbox_pointLineThickness">
           <property name="sizePolicy">
            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -206,7 +206,7 @@
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
+        <item row="9" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QLabel" name="ql_pointFillColorClr">
@@ -241,6 +241,23 @@
          <widget class="QCheckBox" name="qcb_visible">
           <property name="text">
            <string/>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="0">
+         <widget class="QLabel" name="ql_lineStyle">
+          <property name="text">
+           <string>Line style</string>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1">
+         <widget class="QComboBox" name="qcbox_lineStyles">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
          </widget>
         </item>
