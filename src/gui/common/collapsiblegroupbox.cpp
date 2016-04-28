@@ -51,7 +51,7 @@ void CollapsibleGroupBox::onVisibilityChanged()
 
 void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
 {
-  QScreen *scr = QGuiApplication::primaryScreen();
+  const QScreen *scr = QGuiApplication::primaryScreen();
 
   if (scr == nullptr)
     return;
