@@ -1,25 +1,24 @@
 #include "collapsiblegroupbox.h"
 #include "collapseexpandbutton.h"
+#include <QGuiApplication>
 #include <QLayout>
 #include <QResizeEvent>
-
-#include <QDebug>
+#include <QScreen>
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   QGroupBox(parent)
 {
-
-  qDebug() << "CGBox" << this->width();
-
   m_clExpButton = new CollapseExpandButton(this);
-  m_clExpButton->setGeometry(this->width() - 25, 0, 25, 25);
+
+  resizeCollapseButton(this->size());
 
   connect(m_clExpButton, &CollapseExpandButton::clicked, this, &CollapsibleGroupBox::onVisibilityChanged);
+  connect(qApp, &QGuiApplication::primaryScreenChanged, this, &CollapsibleGroupBox::onPrimaryScreenChanged);
 }
 
-void CollapsibleGroupBox::resizeEvent(QResizeEvent *ev)
+void CollapsibleGroupBox::onPrimaryScreenChanged()
 {
-  m_clExpButton->setGeometry(ev->size().width() - 25, 0, 25, 25);
+  resizeCollapseButton(this->size());
 }
 
 void CollapsibleGroupBox::onVisibilityChanged()
@@ -48,4 +47,22 @@ void CollapsibleGroupBox::onVisibilityChanged()
     }
     break;
   }
+}
+
+void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
+{
+  QScreen *scr = QGuiApplication::primaryScreen();
+
+  if (scr == nullptr)
+    return;
+
+  const qreal dpi = scr->logicalDotsPerInchX();
+  const qreal btnSize = floor((25.0 * dpi / 96.0) + 0.5);
+
+  m_clExpButton->setGeometry(size.width() - btnSize, 0, btnSize, btnSize);
+}
+
+void CollapsibleGroupBox::resizeEvent(QResizeEvent *ev)
+{
+  resizeCollapseButton(ev->size());
 }

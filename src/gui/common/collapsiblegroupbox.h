@@ -15,9 +15,12 @@ protected:
   void resizeEvent(QResizeEvent *ev);
 
 private:
+  void resizeCollapseButton(const QSize &size);
+
   CollapseExpandButton *m_clExpButton;
 
 private slots:
+  void onPrimaryScreenChanged();
   void onVisibilityChanged();
 
 };
