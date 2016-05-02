@@ -11,16 +11,16 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Check for update</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QWidget" name="qw_result" native="true"/>
+    <widget class="SoftwareUpdateWidget" name="qw_result" native="true"/>
    </item>
    <item>
     <widget class="QLabel" name="ql_error">
      <property name="text">
-      <string>&lt;Error description, if any&gt;</string>
+      <string/>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
@@ -80,6 +80,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>SoftwareUpdateWidget</class>
+   <extends>QWidget</extends>
+   <header>src/gui/softwareupdatewidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

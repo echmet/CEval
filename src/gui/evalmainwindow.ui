@@ -48,6 +48,7 @@
     <property name="title">
      <string>Help</string>
     </property>
+    <addaction name="actionCheck_for_update"/>
     <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuExport">
@@ -106,12 +107,17 @@
   </action>
   <action name="actionExport_plot_as_image">
    <property name="text">
-    <string>Export plot as image</string>
+    <string>&amp;Export plot as image</string>
    </property>
   </action>
   <action name="actionExport_plot_data_as_CSV">
    <property name="text">
-    <string>Export plot data as CSV</string>
+    <string>Export &amp;plot data as CSV</string>
+   </property>
+  </action>
+  <action name="actionCheck_for_update">
+   <property name="text">
+    <string>Check for update</string>
    </property>
   </action>
  </widget>

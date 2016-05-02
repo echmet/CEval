@@ -95,6 +95,7 @@ void UpdateListFetcher::onDataAvailable()
 
   qDebug() << data;
 
+  m_updateInfoList.clear();
   m_xmlReader->addData(data);
   m_parseState = ParseState::AT_START;
 

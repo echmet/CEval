@@ -33,7 +33,7 @@ class SoftwareUpdater : public QObject
 public:
   explicit SoftwareUpdater(QObject *parent = nullptr);
   ~SoftwareUpdater();
-  void abortCheck();
+  bool automaticCheckEnabled() const;
   void checkAutomatically();
   void checkForUpdate(const bool automatic);
   void loadUserSettings(const QVariant &settings);
@@ -52,9 +52,12 @@ private:
 
 signals:
   void automaticCheckComplete(const UpdateCheckResults &results);
+  void autoUpdateChanged(const bool enabled);
   void checkComplete(const UpdateCheckResults &results);
 
 public slots:
+  void abortCheck();
+  void onCheckForUpdate();
   void onSetAutoUpdate(const bool enabled);
 
 private slots:

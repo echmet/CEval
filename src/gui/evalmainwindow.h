@@ -10,6 +10,9 @@
 #include "maincontrolswidget.h"
 #include "qwt_plot.h"
 
+class CheckForUpdateDialog;
+class SoftwareUpdater;
+
 namespace Ui {
 class EvalMainWindow;
 }
@@ -21,6 +24,7 @@ public:
   explicit EvalMainWindow(QWidget *parent = nullptr);
   ~EvalMainWindow();
   void connectToAccumulator(QObject *dac);
+  void connectToSoftwareUpdater(SoftwareUpdater *updater);
   QwtPlot *plot();
   void setDefaultState();
 
@@ -31,6 +35,7 @@ private:
   QSplitter *m_controlsSplitter;
   MainControlsWidget *m_mainControlsWidget;
 
+  CheckForUpdateDialog *m_updateDlg;
   QMenu *m_exportEvaluationMenu;
   QMenu *m_exportHyperboleFitMenu;
 
@@ -50,6 +55,7 @@ public slots:
 private slots:
   void onActionAbout();
   void onActionAdjustPlotAppearance();
+  void onActionCheckForUpdate();
   void onActionCurrentPeakToCsv();
   void onActionExit();
   void onActionExportDataTableCsv();

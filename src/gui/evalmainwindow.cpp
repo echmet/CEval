@@ -1,6 +1,7 @@
 #include "evalmainwindow.h"
 #include "ui_evalmainwindow.h"
 #include "aboutdialog.h"
+#include "checkforupdatedialog.h"
 #include "../evaluationparametersitems.h"
 #include "../evalmainwindowconnector.h"
 #include "../helpers.h"
@@ -18,6 +19,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   m_upmostSplitter = new QSplitter(Qt::Vertical, this);
   m_controlsSplitter = new QSplitter(Qt::Horizontal, m_upmostSplitter);
   m_mainControlsWidget = new MainControlsWidget(m_controlsSplitter);
+  m_updateDlg = new CheckForUpdateDialog(this);
 
   ui->setupUi(this);
 
@@ -64,6 +66,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 
   connect(ui->actionAbout, &QAction::triggered, this, &EvalMainWindow::onActionAbout);
   connect(ui->actionAdjust_plot_appearance, &QAction::triggered, this, &EvalMainWindow::onActionAdjustPlotAppearance);
+  connect(ui->actionCheck_for_update, &QAction::triggered, this, &EvalMainWindow::onActionCheckForUpdate);
   connect(ui->actionExit, &QAction::triggered, this, &EvalMainWindow::onActionExit);
   connect(ui->actionExport_plot_as_image, &QAction::triggered, this, &EvalMainWindow::onActionExportPlotAsImage);
   connect(ui->actionLoad_ChemStation_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadChemStationFile);
@@ -121,6 +124,11 @@ void EvalMainWindow::onActionAbout()
 void EvalMainWindow::onActionAdjustPlotAppearance()
 {
   emit adjustPlotAppearance();
+}
+
+void EvalMainWindow::onActionCheckForUpdate()
+{
+  m_updateDlg->exec();
 }
 
 void EvalMainWindow::onActionCurrentPeakToCsv()

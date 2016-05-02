@@ -42,6 +42,11 @@ void SoftwareUpdater::abortCheck()
   m_fetcher.abortFetch();
 }
 
+bool SoftwareUpdater::automaticCheckEnabled() const
+{
+  return m_checkAutomatically;
+}
+
 void SoftwareUpdater::checkAutomatically()
 {
   if (!m_checkAutomatically)
@@ -112,6 +117,11 @@ void SoftwareUpdater::onAutomaticCheckComplete(const UpdateCheckResults &results
   m_autoDlg->exec();
 }
 
+void SoftwareUpdater::onCheckForUpdate()
+{
+  checkForUpdate(false);
+}
+
 void SoftwareUpdater::onListFetched(const UpdateListFetcher::RetCode tRet, const SoftwareUpdateInfoMap &map)
 {
   if (!m_automatic) {
@@ -162,6 +172,8 @@ void SoftwareUpdater::onListFetched(const UpdateListFetcher::RetCode tRet, const
 void SoftwareUpdater::onSetAutoUpdate(const bool enabled)
 {
   m_checkAutomatically = enabled;
+
+  emit autoUpdateChanged(m_checkAutomatically);
 }
 
 QVariant SoftwareUpdater::saveUserSettings() const

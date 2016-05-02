@@ -106,7 +106,8 @@ SOURCES += src/main.cpp \
     src/gui/checkforupdatedialog.cpp \
     src/softwareupdateinfo.cpp \
     src/updatelistfetcher.cpp \
-    src/softwareupdater.cpp
+    src/softwareupdater.cpp \
+    src/evalmainwindowsoftwareupdaterconnector.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \

@@ -104,6 +104,7 @@ int main(int argc, char *argv[])
   dac->checkForCrashRecovery();
 
   updater->checkAutomatically();
+  w->connectToSoftwareUpdater(updater);
 
   aRet =  a.exec();
 
