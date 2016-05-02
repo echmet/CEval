@@ -100,6 +100,7 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   double s0 = regressor.GetS();
 
   bool ok = regressor.Regress();
+
   if (!ok) {
     emit hvlFitDone();
     return;
@@ -165,7 +166,9 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   fitThr.join();
 
   if (!p.isValid()) {
-    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge. HVL plot will be nonsensical."));
+    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
+                                                           "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
+                                                           "of iterations will not have any effect.").arg(in.iterations));
     return p;
   }
 
