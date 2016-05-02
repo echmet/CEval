@@ -100,7 +100,10 @@ SOURCES += src/main.cpp \
     src/ploteventfilter.cpp \
     src/peakcontext.cpp \
     src/gui/common/collapseexpandbutton.cpp \
-    src/gui/common/collapsiblegroupbox.cpp
+    src/gui/common/collapsiblegroupbox.cpp \
+    src/gui/softwareupdatewidget.cpp \
+    src/gui/autoupdatecheckdialog.cpp \
+    src/gui/checkforupdatedialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -263,7 +266,10 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/manualpeakfinder.h \
     src/ploteventfilter.h \
     src/gui/common/collapseexpandbutton.h \
-    src/gui/common/collapsiblegroupbox.h
+    src/gui/common/collapsiblegroupbox.h \
+    src/gui/softwareupdatewidget.h \
+    src/gui/autoupdatecheckdialog.h \
+    src/gui/checkforupdatedialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -283,7 +289,10 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/evaluationupperwidget.ui \
     src/gui/setaxistitlesdialog.ui \
     src/gui/exportdatatabletocsvdialog.ui \
-    src/gui/exportplottoimagedialog.ui
+    src/gui/exportplottoimagedialog.ui \
+    src/gui/softwareupdatewidget.ui \
+    src/gui/autoupdatecheckdialog.ui \
+    src/gui/checkforupdatedialog.ui
 
 unix {
     LIBS += -ldl

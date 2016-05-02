@@ -1,3 +1,4 @@
+#include "gui/autoupdatecheckdialog.h"
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
 #include "crashhandler.h"
