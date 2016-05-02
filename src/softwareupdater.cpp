@@ -1,8 +1,10 @@
 #include "softwareupdater.h"
+#include <QVariant>
 #include "globals.h"
 #include "gui/autoupdatecheckdialog.h"
 
 const QUrl SoftwareUpdater::UPDATE_LINK("http://devoid-pointer.net/echmet/testfile.xml");
+const QString SoftwareUpdater::CHECK_AUTOMATICALLY_SETTINGS_TAG("CheckAutomatically");
 
 UpdateCheckResults::UpdateCheckResults() :
   status(Status::INVALID),
@@ -27,6 +29,7 @@ SoftwareUpdater::SoftwareUpdater(QObject *parent) : QObject(parent),
 
   connect(&m_fetcher, &UpdateListFetcher::listFetched, this, &SoftwareUpdater::onListFetched);
   connect(this, &SoftwareUpdater::automaticCheckComplete, this, &SoftwareUpdater::onAutomaticCheckComplete);
+  connect(m_autoDlg, &AutoUpdateCheckDialog::setAutoUpdate, this, &SoftwareUpdater::onSetAutoUpdate);
 }
 
 SoftwareUpdater::~SoftwareUpdater()
@@ -69,6 +72,22 @@ void SoftwareUpdater::checkForUpdate(const bool automatic)
   }
 
   m_automatic = automatic;
+}
+
+void SoftwareUpdater::loadUserSettings(const QVariant &settings)
+{
+  if (!settings.isValid())
+    return;
+  if (!settings.canConvert<QMap<QString, QVariant>>())
+    return;
+
+  QMap<QString, QVariant> settingsMap = settings.value<QMap<QString, QVariant>>();
+
+  if (settingsMap.contains(CHECK_AUTOMATICALLY_SETTINGS_TAG)) {
+    QVariant autoCheck = settingsMap[CHECK_AUTOMATICALLY_SETTINGS_TAG];
+
+    m_checkAutomatically = autoCheck.toBool();
+  }
 }
 
 void SoftwareUpdater::onAutomaticCheckComplete(const UpdateCheckResults &results)
@@ -143,4 +162,13 @@ void SoftwareUpdater::onListFetched(const UpdateListFetcher::RetCode tRet, const
 void SoftwareUpdater::onSetAutoUpdate(const bool enabled)
 {
   m_checkAutomatically = enabled;
+}
+
+QVariant SoftwareUpdater::saveUserSettings() const
+{
+  QMap<QString, QVariant> map;
+
+  map.insert(CHECK_AUTOMATICALLY_SETTINGS_TAG, m_checkAutomatically);
+
+  return map;
 }

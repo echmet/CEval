@@ -12,6 +12,7 @@
 
 static const QString DAC_SETTINGS_TAG("DataAccumulator");
 static const QString NUM_FORMAT_SETTINGS_TAG("NumFormat");
+static const QString SOFTWARE_UPDATER_SETTINGS_TAG("SoftwareUpdater");
 static const QString ROOT_SETTINGS_TAG("Root");
 
 QString configFileName()
@@ -19,7 +20,7 @@ QString configFileName()
   return Globals::SOFTWARE_NAME + QString(".conf");
 }
 
-void loadUserSettings(DataAccumulator *dac)
+void loadUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 {
   QSettings s(configFileName(), QSettings::IniFormat);
 
@@ -34,6 +35,9 @@ void loadUserSettings(DataAccumulator *dac)
 
   if (rootMap.contains(NUM_FORMAT_SETTINGS_TAG))
     DoubleToStringConvertor::loadUserSettings(rootMap[NUM_FORMAT_SETTINGS_TAG]);
+
+  if (rootMap.contains(SOFTWARE_UPDATER_SETTINGS_TAG))
+    updater->loadUserSettings(rootMap[SOFTWARE_UPDATER_SETTINGS_TAG]);
 }
 
 void setupBindings(EvalMainWindow *w, DataAccumulator *dac)
@@ -41,7 +45,7 @@ void setupBindings(EvalMainWindow *w, DataAccumulator *dac)
   w->connectToAccumulator(dac);
 }
 
-void saveUserSettings(DataAccumulator *dac)
+void saveUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 {
   QSettings s(configFileName(), QSettings::IniFormat);
 
@@ -49,6 +53,7 @@ void saveUserSettings(DataAccumulator *dac)
 
   map.insert(DAC_SETTINGS_TAG, dac->saveUserSettings());
   map.insert(NUM_FORMAT_SETTINGS_TAG, DoubleToStringConvertor::saveUserSettings());
+  map.insert(SOFTWARE_UPDATER_SETTINGS_TAG, updater->saveUserSettings());
 
   s.setValue(ROOT_SETTINGS_TAG, map);
 }
@@ -86,24 +91,23 @@ int main(int argc, char *argv[])
     goto out;
   }
 
-  updater->checkAutomatically();
-
   HVLCalculator::initialize();
 
   setupBindings(w, dac);
 
   w->show();
-  loadUserSettings(dac);
+  loadUserSettings(dac, updater);
 
   setDefaultState(w);
   DoubleToStringConvertor::setInitial();
 
-
   dac->checkForCrashRecovery();
+
+  updater->checkAutomatically();
 
   aRet =  a.exec();
 
-  saveUserSettings(dac);
+  saveUserSettings(dac, updater);
 
 out:
   CrashHandler::uninstall();

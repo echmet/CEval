@@ -36,6 +36,8 @@ public:
   void abortCheck();
   void checkAutomatically();
   void checkForUpdate(const bool automatic);
+  void loadUserSettings(const QVariant &settings);
+  QVariant saveUserSettings() const;
 
 private:
   UpdateListFetcher m_fetcher;
@@ -46,6 +48,7 @@ private:
   bool m_checkAutomatically;
 
   static const QUrl UPDATE_LINK;
+  static const QString CHECK_AUTOMATICALLY_SETTINGS_TAG;
 
 signals:
   void automaticCheckComplete(const UpdateCheckResults &results);
