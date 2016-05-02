@@ -59,26 +59,37 @@ void UpdateListFetcher::abortFetch()
 
 UpdateListFetcher::RetCode UpdateListFetcher::fetch(const QUrl &link)
 {
+  RetCode tRet;
+  QNetworkRequest request(link);
+
   m_netLock.lock();
 
-  if (m_netReply != nullptr)
-    return RetCode::E_IN_PROGRESS;
+  if (m_netReply != nullptr) {
+    tRet = RetCode::E_IN_PROGRESS;
+    goto out;
+  }
 
-  if (m_netMgr->networkAccessible() != QNetworkAccessManager::Accessible)
-    return RetCode::E_NOT_CONNECTED;
+  if (m_netMgr->networkAccessible() != QNetworkAccessManager::Accessible) {
+    tRet = RetCode::E_NOT_CONNECTED;
+    goto out;
+  }
 
-  QNetworkRequest request(link);
   m_netReply = m_netMgr->get(request);
 
-  if (m_netReply == nullptr)
-    return RetCode::E_NO_MEM;
+  if (m_netReply == nullptr) {
+    tRet =  RetCode::E_NO_MEM;
+    goto out;
+  }
 
   connect(m_netReply, &QNetworkReply::finished, this, &UpdateListFetcher::onDataAvailable);
   connect(m_netReply, &QNetworkReply::destroyed, this, &UpdateListFetcher::onReplyDeleted);
 
+  tRet = RetCode::OK;
+
+out:
   m_netLock.unlock();
 
-  return RetCode::OK;
+  return tRet;
 }
 
 void UpdateListFetcher::onDataAvailable()
