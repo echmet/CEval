@@ -52,6 +52,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionExit->setIcon(QIcon::fromTheme("application-exit"));
   ui->actionAdjust_plot_appearance->setIcon(QIcon::fromTheme("preferences-system"));
   ui->actionSet_number_format->setIcon(QIcon::fromTheme("preferences-system"));
+  ui->actionCheck_for_update->setIcon(QIcon::fromTheme("system-software-update"));
   ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
 #else
   ui->actionLoad_ChemStation_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
@@ -61,6 +62,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
   ui->actionAdjust_plot_appearance->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
   ui->actionSet_number_format->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
+  ui->actionCheck_for_update->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
   ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
 #endif // Q_OS
 
