@@ -22,12 +22,18 @@ SoftwareUpdateWidget::~SoftwareUpdateWidget()
 
 void SoftwareUpdateWidget::setDisplay(const Result result, const QString &versionTag, const QString &downloadLink)
 {
+  ui->ql_newVersion->setText("");
+  ui->ql_link->setText("");
+  ui->ql_link->setOpenExternalLinks(false);
+
   switch (result) {
   case Result::FAILED:
     ui->ql_result->setText(tr("Check for updates has failed"));
+    return;
     break;
   case Result::UP_TO_DATE:
     ui->ql_result->setText(QString(tr("%1 is up to date")).arg(Globals::SOFTWARE_NAME));
+    return;
     break;
   case Result::UPDATE_AVAILABLE:
     ui->ql_result->setText(QString(tr("Update for %1 is available")).arg(Globals::SOFTWARE_NAME));
