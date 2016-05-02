@@ -42,9 +42,11 @@ void CheckForUpdateDialog::onCheckComplete(const UpdateCheckResults &results)
     break;
   case UpdateCheckResults::Status::UP_TO_DATE:
     r = SoftwareUpdateWidget::Result::UP_TO_DATE;
+    ui->ql_error->setText("");
     break;
   case UpdateCheckResults::Status::UPDATE_AVAILABLE:
     r = SoftwareUpdateWidget::Result::UPDATE_AVAILABLE;
+    ui->ql_error->setText("");
     break;
   default:
     return;
