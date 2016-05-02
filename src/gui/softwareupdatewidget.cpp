@@ -35,6 +35,6 @@ void SoftwareUpdateWidget::setDisplay(const Result result, const QString &versio
   }
 
   ui->ql_newVersion->setText(versionTag);
-  ui->ql_link->setText(QString("<a href=\"%1\">%1</a>").arg(downloadLink.toHtmlEscaped()));
+  ui->ql_link->setText(QString("Download new version from:<br /><a href=\"%1\">%1</a>").arg(downloadLink.toHtmlEscaped()));
   ui->ql_link->setOpenExternalLinks(true);
 }
