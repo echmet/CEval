@@ -3,29 +3,11 @@
 
 #include <QObject>
 #include <QUrl>
+#include "updatecheckresults.h"
 #include "updatelistfetcher.h"
 
 class AutoUpdateCheckDialog;
 class UpdateListFetcher;
-
-class UpdateCheckResults {
-public:
-  enum class Status {
-    INVALID,
-    FAILED,
-    UP_TO_DATE,
-    UPDATE_AVAILABLE
-  };
-
-  UpdateCheckResults();
-  UpdateCheckResults(const Status status, const QString downloadLink, const QString versionTag, const QString errorMessage);
-
-  const Status status;
-  const QString downloadLink;
-  const QString errorMessage;
-  const QString versionTag;
-};
-Q_DECLARE_METATYPE(UpdateCheckResults)
 
 class SoftwareUpdater : public QObject
 {

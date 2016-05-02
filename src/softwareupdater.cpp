@@ -6,22 +6,6 @@
 const QUrl SoftwareUpdater::UPDATE_LINK("http://devoid-pointer.net/echmet/testfile.xml");
 const QString SoftwareUpdater::CHECK_AUTOMATICALLY_SETTINGS_TAG("CheckAutomatically");
 
-UpdateCheckResults::UpdateCheckResults() :
-  status(Status::INVALID),
-  downloadLink(""),
-  errorMessage(""),
-  versionTag("")
-{
-}
-
-UpdateCheckResults::UpdateCheckResults(const Status status, const QString downloadLink, const QString versionTag, const QString errorMessage) :
-  status(status),
-  downloadLink(downloadLink),
-  errorMessage(errorMessage),
-  versionTag(versionTag)
-{
-}
-
 SoftwareUpdater::SoftwareUpdater(QObject *parent) : QObject(parent),
   m_checkAutomatically(true)
 {

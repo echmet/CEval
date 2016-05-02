@@ -1,6 +1,6 @@
 #include "checkforupdatedialog.h"
 #include "ui_checkforupdatedialog.h"
-#include "../softwareupdater.h"
+#include "../updatecheckresults.h"
 #include "softwareupdatewidget.h"
 
 CheckForUpdateDialog::CheckForUpdateDialog(QWidget *parent) :
