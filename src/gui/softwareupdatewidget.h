@@ -10,10 +10,17 @@ class SoftwareUpdateWidget;
 class SoftwareUpdateWidget : public QWidget
 {
   Q_OBJECT
-
 public:
-  explicit SoftwareUpdateWidget(QWidget *parent = 0);
+  enum class Result {
+    FAILED,
+    UP_TO_DATE,
+    UPDATE_AVAILABLE
+  };
+  Q_ENUM(Result)
+
+  explicit SoftwareUpdateWidget(QWidget *parent = nullptr);
   ~SoftwareUpdateWidget();
+  void setDisplay(const Result result, const QString &versionTag, const QString &downloadLink);
 
 private:
   Ui::SoftwareUpdateWidget *ui;

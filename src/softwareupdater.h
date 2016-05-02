@@ -5,6 +5,7 @@
 #include <QUrl>
 #include "updatelistfetcher.h"
 
+class AutoUpdateCheckDialog;
 class UpdateListFetcher;
 
 class UpdateCheckResults {
@@ -33,20 +34,28 @@ public:
   explicit SoftwareUpdater(QObject *parent = nullptr);
   ~SoftwareUpdater();
   void abortCheck();
-  void checkForUpdate(const bool silent);
+  void checkAutomatically();
+  void checkForUpdate(const bool automatic);
 
 private:
   UpdateListFetcher m_fetcher;
-  bool m_silent;
+  bool m_automatic;
+
+  AutoUpdateCheckDialog *m_autoDlg;
+
+  bool m_checkAutomatically;
 
   static const QUrl UPDATE_LINK;
 
 signals:
+  void automaticCheckComplete(const UpdateCheckResults &results);
   void checkComplete(const UpdateCheckResults &results);
 
 public slots:
+  void onSetAutoUpdate(const bool enabled);
 
 private slots:
+  void onAutomaticCheckComplete(const UpdateCheckResults &results);
   void onListFetched(const UpdateListFetcher::RetCode tRet, const SoftwareUpdateInfoMap &map);
 
 };

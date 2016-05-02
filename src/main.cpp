@@ -1,4 +1,3 @@
-#include "gui/autoupdatecheckdialog.h"
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
 #include "crashhandler.h"
@@ -86,6 +85,8 @@ int main(int argc, char *argv[])
     aRet = EXIT_FAILURE;
     goto out;
   }
+
+  updater->checkAutomatically();
 
   HVLCalculator::initialize();
 
