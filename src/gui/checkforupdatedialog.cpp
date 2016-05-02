@@ -57,6 +57,7 @@ void CheckForUpdateDialog::onCheckComplete(const UpdateCheckResults &results)
 
 void CheckForUpdateDialog::onCheckNowClicked()
 {
+  ui->ql_error->setText("Checking for updates...");
   emit checkForUpdate();
 }
 
