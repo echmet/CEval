@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui network widgets
 
 TARGET = CEval
 TEMPLATE = app
@@ -104,6 +104,9 @@ SOURCES += src/main.cpp \
     src/gui/softwareupdatewidget.cpp \
     src/gui/autoupdatecheckdialog.cpp \
     src/gui/checkforupdatedialog.cpp
+    src/softwareupdateinfo.cpp \
+    src/updatelistfetcher.cpp \
+    src/softwareupdater.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -270,6 +273,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/softwareupdatewidget.h \
     src/gui/autoupdatecheckdialog.h \
     src/gui/checkforupdatedialog.h
+    src/softwareupdateinfo.h \
+    src/updatelistfetcher.h \
+    src/softwareupdater.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
