@@ -99,7 +99,11 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
 
   double s0 = regressor.GetS();
 
-  regressor.Regress();
+  bool ok = regressor.Regress();
+  if (!ok) {
+    emit hvlFitDone();
+    return;
+  }
 
   out->a0 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a0);
   out->a1 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a1);
@@ -159,6 +163,11 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 
   inProgressDlg.exec();
   fitThr.join();
+
+  if (!p.isValid()) {
+    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge. HVL plot will be nonsensical."));
+    return p;
+  }
 
   if (showStats) {
     QMessageBox::information(

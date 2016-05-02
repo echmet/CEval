@@ -459,13 +459,12 @@ RESTART:;
 
         try {
 
-            //delta
-            // $$$ delta = alpha.Inverted() * beta;
-            //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
+              //delta
+              // $$$ delta = alpha.Inverted() * beta;
+              //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
 
-            m_delta = solve(m_alpha, m_beta);
-
-        } catch (matrix_error &) {
+              m_delta = solve(m_alpha, m_beta);
+        } catch (std::runtime_error &) {
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
             m_accepted = false;
