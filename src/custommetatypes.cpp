@@ -1,4 +1,5 @@
 #include "custommetatypes.h"
+#include "softwareupdater.h"
 
 QDataStream &operator>>(QDataStream &in, EMT::SeriesSettingsMap &map)
 {
@@ -54,4 +55,5 @@ QDataStream &operator<<(QDataStream &out, const EMT::SeriesSettingsMap &map)
 void EMT::registerAll()
 {
   qRegisterMetaTypeStreamOperators<SeriesSettingsMap>("SeriesSettingsMap");
+  qRegisterMetaType<UpdateCheckResults>();
 }

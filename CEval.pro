@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui widgets
+QT       += core gui network widgets
 
 TARGET = CEval
 TEMPLATE = app
@@ -100,7 +100,10 @@ SOURCES += src/main.cpp \
     src/ploteventfilter.cpp \
     src/peakcontext.cpp \
     src/gui/common/collapseexpandbutton.cpp \
-    src/gui/common/collapsiblegroupbox.cpp
+    src/gui/common/collapsiblegroupbox.cpp \
+    src/softwareupdateinfo.cpp \
+    src/updatelistfetcher.cpp \
+    src/softwareupdater.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -263,7 +266,10 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/manualpeakfinder.h \
     src/ploteventfilter.h \
     src/gui/common/collapseexpandbutton.h \
-    src/gui/common/collapsiblegroupbox.h
+    src/gui/common/collapsiblegroupbox.h \
+    src/softwareupdateinfo.h \
+    src/updatelistfetcher.h \
+    src/softwareupdater.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

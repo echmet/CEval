@@ -5,6 +5,7 @@
 #include "doubletostringconvertor.h"
 #include "globals.h"
 #include "hvlcalculator.h"
+#include "softwareupdater.h"
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
   QApplication a(argc, argv);
   EvalMainWindow *w;
   DataAccumulator *dac;
+  SoftwareUpdater *updater;
   int aRet;
 
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);
@@ -77,11 +79,13 @@ int main(int argc, char *argv[])
   try {
     w = new EvalMainWindow(nullptr);
     dac = new DataAccumulator(w->plot(), nullptr);
+    updater = new SoftwareUpdater(nullptr);
   } catch (...) {
     QMessageBox::critical(nullptr, QObject::tr("Initialization"), QObject::tr("Unable to allocate basic data structures"));
     aRet = EXIT_FAILURE;
     goto out;
   }
+
   HVLCalculator::initialize();
 
   setupBindings(w, dac);
