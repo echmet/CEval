@@ -48,6 +48,7 @@ private:
   FloatingValueDelegate m_floatingMapperDelegate;
 
 signals:
+  void copyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void doHvlFit();
   void evaluationSetDefault(const EvaluationEngineMsgs::Default msg);
@@ -60,6 +61,10 @@ public slots:
 
 private slots:
   void onBaselineComboBoxChanged(int idx);
+  void onCtcEOFClicked();
+  void onCtcHVLClicked();
+  void onCtcPeakClicked();
+  void onCtcPeakDimsClicked();
   void onDoHvlFitClicked();
   void onFindPeaksClicked();
   void onReplotHvl();

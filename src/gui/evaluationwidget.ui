@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>678</width>
-            <height>332</height>
+            <width>1037</width>
+            <height>537</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -501,8 +501,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1010</width>
-            <height>644</height>
+            <width>1017</width>
+            <height>1038</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -524,6 +524,30 @@
               <string>EOF</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_10">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_2">
+                <item>
+                 <spacer name="horizontalSpacer">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_ctcEOF">
+                  <property name="text">
+                   <string>Copy to clipboard</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_3">
                 <item row="0" column="2">
@@ -603,6 +627,30 @@
               <string>Peak</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_11">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_8">
+                <item>
+                 <spacer name="horizontalSpacer_7">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_ctcPeak">
+                  <property name="text">
+                   <string>Copy to clipboard</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
                 <item row="2" column="2">
@@ -860,6 +908,30 @@
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_12">
               <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <spacer name="horizontalSpacer_2">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_ctcHVL">
+                  <property name="text">
+                   <string>Copy to clipboard</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+              <item>
                <layout class="QGridLayout" name="gridLayout_9">
                 <item row="3" column="5">
                  <widget class="QLineEdit" name="qle_hvlMaxIterations">
@@ -1097,6 +1169,30 @@ padding-right: 2em;</string>
               <string>Peak dimensions</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_9">
+                <item>
+                 <spacer name="horizontalSpacer_8">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_ctcPeakDims">
+                  <property name="text">
+                   <string>Copy to clipboard</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_5">
                 <item row="0" column="1">

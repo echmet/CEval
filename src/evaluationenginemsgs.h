@@ -7,6 +7,14 @@ class EvaluationEngineMsgs : public QObject
 {
   Q_OBJECT
 public:
+  enum class CopyToClipboard {
+    EOFLOW,
+    HVL,
+    PEAK,
+    PEAK_DIMS
+  };
+  Q_ENUM(CopyToClipboard)
+
   enum class ComboBox {
     BASELINE_ALGORITHM,
     DATA_FILES,

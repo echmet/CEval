@@ -26,6 +26,10 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
   connect(ui->qcb_showHvlStats, &QCheckBox::toggled, this, &EvaluationWidget::onShowHvlFitStatsToggled);
+  connect(ui->qpb_ctcEOF, &QPushButton::clicked, this, &EvaluationWidget::onCtcEOFClicked);
+  connect(ui->qpb_ctcHVL, &QPushButton::clicked, this, &EvaluationWidget::onCtcHVLClicked);
+  connect(ui->qpb_ctcPeak, &QPushButton::clicked, this, &EvaluationWidget::onCtcPeakClicked);
+  connect(ui->qpb_ctcPeakDims, &QPushButton::clicked, this, &EvaluationWidget::onCtcPeakDimsClicked);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -60,6 +64,26 @@ void EvaluationWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBox
   default:
     break;
   }
+}
+
+void EvaluationWidget::onCtcEOFClicked()
+{
+  emit copyToClipboard(EvaluationEngineMsgs::CopyToClipboard::EOFLOW);
+}
+
+void EvaluationWidget::onCtcHVLClicked()
+{
+  emit copyToClipboard(EvaluationEngineMsgs::CopyToClipboard::HVL);
+}
+
+void EvaluationWidget::onCtcPeakClicked()
+{
+  emit copyToClipboard(EvaluationEngineMsgs::CopyToClipboard::PEAK);
+}
+
+void EvaluationWidget::onCtcPeakDimsClicked()
+{
+  emit copyToClipboard(EvaluationEngineMsgs::CopyToClipboard::PEAK_DIMS);
 }
 
 void EvaluationWidget::onDefaultFinderParametersClicked()

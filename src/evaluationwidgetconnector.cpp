@@ -40,4 +40,5 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(w, &EvaluationWidget::doHvlFit, e, &EvaluationEngine::onDoHvlFit);
   QObject::connect(w, &EvaluationWidget::replotHvl, e, &EvaluationEngine::onReplotHvl);
   QObject::connect(w, &EvaluationWidget::showHvlFitStats, e, &EvaluationEngine::onShowHvlFitStatsChanged);
+  QObject::connect(w, &EvaluationWidget::copyToClipboard, e, &EvaluationEngine::onCopyToClipboard);
 }
