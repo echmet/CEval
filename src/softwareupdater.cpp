@@ -111,6 +111,7 @@ void SoftwareUpdater::onListFetched(const UpdateListFetcher::RetCode tRet, const
   if (!m_automatic) {
     switch (tRet) {
     case UpdateListFetcher::RetCode::E_INVALID_FILE_STRUCTURE:
+    case UpdateListFetcher::RetCode::E_INVALID_DATA:
       emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Invalid update info received.")));
       return;
       break;

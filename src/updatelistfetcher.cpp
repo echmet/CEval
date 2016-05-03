@@ -96,6 +96,8 @@ void UpdateListFetcher::onDataAvailable()
     tRet = parseInternal();
   } catch (InvalidDocumentStructureException &ex) {
     tRet = RetCode::E_INVALID_FILE_STRUCTURE;
+  } catch (DuplicitInformationException &ex) {
+    tRet = RetCode::E_INVALID_DATA;
   }
 
 out:
