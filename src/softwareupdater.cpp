@@ -3,7 +3,7 @@
 #include "globals.h"
 #include "gui/autoupdatecheckdialog.h"
 
-const QUrl SoftwareUpdater::UPDATE_LINK("http://devoid-pointer.net/echmet/testfile.xml");
+const QUrl SoftwareUpdater::UPDATE_LINK("http://echmet.natur.cuni.cz/sites/all/trackmenot/public/swupdateinfo.xml");
 const QString SoftwareUpdater::CHECK_AUTOMATICALLY_SETTINGS_TAG("CheckAutomatically");
 
 SoftwareUpdater::SoftwareUpdater(QObject *parent) : QObject(parent),
