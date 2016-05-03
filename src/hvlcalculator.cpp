@@ -9,8 +9,6 @@
 
 #include <thread>
 
-#include <QDebug>
-
 #include <vector>
 #include <armadillo>
 

@@ -3,8 +3,6 @@
 #include <QLineEdit>
 #include <QEvent>
 
-#include <QDebug>
-
 FloatingValueDelegate::FloatingValueDelegate(QObject *parent) : QItemDelegate(parent)
 {
 }

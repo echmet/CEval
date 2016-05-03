@@ -7,8 +7,6 @@
 #include <qwt_plot_renderer.h>
 #include <qwt_scale_widget.h>
 
-#include <QDebug>
-
 PlotExporter::PlotExporter(QObject *parent) : QObject(parent)
 {
   for (const QByteArray &a : QImageWriter::supportedImageFormats())

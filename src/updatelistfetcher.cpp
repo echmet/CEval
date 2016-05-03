@@ -5,22 +5,6 @@
 #include <QUrl>
 #include <QXmlStreamReader>
 
-#include <QDebug>
-
-QDebug & operator<<(QDebug &dbgStream, const SoftwareUpdateInfo::Version &v)
-{
-  dbgStream << "Major:" << v.major << "Minor:" << v.minor << "Revision:" << v.revision;
-
-  return dbgStream;
-}
-
-QDebug & operator<<(QDebug &dbgStream, const SoftwareUpdateInfo &sui)
-{
-  dbgStream << "Name:" << sui.name << "Version:" << sui.version << "Download link:" << sui.downloadLink;
-
-  return dbgStream;
-}
-
 UpdateListFetcher::InvalidDocumentStructureException::InvalidDocumentStructureException(const qint64 line) :
   line(line)
 {
@@ -104,8 +88,6 @@ void UpdateListFetcher::onDataAvailable()
     goto out;
   }
 
-  qDebug() << data;
-
   m_updateInfoList.clear();
   m_xmlReader->addData(data);
   m_parseState = ParseState::AT_START;
@@ -113,7 +95,6 @@ void UpdateListFetcher::onDataAvailable()
   try {
     tRet = parseInternal();
   } catch (InvalidDocumentStructureException &ex) {
-    qWarning() << ex.what() << "on line" << ex.line;
     tRet = RetCode::E_INVALID_FILE_STRUCTURE;
   }
 
@@ -133,8 +114,6 @@ void UpdateListFetcher::onReplyDeleted()
 
 UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
 {
-  qDebug() << "Parsing";
-
   while (!m_xmlReader->atEnd()) {
     QXmlStreamReader::TokenType tt = m_xmlReader->readNext();
 
@@ -149,8 +128,6 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
     case QXmlStreamReader::StartElement:
     {
       const QStringRef name = m_xmlReader->qualifiedName();
-
-      qDebug() << m_xmlReader->qualifiedName();
 
       if (name.compare("updateinfo") == 0) {
         if (m_parseState != ParseState::AT_ROOT)
@@ -193,8 +170,6 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
     {
       const QString &name = m_lastElementName;
       const QString text = *m_xmlReader->text().string();
-
-      qDebug() << m_xmlReader->text();
 
       if (name.compare("name") == 0) {
         if (m_parseState != ParseState::IN_INFO)
@@ -245,31 +220,23 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
         /* Check that we have a complete record */
         bool ok = false;
 
-        if (m_swName.length() == 0) {
-          qDebug() << "Software name not specified";
+        if (m_swName.length() == 0)
           break;
-        }
-        if (m_swDLLink.length() == 0) {
-          qDebug() << "Download link not specified";
+
+        if (m_swDLLink.length() == 0)
           break;
-        }
 
         int major = m_verMajorStr.toInt(&ok);
         if (!ok) {
-          qDebug() << "Invalid major version";
           break;
         }
 
         int minor = m_verMinorStr.toInt(&ok);
-        if (!ok) {
-          qDebug() << "Invalid minor version";
+        if (!ok)
           break;
-        }
 
         try {
           SoftwareUpdateInfo sui(m_swName, SoftwareUpdateInfo::Version(major, minor, m_verRevStr), m_swDLLink);
-
-          qDebug() << "SoftwareUpdadeInfo:" << sui;
 
           const QString swNameLower(m_swName.toLower());
 
@@ -277,8 +244,7 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
             throw DuplicitInformationException();
 
           m_updateInfoList.insert(swNameLower, sui);
-        } catch (SoftwareUpdateInfo::Version::InvalidRevisionStringException &ex) {
-          qDebug() << ex.what();
+        } catch (SoftwareUpdateInfo::Version::InvalidRevisionStringException &) {
         }
       } else if (name.compare("name") == 0 ||
                  name.compare("link") == 0) {
@@ -307,10 +273,8 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
     }
   }
 
-  if (m_xmlReader->hasError()) {
-    qDebug() << "Malformed XML file" << m_xmlReader->errorString();
+  if (m_xmlReader->hasError())
     return RetCode::E_MALFORMED_XML;
-  }
 
   return RetCode::OK;
 }

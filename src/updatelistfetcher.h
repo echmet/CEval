@@ -88,7 +88,4 @@ private slots:
 
 };
 
-QDebug & operator<<(QDebug &dbgStream, const SoftwareUpdateInfo::Version &v);
-QDebug & operator<<(QDebug &dbgStream, const SoftwareUpdateInfo &sui);
-
 #endif // XMLPARSER_H

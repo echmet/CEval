@@ -5,8 +5,6 @@
 #include <QMessageBox>
 #include <QSettings>
 
-#include <QDebug>
-
 const QString DataAccumulator::EVALUATIONENGINE_SETTINGS_TAG("EvaluationEngine");
 const QString DataAccumulator::HYPERBOLEFITTINGENGINE_SETTINGS_TAG("HyperboleFittingEngine");
 
