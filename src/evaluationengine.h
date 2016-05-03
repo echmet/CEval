@@ -184,10 +184,9 @@ private:
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr);
   AssistedPeakFinder::Parameters makeFinderParameters();
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
-  void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr,
-                         const int peakIndex, const double peakX, const double minY, const double maxY,
+  void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX, const double minY, const double maxY,
                          const double widthHalfLeft, const double widthHalfRight,
-                         const double peakHeight);
+                         const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
   void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false);
   void showSetAxisTitlesDialog();

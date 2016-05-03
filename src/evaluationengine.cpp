@@ -1382,11 +1382,10 @@ void EvaluationEngine::onUpdateCurrentPeak()
                    false, false);
 }
 
-void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr,
-                                         const int peakIndex, const double peakX,
+void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
                                          const double minY, const double maxY,
                                          const double widthHalfLeft, const double widthHalfRight,
-                                         const double peakHeight)
+                                         const double peakHeight, const double peakHeightBaseline)
 {
   /* Mark the EOF  */
   {
@@ -1414,15 +1413,9 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
   /* Mark the maximum of the peak */
   {
     QVector<QPointF> tpVec;
-    QPointF b;
 
-    tpVec.push_back(QPointF(peakX, minY));
-    if (peakIndex < m_currentDataContext->data->data.length())
-      b = QPointF(peakX, m_currentDataContext->data->data.at(peakIndex).y());
-    else
-      b = QPointF(peakX, maxY);
-
-    tpVec.push_back(b);
+    tpVec.push_back(QPointF(peakX, peakHeight - peakHeightBaseline));
+    tpVec.push_back(QPointF(peakX, peakHeight));
     m_modeCtx->setSerieSamples(seriesIndex(Series::PEAK_TIME), tpVec);
   }
 
@@ -1523,7 +1516,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   onDoHvlFit();
 
   clearPeakPlots();
-  plotEvaluatedPeak(fr, er.peakIndex, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight);
+  plotEvaluatedPeak(fr, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
 
   if (m_currentPeakIdx > 0 && updateCurrentPeak) {
     m_allPeaks[m_currentPeakIdx] = m_currentPeak;
@@ -1704,12 +1697,12 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
   fullViewUpdate();
   if (ctx.finderResults->isValid() && (m_currentDataContext->data != nullptr))
     plotEvaluatedPeak(ctx.finderResults,
-                      ctx.peakIndex,
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X),
                       Helpers::minYValue(m_currentDataContext->data->data), Helpers::maxYValue(m_currentDataContext->data->data),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
-                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT));
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
 
   return true;
 }
