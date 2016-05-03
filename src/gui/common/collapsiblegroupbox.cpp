@@ -52,14 +52,21 @@ void CollapsibleGroupBox::onVisibilityChanged()
 void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
 {
   const QScreen *scr = QGuiApplication::primaryScreen();
+#ifdef Q_OS_WIN
+  const qreal baseSize = 15.0;
+  const int yOffset = 5;
+#else
+  const qreal baseSize = 22.0;
+  const int yOffset = 0;
+#endif
 
   if (scr == nullptr)
     return;
 
   const qreal dpi = scr->logicalDotsPerInchX();
-  const qreal btnSize = floor((25.0 * dpi / 96.0) + 0.5);
+  const qreal btnSize = floor((baseSize * dpi / 96.0) + 0.5);
 
-  m_clExpButton->setGeometry(size.width() - btnSize, 0, btnSize, btnSize);
+  m_clExpButton->setGeometry(size.width() - btnSize, yOffset, btnSize, btnSize);
 }
 
 void CollapsibleGroupBox::resizeEvent(QResizeEvent *ev)
