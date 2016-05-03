@@ -125,7 +125,6 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
         throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
       m_parseState = ParseState::AT_ROOT;
-      qDebug() << m_xmlReader->documentVersion() << m_xmlReader->documentEncoding();
       break;
     case QXmlStreamReader::StartElement:
     {
