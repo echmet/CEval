@@ -39,7 +39,7 @@ private:
   void recalculate();
 
 signals:
-  void tEofUpdated();
+  void parametersUpdated();
   void validityState(const bool state, const CommonParametersItems::Floating item) const;
 
 public slots:

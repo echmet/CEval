@@ -170,7 +170,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_currentDataContextKey = s_emptyCtxKey;
 
   connect(this, &EvaluationEngine::updateTEof, m_commonParamsEngine, &CommonParametersEngine::onUpdateTEof);
-  connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
 EvaluationEngine::~EvaluationEngine()
@@ -1782,11 +1782,11 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
   m_currentDataContext = m_allDataContexts[key];
   m_currentDataContextKey = key;
 
-  disconnect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  disconnect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
   m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
   setEvaluationContext(m_currentDataContext->evaluationContext);
   m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
-  connect(m_commonParamsEngine, &CommonParametersEngine::tEofUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
 }
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)

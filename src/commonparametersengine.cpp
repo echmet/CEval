@@ -67,7 +67,7 @@ void CommonParametersEngine::onModelDataChanged(QModelIndex topLeft, QModelIndex
       break;
     case CommonParametersItems::Floating::T_EOF:
       checkValidity();
-      emit tEofUpdated();
+      emit parametersUpdated();
       break;
     default:
       break;
@@ -91,7 +91,11 @@ void CommonParametersEngine::recalculate()
 
   if (lengthMeters > 0.0) {
     double fieldStrength = voltage / lengthMeters;
-    m_model.setData(m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::FIELD)), fieldStrength, Qt::EditRole);
+
+    if (fieldStrength != m_data.at(CommonParametersItems::Floating::FIELD)) {
+      m_model.setData(m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::FIELD)), fieldStrength, Qt::EditRole);
+      emit parametersUpdated();
+    }
   }
 }
 
