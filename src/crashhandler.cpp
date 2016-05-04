@@ -30,7 +30,7 @@ CrashHandler::CrashHandler(QObject *parent) :
 
 CrashHandler::~CrashHandler()
 {
-#ifndef DEBUG
+#ifdef USE_CRASHHANDLER
   signal(SIGABRT, nullptr);
   signal(SIGINT, nullptr);
   signal(SIGSEGV, nullptr);
