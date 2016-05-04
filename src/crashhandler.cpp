@@ -18,7 +18,7 @@ CrashHandler *CrashHandler::s_me = nullptr;
 CrashHandler::CrashHandler(QObject *parent) :
   QObject(parent)
 {
-#ifndef DEBUG
+#ifdef USE_CRASHHANDLER
   signal(SIGABRT, &CrashHandler::sigabrtHandler);
   signal(SIGINT, &CrashHandler::sigintHandler);
   signal(SIGSEGV, &CrashHandler::sigsegvHandler);

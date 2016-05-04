@@ -29,6 +29,14 @@ xsimd {
     QMAKE_CXXFLAGS += "-mmmx -msse -msse2"
 }
 
+CONFIG(release, debug|release) {
+    DEFINES += USE_CRASHHANDLER
+}
+CONFIG(debug, debug|release) {
+    # Configuration specific for "debug" build
+}
+
+
 SOURCES += src/main.cpp \
         src/gui/evalmainwindow.cpp \
     src/gui/common/floatingvaluelineedit.cpp \
