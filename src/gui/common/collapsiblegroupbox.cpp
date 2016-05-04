@@ -1,9 +1,11 @@
 #include "collapsiblegroupbox.h"
 #include "collapseexpandbutton.h"
+#include <QApplication>
 #include <QGuiApplication>
 #include <QLayout>
 #include <QResizeEvent>
 #include <QScreen>
+#include <QStyle>
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   QGroupBox(parent)
@@ -53,15 +55,18 @@ void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
 {
   const QScreen *scr = QGuiApplication::primaryScreen();
 #ifdef Q_OS_WIN
-  const qreal baseSize = 15.0;
-  const int yOffset = 5;
+  qreal baseSize = 15.0;
+  int yOffset = 5;
 #else
-  const qreal baseSize = 22.0;
-  const int yOffset = 0;
+  qreal baseSize = 22.0;
+  int yOffset = 0;
 #endif
 
   if (scr == nullptr)
     return;
+
+  if (QString::compare(QApplication::style()->objectName(), "fusion") == 0)
+    baseSize = 15.0;
 
   const qreal dpi = scr->logicalDotsPerInchX();
   const qreal btnSize = floor((baseSize * dpi / 96.0) + 0.5);
