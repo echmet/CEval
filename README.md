@@ -15,17 +15,22 @@ CEval makes use of the following tools:
 
 - [Qt 5 toolkit](https://www.qt.io/)
 - [Armadillo](http://arma.sourceforge.net/)
+- [OpenBLAS](http://www.openblas.net/)
 - [Boost](http://www.boost.org/)
 - [Qwt](http://qwt.sourceforge.net/)
 - [libHPCS](https://github.com/echmet/libHPCS)
 - [HVL_MT](https://github.com/echmet/HVL_MT)
 
-Qt 5 toolkit, Boost, Qwt and libHPCS are required to build CEval. HVL_MT is an optional dependency which is loaded at runtime. HVL_MT is required for fitting peaks with HVL function.
+Qt 5 toolkit, Armadillo, OpenBLAS, Boost, Qwt and libHPCS are required to build CEval. HVL_MT is an optional dependency which is loaded at runtime. HVL_MT is required for fitting peaks with HVL function.
 
 Build
 ---
 
 Prior to building CEval, all hard dependencies have to be available in binary form, either by building them from source or by obtaining an appropriate pre-built package (The binary form requirement does not apply for the Boost libraries). Refer to web presentations of the respective projects for further instructions.
+
+CEval is configured to use the Armadillo library only as a wrapper at the source code level, it links directly against OpenBLAS. When building Armadillo, set the variable `ARMA_USE_WRAPPER` to `false` in its `CMakeLists.txt` file.
+
+It is possible to build Armadillo as a binary wrapper and/or link against other LAPACK and BLAS implementations supported by the Armadillo library. However, note that such configurations have not been tested by CEval developers. The `LIBS` variable in `CEval.pri` has to be adjusted accordingly.
 
 1. Setting up paths to build dependencies
 
@@ -35,6 +40,7 @@ Prior to building CEval, all hard dependencies have to be available in binary fo
   - `BOOSTPATH` - Path to the directory with the Boost library headers
   - `QWTPATH` - Path to the **features/qwt.prf** file
   - `ARMAPATH` - Path to the directory where the Armadillo library is installed. This path must include the **/lib** and **/include** subdirectories.
+  - Set the `LIBS` QMake variable to point to your **OpenBLAS** library location or use `-lopenblas` if you have a system-wide installation of **OpenBLAS**.
 
 2. Building
 
