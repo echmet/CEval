@@ -14,8 +14,11 @@ CommonParametersEngine::Context::Context() :
 
 void CommonParametersEngine::checkValidity() const
 {
-  emit validityState(m_data.at(CommonParametersItems::Floating::CAPILLARY) > 0, CommonParametersItems::Floating::CAPILLARY);
-  emit validityState(m_data.at(CommonParametersItems::Floating::DETECTOR) > 0, CommonParametersItems::Floating::DETECTOR);
+  const double capillary = m_data.at(CommonParametersItems::Floating::CAPILLARY);
+  const double detector = m_data.at(CommonParametersItems::Floating::DETECTOR);
+
+  emit validityState(capillary > 0 && capillary > detector, CommonParametersItems::Floating::CAPILLARY);
+  emit validityState(detector > 0, CommonParametersItems::Floating::DETECTOR);
   emit validityState(m_data.at(CommonParametersItems::Floating::VOLTAGE) != 0, CommonParametersItems::Floating::VOLTAGE);
   emit validityState(m_data.at(CommonParametersItems::Floating::T_EOF) > 0, CommonParametersItems::Floating::T_EOF);
   emit validityState(m_data.at(CommonParametersItems::Floating::SELECTOR) >= 0, CommonParametersItems::Floating::SELECTOR);
@@ -86,10 +89,13 @@ void CommonParametersEngine::onUpdateTEof(const double t)
 
 void CommonParametersEngine::recalculate()
 {
-  double lengthMeters = m_data.at(CommonParametersItems::Floating::CAPILLARY) / 100.0;
-  double voltage = m_data.at(CommonParametersItems::Floating::VOLTAGE);
+  const double lengthDetectorMeters = m_data.at(CommonParametersItems::Floating::DETECTOR) / 100;
+  const double lengthMeters = m_data.at(CommonParametersItems::Floating::CAPILLARY) / 100.0;
+  const double voltage = m_data.at(CommonParametersItems::Floating::VOLTAGE);
 
-  if (lengthMeters > 0.0) {
+  if (lengthMeters > 0.0 &&
+      lengthDetectorMeters > 0.0 &&
+      (lengthMeters > lengthDetectorMeters)) {
     double fieldStrength = voltage / lengthMeters;
 
     if (fieldStrength != m_data.at(CommonParametersItems::Floating::FIELD)) {
