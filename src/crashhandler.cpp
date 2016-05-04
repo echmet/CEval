@@ -23,6 +23,8 @@ CrashHandler::CrashHandler(QObject *parent) :
   signal(SIGINT, &CrashHandler::sigintHandler);
   signal(SIGSEGV, &CrashHandler::sigsegvHandler);
   signal(SIGTERM, &CrashHandler::sigtermHandler);
+  std::set_terminate(&CrashHandler::runawayExceptionHandler);
+  std::set_unexpected(&CrashHandler::runawayExceptionHandler);
 
   qDebug() << "Crash handler installed";
 #endif
@@ -78,6 +80,18 @@ void CrashHandler::install()
   }
 
 #endif
+}
+
+void CrashHandler::runawayExceptionHandler()
+{
+  signal(SIGABRT, nullptr);
+  signal(SIGSEGV, nullptr);
+  qDebug() << "Unhandled exception caught, crashing controllably";
+
+  emit s_me->emergency();
+  showBacktrace("Unhandled exception!");
+
+  raise(SIGABRT);
 }
 
 void CrashHandler::sigabrtHandler(int c)

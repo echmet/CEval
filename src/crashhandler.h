@@ -18,6 +18,7 @@ private:
   static QString createBacktrace(const QString &what);
   static void showBacktrace(const QString &what);
 
+  static void runawayExceptionHandler();
   static void sigintHandler(int c);
   static void sigtermHandler(int c);
   static void sigsegvHandler(int c);
