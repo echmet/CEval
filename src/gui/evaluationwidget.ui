@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1037</width>
-            <height>537</height>
+            <width>747</width>
+            <height>442</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1033,7 +1033,7 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="ql_hvlChiSquared">
                   <property name="text">
-                   <string>χ2</string>
+                   <string>S</string>
                   </property>
                  </widget>
                 </item>

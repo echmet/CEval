@@ -221,7 +221,7 @@ void EvaluationWidget::setEvaluationHvlFitModel(AbstractMapperModel<double, HVLF
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA1, model->indexFromItem(HVLFitResultsItems::Floating::HVL_A1));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA2, model->indexFromItem(HVLFitResultsItems::Floating::HVL_A2));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA3, model->indexFromItem(HVLFitResultsItems::Floating::HVL_A3));
-  m_evaluationHvlFitMapper->addMapping(ui->qle_hvlChiSquared, model->indexFromItem(HVLFitResultsItems::Floating::HVL_CHI_SQUARED));
+  m_evaluationHvlFitMapper->addMapping(ui->qle_hvlChiSquared, model->indexFromItem(HVLFitResultsItems::Floating::HVL_S));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlEpsilon, model->indexFromItem(HVLFitResultsItems::Floating::HVL_EPSILON));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlTUSP, model->indexFromItem(HVLFitResultsItems::Floating::HVL_TUSP));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA1Mobility, model->indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1));

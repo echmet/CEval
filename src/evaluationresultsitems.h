@@ -51,7 +51,7 @@ public:
     HVL_A1,
     HVL_A2,
     HVL_A3,
-    HVL_CHI_SQUARED,
+    HVL_S,
     HVL_EPSILON,
     HVL_TUSP,
     HVL_U_EFF_A1,

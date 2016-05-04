@@ -14,8 +14,6 @@
 #include <QMessageBox>
 #include <QTextStream>
 
-#include <QDebug>
-
 const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SLOPE_WINDOW */
                                                                      true, /* NOISE */
                                                                      true, /* SLOPE_REF_POINT */
@@ -976,7 +974,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
     toCopy << "a1;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1)) << "\n";
     toCopy << "a2;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2)) << "\n";
     toCopy << "a3;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3)) << "\n";
-    toCopy << "ChiSq;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_CHI_SQUARED)) << "\n";
+    toCopy << "S;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S)) << "\n";
     toCopy << "a1 u! (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1)) << "\n";
     break;
   case EvaluationEngineMsgs::CopyToClipboard::PEAK:
@@ -1112,11 +1110,11 @@ void EvaluationEngine::onDoHvlFit()
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = p.a1;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = p.a2;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = p.a3;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_CHI_SQUARED] = p.chiSquared;
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_S] = p.s;
 
   emit m_hvlFitModel.dataChanged(
     m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A0)),
-    m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_CHI_SQUARED))
+    m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_S))
    );
 
   onReplotHvl();

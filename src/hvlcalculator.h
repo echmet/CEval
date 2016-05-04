@@ -19,7 +19,7 @@ public:
   class HVLParameters {
   public:
     explicit HVLParameters();
-    explicit HVLParameters(const double a0, const double a1, const double a2, const double a3, const double chiSquared);
+    explicit HVLParameters(const double a0, const double a1, const double a2, const double a3);
     bool isValid() const;
     void validate();
 
@@ -29,7 +29,6 @@ public:
     double a3;
     double s;
     double s0;
-    double chiSquared;
     int iterations;
 
   private:

@@ -18,13 +18,13 @@ using namespace std;
 HVLCalculator *HVLCalculator::s_me;
 
 HVLCalculator::HVLParameters::HVLParameters() :
-  a0(0.0), a1(0.0), a2(0.0), a3(0.0), chiSquared(0.0),
+  a0(0.0), a1(0.0), a2(0.0), a3(0.0),
   m_valid(false)
 {
 }
 
-HVLCalculator::HVLParameters::HVLParameters(const double a0, const double a1, const double a2, const double a3, const double chiSquared) :
-  a0(a0), a1(a1), a2(a2), a3(a3), chiSquared(chiSquared),
+HVLCalculator::HVLParameters::HVLParameters(const double a0, const double a1, const double a2, const double a3) :
+  a0(a0), a1(a1), a2(a2), a3(a3),
   m_valid(true)
 {
 }
@@ -110,7 +110,6 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   out->a3 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a3);
   out->s = regressor.GetS();
   out->s0 = s0;
-  out->chiSquared = 0.0;
   out->iterations = regressor.GetIterationCounter();
   out->validate();
 
