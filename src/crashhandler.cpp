@@ -1,11 +1,20 @@
 #include "crashhandler.h"
 #include <QApplication>
+#include <QEventLoop>
 #include <QList>
 #include <QMessageBox>
 #include <signal.h>
 #include "gui/crashhandlerdialog.h"
-
+#include <QThread>
 #include <QDebug>
+
+#define WAIT_LOOP { QEventLoop __loop; __loop.exec(); }
+#define WAIT_IF_THREADED { if (QThread::currentThread() != qApp->thread()) { QEventLoop __loop; __loop.exec(); } }
+
+CrashHandler::CrashEvent::CrashEvent(const QString &what) : QEvent(static_cast<QEvent::Type>(QEvent::User + 1)),
+  what(what)
+{
+}
 
 #ifdef Q_OS_WIN
     #include "stacktrace_win.h"
@@ -25,8 +34,6 @@ CrashHandler::CrashHandler(QObject *parent) :
   signal(SIGTERM, &CrashHandler::sigtermHandler);
   std::set_terminate(&CrashHandler::runawayExceptionHandler);
   std::set_unexpected(&CrashHandler::runawayExceptionHandler);
-
-  qDebug() << "Crash handler installed";
 #endif
 }
 
@@ -57,7 +64,28 @@ CrashHandler *CrashHandler::pointer()
   return s_me;
 }
 
-void CrashHandler::showBacktrace(const QString &what)
+void CrashHandler::die()
+{
+  std::abort();
+}
+
+bool CrashHandler::event(QEvent *ev)
+{
+  if (ev->type() != QEvent::User + 1)
+    return false;
+
+  CrashEvent *cev = dynamic_cast<CrashEvent *>(ev);
+  if (cev == nullptr)
+    return false;
+
+  emit s_me->emergency();
+  handleCrash(cev->what);
+  die();
+
+  return true;
+}
+
+void CrashHandler::handleCrash(const QString &what)
 {
   CrashHandlerDialog dlg;
   QString backtrace = createBacktrace(what);
@@ -68,7 +96,7 @@ void CrashHandler::showBacktrace(const QString &what)
 
 void CrashHandler::install()
 {
-#ifndef DEBUG
+#ifdef USE_CRASHHANDLER
   if (s_me != nullptr)
     return;
 
@@ -79,6 +107,8 @@ void CrashHandler::install()
     return;
   }
 
+  qDebug() << "Crash handler installed";
+
 #endif
 }
 
@@ -86,12 +116,10 @@ void CrashHandler::runawayExceptionHandler()
 {
   signal(SIGABRT, nullptr);
   signal(SIGSEGV, nullptr);
+
   qDebug() << "Unhandled exception caught, crashing controllably";
-
-  emit s_me->emergency();
-  showBacktrace("Unhandled exception!");
-
-  raise(SIGABRT);
+  QCoreApplication::postEvent(s_me, new CrashEvent("Unhandled exception"));
+  WAIT_LOOP;
 }
 
 void CrashHandler::sigabrtHandler(int c)
@@ -100,12 +128,10 @@ void CrashHandler::sigabrtHandler(int c)
 
   signal(SIGABRT, nullptr);
   signal(SIGSEGV, nullptr);
-  qDebug() << "SIGABRT caught, crashing controllably";
 
-  emit s_me->emergency();
-  showBacktrace("Aborted!");
-
-  raise(SIGABRT);
+  qDebug() << "Unhandled exception caught, crashing controllably";
+  QCoreApplication::postEvent(s_me, new CrashEvent("Aborted!"));
+  WAIT_IF_THREADED;
 }
 
 void CrashHandler::sigintHandler(int c)
@@ -124,12 +150,10 @@ void CrashHandler::sigsegvHandler(int c)
 
   signal(SIGABRT, nullptr);
   signal(SIGSEGV, nullptr);
-  qDebug() << "SIGSEGV caught, crashing controllably";
 
-  emit s_me->emergency();
-  showBacktrace("Segmentation fault!");
-
-  raise(SIGSEGV);
+  qDebug() << "Unhandled exception caught, crashing controllably";
+  QCoreApplication::postEvent(s_me, new CrashEvent("Segmentation fault!"));
+  WAIT_IF_THREADED;
 }
 
 void CrashHandler::sigtermHandler(int c)
