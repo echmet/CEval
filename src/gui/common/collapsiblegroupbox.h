@@ -2,6 +2,8 @@
 #define COLLAPSIBLEGROUPBOX_H
 
 #include <QGroupBox>
+#include <QMap>
+#include <QMargins>
 
 class QResizeEvent;
 class CollapseExpandButton;
@@ -18,6 +20,7 @@ private:
   void resizeCollapseButton(const QSize &size);
 
   CollapseExpandButton *m_clExpButton;
+  QMap<const void *, QMargins> m_layoutMargins;
 
 private slots:
   void onPrimaryScreenChanged();

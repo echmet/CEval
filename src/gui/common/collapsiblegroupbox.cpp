@@ -29,6 +29,7 @@ void CollapsibleGroupBox::onVisibilityChanged()
 
   s = m_clExpButton->state();
 
+  QLayout *master = this->layout();
   QList<QObject *> children = this->children();
 
   switch (s) {
@@ -38,14 +39,54 @@ void CollapsibleGroupBox::onVisibilityChanged()
       if (w != nullptr) {
         if (w != m_clExpButton)
           w->setVisible(false);
+
+        continue;
+      }
+
+      if (o == master) {
+        for (QObject *lo : master->children()) {
+          QLayout *loc = qobject_cast<QLayout *>(lo)
+                         ;
+          if (loc == nullptr)
+            continue;
+
+          QMargins m = loc->contentsMargins();
+          m_layoutMargins[loc] = m;
+          loc->setContentsMargins(0, 0, 0, 0);
+        }
+        QMargins m = master->contentsMargins();
+        m_layoutMargins[master] = m;
+        master->setContentsMargins(0, 0, 0, 0);
       }
     }
     break;
   case CollapseExpandButton::State::EXPANDED:
     for (QObject *o : children) {
       QWidget *w = qobject_cast<QWidget *>(o);
-      if (w != nullptr)
+      if (w != nullptr) {
         w->setVisible(true);
+
+        continue;
+      }
+
+      if (o == master) {
+        for (QObject *lo : master->children()) {
+          QLayout *loc = qobject_cast<QLayout *>(lo)
+                         ;
+          if (loc == nullptr)
+            continue;
+
+          if (m_layoutMargins.contains(loc)) {
+            QMargins m = m_layoutMargins[loc];
+            loc->setContentsMargins(m);
+          }
+        }
+        if (m_layoutMargins.contains(master)) {
+          QMargins m = m_layoutMargins[master];
+          master->setContentsMargins(m);
+        }
+      }
+
     }
     break;
   }
