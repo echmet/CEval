@@ -21,8 +21,8 @@ CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
 void CollapsibleGroupBox::collapseLayout(QLayout *layout)
 {
   for (QObject *o : layout->children()) {
-    QLayout *l= qobject_cast<QLayout *>(o)
-                   ;
+    QLayout *l= qobject_cast<QLayout *>(o);
+
     if (l == nullptr)
       continue;
 
@@ -39,8 +39,8 @@ void CollapsibleGroupBox::collapseLayout(QLayout *layout)
 void CollapsibleGroupBox::expandLayout(QLayout *layout)
 {
   for (QObject *o : layout->children()) {
-    QLayout *l = qobject_cast<QLayout *>(o)
-                   ;
+    QLayout *l = qobject_cast<QLayout *>(o);
+
     if (l == nullptr)
       continue;
 
@@ -78,7 +78,7 @@ void CollapsibleGroupBox::onVisibilityChanged()
         continue;
       }
 
-      if (o == master) {
+      if (o == master && master != nullptr) {
         m_layoutMargins.clear();
         collapseLayout(master);
       }
@@ -93,7 +93,7 @@ void CollapsibleGroupBox::onVisibilityChanged()
         continue;
       }
 
-      if (o == master)
+      if (o == master && master != nullptr)
         expandLayout(master);
 
     }
