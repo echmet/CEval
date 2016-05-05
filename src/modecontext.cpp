@@ -473,6 +473,9 @@ void ModeContext::setAxisTitle(const SerieProperties::Axis axis, const QString &
   if (store)
     m_axisTitles[axis] = title;
 
+  if (!m_active)
+    return;
+
   switch (axis) {
   case SerieProperties::Axis::X_BOTTOM:
     m_plot->setAxisTitle(QwtPlot::Axis::xBottom, title);
@@ -493,6 +496,11 @@ void ModeContext::setAxisTitle(const SerieProperties::Axis axis, const QString &
 
 void ModeContext::setAxisFont(const SerieProperties::Axis axis, const QFont &f)
 {
+  m_axisFont[axis] = f;
+
+  if (!m_active)
+    return;
+
   switch (axis) {
   case SerieProperties::Axis::X_BOTTOM:
     m_plot->setAxisFont(QwtPlot::Axis::xBottom, f);
@@ -514,8 +522,6 @@ void ModeContext::setAxisFont(const SerieProperties::Axis axis, const QFont &f)
     Q_ASSERT(false);
     break;
   }
-
-  m_axisFont[axis] = f;
 }
 
 void ModeContext::setAxisTitleFont(const int a, const QFont &f)
@@ -538,7 +544,9 @@ void ModeContext::setSerieSamples(const int id, const QVector<QPointF> &samples)
 void ModeContext::setPlotTitle(const QString &title)
 {
   m_plotTitle = title;
-  m_plot->setTitle(title);
+
+  if (m_active)
+    m_plot->setTitle(title);
 }
 
 void ModeContext::setSerieVisualStyle(const int id, SerieProperties::VisualStyle &style)
