@@ -56,7 +56,6 @@ private slots:
   void onActionAbout();
   void onActionAdjustPlotAppearance();
   void onActionCheckForUpdate();
-  void onActionCurrentPeakToCsv();
   void onActionExit();
   void onActionExportDataTableCsv();
   void onActionExportPlotAsImage();
@@ -65,6 +64,7 @@ private slots:
   void onActionLoadDataTable();
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
+  void onActionWholePeakToClipboard();
 
 };
 

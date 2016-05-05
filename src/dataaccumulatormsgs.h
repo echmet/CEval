@@ -10,7 +10,8 @@ public:
 
   enum class ExportAction {
     EXPORT_DATATABLE_CSV,
-    EXPORT_PLOT
+    EXPORT_PLOT,
+    WHOLE_PEAK_TO_CLIPBOARD
   };
   Q_ENUM(ExportAction)
 

@@ -111,8 +111,8 @@ void EvalMainWindow::makeExportMenus()
   if (m_exportEvaluationMenu == nullptr)
     return;
 
-  a = new QAction("Current peak to CSV", this);
-  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionCurrentPeakToCsv);
+  a = new QAction("Whole peak to clipboard", this);
+  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionWholePeakToClipboard);
   m_exportEvaluationMenu->addAction(a);
 }
 
@@ -131,11 +131,6 @@ void EvalMainWindow::onActionAdjustPlotAppearance()
 void EvalMainWindow::onActionCheckForUpdate()
 {
   m_updateDlg->exec();
-}
-
-void EvalMainWindow::onActionCurrentPeakToCsv()
-{
-
 }
 
 void EvalMainWindow::onActionExit()
@@ -179,6 +174,11 @@ void EvalMainWindow::onActionSetNumberFormat()
 
   dlg.setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
   dlg.exec();
+}
+
+void EvalMainWindow::onActionWholePeakToClipboard()
+{
+  emit exportAction(DataAccumulatorMsgs::ExportAction::WHOLE_PEAK_TO_CLIPBOARD);
 }
 
 void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode)

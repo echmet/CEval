@@ -954,6 +954,57 @@ void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier 
 
 void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc)
 {
+  auto &locResultsNumericValues = m_resultsNumericValues;
+  auto &locHvlFitValues = m_hvlFitValues;
+
+  std::function<void (QTextStream &)> eoflowFunc = [&locResultsNumericValues](QTextStream &toCopy) {
+    toCopy << "v (1e-3 m/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY)) << "\n";
+    toCopy << "v! (1e-3 m/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY_EFF)) << "\n";
+    toCopy << "u (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::EOF_MOBILITY)) << "\n";
+  };
+  std::function<void (QTextStream &)> hvlFunc = [&locHvlFitValues](QTextStream &toCopy) {
+    toCopy << "a0;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0)) << "\n";
+    toCopy << "a1;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1)) << "\n";
+    toCopy << "a2;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2)) << "\n";
+    toCopy << "a3;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3)) << "\n";
+    toCopy << "S;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_S)) << "\n";
+    toCopy << "a1 u! (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1)) << "\n";
+  };
+  std::function<void (QTextStream &)> peakFunc = [&locResultsNumericValues, &locHvlFitValues](QTextStream &toCopy) {
+    toCopy << "Peak from X;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X)) << "\n";
+    toCopy << "Peak from Y;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y)) << "\n";
+    toCopy << "Peak to X;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X)) << "\n";
+    toCopy << "Peak to Y;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y)) << "\n";
+    toCopy << "Peak max at X;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X)) << "\n";
+    toCopy << "Peak height;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL)) << "\n";
+    toCopy << "v (1e-3 m/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY)) << "\n";
+    toCopy << "v! (1e-3 m/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF)) << "\n";
+    toCopy << "u! (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF)) << "\n";
+    toCopy << "Area (Units.min);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA)) << "\n";
+    toCopy << "t USP;" << DoubleToStringConvertor::convert(locHvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP)) << "\n";
+  };
+  std::function<void (QTextStream &)> peakDimsFunc = [&locResultsNumericValues](QTextStream &toCopy) {
+    toCopy << ";Left;Right;Full\n";
+    toCopy << "Width 1/2 (min);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT)) << ";"
+                                 << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT)) << ";"
+                                 << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL)) << "\n";
+    toCopy << "Sigma (min);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_LEFT)) << ";"
+                            << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_RIGHT)) << ";"
+                            << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_FULL)) << "\n";
+    toCopy << "Width 1/2 (m);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_LEFT)) << ";"
+                              << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_RIGHT)) << ";"
+                              << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL)) << "\n";
+    toCopy << "Sigma (m);" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_LEFT)) << ";"
+                           << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_RIGHT)) << ";"
+                           << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_FULL)) << "\n";
+    toCopy << "N;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_LEFT)) << ";"
+                   << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_RIGHT)) << ";"
+                   << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_FULL)) << "\n";
+    toCopy << "HETP;" << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_H_LEFT)) << ";"
+                      << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_H_RIGHT)) << ";"
+                      << DoubleToStringConvertor::convert(locResultsNumericValues.at(EvaluationResultsItems::Floating::N_H_FULL)) << "\n";
+  };
+
   QClipboard *clipboard = QApplication::clipboard();
   QString out;
   QTextStream toCopy(&out, QIODevice::WriteOnly);
@@ -965,51 +1016,26 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
 
   switch (ctc) {
   case EvaluationEngineMsgs::CopyToClipboard::EOFLOW:
-    toCopy << "v (1e-3 m/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY)) << "\n";
-    toCopy << "v! (1e-3 m/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY_EFF)) << "\n";
-    toCopy << "u (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_MOBILITY)) << "\n";
+    eoflowFunc(toCopy);
     break;
   case EvaluationEngineMsgs::CopyToClipboard::HVL:
-    toCopy << "a0;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0)) << "\n";
-    toCopy << "a1;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1)) << "\n";
-    toCopy << "a2;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2)) << "\n";
-    toCopy << "a3;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3)) << "\n";
-    toCopy << "S;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S)) << "\n";
-    toCopy << "a1 u! (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1)) << "\n";
+    hvlFunc(toCopy);
     break;
   case EvaluationEngineMsgs::CopyToClipboard::PEAK:
-    toCopy << "Peak from X;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X)) << "\n";
-    toCopy << "Peak from Y;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y)) << "\n";
-    toCopy << "Peak to X;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X)) << "\n";
-    toCopy << "Peak to Y;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y)) << "\n";
-    toCopy << "Peak max at X;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X)) << "\n";
-    toCopy << "Peak height;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL)) << "\n";
-    toCopy << "v (1e-3 m/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY)) << "\n";
-    toCopy << "v! (1e-3 m/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF)) << "\n";
-    toCopy << "u! (1e-9 m.m/V/s);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF)) << "\n";
-    toCopy << "Area (Units.min);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA)) << "\n";
-    toCopy << "t USP;" << DoubleToStringConvertor::convert(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP)) << "\n";
+    peakFunc(toCopy);
     break;
   case EvaluationEngineMsgs::CopyToClipboard::PEAK_DIMS:
-    toCopy << ";Left;Right;Full\n";
-    toCopy << "Width 1/2 (min);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT)) << ";"
-                                 << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT)) << ";"
-                                 << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL)) << "\n";
-    toCopy << "Sigma (min);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_LEFT)) << ";"
-                            << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_RIGHT)) << ";"
-                            << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_FULL)) << "\n";
-    toCopy << "Width 1/2 (m);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_LEFT)) << ";"
-                              << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_RIGHT)) << ";"
-                              << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL)) << "\n";
-    toCopy << "Sigma (m);" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_LEFT)) << ";"
-                           << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_RIGHT)) << ";"
-                           << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_FULL)) << "\n";
-    toCopy << "N;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_LEFT)) << ";"
-                   << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_RIGHT)) << ";"
-                   << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_FULL)) << "\n";
-    toCopy << "HETP;" << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_H_LEFT)) << ";"
-                      << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_H_RIGHT)) << ";"
-                      << DoubleToStringConvertor::convert(m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_H_FULL)) << "\n";
+    peakDimsFunc(toCopy);
+    break;
+  case EvaluationEngineMsgs::CopyToClipboard::EVERYTHING:
+    toCopy << "EOF\n";
+    eoflowFunc(toCopy);
+    toCopy << "\nPeak parameters\n";
+    peakFunc(toCopy);
+    toCopy << "\nHVL fit results\n";
+    hvlFunc(toCopy);
+    toCopy << "\nPeak dimensions\n";
+    peakDimsFunc(toCopy);
     break;
   }
 

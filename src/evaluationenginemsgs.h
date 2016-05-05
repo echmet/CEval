@@ -11,7 +11,8 @@ public:
     EOFLOW,
     HVL,
     PEAK,
-    PEAK_DIMS
+    PEAK_DIMS,
+    EVERYTHING
   };
   Q_ENUM(CopyToClipboard)
 
