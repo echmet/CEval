@@ -60,7 +60,6 @@ void CommonParametersEngine::onModelDataChanged(QModelIndex topLeft, QModelIndex
     /* Act only on values that affect the electric field strength */
     switch (sval) {
     case CommonParametersItems::Floating::CAPILLARY:
-    case CommonParametersItems::Floating::DETECTOR:
     case CommonParametersItems::Floating::VOLTAGE:
       if (!recalcd) {
         recalculate();
@@ -68,6 +67,7 @@ void CommonParametersEngine::onModelDataChanged(QModelIndex topLeft, QModelIndex
         checkValidity();
       }
       break;
+    case CommonParametersItems::Floating::DETECTOR:
     case CommonParametersItems::Floating::T_EOF:
       checkValidity();
       emit parametersUpdated();
@@ -94,7 +94,6 @@ void CommonParametersEngine::recalculate()
   const double voltage = m_data.at(CommonParametersItems::Floating::VOLTAGE);
 
   if (lengthMeters > 0.0 &&
-      lengthDetectorMeters > 0.0 &&
       (lengthMeters > lengthDetectorMeters)) {
     double fieldStrength = voltage / lengthMeters;
 
