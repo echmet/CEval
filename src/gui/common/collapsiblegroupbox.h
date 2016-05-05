@@ -18,6 +18,8 @@ protected:
 
 private:
   void resizeCollapseButton(const QSize &size);
+  void collapseLayout(QLayout *layout);
+  void expandLayout(QLayout *layout);
 
   CollapseExpandButton *m_clExpButton;
   QMap<const void *, QMargins> m_layoutMargins;
