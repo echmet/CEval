@@ -120,6 +120,8 @@ void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
 {
   QVector<ChemStationFileInfoModel::Entry> entries;
 
+  m_fsModel->refresh(index);
+
   m_currentDirPath = m_fsModel->data(index, QDirModel::FilePathRole).toString();
   QDir dir(m_currentDirPath);
   QDirIterator dirIt(m_currentDirPath, QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
@@ -179,4 +181,10 @@ bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
 
   m_lastSelectedFile = dir.absoluteFilePath(fileNameVariant.toString());
   return true;
+}
+
+
+void LoadChemStationDataDialog::refresh()
+{
+  m_fsModel->refresh();
 }

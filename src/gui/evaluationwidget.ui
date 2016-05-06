@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>747</width>
-            <height>442</height>
+            <width>1037</width>
+            <height>537</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -500,7 +500,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-501</y>
             <width>1017</width>
             <height>1038</height>
            </rect>
@@ -886,7 +886,7 @@
              <property name="title">
               <string>HVL</string>
              </property>
-             <layout class="QVBoxLayout" name="verticalLayout_12">
+             <layout class="QVBoxLayout" name="verticalLayout_12" stretch="0,0,0">
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_6">
                 <item>

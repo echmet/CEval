@@ -21,6 +21,7 @@ public:
   ~LoadChemStationDataDialog();
   void expandToPath(const QString &path);
   QString lastSelectedFile();
+  void refresh();
 
 private:
   QString createFileType(const ChemStationFileLoader::Type type);

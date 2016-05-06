@@ -470,6 +470,9 @@ RESTART:;
             m_accepted = false;
             goto FINALIZE;
 
+        } catch (std::logic_error &) {
+          m_accepted = false;
+          return false;
         }
 
 

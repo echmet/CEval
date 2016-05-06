@@ -111,6 +111,7 @@ void DataFileLoader::loadChemStationFile()
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
       m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
 
+  m_loadChemStationDataDlg->refresh();
   ret = m_loadChemStationDataDlg->exec();
   m_lastChemStationDlgSize = m_loadChemStationDataDlg->size();
 
