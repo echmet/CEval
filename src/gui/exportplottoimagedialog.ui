@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>547</width>
-    <height>216</height>
+    <width>735</width>
+    <height>289</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,22 +16,6 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="2" column="1">
-      <widget class="QDoubleSpinBox" name="qspbox_width">
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="minimum">
-        <double>1.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>9999999.000000000000000</double>
-       </property>
-       <property name="value">
-        <double>10.000000000000000</double>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="3">
       <widget class="QDoubleSpinBox" name="qspbox_height">
        <property name="alignment">
@@ -83,6 +67,9 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1" colspan="4">
+      <widget class="QComboBox" name="qcbox_format"/>
+     </item>
      <item row="3" column="1">
       <widget class="QSpinBox" name="qspbox_dpi">
        <property name="alignment">
@@ -106,8 +93,21 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1" colspan="4">
-      <widget class="QComboBox" name="qcbox_format"/>
+     <item row="2" column="1">
+      <widget class="QDoubleSpinBox" name="qspbox_width">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>9999999.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>10.000000000000000</double>
+       </property>
+      </widget>
      </item>
      <item row="0" column="1" colspan="3">
       <widget class="QLineEdit" name="qle_path"/>
@@ -116,6 +116,82 @@
       <widget class="QPushButton" name="qpb_browse">
        <property name="text">
         <string>Browse</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <layout class="QGridLayout" name="gridLayout_2">
+     <item row="0" column="1">
+      <widget class="QDoubleSpinBox" name="qspbox_axisTitlesFontSize">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>9999999.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>12.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="ql_axisNumbersFontSize">
+       <property name="text">
+        <string>Axis numbers font size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="3">
+      <widget class="QDoubleSpinBox" name="qspbox_axisNumbersFontSize">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>9999999.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>12.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="ql_axisTitlesFontSize">
+       <property name="text">
+        <string>Axis titles font size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="4">
+      <widget class="QLabel" name="ql_chartTitleFontSize">
+       <property name="text">
+        <string>Chart title font size</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="5">
+      <widget class="QDoubleSpinBox" name="qspbox_chartTitleFontSize">
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="minimum">
+        <double>1.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>9999999.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>16.000000000000000</double>
        </property>
       </widget>
      </item>

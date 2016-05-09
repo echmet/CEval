@@ -1,4 +1,5 @@
 #include "plotexporter.h"
+#include <cmath>
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QImageWriter>
@@ -95,15 +96,15 @@ void PlotExporter::exportPlot(QwtPlot *plot)
     const double _xTopPenWidth = floor((xTopPenWidth * scalingRatio) + 0.45);
     const double _yLeftPenWidth = floor((yLeftPenWidth * scalingRatio) + 0.45);
     const double _yRightPenWidth = floor((yRightPenWidth * scalingRatio) + 0.45);
-    _xBottomFont.setPointSizeF(xBottomFont.pointSizeF() * scalingRatio);
-    _xTopFont.setPointSizeF(xTopFont.pointSizeF() * scalingRatio);
-    _yLeftFont.setPointSizeF(yLeftFont.pointSizeF() * scalingRatio);
-    _yRightFont.setPointSizeF(yRightFont.pointSizeF() * scalingRatio);
-    _xBottomTitleFont.setPointSizeF(xBottomTitleFont.pointSizeF() * scalingRatio);
-    _xTopTitleFont.setPointSizeF(xTopTitleFont.pointSizeF() * scalingRatio);
-    _yLeftTitleFont.setPointSizeF(yLeftTitleFont.pointSizeF() * scalingRatio);
-    _yRightTitleFont.setPointSizeF(yRightTitleFont.pointSizeF() * scalingRatio);
-    _titleFont.setPointSizeF(titleFont.pointSizeF() * scalingRatio);
+    _xBottomFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    _xTopFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    _yLeftFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    _yRightFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    _xBottomTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    _xTopTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    _yLeftTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    _yRightTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    _titleFont.setPointSizeF(p.chartTitleFontSize * scalingRatio);
     plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(_xBottomPenWidth);
     plot->axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(_xTopPenWidth);
     plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(_yLeftPenWidth);

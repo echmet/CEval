@@ -2,11 +2,15 @@
 #include "ui_exportplottoimagedialog.h"
 #include <QFileDialog>
 
-ExportPlotToImageDialog::Parameters::Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi) :
+ExportPlotToImageDialog::Parameters::Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi,
+                                                const qreal &axisTitlesFontSize, const qreal &axisNumbersFontSize, const qreal &chartTitleFontSize) :
   path(path),
   format(format),
   dimensions(dimensions),
-  dpi(dpi)
+  dpi(dpi),
+  axisTitlesFontSize(axisTitlesFontSize),
+  axisNumbersFontSize(axisNumbersFontSize),
+  chartTitleFontSize(chartTitleFontSize)
 {
 }
 
@@ -16,6 +20,9 @@ ExportPlotToImageDialog::Parameters &ExportPlotToImageDialog::Parameters::operat
   const_cast<QString&>(format) = other.format;
   const_cast<QSizeF&>(dimensions) = other.dimensions;
   const_cast<int&>(dpi) = other.dpi;
+  const_cast<qreal&>(axisTitlesFontSize) = other.axisTitlesFontSize;
+  const_cast<qreal&>(axisNumbersFontSize) = other.axisNumbersFontSize;
+  const_cast<qreal&>(chartTitleFontSize) = other.chartTitleFontSize;
 
   return *this;
 }
@@ -116,7 +123,11 @@ ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
 {
   return Parameters(ui->qle_path->text(), ui->qcbox_format->currentData().toString(),
                     QSizeF(ui->qspbox_width->value(), ui->qspbox_height->value()),
-                    ui->qspbox_dpi->value());
+                    ui->qspbox_dpi->value(),
+                    ui->qspbox_axisTitlesFontSize->value(),
+                    ui->qspbox_axisNumbersFontSize->value(),
+                    ui->qspbox_chartTitleFontSize->value()
+                    );
 }
 
 void ExportPlotToImageDialog::setPlotDimensions(const QSizeF &dimensions)
