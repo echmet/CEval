@@ -19,7 +19,7 @@ void FloatingValueLineEdit::ensureSanity(QString text)
 
   QString _text = text.replace(QChar::Nbsp, QString(""), Qt::CaseInsensitive);
 
-  loc.toDouble(text, &ok);
+  DoubleToStringConvertor::back(text, &ok);
   if (ok)
     this->setPalette(QPalette());
   else {
@@ -34,7 +34,7 @@ void FloatingValueLineEdit::onEditingFinished()
   bool ok;
   double dv;
 
-  dv = DoubleToStringConvertor::locale().toDouble(text(), &ok);
+  dv = DoubleToStringConvertor::back(text(), &ok);
   if (ok) {
     blockSignals(true);
     this->setText(DoubleToStringConvertor::convert(dv));

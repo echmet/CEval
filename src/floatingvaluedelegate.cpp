@@ -43,7 +43,7 @@ void FloatingValueDelegate::setModelData(QWidget *editor, QAbstractItemModel *mo
 
   QString s(lineEdit->text());
   s = s.replace(QChar::Nbsp, QString(""));
-  value = m_locale.toDouble(s, &ok);
+  value = DoubleToStringConvertor::back(s, &ok);
   if (!ok)
     return;
 
@@ -66,7 +66,7 @@ void FloatingValueDelegate::onTextChanged(const QString)
 
   QString s(lineEdit->text());
   s = s.replace(QChar::Nbsp, QString(""));
-  m_locale.toDouble(s, &ok);
+  DoubleToStringConvertor::back(s, &ok);
   if (ok || lineEdit->text().length() == 0)
     lineEdit->setPalette(QPalette());
   else {

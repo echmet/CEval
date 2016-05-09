@@ -16,7 +16,6 @@ public:
   void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
-  QLocale m_locale;
 
 private slots:
   void onTextChanged(const QString);
