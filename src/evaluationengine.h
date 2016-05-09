@@ -174,7 +174,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
-  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool doHvlFit = true);
+  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const throw(std::bad_alloc);

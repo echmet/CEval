@@ -537,7 +537,7 @@ void EvaluationEngine::findPeakAssisted()
   processFoundPeak(m_currentDataContext->data->data, fr, false);
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool doHvlFit)
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
 {
   std::shared_ptr<PeakFinderResults> fr;
 
@@ -589,7 +589,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), doHvlFit);
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false));
   return;
 
 err_out:
@@ -1401,9 +1401,7 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY),
-                   QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY),
-                   false, false, false);
+  processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false);
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
