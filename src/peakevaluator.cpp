@@ -42,6 +42,9 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   if (p.toIndex - p.fromIndex < 1)
     return r;
 
+  r.minY = Helpers::minYValue(p.data);
+  r.maxY = Helpers::maxYValue(p.data);
+
   /* -- Calculated results -- */
   /* --> System */
   double Capillary = p.capillary * 1.0E-2; /* Conversion from centimeters */
