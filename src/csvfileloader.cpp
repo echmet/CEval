@@ -83,6 +83,12 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
   quint32 linesRead = 0;
   int highColumn = (yColumn > xColumn) ? yColumn : xColumn;
 
+  if (!dataFile.exists()) {
+    QMessageBox::warning(nullptr, QObject::tr("Invalid file"), QObject::tr("Specified file does not exist"));
+
+    return Data();
+  }
+
   if (!dataFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
     QMessageBox::warning(nullptr, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"
                                                                                        "Error reported: %1")).arg(dataFile.errorString()));
