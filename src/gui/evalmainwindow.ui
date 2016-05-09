@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>30</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -56,7 +56,6 @@
      <string>E&amp;xport</string>
     </property>
     <addaction name="actionExport_plot_as_image"/>
-    <addaction name="actionExport_plot_data_as_CSV"/>
     <addaction name="separator"/>
    </widget>
    <addaction name="menuFile"/>
