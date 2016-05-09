@@ -537,7 +537,7 @@ void EvaluationEngine::findPeakAssisted()
   processFoundPeak(m_currentDataContext->data->data, fr, false);
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool doHvlFit)
 {
   std::shared_ptr<PeakFinderResults> fr;
 
@@ -589,7 +589,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false));
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), doHvlFit);
   return;
 
 err_out:
@@ -1403,7 +1403,7 @@ void EvaluationEngine::onUpdateCurrentPeak()
 
   findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY),
                    QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY),
-                   false, false);
+                   false, false, false);
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
@@ -1517,7 +1517,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -1537,7 +1537,8 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   }
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
-  onDoHvlFit();
+  if (doHvlFit)
+    onDoHvlFit();
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.minY, er.maxY, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);

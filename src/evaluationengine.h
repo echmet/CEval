@@ -174,7 +174,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
-  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
+  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool doHvlFit = true);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const throw(std::bad_alloc);
@@ -188,7 +188,7 @@ private:
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false);
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
