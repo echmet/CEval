@@ -251,8 +251,10 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
   }
 
   /* Act upon the loaded settings where necessary */
-  if (m_lastChemStationPath.length() > 0)
-    m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
+  if (m_lastChemStationPath.length() > 0) {
+    if (QFile::exists(m_lastChemStationPath))
+      m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
+  }
 }
 
 void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type)

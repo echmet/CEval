@@ -120,10 +120,16 @@ void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
 {
   QVector<ChemStationFileInfoModel::Entry> entries;
 
+  if (!index.isValid())
+    return;
+
   m_fsModel->refresh(index);
 
   m_currentDirPath = m_fsModel->data(index, QDirModel::FilePathRole).toString();
   QDir dir(m_currentDirPath);
+
+  if (!dir.exists())
+    return;
   QDirIterator dirIt(m_currentDirPath, QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
 
   while (dirIt.hasNext()) {
@@ -186,5 +192,6 @@ bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
 
 void LoadChemStationDataDialog::refresh()
 {
-  m_fsModel->refresh();
+  if (QDir(m_currentDirPath).exists())
+    m_fsModel->refresh();
 }
