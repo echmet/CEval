@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <qwt_plot.h>
 #include <qwt_plot_renderer.h>
+#include <qwt_plot_zoomer.h>
 #include <qwt_scale_widget.h>
 
 PlotExporter::PlotExporter(QObject *parent) : QObject(parent)
@@ -28,14 +29,12 @@ PlotExporter::~PlotExporter()
   delete m_exportDlg;
 }
 
-void PlotExporter::exportPlot(QwtPlot *plot)
+void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 {
   QSizeF guessedDimensions;
   ExportPlotToImageDialog::Parameters p = m_exportDlg->parameters();
 
-  guessPlotDimensions(plot, p.dimensions.width(), guessedDimensions);
-
-  m_exportDlg->setPlotDimensions(guessedDimensions);
+  m_exportDlg->setAspectRatio(plot->size().width() / plot->size().height());
 
   while (m_exportDlg->exec() == QDialog::Accepted) {
     p = m_exportDlg->parameters();
@@ -56,24 +55,37 @@ void PlotExporter::exportPlot(QwtPlot *plot)
     else
       path = p.path + "." + p.format;
 
+    /* Create a temporary QwtPlot to use to write the chart to file */
+    QwtPlot exPlot;
+    QwtPlotZoomer exPlorZoomer(exPlot.canvas());
+    exPlorZoomer.zoom(zoom);
+
+    exPlot.setCanvasBackground(QBrush(Qt::white));
+    exPlot.setTitle(plot->title());
+    exPlot.setAxisTitle(QwtPlot::xBottom, plot->axisTitle(QwtPlot::xBottom));
+    exPlot.setAxisTitle(QwtPlot::xTop, plot->axisTitle(QwtPlot::xTop));
+    exPlot.setAxisTitle(QwtPlot::yLeft, plot->axisTitle(QwtPlot::yLeft));
+    exPlot.setAxisTitle(QwtPlot::yRight, plot->axisTitle(QwtPlot::yRight));
+    QwtPlotItemList curves = plot->itemList();
+
+    /* Attach all plots from the GUI plot to the temporary plot
+     * Note that this will detach the plots from the GUI plot! */
+    for (QwtPlotItem *i : curves)
+      i->attach(&exPlot);
+
     /* Scale up from millimeters to centimeters*/
     QSizeF dimensionsMM(p.dimensions.width() * 10.0, p.dimensions.height() * 10.0);
 
     /* Store current properties of the plot as we need to change them for rendering */
-    const QPalette storedPalette = plot->palette();
-    const QPalette xBottomPalette = plot->axisWidget(QwtPlot::xBottom)->palette();
-    const QPalette xTopPalette = plot->axisWidget(QwtPlot::xTop)->palette();
-    const QPalette yLeftPalette = plot->axisWidget(QwtPlot::yLeft)->palette();
-    const QPalette yRightPalette = plot->axisWidget(QwtPlot::yRight)->palette();
-    const QFont xBottomFont = plot->axisWidget(QwtPlot::xBottom)->font();
-    const QFont xTopFont = plot->axisWidget(QwtPlot::xTop)->font();
-    const QFont yLeftFont = plot->axisWidget(QwtPlot::yLeft)->font();
-    const QFont yRightFont = plot->axisWidget(QwtPlot::yRight)->font();
-    const QFont xBottomTitleFont = plot->axisTitle(QwtPlot::xBottom).font();
-    const QFont xTopTitleFont = plot->axisTitle(QwtPlot::xTop).font();
-    const QFont yLeftTitleFont = plot->axisTitle(QwtPlot::yLeft).font();
-    const QFont yRightTitleFont = plot->axisTitle(QwtPlot::yRight).font();
-    const QFont titleFont = plot->title().font();
+    QFont xBottomFont = plot->axisWidget(QwtPlot::xBottom)->font();
+    QFont xTopFont = plot->axisWidget(QwtPlot::xTop)->font();
+    QFont yLeftFont = plot->axisWidget(QwtPlot::yLeft)->font();
+    QFont yRightFont = plot->axisWidget(QwtPlot::yRight)->font();
+    QFont xBottomTitleFont = plot->axisTitle(QwtPlot::xBottom).font();
+    QFont xTopTitleFont = plot->axisTitle(QwtPlot::xTop).font();
+    QFont yLeftTitleFont = plot->axisTitle(QwtPlot::yLeft).font();
+    QFont yRightTitleFont = plot->axisTitle(QwtPlot::yRight).font();
+    QFont titleFont = plot->title().font();
     const double xBottomPenWidth = plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() : 1.0;
     const double xTopPenWidth = plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() : 1.0;
     const double yLeftPenWidth = plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() : 1.0;
@@ -83,70 +95,48 @@ void PlotExporter::exportPlot(QwtPlot *plot)
     const double outputInPixels = (static_cast<double>(p.dimensions.width()) / 2.54) * p.dpi;
     const double scalingRatio = (static_cast<double>(qApp->desktop()->logicalDpiX()) / p.dpi) * (outputInPixels / plot->geometry().width());
 
-    QFont _xBottomFont(xBottomFont);
-    QFont _xTopFont(xTopFont);
-    QFont _yLeftFont(yLeftFont);
-    QFont _yRightFont(yRightFont);
-    QFont _xBottomTitleFont(xBottomTitleFont);
-    QFont _xTopTitleFont(xTopTitleFont);
-    QFont _yLeftTitleFont(yLeftTitleFont);
-    QFont _yRightTitleFont(yRightTitleFont);
-    QFont _titleFont;
     const double _xBottomPenWidth = floor((xBottomPenWidth * scalingRatio) + 0.45);
     const double _xTopPenWidth = floor((xTopPenWidth * scalingRatio) + 0.45);
     const double _yLeftPenWidth = floor((yLeftPenWidth * scalingRatio) + 0.45);
     const double _yRightPenWidth = floor((yRightPenWidth * scalingRatio) + 0.45);
-    _xBottomFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
-    _xTopFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
-    _yLeftFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
-    _yRightFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
-    _xBottomTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
-    _xTopTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
-    _yLeftTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
-    _yRightTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
-    _titleFont.setPointSizeF(p.chartTitleFontSize * scalingRatio);
-    plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(_xBottomPenWidth);
-    plot->axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(_xTopPenWidth);
-    plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(_yLeftPenWidth);
-    plot->axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(_yRightPenWidth);
+    xBottomFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    xTopFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    yLeftFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    yRightFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
+    xBottomTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    xTopTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    yLeftTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    yRightTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
+    titleFont.setPointSizeF(p.chartTitleFontSize * scalingRatio);
+    exPlot.axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(_xBottomPenWidth);
+    exPlot.axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(_xTopPenWidth);
+    exPlot.axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(_yLeftPenWidth);
+    exPlot.axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(_yRightPenWidth);
 
-    plot->setPalette(m_plotPalette);
-    plot->axisWidget(QwtPlot::xBottom)->setPalette(m_plotPalette);
-    plot->axisWidget(QwtPlot::xTop)->setPalette(m_plotPalette);
-    plot->axisWidget(QwtPlot::yLeft)->setPalette(m_plotPalette);
-    plot->axisWidget(QwtPlot::yRight)->setPalette(m_plotPalette);
-    plot->axisWidget(QwtPlot::xBottom)->setFont(_xBottomFont);
-    plot->axisWidget(QwtPlot::xTop)->setFont(_xTopFont);
-    plot->axisWidget(QwtPlot::yLeft)->setFont(_yLeftFont);
-    plot->axisWidget(QwtPlot::yRight)->setFont(_yRightFont);
-    setAxisTitleFont(plot, QwtPlot::xBottom, _xBottomTitleFont);
-    setAxisTitleFont(plot, QwtPlot::xTop, _xTopTitleFont);
-    setAxisTitleFont(plot, QwtPlot::yLeft, _yLeftTitleFont);
-    setAxisTitleFont(plot, QwtPlot::yRight, _yRightTitleFont);
-    setTitleFont(plot, _titleFont);
+    exPlot.setPalette(m_plotPalette);
+    exPlot.axisWidget(QwtPlot::xBottom)->setPalette(m_plotPalette);
+    exPlot.axisWidget(QwtPlot::xTop)->setPalette(m_plotPalette);
+    exPlot.axisWidget(QwtPlot::yLeft)->setPalette(m_plotPalette);
+    exPlot.axisWidget(QwtPlot::yRight)->setPalette(m_plotPalette);
+    exPlot.axisWidget(QwtPlot::xBottom)->setFont(xBottomFont);
+    exPlot.axisWidget(QwtPlot::xTop)->setFont(xTopFont);
+    exPlot.axisWidget(QwtPlot::yLeft)->setFont(yLeftFont);
+    exPlot.axisWidget(QwtPlot::yRight)->setFont(yRightFont);
+    setAxisTitleFont(&exPlot, QwtPlot::xBottom, xBottomTitleFont);
+    setAxisTitleFont(&exPlot, QwtPlot::xTop, xTopTitleFont);
+    setAxisTitleFont(&exPlot, QwtPlot::yLeft, yLeftTitleFont);
+    setAxisTitleFont(&exPlot, QwtPlot::yRight, yRightTitleFont);
+    setTitleFont(&exPlot, titleFont);
 
-    renderPlotToFile(plot, path, p.format, dimensionsMM, p.dpi);
+    exPlot.replot();
 
-    /* Restore the origina plot properties */
-    plot->setPalette(storedPalette);
-    plot->axisWidget(QwtPlot::xBottom)->setPalette(xBottomPalette);
-    plot->axisWidget(QwtPlot::xTop)->setPalette(xTopPalette);
-    plot->axisWidget(QwtPlot::yLeft)->setPalette(yLeftPalette);
-    plot->axisWidget(QwtPlot::yRight)->setPalette(yRightPalette);
-    plot->axisWidget(QwtPlot::xBottom)->setFont(xBottomFont);
-    plot->axisWidget(QwtPlot::xTop)->setFont(xTopFont);
-    plot->axisWidget(QwtPlot::yLeft)->setFont(yLeftFont);
-    plot->axisWidget(QwtPlot::yRight)->setFont(yRightFont);
-    setAxisTitleFont(plot, QwtPlot::xBottom, xBottomTitleFont);
-    setAxisTitleFont(plot, QwtPlot::xTop, xTopTitleFont);
-    setAxisTitleFont(plot, QwtPlot::yLeft, yLeftTitleFont);
-    setAxisTitleFont(plot, QwtPlot::yRight, yRightTitleFont);
-    setTitleFont(plot, titleFont);
-    plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(xBottomPenWidth);
-    plot->axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(xTopPenWidth);
-    plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(yLeftPenWidth);
-    plot->axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(yRightPenWidth);
-    break;
+    renderPlotToFile(&exPlot, path, p.format, dimensionsMM, p.dpi);
+
+    /* Reattach the plots back to the GUI plot */
+    for (QwtPlotItem *i : curves)
+      i->attach(plot);
+
+    break; /* Exit the while loop */
   }
 }
 

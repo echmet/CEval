@@ -119,6 +119,13 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="4">
+      <widget class="QPushButton" name="qpb_resetToAspectRatio">
+       <property name="text">
+        <string>Reset to aspect ratio</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

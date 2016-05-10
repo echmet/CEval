@@ -29,20 +29,21 @@ public:
   explicit ExportPlotToImageDialog(const QStringList &supportedFormats, QWidget *parent = nullptr);
   ~ExportPlotToImageDialog();
   Parameters parameters() const;
-  void setPlotDimensions(const QSizeF &dimensions);
+  void setAspectRatio(const qreal aspectRatio);
 
 private:
   Ui::ExportPlotToImageDialog *ui;
-  double m_aspectRatio;
+  qreal m_aspectRatio;
 
 private slots:
   void onBrowseClicked();
   void onCancelClicked();
   void onFilePathChanged(const QString &path);
-  void onHeightChanged(const double h);
+  void onHeightChanged(const qreal h);
   void onKeepAspectRatioClicked();
   void onOkClicked();
-  void onWidthChanged(const double w);
+  void onResetToAspectRatio();
+  void onWidthChanged(const qreal w);
 
 
 };

@@ -14,7 +14,7 @@ public:
   PlotExporter(QObject *parent = nullptr);
   ~PlotExporter();
 
-  void exportPlot(QwtPlot *plot);
+  void exportPlot(QwtPlot *plot, const QRectF &zoom);
 
 private:
   QStringList m_supportedFormats;

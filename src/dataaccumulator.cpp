@@ -144,7 +144,7 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
     m_hyperboleFittingEngine->exportToCsv();
     break;
   case DataAccumulatorMsgs::ExportAction::EXPORT_PLOT:
-    m_plotExporter->exportPlot(m_plot);
+    m_plotExporter->exportPlot(m_plot, m_plotZoomer->zoomRect());
     break;
   case DataAccumulatorMsgs::ExportAction::WHOLE_PEAK_TO_CLIPBOARD:
     m_evaluationEngine->onCopyToClipboard(EvaluationEngineMsgs::CopyToClipboard::EVERYTHING);
