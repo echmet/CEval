@@ -32,7 +32,8 @@ ExportPlotToImageDialog::Parameters &ExportPlotToImageDialog::Parameters::operat
 
 ExportPlotToImageDialog::ExportPlotToImageDialog(const QStringList &supportedFormats, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::ExportPlotToImageDialog)
+  ui(new Ui::ExportPlotToImageDialog),
+  m_supportedFormats(supportedFormats)
 {
   ui->setupUi(this);
 
@@ -47,6 +48,7 @@ ExportPlotToImageDialog::ExportPlotToImageDialog(const QStringList &supportedFor
   connect(ui->qspbox_width, static_cast<void (QDoubleSpinBox::*)(qreal)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onWidthChanged);
   connect(ui->qcb_keepRatio, &QCheckBox::clicked, this, &ExportPlotToImageDialog::onKeepAspectRatioClicked);
   connect(ui->qpb_resetToAspectRatio, &QPushButton::clicked, this, &ExportPlotToImageDialog::onResetToAspectRatio);
+  connect(ui->qcbox_format, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &ExportPlotToImageDialog::onFileFormatChanged);
 }
 
 ExportPlotToImageDialog::~ExportPlotToImageDialog()
@@ -71,6 +73,31 @@ void ExportPlotToImageDialog::onCancelClicked()
   reject();
 }
 
+void ExportPlotToImageDialog::onFileFormatChanged(const int idx)
+{
+  const QString &newSuffix = ui->qcbox_format->itemData(idx).toString();
+
+  if (!m_supportedFormats.contains(newSuffix))
+    return;
+
+  const QString &path = ui->qle_path->text();
+  const int lastDotIdx = path.lastIndexOf('.');
+  if (lastDotIdx < 0)
+    return;
+
+  QString suffix = path.mid(lastDotIdx + 1);
+  if (!m_supportedFormats.contains(suffix))
+    return;
+
+  QString newPath = path;
+  newPath.remove(lastDotIdx + 1, path.length() - lastDotIdx - 1);
+  newPath.append(newSuffix);
+
+  disconnect(ui->qle_path, &QLineEdit::textChanged, this, &ExportPlotToImageDialog::onFilePathChanged);
+  ui->qle_path->setText(newPath);
+  connect(ui->qle_path, &QLineEdit::textChanged, this, &ExportPlotToImageDialog::onFilePathChanged);
+}
+
 void ExportPlotToImageDialog::onFilePathChanged(const QString &path)
 {
   int idx = path.lastIndexOf(".");
@@ -83,7 +110,9 @@ void ExportPlotToImageDialog::onFilePathChanged(const QString &path)
       QString formatTag = ui->qcbox_format->itemData(jdx).toString();
 
       if (suffix == formatTag) {
+        disconnect(ui->qcbox_format, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &ExportPlotToImageDialog::onFileFormatChanged);
         ui->qcbox_format->setCurrentIndex(jdx);
+        connect(ui->qcbox_format, static_cast<void (QComboBox::*)(const int)>(&QComboBox::currentIndexChanged), this, &ExportPlotToImageDialog::onFileFormatChanged);
         break;
       }
     }

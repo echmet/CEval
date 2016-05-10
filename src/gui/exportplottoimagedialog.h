@@ -35,12 +35,15 @@ public:
 
 private:
   Ui::ExportPlotToImageDialog *ui;
+
   qreal m_aspectRatio;
   qreal m_guiAspectRatio;
+  const QStringList m_supportedFormats;
 
 private slots:
   void onBrowseClicked();
   void onCancelClicked();
+  void onFileFormatChanged(const int idx);
   void onFilePathChanged(const QString &path);
   void onHeightChanged(const qreal h);
   void onKeepAspectRatioClicked();
