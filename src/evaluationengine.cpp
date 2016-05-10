@@ -1519,6 +1519,10 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
+  double HVL_a0;
+  double HVL_a1;
+  double HVL_a2;
+  double HVL_a3;
 
   if (!er.isValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
@@ -1526,11 +1530,28 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
     return;
   }
 
+  if (doHvlFit) {
+    er = PeakEvaluator::estimateHvl(er, ep);
+    HVL_a0 = er.peakArea;
+    HVL_a1 = er.HVL_a1;
+    HVL_a2 = er.HVL_a2;
+    HVL_a3 = er.HVL_a3;
+  } else if (!doHvlFit && updateCurrentPeak) {
+    HVL_a0 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A0);
+    HVL_a1 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
+    HVL_a2 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A2);
+    HVL_a3 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A3);
+    er.peakArea = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA);
+  } else {
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Function %1 was called with HVL fit disabled but no peak is being updated. This is a bug. No action was performed.")).arg(QString(__func__) + QString("()")));
+    return;
+  }
+
   setEvaluationResults(fr, er);
 
   QVector<QPointF> hvlPlot;
   if (HVLCalculator::available()) {
-    hvlPlot = HVLCalculator::plot(er.peakArea, er.HVL_a1, er.HVL_a2, er.HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
+    hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
     HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
   }
 
@@ -1666,7 +1687,6 @@ void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResu
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_H_FULL] = er.nHFull;
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_H_LEFT] = er.nHLeft;
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_H_RIGHT] = er.nHRight;
-  m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_AREA] = er.peakArea;
   m_resultsNumericValues[EvaluationResultsItems::Floating::SIGMA_MIN_FULL] = er.sigmaHalfFull;
   m_resultsNumericValues[EvaluationResultsItems::Floating::SIGMA_MIN_LEFT] = er.sigmaHalfLeft;
   m_resultsNumericValues[EvaluationResultsItems::Floating::SIGMA_MIN_RIGHT] = er.sigmaHalfRight;
@@ -1693,12 +1713,14 @@ void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResu
   m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT] = er.peakHeight;
   m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = er.peakHeightBaseline;
 
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = er.peakArea;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = er.HVL_a1;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = er.HVL_a2;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = er.HVL_a3;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
-
+  if (er.isHvlValid()) {
+    m_resultsNumericValues[EvaluationResultsItems::Floating::PEAK_AREA] = er.peakArea;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = er.peakArea;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = er.HVL_a1;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = er.HVL_a2;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = er.HVL_a3;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
+  }
 
   emit m_resultsFloatingModel.dataChanged(m_resultsFloatingModel.index(0, 0),
                                           m_resultsFloatingModel.index(0, m_resultsFloatingModel.indexFromItem(EvaluationResultsItems::Floating::LAST_INDEX)));

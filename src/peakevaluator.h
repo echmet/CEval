@@ -34,7 +34,9 @@ public:
   public:
     explicit Results();
     bool isValid() const;
+    bool isHvlValid() const;
     void validate();
+    void validateHvl();
 
     /*double E;*/
     double uEOF;
@@ -97,12 +99,14 @@ public:
     QVector<QPointF> seriesBTwo;
 
   private:
+    bool m_isHvlValid;
     bool m_isValid;
   };
 
   PeakEvaluator() = delete;
 
   static Results evaluate(const Parameters &p);
+  static Results estimateHvl(const Results &ir, const Parameters &p);
 
 private:
 \
