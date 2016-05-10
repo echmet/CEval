@@ -83,9 +83,9 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 
         curvePenWidths.push_back(w);
 
-        nw = w - 0.6;
-        if (nw <= 0.0)
-          nw = 0.01;
+        nw = w - 1.0;
+        if (nw < 0.0)
+          nw = 0.0;
 
         p.setWidthF(nw);
         c->setPen(p);
