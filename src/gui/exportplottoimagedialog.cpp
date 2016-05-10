@@ -3,11 +3,13 @@
 #include <QFileDialog>
 
 ExportPlotToImageDialog::Parameters::Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi,
+                                                const QString &title,
                                                 const qreal &axisTitlesFontSize, const qreal &axisNumbersFontSize, const qreal &chartTitleFontSize) :
   path(path),
   format(format),
   dimensions(dimensions),
   dpi(dpi),
+  title(title),
   axisTitlesFontSize(axisTitlesFontSize),
   axisNumbersFontSize(axisNumbersFontSize),
   chartTitleFontSize(chartTitleFontSize)
@@ -20,6 +22,7 @@ ExportPlotToImageDialog::Parameters &ExportPlotToImageDialog::Parameters::operat
   const_cast<QString&>(format) = other.format;
   const_cast<QSizeF&>(dimensions) = other.dimensions;
   const_cast<int&>(dpi) = other.dpi;
+  const_cast<QString&>(title) = other.title;
   const_cast<qreal&>(axisTitlesFontSize) = other.axisTitlesFontSize;
   const_cast<qreal&>(axisNumbersFontSize) = other.axisNumbersFontSize;
   const_cast<qreal&>(chartTitleFontSize) = other.chartTitleFontSize;
@@ -125,7 +128,7 @@ void ExportPlotToImageDialog::onResetToAspectRatio()
   const qreal width = ui->qspbox_width->value();
 
   disconnect(ui->qspbox_height, static_cast<void (QDoubleSpinBox::*)(qreal)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
-  ui->qspbox_height->setValue(width / m_aspectRatio);
+  ui->qspbox_height->setValue(width / m_guiAspectRatio);
   connect(ui->qspbox_height, static_cast<void (QDoubleSpinBox::*)(qreal)>(&QDoubleSpinBox::valueChanged), this, &ExportPlotToImageDialog::onHeightChanged);
 }
 
@@ -134,6 +137,7 @@ ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
   return Parameters(ui->qle_path->text(), ui->qcbox_format->currentData().toString(),
                     QSizeF(ui->qspbox_width->value(), ui->qspbox_height->value()),
                     ui->qspbox_dpi->value(),
+                    ui->qle_chartTitle->text(),
                     ui->qspbox_axisTitlesFontSize->value(),
                     ui->qspbox_axisNumbersFontSize->value(),
                     ui->qspbox_chartTitleFontSize->value()
@@ -143,4 +147,5 @@ ExportPlotToImageDialog::Parameters ExportPlotToImageDialog::parameters() const
 void ExportPlotToImageDialog::setAspectRatio(const qreal aspectRatio)
 {
   m_aspectRatio = aspectRatio;
+  m_guiAspectRatio = aspectRatio;
 }

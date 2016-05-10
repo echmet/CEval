@@ -14,6 +14,7 @@ public:
   class Parameters {
   public:
     Parameters(const QString &path, const QString &format, const QSizeF &dimensions, const int dpi,
+               const QString &title,
                const qreal &axisTitlesFontSize, const qreal &axisNumbersFontSize, const qreal &chartTitleFontSize);
     Parameters &operator=(const Parameters &other);
 
@@ -21,6 +22,7 @@ public:
     const QString format;
     const QSizeF dimensions;
     const int dpi;
+    const QString title;
     const qreal axisTitlesFontSize;
     const qreal axisNumbersFontSize;
     const qreal chartTitleFontSize;
@@ -34,6 +36,7 @@ public:
 private:
   Ui::ExportPlotToImageDialog *ui;
   qreal m_aspectRatio;
+  qreal m_guiAspectRatio;
 
 private slots:
   void onBrowseClicked();

@@ -63,7 +63,7 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     exPlorZoomer.zoom(zoom);
 
     exPlot.setCanvasBackground(QBrush(Qt::white));
-    exPlot.setTitle(plot->title());
+    exPlot.setTitle(p.title);
     exPlot.setAxisTitle(QwtPlot::xBottom, plot->axisTitle(QwtPlot::xBottom));
     exPlot.setAxisTitle(QwtPlot::xTop, plot->axisTitle(QwtPlot::xTop));
     exPlot.setAxisTitle(QwtPlot::yLeft, plot->axisTitle(QwtPlot::yLeft));
