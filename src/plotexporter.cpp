@@ -3,8 +3,10 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QImageWriter>
+#include <QList>
 #include <QMessageBox>
 #include <qwt_plot.h>
+#include <qwt_plot_curve.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_scale_widget.h>
@@ -70,8 +72,27 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 
     /* Attach all plots from the GUI plot to the temporary plot
      * Note that this will detach the plots from the GUI plot! */
-    for (QwtPlotItem *i : curves)
+    QList<qreal> curvePenWidths;
+    for (QwtPlotItem *i : curves) {
+      QwtPlotCurve *c = dynamic_cast<QwtPlotCurve *>(i);
+
+      if (c != nullptr) {
+        QPen p = c->pen();
+        qreal w = p.widthF();
+        qreal nw;
+
+        curvePenWidths.push_back(w);
+
+        nw = w - 0.6;
+        if (nw <= 0.0)
+          nw = 0.01;
+
+        p.setWidthF(nw);
+        c->setPen(p);
+      }
+
       i->attach(&exPlot);
+    }
 
     /* Scale up from millimeters to centimeters*/
     QSizeF dimensionsMM(p.dimensions.width() * 10.0, p.dimensions.height() * 10.0);
@@ -133,8 +154,20 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     renderPlotToFile(&exPlot, path, p.format, dimensionsMM, p.dpi);
 
     /* Reattach the plots back to the GUI plot */
-    for (QwtPlotItem *i : curves)
+    for (QwtPlotItem *i : curves) {
+      QwtPlotCurve *c = dynamic_cast<QwtPlotCurve *>(i);
+
+      if (c != nullptr) {
+        QPen p = c->pen();
+
+        p.setWidthF(curvePenWidths.front());
+        curvePenWidths.pop_front();
+
+        c->setPen(p);
+      }
+
       i->attach(plot);
+    }
 
     break; /* Exit the while loop */
   }
