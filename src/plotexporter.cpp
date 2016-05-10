@@ -107,19 +107,19 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     QFont yLeftTitleFont = plot->axisTitle(QwtPlot::yLeft).font();
     QFont yRightTitleFont = plot->axisTitle(QwtPlot::yRight).font();
     QFont titleFont = plot->title().font();
-    const double xBottomPenWidth = plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() : 1.0;
-    const double xTopPenWidth = plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() : 1.0;
-    const double yLeftPenWidth = plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() : 1.0;
-    const double yRightPenWidth = plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() : 1.0;
+    const qreal xBottomPenWidth = plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() : 1.0;
+    const qreal xTopPenWidth = plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() : 1.0;
+    const qreal yLeftPenWidth = plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() : 1.0;
+    const qreal yRightPenWidth = plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() : 1.0;
 
     /* Recalculate sizes by the DPI for every element that needs it */
-    const double outputInPixels = (static_cast<double>(p.dimensions.width()) / 2.54) * p.dpi;
-    const double scalingRatio = (static_cast<double>(qApp->desktop()->logicalDpiX()) / p.dpi) * (outputInPixels / plot->geometry().width());
+    const qreal outputInPixels = (static_cast<qreal>(p.dimensions.width()) / 2.54) * p.dpi;
+    const qreal scalingRatio = (static_cast<qreal>(qApp->desktop()->logicalDpiX()) / p.dpi) * (outputInPixels / plot->geometry().width());
 
-    const double _xBottomPenWidth = floor((xBottomPenWidth * scalingRatio) + 0.45);
-    const double _xTopPenWidth = floor((xTopPenWidth * scalingRatio) + 0.45);
-    const double _yLeftPenWidth = floor((yLeftPenWidth * scalingRatio) + 0.45);
-    const double _yRightPenWidth = floor((yRightPenWidth * scalingRatio) + 0.45);
+    const qreal _xBottomPenWidth = floor((xBottomPenWidth * scalingRatio) + 0.45);
+    const qreal _xTopPenWidth = floor((xTopPenWidth * scalingRatio) + 0.45);
+    const qreal _yLeftPenWidth = floor((yLeftPenWidth * scalingRatio) + 0.45);
+    const qreal _yRightPenWidth = floor((yRightPenWidth * scalingRatio) + 0.45);
     xBottomFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
     xTopFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
     yLeftFont.setPointSizeF(p.axisNumbersFontSize * scalingRatio);
@@ -176,7 +176,7 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 void PlotExporter::guessPlotDimensions(const QwtPlot *plot, const double currentWidth, QSizeF &dimensions)
 {
   const QRect &plotDims = plot->geometry();
-  const double plotRatio = static_cast<double>(plotDims.width()) / static_cast<double>(plotDims.height());
+  const qreal plotRatio = static_cast<qreal>(plotDims.width()) / static_cast<qreal>(plotDims.height());
 
   dimensions.setWidth(currentWidth);
   dimensions.setHeight(currentWidth / plotRatio);
