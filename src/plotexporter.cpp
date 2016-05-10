@@ -160,6 +160,9 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
       if (c != nullptr) {
         QPen p = c->pen();
 
+        if (curvePenWidths.isEmpty())
+          break;
+
         p.setWidthF(curvePenWidths.front());
         curvePenWidths.pop_front();
 
