@@ -6,6 +6,7 @@
 #include <QResizeEvent>
 #include <QScreen>
 #include <QStyle>
+#include <cmath>
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   QGroupBox(parent)

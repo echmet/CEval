@@ -1,6 +1,7 @@
 #include "addpeakdialog.h"
 #include "ui_addpeakdialog.h"
 #include "../doubletostringconvertor.h"
+#include <cmath>
 
 AddPeakDialog::Answer::Answer(const bool registerInHF, const QString &name, const MobilityFrom mobilityFrom) :
   registerInHF(registerInHF),

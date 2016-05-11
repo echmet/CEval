@@ -9,6 +9,11 @@
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
+#include <thread>
+#include <omp.h>
+#ifdef Q_OS_UNIX
+#include <cstdlib>
+#endif
 
 static const QString DAC_SETTINGS_TAG("DataAccumulator");
 static const QString NUM_FORMAT_SETTINGS_TAG("NumFormat");
@@ -40,6 +45,39 @@ void loadUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
     updater->loadUserSettings(rootMap[SOFTWARE_UPDATER_SETTINGS_TAG]);
 }
 
+#ifdef Q_OS_UNIX
+void setOpenMPThreads()
+{
+  int hwThreads;
+  const char *ompThreads = getenv("OMP_NUM_THREADS");
+
+  if (ompThreads == nullptr)
+    hwThreads = std::thread::hardware_concurrency();
+  else {
+    try {
+      hwThreads = std::stoi(ompThreads);
+    } catch (std::invalid_argument &) {
+      hwThreads = 0;
+    } catch (std::out_of_range &) {
+      hwThreads = 0;
+    }
+  }
+
+  if (hwThreads > 0)
+    omp_set_num_threads(hwThreads);
+}
+#elif defined Q_OS_WIN
+void setOpenMPThreads()
+{
+  // TODO: Implement for Win32
+}
+#else
+void setOpenMPThreads()
+{
+  return; /* Unknown architecture, do nothing */
+}
+#endif
+
 void setupBindings(EvalMainWindow *w, DataAccumulator *dac)
 {
   w->connectToAccumulator(dac);
@@ -70,6 +108,8 @@ int main(int argc, char *argv[])
   DataAccumulator *dac;
   SoftwareUpdater *updater;
   int aRet;
+
+  setOpenMPThreads();
 
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);
   QCoreApplication::setApplicationName(Globals::SOFTWARE_NAME);

@@ -2,6 +2,7 @@
 #include <QPainter>
 #include <QPen>
 #include <QResizeEvent>
+#include <cmath>
 
 const int CollapseExpandButton::LINE_WIDTH(2);
 

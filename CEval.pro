@@ -20,8 +20,13 @@ unix {
 
 CONFIG += xopenmp
 xopenmp {
-    QMAKE_CXXFLAGS += -fopenmp
-    QMAKE_LFLAGS += -fopenmp
+    linux-clang {
+        QMAKE_CXXFLAGS += -fopenmp=libomp
+        QMAKE_LFLAGS += -fopenmp=libomp
+    } else {
+        QMAKE_CXXFLAGS += -fopenmp
+        QMAKE_LFLAGS += -fopenmp
+    }
 }
 
 CONFIG += xsimd
