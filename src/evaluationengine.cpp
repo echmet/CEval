@@ -911,7 +911,6 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
     return;
   else if (m_allDataContexts.size() == 1) {
     m_loadedFilesModel.deleteByIdx(idx);
-    newIdx = 0;
     m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), currentEvaluationContext()));
     m_currentDataContextKey = "";
   } else {

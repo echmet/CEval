@@ -243,14 +243,9 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
-  tA = tBEG;
   tAi = tBEGi;
 
-  tP = tA;
   tPi = tAi;
-
-  tB = tEND;
-  tBi = tENDi - 1;
 
   /* Initialize noise reference point */
   tnrp = p.noisePoint;
@@ -470,8 +465,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
         }
       }
     }
-
-    tP = Data[tPi].x();
   } // Time::ReadOnly
 
   /* * SlopeWindow (Peak top) , H, zpresneni TP* */
