@@ -8,6 +8,7 @@ ManualPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
 std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
+  const int length = p.data.length();
   int fromIndex;
   int toIndex;
   double fromX;
@@ -18,13 +19,13 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
 
   r = std::make_shared<PeakFinderResults>();
 
-  if (p.data.length() < 1)
+  if (length > 1)
     return r;
 
   /* Convert time values to indices */
   {
     int ctr = 0;
-    while (ctr < p.data.length()) {
+    while (ctr < length) {
       const double vx = p.data.at(ctr).x();
 
       if (vx >= p.fromX) {
@@ -33,13 +34,13 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
       }
       ctr++;
     }
-    if (ctr >= p.data.length())
+    if (ctr >= length)
       return r;
 
     if (p.toX < p.fromX)
       ctr = 0;
 
-    while (ctr < p.data.length()) {
+    while (ctr < length) {
       const double vx = p.data.at(ctr).x();
 
       if (vx >= p.toX) {
@@ -48,9 +49,9 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
       }
       ctr++;
     }
-    if (ctr >= p.data.length()) {
+    if (ctr >= length) {
       if (p.toX > p.fromX)
-        toIndex = p.data.length() - 1;
+        toIndex = length - 1;
       else
         toIndex = 0;
     }
