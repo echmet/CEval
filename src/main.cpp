@@ -1,3 +1,10 @@
+#ifdef Q_OS_UNIX
+#include <cstdlib>
+#elif defined Q_OS_WIN
+#include <windows.h>
+#include <tchar.h>
+#endif
+
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
 #include "crashhandler.h"
@@ -11,9 +18,7 @@
 #include <QSettings>
 #include <thread>
 #include <omp.h>
-#ifdef Q_OS_UNIX
-#include <cstdlib>
-#endif
+
 
 static const QString DAC_SETTINGS_TAG("DataAccumulator");
 static const QString NUM_FORMAT_SETTINGS_TAG("NumFormat");
@@ -69,7 +74,29 @@ void setOpenMPThreads()
 #elif defined Q_OS_WIN
 void setOpenMPThreads()
 {
-  // TODO: Implement for Win32
+  int hwThreads;
+  DWORD ret;
+  LPTSTR ompThreads = static_cast<LPTSTR>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 32767));
+
+  if (ompThreads == nullptr)
+    return;
+
+  ret = GetEnvironmentVariable(TEXT("OMP_NUM_THREADS"), ompThreads, 32767);
+  if (ret <= 0)
+    hwThreads = std::thread::hardware_concurrency();
+  else {
+  #if defined UNICODE || defined _UNICODE
+    hwThreads = wcstol(ompThreads, nullptr, 10);
+  #else
+    hwThreads = strtol(ompThreads, nullptr, 10);
+  #endif
+
+    if (hwThreads == LONG_MIN || hwThreads == LONG_MAX)
+      hwThreads = 0;
+  }
+
+  if (hwThreads > 0)
+    omp_set_num_threads(hwThreads);
 }
 #else
 void setOpenMPThreads()
