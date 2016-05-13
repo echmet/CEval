@@ -581,8 +581,8 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
   double uCSA = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_CS_A);
   double KCSA = m_fitResultsValues.at(HyperboleFitResults::Floating::K_CS_A);
   double u0B =  m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_B);
-  double uCSB = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_CS_B);
-  double KCSB = m_fitResultsValues.at(HyperboleFitResults::Floating::K_CS_B);
+  double uCSB;
+  double KCSB;
 
   if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A))
     dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::u0, u0A);

@@ -155,7 +155,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   double SummX, SummXX, SummY, SummXY;
   long diL, diR;
   long tBEGi, tENDi, tnrpi, tsrpi, tAi, tBi, tPi;
-  double tBEG, tEND, tnrp, tsrp, tA, tB, tP;
+  double tEND, tnrp, tsrp, tA, tB, tP;
   long twPLefti, twPRighti;
   double twPLeft, twPRight;
   double HP, HP_, HA, HB;
@@ -193,12 +193,11 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   double SlopeThreshold, SlopeSensitivity; /* Declare here and use as synonyme for noise calculations*/
 
   /* Initialize settings */
-  if (p.autoFrom) {
+  if (p.autoFrom)
     tBEGi = 0;
-    tBEG = XMin;
-  } else {
+  else {
     long idx = 0;
-    tBEG = p.from;
+    double tBEG = p.from;
     while (Data.at(idx).x() < tBEG)
       idx++;
 
