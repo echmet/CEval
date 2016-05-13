@@ -18,6 +18,9 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
 
   r = std::make_shared<PeakFinderResults>();
 
+  if (p.data.length() < 1)
+    return r;
+
   /* Convert time values to indices */
   {
     int ctr = 0;
