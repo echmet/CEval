@@ -176,13 +176,17 @@ void LoadCsvFileDialog::onLoadClicked()
 {
   quint32 linesToSkip;
   QStandardItem *item = m_encodingsModel.item(ui->qcbox_encoding->currentIndex());
-  if (item == nullptr)
+  if (item == nullptr) {
     reject();
+    return;
+  }
 
   QVariant v = ui->qcbox_headerHandling->currentData();
 
-  if (!v.canConvert<HeaderHandling>())
+  if (!v.canConvert<HeaderHandling>()) {
     reject();
+    return;
+  }
 
   HeaderHandling h = v.value<HeaderHandling>();
 
