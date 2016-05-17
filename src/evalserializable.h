@@ -216,6 +216,7 @@ public:
 
 protected:
   explicit EvalSerializable() : m_LastInternalError(EvalSerializable::SUCCESS) {}
+  ~EvalSerializable() {}
 
   RetCode CheckHeader(const char*& Ptr, const char * const End) const
   {
