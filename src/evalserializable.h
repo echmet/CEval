@@ -230,34 +230,34 @@ protected:
     if (TN.compare(TypeName()) != 0)
       return ERR_BADTYPE;
 
-      return SUCCESS;
-    }
+    return SUCCESS;
+  }
 
-    virtual std::string TypeName() const = 0;
+  virtual std::string TypeName() const = 0;
 
-    RetCode WriteHeader(ByteStream& Stream) const
-    {
-      RetCode Ret;
+  RetCode WriteHeader(ByteStream& Stream) const
+  {
+    RetCode Ret;
 
-      Ret = AddData(HEADER_TAG, Stream);
-      if (Ret != SUCCESS)
-        return Ret;
+    Ret = AddData(HEADER_TAG, Stream);
+    if (Ret != SUCCESS)
+      return Ret;
 
-      std::string TN = TypeName();
-      return AddData(TN, Stream);
-    }
+    std::string TN = TypeName();
+    return AddData(TN, Stream);
+  }
 
-    template<typename T>
-    static RetCode AddData(const T& Data, ByteStream& Stream)
-    {
-      return _AddData(Data, Stream, Identity<T>());
-    }
+  template<typename T>
+  static RetCode AddData(const T& Data, ByteStream& Stream)
+  {
+    return _AddData(Data, Stream, Identity<T>());
+  }
 
-    template<typename T>
-    static RetCode ReadData(T& Data, const char*& Ptr, const char * const End)
-    {
-      return _ReadData(Data, Ptr, End, Identity<T>());
-    }
+  template<typename T>
+  static RetCode ReadData(T& Data, const char*& Ptr, const char * const End)
+  {
+    return _ReadData(Data, Ptr, End, Identity<T>());
+  }
 
 private:
   template<typename T>
@@ -308,22 +308,22 @@ private:
 
   static RetCode _AddData(const std::wstring& Data, ByteStream& Stream, Identity<std::wstring>)
   {
-                const uint32_t S = Data.length() * sizeof(wchar_t);
-                const char *PLength = reinterpret_cast<const char*>(&S);
-                const char *PData = reinterpret_cast<const char*>(Data.c_str());
+    const uint32_t S = Data.length() * sizeof(wchar_t);
+    const char *PLength = reinterpret_cast<const char*>(&S);
+    const char *PData = reinterpret_cast<const char*>(Data.c_str());
 
-                try {
-                        for (size_t idx = 0; idx < sizeof(S); idx++)
-                                Stream.push_back(PLength[idx]);
+    try {
+      for (size_t idx = 0; idx < sizeof(S); idx++)
+        Stream.push_back(PLength[idx]);
 
-                        for (size_t idx = 0; idx < S; idx++)
-                                Stream.push_back(PData[idx]);
-                } catch (std::bad_alloc& ) {
-                        return ERR_NOMEM;
-                }
+      for (size_t idx = 0; idx < S; idx++)
+        Stream.push_back(PData[idx]);
+    } catch (std::bad_alloc& ) {
+      return ERR_NOMEM;
+    }
 
-                return SUCCESS;
-        }
+    return SUCCESS;
+  }
 
   template<typename T>
   static RetCode _AddData(const std::vector<T>& Data, ByteStream& Stream, Identity<std::vector<T> >)
@@ -363,12 +363,12 @@ private:
       for (size_t idx = 0; idx < sizeof(Size); idx++)
         Stream.push_back(PSize[idx]);
 
-        for (size_t idx = 0; idx < Size; idx++) {
-          T& Item = const_cast<T&>(Data.at(idx));
-          RetCode Ret = Item.Serialize(Stream);
-          if (Ret != SUCCESS)
-            return Ret;
-        }
+      for (size_t idx = 0; idx < Size; idx++) {
+        T& Item = const_cast<T&>(Data.at(idx));
+        RetCode Ret = Item.Serialize(Stream);
+        if (Ret != SUCCESS)
+          return Ret;
+      }
     } catch (std::bad_alloc& ) {
       return ERR_NOMEM;
     }
