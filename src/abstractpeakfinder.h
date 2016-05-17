@@ -38,6 +38,8 @@ public:
     AbstractParameters() {}
   };
 
+  virtual ~AbstractPeakFinder() {}
+
   static std::shared_ptr<PeakFinderResults> find(const AbstractParameters &p) throw(std::bad_alloc)
   {
     if (s_me == nullptr)
