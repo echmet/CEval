@@ -212,6 +212,8 @@ protected:
     template<typename ENUM>
     YT const & GetParam(MatrixY const & params, ENUM id) const;
 
+    void checkMatrix(MatrixY const &matrix) noexcept(false);
+
 private:
 
     report_function   m_report_function;
@@ -462,6 +464,7 @@ RESTART:;
               //delta
               // $$$ delta = alpha.Inverted() * beta;
               //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
+              checkMatrix(m_alpha);
 
               m_delta = solve(m_alpha, m_beta);
         } catch (std::runtime_error &) {
@@ -906,6 +909,20 @@ inline void RegressFunction<XT, YT>::CalculateRSS () {
 
 #endif
 
+}
+
+template <typename XT, typename YT>
+void RegressFunction<XT, YT>::checkMatrix (MatrixY const & matrix) noexcept(false) {
+  typename MatrixY::const_iterator cit = matrix.begin();
+
+  while (cit != matrix.end()) {
+    YT const & v = *cit;
+
+    if (isnan(v) || isinf(v))
+      throw std::runtime_error("Non-numerical values in matrix");
+
+    cit++;
+  }
 }
 
 //---------------------------------------------------------------------------
