@@ -175,6 +175,44 @@ EvalSerializable::RetCode EvalSerializable::WriteHeader(ByteStream& Stream) cons
   return AddData(TN, Stream);
 }
 
+EvalSerializable::RetCode EvalSerializable::_AddData(const std::string& Data, ByteStream& Stream, Identity<std::string>)
+{
+  const uint32_t S = Data.length();
+  const char *PLength = reinterpret_cast<const char*>(&S);
+  const char *PData = Data.c_str();
+
+  try {
+    for (size_t idx = 0; idx < sizeof(S); idx++)
+      Stream.push_back(PLength[idx]);
+
+    for (size_t idx = 0; idx < S; idx++)
+      Stream.push_back(PData[idx]);
+  } catch (std::bad_alloc& ) {
+    return ERR_NOMEM;
+  }
+
+  return SUCCESS;
+}
+
+EvalSerializable::RetCode EvalSerializable::_AddData(const std::wstring& Data, ByteStream& Stream, Identity<std::wstring>)
+{
+  const uint32_t S = Data.length() * sizeof(wchar_t);
+  const char *PLength = reinterpret_cast<const char*>(&S);
+  const char *PData = reinterpret_cast<const char*>(Data.c_str());
+
+  try {
+    for (size_t idx = 0; idx < sizeof(S); idx++)
+      Stream.push_back(PLength[idx]);
+
+    for (size_t idx = 0; idx < S; idx++)
+      Stream.push_back(PData[idx]);
+  } catch (std::bad_alloc& ) {
+    return ERR_NOMEM;
+  }
+
+  return SUCCESS;
+}
+
 EvalSerializable::RetCode EvalSerializable::_ReadData(std::string& Data, const char*& Ptr, const char * const End, Identity<std::string>)
 {
   uint32_t Length;

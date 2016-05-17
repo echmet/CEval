@@ -1,5 +1,5 @@
-#ifndef _EVALSERIALIZABLE_H
-#define _EVALSERIALIZABLE_H
+#ifndef EVALSERIALIZABLE_H
+#define EVALSERIALIZABLE_H
 
 #include <cstdio>
 #include <cstring>
@@ -152,43 +152,8 @@ private:
     return _AddData_fundamental(Data, Stream, bool_<std::is_fundamental<T>::value>());
   }
 
-  static RetCode _AddData(const std::string& Data, ByteStream& Stream, Identity<std::string>)
-  {
-    const uint32_t S = Data.length();
-    const char *PLength = reinterpret_cast<const char*>(&S);
-    const char *PData = Data.c_str();
-
-    try {
-      for (size_t idx = 0; idx < sizeof(S); idx++)
-        Stream.push_back(PLength[idx]);
-
-      for (size_t idx = 0; idx < S; idx++)
-        Stream.push_back(PData[idx]);
-    } catch (std::bad_alloc& ) {
-      return ERR_NOMEM;
-    }
-
-    return SUCCESS;
-  }
-
-  static RetCode _AddData(const std::wstring& Data, ByteStream& Stream, Identity<std::wstring>)
-  {
-    const uint32_t S = Data.length() * sizeof(wchar_t);
-    const char *PLength = reinterpret_cast<const char*>(&S);
-    const char *PData = reinterpret_cast<const char*>(Data.c_str());
-
-    try {
-      for (size_t idx = 0; idx < sizeof(S); idx++)
-        Stream.push_back(PLength[idx]);
-
-      for (size_t idx = 0; idx < S; idx++)
-        Stream.push_back(PData[idx]);
-    } catch (std::bad_alloc& ) {
-      return ERR_NOMEM;
-    }
-
-    return SUCCESS;
-  }
+  static RetCode _AddData(const std::string& Data, ByteStream& Stream, Identity<std::string>);
+  static RetCode _AddData(const std::wstring& Data, ByteStream& Stream, Identity<std::wstring>);
 
   template<typename T>
   static RetCode _AddData(const std::vector<T>& Data, ByteStream& Stream, Identity<std::vector<T> >)
@@ -328,4 +293,4 @@ private:
   static const std::string HEADER_TAG;
 };
 
-#endif //_IEVALSERIALIZABLE_H
+#endif //EVALSERIALIZABLE_H
