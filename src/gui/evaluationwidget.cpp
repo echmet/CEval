@@ -25,6 +25,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_findPeak, &QPushButton::clicked, this, &EvaluationWidget::onFindPeaksClicked);
   connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
+  connect(ui->qcb_disableAutoFit, &QCheckBox::clicked, this, &EvaluationWidget::onDisableAutoFitToggled);
   connect(ui->qcb_showHvlStats, &QCheckBox::toggled, this, &EvaluationWidget::onShowHvlFitStatsToggled);
   connect(ui->qpb_ctcEOF, &QPushButton::clicked, this, &EvaluationWidget::onCtcEOFClicked);
   connect(ui->qpb_ctcHVL, &QPushButton::clicked, this, &EvaluationWidget::onCtcHVLClicked);
@@ -91,6 +92,11 @@ void EvaluationWidget::onDefaultFinderParametersClicked()
   emit evaluationSetDefault(EvaluationEngineMsgs::Default::FINDER_PARAMETERS);
 }
 
+void EvaluationWidget::onDisableAutoFitToggled()
+{
+  emit checkBoxChanged(EvaluationEngineMsgs::CheckBox::HVL_DISABLE_AUTO_FIT, ui->qcb_disableAutoFit->checkState() == Qt::Checked);
+}
+
 void EvaluationWidget::onDoHvlFitClicked()
 {
   emit doHvlFit();
@@ -148,7 +154,7 @@ void EvaluationWidget::onReplotHvl()
 
 void EvaluationWidget::onShowHvlFitStatsToggled()
 {
-  emit showHvlFitStats(ui->qcb_showHvlStats->checkState() == Qt::Checked);
+  emit checkBoxChanged(EvaluationEngineMsgs::CheckBox::HVL_SHOW_STATS, ui->qcb_showHvlStats->checkState() == Qt::Checked);
 }
 
 void EvaluationWidget::onShowWindowComboBoxChanged(const int idx)

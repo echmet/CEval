@@ -220,6 +220,7 @@ private:
   QPointF m_manualPeakFrom;
   bool m_manualPeakSnapFrom;
 
+  bool m_disableAutoFit;
   bool m_showHvlFitStats;
 
   CommonParametersEngine *m_commonParamsEngine;
@@ -289,6 +290,7 @@ signals:
 public slots:
   void onAddPeak();
   void onCancelEvaluatedPeakSelection();
+  void onCheckBoxChanged(const EvaluationEngineMsgs::CheckBox cbox, const bool checked);
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
@@ -302,7 +304,6 @@ public slots:
   void onReadEof();
   void onReplotHvl();
   void onSetDefault(EvaluationEngineMsgs::Default msg);
-  void onShowHvlFitStatsChanged(const bool show);
   void onUpdateCurrentPeak();
 
 private slots:

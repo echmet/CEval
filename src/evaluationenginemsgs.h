@@ -7,6 +7,12 @@ class EvaluationEngineMsgs : public QObject
 {
   Q_OBJECT
 public:
+  enum class CheckBox {
+    HVL_SHOW_STATS,
+    HVL_DISABLE_AUTO_FIT
+  };
+  Q_ENUM(CheckBox)
+
   enum class CopyToClipboard {
     EOFLOW,
     HVL,

@@ -112,6 +112,7 @@ EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operat
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
   m_userInteractionState(UserInteractionState::FINDING_PEAK),
+  m_disableAutoFit(false),
   m_showHvlFitStats(false),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
@@ -534,7 +535,7 @@ void EvaluationEngine::findPeakAssisted()
 
   displayAutomatedResults(fr);
 
-  processFoundPeak(m_currentDataContext->data->data, fr, false);
+  processFoundPeak(m_currentDataContext->data->data, fr, false, !m_disableAutoFit);
 }
 
 void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
@@ -589,7 +590,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false));
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !m_disableAutoFit);
   return;
 
 err_out:
@@ -901,6 +902,19 @@ void EvaluationEngine::onCancelEvaluatedPeakSelection()
 
   m_userInteractionState = UserInteractionState::FINDING_PEAK;
 }
+
+void EvaluationEngine::onCheckBoxChanged(const EvaluationEngineMsgs::CheckBox cbox, const bool checked)
+{
+  switch (cbox) {
+  case EvaluationEngineMsgs::CheckBox::HVL_DISABLE_AUTO_FIT:
+    m_disableAutoFit = checked;
+    break;
+  case EvaluationEngineMsgs::CheckBox::HVL_SHOW_STATS:
+    m_showHvlFitStats = checked;
+    break;
+  }
+}
+
 
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
@@ -1380,12 +1394,6 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
   }
 }
 
-void EvaluationEngine::onShowHvlFitStatsChanged(const bool show)
-{
-  m_showHvlFitStats = show;
-}
-
-
 void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
   m_modeCtx->clearSerieSamples(seriesIndex(Series::PROV_PEAK));
@@ -1529,21 +1537,18 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
     return;
   }
 
-  if (doHvlFit) {
-    er = PeakEvaluator::estimateHvl(er, ep);
-    HVL_a0 = er.peakArea;
-    HVL_a1 = er.HVL_a1;
-    HVL_a2 = er.HVL_a2;
-    HVL_a3 = er.HVL_a3;
-  } else if (!doHvlFit && updateCurrentPeak) {
+  if (!doHvlFit && updateCurrentPeak) {
     HVL_a0 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A0);
     HVL_a1 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
     HVL_a2 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A2);
     HVL_a3 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A3);
     er.peakArea = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA);
   } else {
-    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Function %1 was called with HVL fit disabled but no peak is being updated. This is a bug. No action was performed.")).arg(QString(__func__) + QString("()")));
-    return;
+    er = PeakEvaluator::estimateHvl(er, ep);
+    HVL_a0 = er.peakArea;
+    HVL_a1 = er.HVL_a1;
+    HVL_a2 = er.HVL_a2;
+    HVL_a3 = er.HVL_a3;
   }
 
   setEvaluationResults(fr, er);
