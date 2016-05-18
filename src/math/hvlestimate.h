@@ -83,7 +83,7 @@ inline Coefficients Coefficients::Calculate
 
 
     a0   = area;
-    a1   = t + (sign * K * fwhm);   // 1
+    a1   = t - (sign * K * fwhm);   // 1
     a2   = L * fwhm;
     a3d *= sign;
 
