@@ -71,13 +71,15 @@ bool HVLCalculator::available()
 
 void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
 {
-  unsigned long size = in->toIdx - in->fromIdx;
+  int size = in->toIdx - in->fromIdx;
+  if (size < 1)
+    return;
 
   vector<double> x(size, 1);
   Mat<double>    y(size, 1);
 
 #pragma omp parallel for
-  for (unsigned long j = 0; j < size; ++j) {
+  for (int j = 0; j < size; ++j) {
 
           x[j]   = in->data->at(in->fromIdx + j).x();
           y(j,0) = in->data->at(in->fromIdx + j).y();
@@ -116,7 +118,7 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   emit hvlFitDone();
 }
 
-HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const unsigned long fromIdx, const unsigned long toIdx,
+HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,

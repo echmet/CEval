@@ -40,8 +40,8 @@ public:
     explicit HVLInParameters();
 
     const QVector<QPointF> *data;
-    unsigned long fromIdx;
-    unsigned long toIdx;
+    int fromIdx;
+    int toIdx;
     double a0;
     double a1;
     double a2;
@@ -63,7 +63,7 @@ public:
   static void applyBaseline(QVector<QPointF> &data, const double k, const double q);
 
   static HVLParameters fit(
-    const QVector<QPointF> &data, const unsigned long fromIdx, const unsigned long toIdx,
+    const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     const double a0, const double a1, const double a2, const double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
