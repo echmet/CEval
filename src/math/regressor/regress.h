@@ -918,7 +918,7 @@ void RegressFunction<XT, YT>::checkMatrix (MatrixY const & matrix) noexcept(fals
   while (cit != matrix.end()) {
     YT const & v = *cit;
 
-    if (isnan(v) || isinf(v))
+    if (std::isnan(v) || std::isinf(v))
       throw std::runtime_error("Non-numerical values in matrix");
 
     cit++;
