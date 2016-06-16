@@ -138,6 +138,7 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
   QString filePath;
   std::shared_ptr<Data> data;
   QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
+  QString fileID;
 
   if (!readFromClipboard) {
     openDlg.setAcceptMode(QFileDialog::AcceptOpen);
@@ -184,15 +185,20 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
   CsvFileLoader::Data csvData;
 
-  if (readFromClipboard)
+  if (readFromClipboard) {
     csvData = CsvFileLoader::readClipboard(delimiter, p.decimalSeparator, p.xColumn, p.yColumn,
                                            p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
                                            p.linesToSkip, p.encodingId);
-  else
+    fileID = "";
+  } else {
     csvData = CsvFileLoader::readFile(filePath, delimiter, p.decimalSeparator,
                                       p.xColumn, p.yColumn,
                                       p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
                                       p.encodingId, bom);
+    fileID = filePath;
+    m_lastCsvPath = filePath;
+  }
+
   if (!csvData.isValid())
     return;
 
@@ -230,8 +236,7 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
                                         xType, xUnit,
                                         yType, yUnit));
 
-  m_lastCsvPath = filePath;
-  emit dataLoaded(data, filePath, QFileInfo(filePath).fileName());
+  emit dataLoaded(data, fileID, QFileInfo(filePath).fileName());
 }
 
 void DataFileLoader::loadUserSettings(const QVariant &settings)

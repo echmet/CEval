@@ -170,7 +170,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     linesRead++;
   }
 
-  const QChar qcDelimiter = delimiter.toLatin1();
+  const QChar qcDelimiter = delimiter;
   while (!stream.atEnd()) {
     QStringList values;
     QString line;
