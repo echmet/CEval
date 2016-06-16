@@ -19,7 +19,7 @@ public:
   };
 
 protected:
-  std::shared_ptr<PeakFinderResults> findInternal(const AbstractParameters &ap) throw(std::bad_cast, std::bad_alloc) override;
+  std::shared_ptr<PeakFinderResults> findInternal(const AbstractParameters &ap) noexcept(false) override;
 
 };
 

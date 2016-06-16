@@ -148,7 +148,7 @@ bool AssistedPeakFinder::checkBounds(const int i, const QVector<QPointF> &data)
   return true;
 }
 
-std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) throw (std::bad_cast, std::bad_alloc)
+std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) noexcept(false)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double MaxValue, MinValue, SummValue;

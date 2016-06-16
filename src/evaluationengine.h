@@ -162,7 +162,7 @@ private:
 
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
-  void createContextMenus() throw(std::bad_alloc);
+  void createContextMenus() noexcept(false);
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
@@ -170,14 +170,14 @@ private:
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> &fr);
-  PeakContext duplicatePeakContext() const throw(std::bad_alloc);
+  PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
   void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   EvaluationContext freshEvaluationContext() const;
-  PeakContext freshPeakContext() const throw(std::bad_alloc);
+  PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();

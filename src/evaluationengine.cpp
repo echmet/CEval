@@ -294,7 +294,7 @@ void EvaluationEngine::clearPeakPlots()
   m_modeCtx->replot();
 }
 
-void EvaluationEngine::createContextMenus() throw(std::bad_alloc)
+void EvaluationEngine::createContextMenus() noexcept(false)
 {
   QAction *a;
 
@@ -444,7 +444,7 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   return def;
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const throw(std::bad_alloc)
+EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noexcept(false)
 {
   /* Despite its name this function only copies the parameters of current
    * peak context, the results are created empty */
@@ -661,7 +661,7 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() c
                            MappedVectorWrapper<double, EvaluationParametersItems::Floating>(s_defaultEvaluationFloatingValues));
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const throw(std::bad_alloc)
+EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcept(false)
 {
   return PeakContext(MappedVectorWrapper<double, EvaluationResultsItems::Floating>(emptyResultsValues()),
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
