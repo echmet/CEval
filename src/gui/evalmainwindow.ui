@@ -22,15 +22,22 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>21</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
+    <widget class="QMenu" name="menuLoad_comma_separated_file">
+     <property name="title">
+      <string>Load &amp;comma-separated file</string>
+     </property>
+     <addaction name="actionCsv_from_file"/>
+     <addaction name="actionCsv_from_clipboard"/>
+    </widget>
     <addaction name="actionLoad_ChemStation_file"/>
-    <addaction name="actionLoad_comma_separated_file"/>
+    <addaction name="menuLoad_comma_separated_file"/>
     <addaction name="separator"/>
     <addaction name="actionLoad_data_table"/>
     <addaction name="actionSave_data_table"/>
@@ -67,11 +74,6 @@
   <action name="actionLoad_ChemStation_file">
    <property name="text">
     <string>&amp;Load ChemStation file</string>
-   </property>
-  </action>
-  <action name="actionLoad_comma_separated_file">
-   <property name="text">
-    <string>Load &amp;comma-separated file</string>
    </property>
   </action>
   <action name="actionLoad_data_table">
@@ -116,7 +118,17 @@
   </action>
   <action name="actionCheck_for_update">
    <property name="text">
-    <string>Check for update</string>
+    <string>&amp;Check for update</string>
+   </property>
+  </action>
+  <action name="actionCsv_from_file">
+   <property name="text">
+    <string>From file</string>
+   </property>
+  </action>
+  <action name="actionCsv_from_clipboard">
+   <property name="text">
+    <string>From clipboard</string>
    </property>
   </action>
  </widget>

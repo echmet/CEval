@@ -60,6 +60,7 @@ private slots:
   void onActionExportDataTableCsv();
   void onActionExportPlotAsImage();
   void onActionLoadChemStationFile();
+  void onActionLoadCsvClipboard();
   void onActionLoadCsvFile();
   void onActionLoadDataTable();
   void onActionSaveDataTable();

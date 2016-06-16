@@ -46,7 +46,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 
 #ifdef Q_OS_LINUX
   ui->actionLoad_ChemStation_file->setIcon(QIcon::fromTheme("document-open"));
-  ui->actionLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
+  ui->menuLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
   ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
   ui->actionSave_data_table->setIcon(QIcon::fromTheme("document-save"));
   ui->actionExit->setIcon(QIcon::fromTheme("application-exit"));
@@ -56,7 +56,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
 #else
   ui->actionLoad_ChemStation_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-  ui->actionLoad_comma_separated_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+  ui->menuLoad_comma_separated_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionLoad_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionSave_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
   ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
@@ -72,7 +72,8 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionExit, &QAction::triggered, this, &EvalMainWindow::onActionExit);
   connect(ui->actionExport_plot_as_image, &QAction::triggered, this, &EvalMainWindow::onActionExportPlotAsImage);
   connect(ui->actionLoad_ChemStation_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadChemStationFile);
-  connect(ui->actionLoad_comma_separated_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvFile);
+  connect(ui->actionCsv_from_clipboard, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvClipboard);
+  connect(ui->actionCsv_from_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvFile);
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);
   connect(ui->actionSave_data_table, &QAction::triggered, this, &EvalMainWindow::onActionSaveDataTable);
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
@@ -153,9 +154,14 @@ void EvalMainWindow::onActionLoadChemStationFile()
   emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::CHEMSTATION);
 }
 
+void EvalMainWindow::onActionLoadCsvClipboard()
+{
+  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_CLIPBOARD);
+}
+
 void EvalMainWindow::onActionLoadCsvFile()
 {
-  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED);
+  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE);
 }
 
 void EvalMainWindow::onActionLoadDataTable()

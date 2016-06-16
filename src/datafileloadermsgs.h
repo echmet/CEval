@@ -8,7 +8,8 @@ class DataFileLoaderMsgs : public QObject {
 public:
   enum class LoadableFileTypes : int {
     CHEMSTATION,
-    COMMA_SEPARATED
+    COMMA_SEPARATED_CLIPBOARD,
+    COMMA_SEPARATED_FILE
   };
   Q_ENUM(LoadableFileTypes)
 };

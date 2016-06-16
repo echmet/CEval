@@ -272,8 +272,12 @@ void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes 
   case DataFileLoaderMsgs::LoadableFileTypes::CHEMSTATION:
     loadChemStationFile();
     break;
-  case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED:
+  case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_CLIPBOARD:
+    loadCsvFile(true);
+    break;
+  case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE:
     loadCsvFile(false);
+    break;
   default:
     break;
   }
