@@ -1055,14 +1055,46 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   clipboard->setText(out);
 }
 
-void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, const QString &fullPath, const QString &fileName)
+void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName)
 {
-  if (m_allDataContexts.contains(fullPath)) {
+  /* Empty file ID, file is coming from a temporary storage such as clipboard */
+  if (fileID.compare("") == 0) {
+    const QStringList &keys = m_allDataContexts.keys();
+    int keyIdx;
+    int num = 0;
+
+    for (keyIdx = 0; keyIdx < keys.size(); keyIdx++) {
+      const QString &key = keys.at(keyIdx);
+
+      if (key.startsWith("temporary")) {
+        int idx = key.lastIndexOf("_");
+
+        if (idx < 0)
+          continue;
+
+        bool ok;
+        QString numStr = key.mid(idx + 1);
+        int inum = numStr.toInt(&ok);
+
+        if (!ok)
+          continue;
+
+        if (inum > num)
+          num = inum;
+      }
+    }
+
+    fileID = QString("temporary_") + QString::number(num + 1);
+    fileName = fileID;
+  }
+
+  if (m_allDataContexts.contains(fileID)) {
+
     QMessageBox::warning(nullptr, tr("Data exist"), tr("This file is already loaded"));
-    int idx = m_loadedFilesModel.indexByItem(fullPath);
+    int idx = m_loadedFilesModel.indexByItem(fileID);
     if (idx >= 0) {
       emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::DATA_FILES, idx));
-      switchEvaluationContext(fullPath);
+      switchEvaluationContext(fileID);
     }
     return;
   }
@@ -1073,19 +1105,19 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
                                                                                   freshEvaluationContext()));
 
   try {
-    m_allDataContexts.insert(fullPath, ctx);
+    m_allDataContexts.insert(fileID, ctx);
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, tr("Data processing error"), tr("Unable to store data in database"));
     return;
   }
 
-  if (!m_loadedFilesModel.appendEntry(ComboBoxItem<QString>(fullPath, fullPath)))
+  if (!m_loadedFilesModel.appendEntry(ComboBoxItem<QString>(fileID, fileID)))
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Unable to add new entry to the list of loaded files"));
   else
     emit evaluationFileAdded(m_loadedFilesModel.rowCount() - 1);
 
   m_currentDataContext = ctx;
-  m_currentDataContextKey = fullPath;
+  m_currentDataContextKey = fileID;
   setEvaluationContext(ctx->evaluationContext);
   m_commonParamsEngine->revalidate();
   m_evaluatedPeaksModel.clearEntries();
