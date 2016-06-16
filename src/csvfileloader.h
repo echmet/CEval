@@ -5,6 +5,8 @@
 #include <QMap>
 #include <QVector>
 
+class QTextStream;
+
 class CsvFileLoader
 {
 public:
@@ -27,6 +29,7 @@ public:
     Data(const QVector<QPointF> &data, const QString &xType, const QString &yType);
     Data();
     bool isValid() const;
+    Data &operator=(const Data &other);
 
     const QVector<QPointF> data;
     const QString xType;
@@ -38,12 +41,21 @@ public:
 
   CsvFileLoader() = delete;
 
-  static Data loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
+  static Data readClipboard(const QChar &delimiter, const QChar &decimalSeparator,
+                            const int xColumn, const int yColumn,
+                            const bool hasHeader, const quint32 linesToSkip,
+                            const QString &encodingId);
+  static Data readFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
                        const int xColumn, const int yColumn,
                        const bool hasHeader, const quint32 linesToSkip,
                        const QString &encodingId, const QByteArray &bom);
 
   static const QMap<QString, Encoding> SUPPORTED_ENCODINGS;
+
+private:
+  static Data readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
+                         const int xColumn, const int yColumn,
+                         const bool hasHeader, const quint32 linesToSkip);
 
 };
 

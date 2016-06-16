@@ -1,4 +1,6 @@
 #include "csvfileloader.h"
+#include <QApplication>
+#include <QClipboard>
 #include <QFile>
 #include <QLocale>
 #include <QMessageBox>
@@ -65,23 +67,42 @@ CsvFileLoader::Data::Data() :
 {
 }
 
+CsvFileLoader::Data &CsvFileLoader::Data::operator=(const Data &other)
+{
+  const_cast<QVector<QPointF>&>(data) = other.data;
+  const_cast<QString&>(xType) = other.yType;
+  const_cast<QString&>(yType) = other.yType;
+  const_cast<bool&>(m_valid) = other.m_valid;
+
+  return *this;
+}
+
 bool CsvFileLoader::Data::isValid() const
 {
   return m_valid;
 }
 
-CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
+CsvFileLoader::Data CsvFileLoader::readClipboard(const QChar &delimiter, const QChar &decimalSeparator,
+                                                 const int xColumn, const int yColumn,
+                                                 const bool hasHeader, const quint32 linesToSkip,
+                                                 const QString &encodingId)
+{
+  QString clipboardText = QApplication::clipboard()->text();
+  QTextStream stream;
+
+  stream.setCodec(encodingId.toUtf8());
+  stream.setString(&clipboardText);
+
+  return readStream(stream, delimiter, decimalSeparator, xColumn, yColumn, hasHeader, linesToSkip);
+}
+
+CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
                                             const int xColumn, const int yColumn,
                                             const bool hasHeader, const quint32 linesToSkip,
                                             const QString &encodingId, const QByteArray &bom)
 {
   QFile dataFile(path);
-  QVector<QPointF> points;
-  QString xType;
-  QString yType;
   QTextStream stream;
-  quint32 linesRead = 0;
-  int highColumn = (yColumn > xColumn) ? yColumn : xColumn;
 
   if (!dataFile.exists()) {
     QMessageBox::warning(nullptr, QObject::tr("Invalid file"), QObject::tr("Specified file does not exist"));
@@ -112,6 +133,20 @@ CsvFileLoader::Data CsvFileLoader::loadFile(const QString &path, const QChar &de
 
   stream.setDevice(&dataFile);
   stream.setCodec(encodingId.toUtf8());
+
+  return readStream(stream, delimiter, decimalSeparator, xColumn, yColumn, hasHeader, linesToSkip);
+
+}
+
+CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
+                                              const int xColumn, const int yColumn,
+                                              const bool hasHeader, const quint32 linesToSkip)
+{
+  QVector<QPointF> points;
+  QString xType;
+  QString yType;
+  quint32 linesRead = 0;
+  int highColumn = (yColumn > xColumn) ? yColumn : xColumn;
 
   if (linesToSkip > 0) {
     while (linesRead < linesToSkip) {

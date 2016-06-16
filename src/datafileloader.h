@@ -43,7 +43,7 @@ public:
 private:
   QString chemStationTypeToString(const ChemStationFileLoader::Type type);
   void loadChemStationFile();
-  void loadCsvFile();
+  void loadCsvFile(const bool readFromClipboard);
 
   LoadChemStationDataDialog *m_loadChemStationDataDlg;
   LoadCsvFileDialog *m_loadCsvFileDlg;

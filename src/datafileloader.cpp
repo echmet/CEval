@@ -132,24 +132,26 @@ void DataFileLoader::loadChemStationFile()
                   filePath, QFileInfo(filePath).fileName());
 }
 
-void DataFileLoader::loadCsvFile()
+void DataFileLoader::loadCsvFile(const bool readFromClipboard)
 {
   LoadCsvFileDialog::Parameters p;
   QString filePath;
   std::shared_ptr<Data> data;
   QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
 
-  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
-  openDlg.setFileMode(QFileDialog::ExistingFile);
+  if (!readFromClipboard) {
+    openDlg.setAcceptMode(QFileDialog::AcceptOpen);
+    openDlg.setFileMode(QFileDialog::ExistingFile);
 
-  if (openDlg.exec() != QDialog::Accepted)
-    return;
+    if (openDlg.exec() != QDialog::Accepted)
+      return;
 
-  QStringList files = openDlg.selectedFiles();
-  if (files.length() < 1)
-    return;
+    QStringList files = openDlg.selectedFiles();
+    if (files.length() < 1)
+      return;
 
-  filePath = files.at(0);
+    filePath = files.at(0);
+  }
 
   while (true) {
     if (m_loadCsvFileDlg->exec() != QDialog::Accepted)
@@ -180,10 +182,17 @@ void DataFileLoader::loadCsvFile()
     delimiter = p.delimiter.at(0);
 
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
-  CsvFileLoader::Data csvData = CsvFileLoader::loadFile(filePath, delimiter, p.decimalSeparator,
-                                                        p.xColumn, p.yColumn,
-                                                        p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
-                                                        p.encodingId, bom);
+  CsvFileLoader::Data csvData;
+
+  if (readFromClipboard)
+    csvData = CsvFileLoader::readClipboard(delimiter, p.decimalSeparator, p.xColumn, p.yColumn,
+                                           p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
+                                           p.linesToSkip, p.encodingId);
+  else
+    csvData = CsvFileLoader::readFile(filePath, delimiter, p.decimalSeparator,
+                                      p.xColumn, p.yColumn,
+                                      p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
+                                      p.encodingId, bom);
   if (!csvData.isValid())
     return;
 
@@ -264,7 +273,7 @@ void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes 
     loadChemStationFile();
     break;
   case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED:
-    loadCsvFile();
+    loadCsvFile(false);
   default:
     break;
   }
