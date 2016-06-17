@@ -644,7 +644,9 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
     emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
 }
 
-EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() const
+EvaluationEngine::EvaluationContext EvaluationEngine:: freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                                                                              const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                                                                              const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const
 {
   QVector<PeakContext> fresh;
 
@@ -656,9 +658,7 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext() c
   }
 
   return EvaluationContext(fresh, 0,
-                           MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(s_defaultEvaluationAutoValues),
-                           MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(s_defaultEvaluationBooleanValues),
-                           MappedVectorWrapper<double, EvaluationParametersItems::Floating>(s_defaultEvaluationFloatingValues));
+                           afAutoValues, afBoolValues, afFloatingValues);
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcept(false)
@@ -1101,8 +1101,11 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
 
   storeCurrentContext();
 
+  const EvaluationContext &curEvaluationCtx = currentEvaluationContext();
   std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, m_commonParamsEngine->currentContext(),
-                                                                                  freshEvaluationContext()));
+                                                                                  freshEvaluationContext(curEvaluationCtx.afAutoValues,
+                                                                                                         curEvaluationCtx.afBoolValues,
+                                                                                                         curEvaluationCtx.afFloatingValues)));
 
   try {
     m_allDataContexts.insert(fileID, ctx);
