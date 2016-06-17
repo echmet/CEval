@@ -30,5 +30,10 @@ QString Globals::DeveloperID::prettyString() const
 
 QString Globals::VERSION_STRING()
 {
-  return QString("%1 %2.%3%4").arg(SOFTWARE_NAME).arg(VERSION_MAJ).arg(VERSION_MIN).arg(VERSION_REV);
+  QString s = QString("%1 %2.%3%4").arg(SOFTWARE_NAME).arg(VERSION_MAJ).arg(VERSION_MIN).arg(VERSION_REV);
+#ifdef UNSTABLE_VERSION
+  s.append("-devel");
+#endif
+
+  return s;
 }
