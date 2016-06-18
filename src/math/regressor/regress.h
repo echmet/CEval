@@ -45,15 +45,6 @@ namespace regressCore {
 using namespace arma;
 using namespace std;
 
-
-class matrix_error : public logic_error {
-
-    public:
-
-    matrix_error(std::string s) : logic_error(s) {}
-
-};
-
 //---------------------------------------------------------------------------
 #if ECHMET_REGRESS_DEBUG == 1
 
