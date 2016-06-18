@@ -1,6 +1,8 @@
 #ifndef ECHMET_HVLESTIMATE_H
 #define ECHMET_HVLESTIMATE_H
 
+#include <cmath>
+
 namespace echmet {
 
 namespace HVLCore {

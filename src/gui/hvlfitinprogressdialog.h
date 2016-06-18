@@ -10,7 +10,6 @@ class HVLFitInProgressDialog;
 class HVLFitInProgressDialog : public QDialog
 {
   Q_OBJECT
-
 public:
   explicit HVLFitInProgressDialog(QWidget *parent = nullptr);
   ~HVLFitInProgressDialog();
@@ -19,6 +18,11 @@ public:
 private:
   Ui::HVLFitInProgressDialog *ui;
 
+signals:
+  void abortFit();
+
+private slots:
+  void onAbortClicked();
 
 public slots:
   void onHvlFitDone();

@@ -2,6 +2,7 @@
 #define HVLFITTER_H
 
 #include "math/matrix/fwdcl.h"
+#include "math/regressor/hvlPeak.h"
 #include <QVector>
 #include <QPointF>
 #include <QObject>
@@ -40,6 +41,7 @@ public:
     explicit HVLInParameters();
 
     const QVector<QPointF> *data;
+    echmet::regressCore::HVLPeak<double, double> *regressor;
     int fromIdx;
     int toIdx;
     double a0;
@@ -83,11 +85,15 @@ private:
   void doFit(HVLParameters *out, const HVLInParameters *in);
 
   echmet::math::HVL_dll *m_hvlLib;
+  echmet::regressCore::HVLPeak<double, double> *m_regressor;
 
   static HVLCalculator *s_me;
 
 signals:
   void hvlFitDone();
+
+private slots:
+  void onAbortFit();
 
 };
 

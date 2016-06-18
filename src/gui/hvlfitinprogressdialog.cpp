@@ -6,11 +6,18 @@ HVLFitInProgressDialog::HVLFitInProgressDialog(QWidget *parent) :
   ui(new Ui::HVLFitInProgressDialog)
 {
   ui->setupUi(this);
+
+  connect(ui->qpb_abort, &QPushButton::clicked, this, &HVLFitInProgressDialog::onAbortClicked);
 }
 
 HVLFitInProgressDialog::~HVLFitInProgressDialog()
 {
   delete ui;
+}
+
+void HVLFitInProgressDialog::onAbortClicked()
+{
+  emit abortFit();
 }
 
 void HVLFitInProgressDialog::onHvlFitDone()

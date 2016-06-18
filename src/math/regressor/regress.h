@@ -244,7 +244,7 @@ private:
     unsigned m_iterationCounter;
 
     bool m_accepted;
-    bool m_aborted;
+    volatile bool m_aborted;
 
     YT   m_improvement;
     YT   m_lambda;

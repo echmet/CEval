@@ -1,8 +1,8 @@
 #include "hvlcalculator.h"
+#include "globals.h"
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
 #include "math/hvl.hpp"
-#include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
 #include <QTime>
 #include <QApplication>
@@ -44,7 +44,8 @@ HVLCalculator::HVLInParameters::HVLInParameters()
 }
 
 HVLCalculator::HVLCalculator(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  m_regressor(nullptr)
 {
   m_hvlLib = new echmet::math::HVL_dll();
 }
@@ -86,33 +87,32 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
 
   }
 
-  echmet::regressCore::HVLPeak<double, double> regressor(s_me->m_hvlLib);
-  regressor.Initialize(
+  in->regressor->Initialize(
       x, y, in->epsilon, in->iterations, true,
       echmet::HVLCore::Coefficients(in->a0, in->a1, in->a2, in->a3),
       in->bsl, in->bslSlope
   );
-  if (in->a0fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a0, in->a0);
-  if (in->a1fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a1, in->a1);
-  if (in->a2fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
-  if (in->a3fixed) regressor.FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
+  if (in->a0fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a0, in->a0);
+  if (in->a1fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a1, in->a1);
+  if (in->a2fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
+  if (in->a3fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
 
-  double s0 = regressor.GetS();
+  double s0 = in->regressor->GetS();
 
-  bool ok = regressor.Regress();
+  bool ok = in->regressor->Regress();
 
   if (!ok) {
     emit hvlFitDone();
     return;
   }
 
-  out->a0 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a0);
-  out->a1 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a1);
-  out->a2 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a2);
-  out->a3 = regressor.GetParameter(echmet::regressCore::HVLPeakParams::a3);
-  out->s = regressor.GetS();
+  out->a0 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a0);
+  out->a1 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a1);
+  out->a2 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
+  out->a3 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a3);
+  out->s = in->regressor->GetS();
   out->s0 = s0;
-  out->iterations = regressor.GetIterationCounter();
+  out->iterations = in->regressor->GetIterationCounter();
   out->validate();
 
   emit hvlFitDone();
@@ -138,6 +138,22 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     return p;
   }
 
+  if (s_me->m_regressor != nullptr) {
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Previous instance of HVL regressor was not cleaned up correctly, attempting to continue\n\n"
+                                                                  "Please report this as a bug to %1 developers").arg(Globals::SOFTWARE_NAME)));
+
+    delete s_me->m_regressor;
+  }
+
+  try {
+    s_me->m_regressor = new echmet::regressCore::HVLPeak<double, double>(s_me->m_hvlLib);
+  } catch (std::bad_alloc &) {
+    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Insufficient memory to initialize HVL regressor"));
+
+    return p;
+  }
+
+  in.regressor = s_me->m_regressor;
   in.a0 = a0;
   in.a0fixed = a0fixed;
   in.a1 = a1;
@@ -155,6 +171,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   in.toIdx = toIdx;
 
   connect(s_me, &HVLCalculator::hvlFitDone, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
+  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, s_me, &HVLCalculator::onAbortFit);
 
   QTime stopwatch;
   stopwatch.start();
@@ -168,6 +185,10 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
                                                            "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
                                                            "of iterations will not have any effect.").arg(in.iterations));
+
+    delete s_me->m_regressor;
+    s_me->m_regressor = nullptr;
+
     return p;
   }
 
@@ -190,7 +211,18 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     );
   }
 
+  delete s_me->m_regressor;
+  s_me->m_regressor = nullptr;
+
   return p;
+}
+
+void HVLCalculator::onAbortFit()
+{
+  if (s_me->m_regressor == nullptr)
+    return;
+
+  s_me->m_regressor->Abort();
 }
 
 QVector<QPointF> HVLCalculator::plot(
