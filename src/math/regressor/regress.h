@@ -466,7 +466,7 @@ RESTART:;
               //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
               checkMatrix(m_alpha);
 
-              m_delta = solve(m_alpha, m_beta);
+              m_delta = solve(m_alpha, m_beta, solve_opts::equilibrate);
         } catch (std::runtime_error &) {
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
