@@ -70,6 +70,7 @@ public:
   AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitFixedModel();
   AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
   AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
+  AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *hvlFitOptionsModel();
   QAbstractItemModel *loadedFilesModel();
   void loadUserSettings(const QVariant &settings);
   AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
@@ -222,9 +223,6 @@ private:
   QPointF m_manualPeakFrom;
   bool m_manualPeakSnapFrom;
 
-  bool m_disableAutoFit;
-  bool m_showHvlFitStats;
-
   CommonParametersEngine *m_commonParamsEngine;
   std::shared_ptr<ModeContextLimited> m_modeCtx;
   MappedVectorWrapper<bool, EvaluationParametersItems::Auto> m_evaluationAutoValues;
@@ -237,6 +235,7 @@ private:
   MappedVectorWrapper<int, HVLFitParametersItems::Int> m_hvlFitIntValues;
   MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> m_hvlFitFixedValues;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> m_hvlFitValues;
+  MappedVectorWrapper<bool, HVLFitOptionsItems::Boolean> m_hvlFitOptionsValues;
 
   ComboBoxModel<EvaluationParametersItems::ComboBaselineAlgorithm> m_baselineAlgorithmModel;
   EvaluatedPeaksModel m_evaluatedPeaksModel;
@@ -250,6 +249,7 @@ private:
   IntegerMapperModel<HVLFitParametersItems::Int> m_hvlFitIntModel;
   BooleanMapperModel<HVLFitParametersItems::Boolean> m_hvlFixedModel;
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
+  BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
 
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;
@@ -279,6 +279,8 @@ private:
   static const int s_defaultHvlIterations;
 
   static const QString DATAFILELOADER_SETTINGS_TAG;
+  static const QString HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG;
+  static const QString HVLFITOPTIONS_SHOW_FIT_STATS_TAG;
 
   static int seriesIndex(const Series iid);
 
@@ -292,7 +294,6 @@ signals:
 public slots:
   void onAddPeak();
   void onCancelEvaluatedPeakSelection();
-  void onCheckBoxChanged(const EvaluationEngineMsgs::CheckBox cbox, const bool checked);
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);

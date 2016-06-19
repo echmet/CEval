@@ -80,6 +80,8 @@ const int EvaluationEngine::s_defaultHvlDigits = 50;
 const int EvaluationEngine::s_defaultHvlIterations = 10;
 
 const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
+const QString EvaluationEngine::HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG("HVLFitOptions-DisableAutoFit");
+const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-ShowFitStats");
 
 EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
                                            const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
@@ -112,8 +114,6 @@ EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operat
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
   m_userInteractionState(UserInteractionState::FINDING_PEAK),
-  m_disableAutoFit(false),
-  m_showHvlFitStats(false),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
@@ -155,6 +155,10 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlFitIntValues[HVLFitParametersItems::Int::ITERATIONS] = s_defaultHvlIterations;
   m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = s_defaultHvlDigits;
   m_hvlFitIntModel.setUnderlyingData(m_hvlFitIntValues.pointer());
+
+  m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT] = false;
+  m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::SHOW_FIT_STATS] = false;
+  m_hvlFitOptionsModel.setUnderlyingData(m_hvlFitOptionsValues.pointer());
 
   connect(m_dataFileLoader, &DataFileLoader::dataLoaded, this, &EvaluationEngine::onDataLoaded);
 
@@ -502,6 +506,7 @@ void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
   std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> fr;
+  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   if (!isContextValid())
     return;
@@ -535,12 +540,13 @@ void EvaluationEngine::findPeakAssisted()
 
   displayAutomatedResults(fr);
 
-  processFoundPeak(m_currentDataContext->data->data, fr, false, !m_disableAutoFit);
+  processFoundPeak(m_currentDataContext->data->data, fr, false, !disableAutoFit);
 }
 
 void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
 {
   std::shared_ptr<PeakFinderResults> fr;
+  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
@@ -590,7 +596,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !m_disableAutoFit);
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
   return;
 
 err_out:
@@ -718,6 +724,10 @@ AbstractMapperModel<double, HVLFitResultsItems::Floating> *EvaluationEngine::hvl
   return &m_hvlFitModel;
 }
 
+AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *EvaluationEngine::hvlFitOptionsModel()
+{
+  return &m_hvlFitOptionsModel;
+}
 
 bool EvaluationEngine::isContextValid() const
 {
@@ -756,6 +766,30 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
     QVariant v = map[DATAFILELOADER_SETTINGS_TAG];
 
     m_dataFileLoader->loadUserSettings(v);
+  }
+
+  if (map.contains(HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG)) {
+    const QVariant &v = map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG];
+
+    if (v.canConvert<bool>()) {
+      m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT] = v.toBool();
+
+      emit m_hvlFitOptionsModel.dataChanged(m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT)),
+                                            m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT)),
+                                            { Qt::EditRole });
+    }
+  }
+
+  if (map.contains(HVLFITOPTIONS_SHOW_FIT_STATS_TAG)) {
+    const QVariant &v = map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG];
+
+    if (v.canConvert<bool>()) {
+      m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::SHOW_FIT_STATS] = v.toBool();
+
+      emit m_hvlFitOptionsModel.dataChanged(m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)),
+                                            m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)),
+                                            { Qt::EditRole });
+    }
   }
 }
 
@@ -902,19 +936,6 @@ void EvaluationEngine::onCancelEvaluatedPeakSelection()
 
   m_userInteractionState = UserInteractionState::FINDING_PEAK;
 }
-
-void EvaluationEngine::onCheckBoxChanged(const EvaluationEngineMsgs::CheckBox cbox, const bool checked)
-{
-  switch (cbox) {
-  case EvaluationEngineMsgs::CheckBox::HVL_DISABLE_AUTO_FIT:
-    m_disableAutoFit = checked;
-    break;
-  case EvaluationEngineMsgs::CheckBox::HVL_SHOW_STATS:
-    m_showHvlFitStats = checked;
-    break;
-  }
-}
-
 
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
@@ -1174,7 +1195,7 @@ void EvaluationEngine::onDoHvlFit()
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
     m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
-    m_showHvlFitStats
+    m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)
   );
 
   if (!p.isValid())
@@ -1618,6 +1639,8 @@ QVariant EvaluationEngine::saveUserSettings() const
 {
   EMT::StringVariantMap map = StandardModeContextSettingsHandler::saveUserSettings(*m_modeCtx.get(), seriesIndex(Series::LAST_INDEX));
   map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
+  map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
+  map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS);
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }

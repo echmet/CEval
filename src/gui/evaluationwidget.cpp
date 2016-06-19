@@ -13,6 +13,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationHvlFitFixedMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitIntMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitMapper = new QDataWidgetMapper(this);
+  m_evaluationHvlFitOptionsMapper = new QDataWidgetMapper(this);
 
   m_evaluationResultsMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
@@ -25,8 +26,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_findPeak, &QPushButton::clicked, this, &EvaluationWidget::onFindPeaksClicked);
   connect(ui->qpb_doHvlFit, &QPushButton::clicked, this, &EvaluationWidget::onDoHvlFitClicked);
   connect(ui->qpb_replotHvl, &QPushButton::clicked, this, &EvaluationWidget::onReplotHvl);
-  connect(ui->qcb_disableAutoFit, &QCheckBox::clicked, this, &EvaluationWidget::onDisableAutoFitToggled);
-  connect(ui->qcb_showHvlStats, &QCheckBox::toggled, this, &EvaluationWidget::onShowHvlFitStatsToggled);
   connect(ui->qpb_ctcEOF, &QPushButton::clicked, this, &EvaluationWidget::onCtcEOFClicked);
   connect(ui->qpb_ctcHVL, &QPushButton::clicked, this, &EvaluationWidget::onCtcHVLClicked);
   connect(ui->qpb_ctcPeak, &QPushButton::clicked, this, &EvaluationWidget::onCtcPeakClicked);
@@ -92,11 +91,6 @@ void EvaluationWidget::onDefaultFinderParametersClicked()
   emit evaluationSetDefault(EvaluationEngineMsgs::Default::FINDER_PARAMETERS);
 }
 
-void EvaluationWidget::onDisableAutoFitToggled()
-{
-  emit checkBoxChanged(EvaluationEngineMsgs::CheckBox::HVL_DISABLE_AUTO_FIT, ui->qcb_disableAutoFit->checkState() == Qt::Checked);
-}
-
 void EvaluationWidget::onDoHvlFitClicked()
 {
   emit doHvlFit();
@@ -150,11 +144,6 @@ void EvaluationWidget::onFindPeaksClicked()
 void EvaluationWidget::onReplotHvl()
 {
   emit replotHvl();
-}
-
-void EvaluationWidget::onShowHvlFitStatsToggled()
-{
-  emit checkBoxChanged(EvaluationEngineMsgs::CheckBox::HVL_SHOW_STATS, ui->qcb_showHvlStats->checkState() == Qt::Checked);
 }
 
 void EvaluationWidget::onShowWindowComboBoxChanged(const int idx)
@@ -232,6 +221,15 @@ void EvaluationWidget::setEvaluationHvlFitModel(AbstractMapperModel<double, HVLF
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlTUSP, model->indexFromItem(HVLFitResultsItems::Floating::HVL_TUSP));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA1Mobility, model->indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
   m_evaluationHvlFitMapper->toFirst();
+}
+
+void EvaluationWidget::setEvaluationHvlFitOptionsModel(AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *model)
+{
+  m_evaluationHvlFitOptionsMapper->setModel(model);
+
+  m_evaluationHvlFitOptionsMapper->addMapping(ui->qcb_disableAutoFit, model->indexFromItem(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT));
+  m_evaluationHvlFitOptionsMapper->addMapping(ui->qcb_showHvlStats, model->indexFromItem(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS));
+  m_evaluationHvlFitOptionsMapper->toFirst();
 }
 
 void EvaluationWidget::setEvaluationParametersBooleanModel(AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *model)

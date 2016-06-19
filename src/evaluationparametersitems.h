@@ -113,5 +113,15 @@ public:
 
 };
 
+class HVLFitOptionsItems {
+public:
+  enum class Boolean {
+    DISABLE_AUTO_FIT,
+    SHOW_FIT_STATS,
+    LAST_INDEX
+  };
+
+};
+
 #endif // EVALUATIONPARAMETERSITEMS_H
 

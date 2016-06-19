@@ -25,6 +25,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationHvlFixedModel(e->hvlFitFixedModel());
   w->setEvaluationHvlFitIntModel(e->hvlFitIntModel());
   w->setEvaluationHvlFitModel(e->hvlFitModel());
+  w->setEvaluationHvlFitOptionsModel(e->hvlFitOptionsModel());
   w->setEvaluationParametersAutoModel(e->autoValuesModel());
   w->setEvaluationParametersBooleanModel(e->booleanValuesModel());
   w->setEvaluationParametersFloatingModel(e->floatingValuesModel());
@@ -32,7 +33,6 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationShowWindowModel(e->showWindowModel());
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
 
-  QObject::connect(w, &EvaluationWidget::checkBoxChanged, e, &EvaluationEngine::onCheckBoxChanged);
   QObject::connect(w, &EvaluationWidget::comboBoxChanged, e, &EvaluationEngine::onComboBoxChanged);
   QObject::connect(w, &EvaluationWidget::evaluationSetDefault, e, &EvaluationEngine::onSetDefault);
   QObject::connect(e, &EvaluationEngine::comboBoxIndexChanged, w, &EvaluationWidget::onComboBoxChangedExt);

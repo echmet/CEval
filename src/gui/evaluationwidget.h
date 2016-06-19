@@ -28,6 +28,7 @@ public:
   void setEvaluationHvlFixedModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model);
   void setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLFitParametersItems::Int> *model);
   void setEvaluationHvlFitModel(AbstractMapperModel<double, HVLFitResultsItems::Floating> *model);
+  void setEvaluationHvlFitOptionsModel(AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *model);
   void setEvaluationParametersAutoModel(AbstractMapperModel<bool, EvaluationParametersItems::Auto> *model);
   void setEvaluationParametersBooleanModel(AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *model);
   void setEvaluationParametersFloatingModel(AbstractMapperModel<double, EvaluationParametersItems::Floating> *model);
@@ -44,11 +45,11 @@ private:
   QDataWidgetMapper *m_evaluationHvlFitFixedMapper;
   QDataWidgetMapper *m_evaluationHvlFitIntMapper;
   QDataWidgetMapper *m_evaluationHvlFitMapper;
+  QDataWidgetMapper *m_evaluationHvlFitOptionsMapper;
 
   FloatingValueDelegate m_floatingMapperDelegate;
 
 signals:
-  void checkBoxChanged(const EvaluationEngineMsgs::CheckBox cbox, const bool checked);
   void copyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void doHvlFit();
@@ -65,11 +66,9 @@ private slots:
   void onCtcHVLClicked();
   void onCtcPeakClicked();
   void onCtcPeakDimsClicked();
-  void onDisableAutoFitToggled();
   void onDoHvlFitClicked();
   void onFindPeaksClicked();
   void onReplotHvl();
-  void onShowHvlFitStatsToggled();
   void onShowWindowComboBoxChanged(int idx);
   void onWindowUnitsComboBoxChanged(int idx);
   void onEvaluationAutoModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
