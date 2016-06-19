@@ -9,6 +9,7 @@ class AbstractMapperModel : public QAbstractItemModel
 public:
   AbstractMapperModel(QObject *parent) :
     QAbstractItemModel(parent),
+    m_firstIndex(createIndex(0, 0)),
     m_maxColumns(0)
   {
   }
@@ -56,8 +57,8 @@ public:
 
   void notifyAllDataChanged(const QVector<int> &roles = { Qt::DisplayRole })
   {
-    emit this->dataChanged(createIndex(0, 0),
-                           createIndex(0, m_maxColumns - 1),
+    emit this->dataChanged(m_firstIndex,
+                           m_lastIndex,
                            roles);
   }
 
@@ -70,7 +71,7 @@ public:
 
   void notifyDataChangedFromStart(const I &toIndex, const QVector<int> &roles = { Qt::DisplayRole })
   {
-    emit this->dataChanged(createIndex(0, 0),
+    emit this->dataChanged(m_firstIndex,
                            this->index(0, this->indexFromItem(toIndex)),
                            roles);
   }
@@ -78,7 +79,7 @@ public:
   void notifyDataChangedToEnd(const I &fromIndex, const QVector<int> &roles = { Qt::DisplayRole })
   {
     emit this->dataChanged(this->index(0, this->indexFromItem(fromIndex)),
-                           createIndex(0, m_maxColumns - 1),
+                           m_lastIndex,
                            roles);
   }
 
@@ -102,7 +103,8 @@ public:
   {
     m_data = data;
     m_maxColumns = m_data->length();
-    emit dataChanged(createIndex(0, 0), createIndex(0, m_maxColumns - 1), { Qt::EditRole });
+    m_lastIndex = createIndex(0, m_maxColumns - 1);
+    emit dataChanged(m_firstIndex, m_lastIndex, { Qt::EditRole });
   }
 
 protected:
@@ -119,6 +121,10 @@ protected:
   }
 
   QVector<T> *m_data;
+
+private:
+  const QModelIndex m_firstIndex;
+  QModelIndex m_lastIndex;
   int m_maxColumns;
 };
 
