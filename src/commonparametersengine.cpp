@@ -82,9 +82,7 @@ void CommonParametersEngine::onUpdateTEof(const double t)
 {
   m_data[CommonParametersItems::Floating::T_EOF] = t;
 
-  emit m_model.dataChanged(m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::T_EOF)),
-                           m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::T_EOF)),
-                           { Qt::EditRole });
+  m_model.notifyDataChanged(CommonParametersItems::Floating::T_EOF, CommonParametersItems::Floating::T_EOF, { Qt::EditRole });
 }
 
 void CommonParametersEngine::recalculate()
@@ -116,8 +114,7 @@ bool CommonParametersEngine::setContext(const Context &ctx)
 
   m_data = ctx.data;
 
-  emit m_model.dataChanged(m_model.index(0, 0), m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::LAST_INDEX) - 1),
-                           { Qt::EditRole });
+  m_model.notifyAllDataChanged({ Qt::EditRole });
 
   return true;
 }
