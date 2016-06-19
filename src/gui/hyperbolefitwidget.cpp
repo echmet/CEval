@@ -175,12 +175,15 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
   QVariant internalId;
   QString oldName;
   int ret;
+  QModelIndex srcidx;
 
   if (!idx.isValid())
     return;
 
   internalId = ui->qlv_analytes->model()->data(idx, Qt::UserRole + 1);
   oldName = ui->qlv_analytes->model()->data(idx, Qt::DisplayRole).toString();
+
+  srcidx = m_analytesSortProxy.mapToSource(idx);
 
   dlg.setLabelText(tr("Input a new name of the analyte"));
   dlg.setTextValue(oldName);
@@ -191,7 +194,7 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
     if (ret == QDialog::Accepted) {
       QString newName = dlg.textValue();
       if (newName.length() > 0) {
-        emit renameAnalyte(internalId, newName, idx.row());
+        emit renameAnalyte(internalId, newName, srcidx.row());
         return;
       }
     } else
