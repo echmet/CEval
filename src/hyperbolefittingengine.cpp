@@ -441,7 +441,7 @@ bool HyperboleFittingEngine::doDeserialize(const QString &path)
       QString qName = QString::fromStdString(sa.name);
       std::shared_ptr<Analyte> a = std::shared_ptr<Analyte>(new Analyte(qName));
 
-      for (const SerializableConcentration sc : sa.concentrations) {
+      for (const SerializableConcentration &sc : sa.concentrations) {
         std::shared_ptr<Concentration> c = std::shared_ptr<Concentration>(new Concentration(sc.c));
 
        for (const double u : sc.mobilities) {
