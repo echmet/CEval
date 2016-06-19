@@ -54,10 +54,31 @@ public:
     return static_cast<I>(idx);
   }
 
+  void notifyAllDataChanged(const QVector<int> &roles = { Qt::DisplayRole })
+  {
+    emit this->dataChanged(createIndex(0, 0),
+                           createIndex(0, m_maxColumns - 1),
+                           roles);
+  }
+
   void notifyDataChanged(const I &fromIndex, const I &toIndex, const QVector<int> &roles = { Qt::DisplayRole })
   {
     emit this->dataChanged(this->index(0, this->indexFromItem(fromIndex)),
                            this->index(0, this->indexFromItem(toIndex)),
+                           roles);
+  }
+
+  void notifyDataChangedFromStart(const I &toIndex, const QVector<int> &roles = { Qt::DisplayRole })
+  {
+    emit this->dataChanged(createIndex(0, 0),
+                           this->index(0, this->indexFromItem(toIndex)),
+                           roles);
+  }
+
+  void notifyDataChangedToEnd(const I &fromIndex, const QVector<int> &roles = { Qt::DisplayRole })
+  {
+    emit this->dataChanged(this->index(0, this->indexFromItem(fromIndex)),
+                           createIndex(0, m_maxColumns - 1),
                            roles);
   }
 

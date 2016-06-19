@@ -468,9 +468,7 @@ void EvaluationEngine::displayAutomatedResults(const std::shared_ptr<AssistedPea
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = fr->slopeThreshold;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = fr->slopeRefPoint;
 
-  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
-                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)),
-                                             { Qt::EditRole });
+  m_evaluationFloatingModel.notifyAllDataChanged({ Qt::EditRole });
 }
 
 QVector<double> EvaluationEngine::emptyHvlValues() const
@@ -680,26 +678,13 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
 
 void EvaluationEngine::fullViewUpdate()
 {
-  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, 0),
-                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX) - 1),
-                                         { Qt::EditRole });
-  emit m_evaluationBooleanModel.dataChanged(m_evaluationBooleanModel.index(0, 0),
-                                            m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX) - 1),
-                                            { Qt::EditRole });
-  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
-                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX) - 1),
-                                            { Qt::EditRole });
-  emit m_resultsFloatingModel.dataChanged(m_resultsFloatingModel.index(0, 0),
-                                          m_resultsFloatingModel.index(0, m_resultsFloatingModel.indexFromItem(EvaluationResultsItems::Floating::LAST_INDEX)));
-
-  emit m_hvlFitModel.dataChanged(m_hvlFitModel.index(0, 0),
-                                 m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::LAST_INDEX)));
-
-  emit m_hvlFixedModel.dataChanged(m_hvlFixedModel.index(0, 0),
-                                   m_hvlFixedModel.index(0, m_hvlFixedModel.indexFromItem(HVLFitParametersItems::Boolean::LAST_INDEX)));
-
-  emit m_hvlFitIntModel.dataChanged(m_hvlFitIntModel.index(0, 0),
-                                    m_hvlFitIntModel.index(0, m_hvlFitIntModel.indexFromItem(HVLFitParametersItems::Int::LAST_INDEX)));
+  m_evaluationAutoModel.notifyAllDataChanged();
+  m_evaluationBooleanModel.notifyAllDataChanged();
+  m_evaluationFloatingModel.notifyAllDataChanged();
+  m_resultsFloatingModel.notifyAllDataChanged();
+  m_hvlFitModel.notifyAllDataChanged();
+  m_hvlFixedModel.notifyAllDataChanged();
+  m_hvlFitIntModel.notifyAllDataChanged();
 
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                                    EvaluationParametersItems::index(m_windowUnit)));
@@ -1203,10 +1188,14 @@ void EvaluationEngine::onDoHvlFit()
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = p.a3;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_S] = p.s;
 
+  m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_A0, HVLFitResultsItems::Floating::HVL_S);
+
+  /*
   emit m_hvlFitModel.dataChanged(
     m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A0)),
     m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_S))
    );
+  */
 
   onReplotHvl();
 }
@@ -1254,9 +1243,7 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
       to >= m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A1)) {
     m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_hvlFitValues, m_commonParamsEngine->currentContext().data);
 
-    emit m_hvlFitModel.dataChanged(m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1)),
-                                   m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1)),
-                                   roles);
+    m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_U_EFF_A1, HVLFitResultsItems::Floating::HVL_U_EFF_A1, roles);
   }
 
   m_currentPeak.updateHvlData(m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues);
@@ -1672,23 +1659,17 @@ void EvaluationEngine::setDefaultFinderParameters()
 {
   for (int idx = 0; idx < m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX); idx++)
       m_evaluationFloatingValues.setItemAt(idx, s_defaultEvaluationFloatingValues.at(idx));
-  m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0,0),
-                                        m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::FROM)),
-                                        { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChangedFromStart(EvaluationParametersItems::Floating::FROM, { Qt::EditRole });
 
   for (int idx = 0; idx < m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX); idx++)
     m_evaluationBooleanValues.setItemAt(idx, s_defaultEvaluationBooleanValues.at(idx));
-  m_evaluationBooleanModel.dataChanged(m_evaluationBooleanModel.index(0, 0),
-                                       m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX) - 1),
-                                       { Qt::EditRole });
+  m_evaluationBooleanModel.notifyAllDataChanged({ Qt::EditRole });
 
   for (int idx = m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::SLOPE_WINDOW);
        idx < m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX);
        idx++)
     m_evaluationAutoValues.setItemAt(idx, s_defaultEvaluationAutoValues.at(idx));
-  m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::SLOPE_WINDOW)),
-                                    m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX) - 1),
-                                    { Qt::EditRole });
+  m_evaluationAutoModel.notifyDataChangedToEnd(EvaluationParametersItems::Auto::SLOPE_WINDOW,  { Qt::EditRole });
 
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::BASELINE_ALGORITHM,
                                                                    EvaluationParametersItems::index(EvaluationParametersItems::ComboBaselineAlgorithm::SLOPE)));
@@ -1722,16 +1703,9 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   m_evaluationBooleanValues = ctx.afBoolValues;
   m_evaluationFloatingValues = ctx.afFloatingValues;
 
-  emit m_evaluationAutoModel.dataChanged(m_evaluationAutoModel.index(0, 0),
-                                         m_evaluationAutoModel.index(0, m_evaluationAutoModel.indexFromItem(EvaluationParametersItems::Auto::LAST_INDEX)),
-                                         { Qt::DisplayRole });
-  emit m_evaluationBooleanModel.dataChanged(m_evaluationBooleanModel.index(0, 0),
-                                            m_evaluationBooleanModel.index(0, m_evaluationBooleanModel.indexFromItem(EvaluationParametersItems::Boolean::LAST_INDEX)),
-                                            { Qt::DisplayRole });
-  emit m_evaluationFloatingModel.dataChanged(m_evaluationFloatingModel.index(0, 0),
-                                             m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::LAST_INDEX)),
-                                             { Qt::EditRole });
-
+  m_evaluationAutoModel.notifyAllDataChanged();
+  m_evaluationBooleanModel.notifyAllDataChanged();
+  m_evaluationFloatingModel.notifyAllDataChanged( { Qt::EditRole });
 
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
@@ -1780,10 +1754,8 @@ void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResu
     m_hvlFitValues[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
   }
 
-  emit m_resultsFloatingModel.dataChanged(m_resultsFloatingModel.index(0, 0),
-                                          m_resultsFloatingModel.index(0, m_resultsFloatingModel.indexFromItem(EvaluationResultsItems::Floating::LAST_INDEX)));
-  emit m_hvlFitModel.dataChanged(m_hvlFitModel.index(0, 0),
-                                 m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::LAST_INDEX)));
+  m_resultsFloatingModel.notifyAllDataChanged();
+  m_hvlFitModel.notifyAllDataChanged();
 }
 
 bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
@@ -1826,14 +1798,9 @@ void EvaluationEngine::setPeakFinderParameters(const double maxX)
   if (maxX / 2.0 <= s_defaultEvaluationFloatingValues.at(3))
     m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = 0.20 * maxX;
 
-  QModelIndex nwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(nwIdx, nwIdx, { Qt::EditRole });
-
-  QModelIndex pwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(pwIdx, pwIdx, { Qt::EditRole });
-
-  QModelIndex swIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(swIdx, swIdx, { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::NOISE_WINDOW, EvaluationParametersItems::Floating::NOISE_WINDOW, { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::PEAK_WINDOW, EvaluationParametersItems::Floating::PEAK_WINDOW, { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::SLOPE_WINDOW, EvaluationParametersItems::Floating::SLOPE_WINDOW, { Qt::EditRole });
 }
 
 void EvaluationEngine::showSetAxisTitlesDialog()
@@ -1949,15 +1916,9 @@ void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWi
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::PEAK_WINDOW] = pw;
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = sw;
 
-  QModelIndex nwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(nwIdx, nwIdx, { Qt::EditRole });
-
-  QModelIndex pwIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::PEAK_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(pwIdx, pwIdx, { Qt::EditRole });
-
-  QModelIndex swIdx = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::SLOPE_WINDOW));
-  emit m_evaluationFloatingModel.dataChanged(swIdx, swIdx, { Qt::EditRole });
-
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::NOISE_WINDOW, EvaluationParametersItems::Floating::NOISE_WINDOW,  { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::PEAK_WINDOW, EvaluationParametersItems::Floating::PEAK_WINDOW, { Qt::EditRole });
+  m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::SLOPE_WINDOW, EvaluationParametersItems::Floating::SLOPE_WINDOW, { Qt::EditRole });
 }
 
 double EvaluationEngine::timeStep()
