@@ -1849,11 +1849,13 @@ void HyperboleFittingEngine::onRenameAnalyte(const QVariant &internalId, const Q
   m_analytesModel.removeRow(idx);
 
   QStandardItem *item = new QStandardItem(newName);
-  item->setData(newName);
+  item->setData(newName, Qt::UserRole + 1);
 
   m_analytesModel.insertRow(idx, item);
 
   m_currentAnalyte = newA;
+  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = newName;
+  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
 }
 
 void HyperboleFittingEngine::onSecondAnalyteSameChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
