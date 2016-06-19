@@ -54,6 +54,13 @@ public:
     return static_cast<I>(idx);
   }
 
+  void notifyDataChanged(const I &fromIndex, const I &toIndex, const QVector<int> &roles = { Qt::DisplayRole })
+  {
+    emit this->dataChanged(this->index(0, this->indexFromItem(fromIndex)),
+                           this->index(0, this->indexFromItem(toIndex)),
+                           roles);
+  }
+
   QModelIndex parent(const QModelIndex &child) const override
   {
     Q_UNUSED(child);

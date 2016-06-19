@@ -774,9 +774,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
     if (v.canConvert<bool>()) {
       m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT] = v.toBool();
 
-      emit m_hvlFitOptionsModel.dataChanged(m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT)),
-                                            m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT)),
-                                            { Qt::EditRole });
+      m_hvlFitOptionsModel.notifyDataChanged(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT, HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT, { Qt::EditRole });
     }
   }
 
@@ -786,10 +784,8 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
     if (v.canConvert<bool>()) {
       m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::SHOW_FIT_STATS] = v.toBool();
 
-      emit m_hvlFitOptionsModel.dataChanged(m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)),
-                                            m_hvlFitOptionsModel.index(0, m_hvlFitOptionsModel.indexFromItem(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)),
-                                            { Qt::EditRole });
-    }
+      m_hvlFitOptionsModel.notifyDataChanged(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS, HVLFitOptionsItems::Boolean::SHOW_FIT_STATS, { Qt::EditRole });
+   }
   }
 }
 
