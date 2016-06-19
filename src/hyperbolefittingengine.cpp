@@ -459,9 +459,8 @@ bool HyperboleFittingEngine::doDeserialize(const QString &path)
   }
 
   m_fitFloatValues[HyperboleFitParameters::Floating::VISCOSITY_SLOPE] = table.viscositySlope;
-  emit m_fitFloatModel.dataChanged(m_fitFloatModel.index(0, m_fitFloatModel.indexFromItem(HyperboleFitParameters::Floating::VISCOSITY_SLOPE)),
-                                   m_fitFloatModel.index(0, m_fitFloatModel.indexFromItem(HyperboleFitParameters::Floating::VISCOSITY_SLOPE)),
-                                   { Qt::EditRole });
+  m_fitFloatModel.notifyDataChanged(HyperboleFitParameters::Floating::VISCOSITY_SLOPE, HyperboleFitParameters::Floating::VISCOSITY_SLOPE, { Qt::EditRole });
+
   refreshModels();
   return true;
 }
@@ -477,13 +476,8 @@ void HyperboleFittingEngine::displayHypResults(const HypResults *r)
   m_fitResultsValues[HyperboleFitResults::Floating::SIGMA] = r->sigma;
   m_fitResultsValues[HyperboleFitResults::Floating::ITERATIONS] = r->iterations;
 
-  emit m_fitResultsModel.dataChanged(m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::SIGMA)),
-                                     m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::K_CS_A)),
-                                     { Qt::EditRole });
-
-  emit m_fitResultsModel.dataChanged(m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::ITERATIONS)),
-                                     m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::ITERATIONS)),
-                                     { Qt::EditRole });
+  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::SIGMA, HyperboleFitResults::Floating::K_CS_A, { Qt::EditRole });
+  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::ITERATIONS, HyperboleFitResults::Floating::ITERATIONS, { Qt::EditRole });
 
   showDataSeries();
 
@@ -499,9 +493,7 @@ void HyperboleFittingEngine::displayHypResults(const HypResults *r)
     m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_B] = dr->uCS_B;
     m_fitResultsValues[HyperboleFitResults::Floating::K_CS_B] = dr->KCS_B;
 
-    emit m_fitResultsModel.dataChanged(m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::MOBILITY_B)),
-                                       m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::K_CS_B)),
-                                       { Qt::EditRole });
+    m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::MOBILITY_B, HyperboleFitResults::Floating::K_CS_B, { Qt::EditRole });
 
     plotDoubleCurve(*dr);
   }
@@ -975,16 +967,12 @@ void HyperboleFittingEngine::invalidateAnalyteB()
   m_secondAnalyte = nullptr;
 
   m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = "";
-  emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
-                                       m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
-                                       { Qt::DisplayRole });
+  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_B, HyperboleFitParameters::String::ANALYTE_B);
 
   m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_B] = 0.0;
   m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_B] = 0.0;
   m_fitResultsValues[HyperboleFitResults::Floating::K_CS_B] = 0.0;
-  emit m_fitResultsModel.dataChanged(m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::MOBILITY_B)),
-                                     m_fitResultsModel.index(0, m_fitResultsModel.indexFromItem(HyperboleFitResults::Floating::K_CS_B)),
-                                     { Qt::EditRole });
+  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::MOBILITY_B, HyperboleFitResults::Floating::K_CS_B, { Qt::EditRole });
 }
 
 void HyperboleFittingEngine::invalidateCurrentConcentration()
@@ -1087,9 +1075,7 @@ void HyperboleFittingEngine::onAddAnalyte(const QString &name)
 
   m_currentAnalyte = analyte;
   m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = name;
-  emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
-                                       m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
-                                       { Qt::DisplayRole });
+  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
 
   clearAnalyteASeries();
 
@@ -1208,9 +1194,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
         m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = name2;
         plotPoints(Series::POINTS_B, m_secondAnalyte);
 
-        emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
-                                             m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
-                                             { Qt::DisplayRole });
+        m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_B, HyperboleFitParameters::String::ANALYTE_B);
       }
     } else if (list.size() > 2) {
         QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("No more that two analytes can be selected at once.")).arg(name));
@@ -1218,9 +1202,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
     }
   }
   m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = name;
-  emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
-                                       m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
-                                       { Qt::DisplayRole });
+  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
 
   clearAnalyteASeries();
 
@@ -2119,9 +2101,8 @@ void HyperboleFittingEngine::refreshModels()
 
   m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = "";
   m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = "";
-  emit m_analyteNamesModel.dataChanged(m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_A)),
-                                       m_analyteNamesModel.index(0, m_analyteNamesModel.indexFromItem(HyperboleFitParameters::String::ANALYTE_B)),
-                                       { Qt::DisplayRole });
+
+  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_B);
 }
 
 QVariant HyperboleFittingEngine::saveUserSettings() const
