@@ -24,7 +24,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
   EMT::StringVariantMap outerMap = settings.value<EMT::StringVariantMap>();
 
   if (outerMap.contains(SERIES_SETTINGS_TAG)) {
-    QVariant v = outerMap[SERIES_SETTINGS_TAG];
+    const QVariant &v = outerMap[SERIES_SETTINGS_TAG];
     EMT::SeriesSettingsMap map;
 
     if (v.canConvert<EMT::SeriesSettingsMap>())
@@ -38,7 +38,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
         continue;
 
       if (innerMap.contains(SERIE_VISIBLE_SETTINGS_TAG)) {
-        QVariant v = innerMap[SERIE_VISIBLE_SETTINGS_TAG];
+        const QVariant &v = innerMap[SERIE_VISIBLE_SETTINGS_TAG];
 
         if (v.canConvert<bool>()) {
           bool b = v.value<bool>();
@@ -48,7 +48,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
 
 
       if (innerMap.contains(LINE_STYLE_SETTINGS_TAG)) {
-        QVariant v = innerMap[LINE_STYLE_SETTINGS_TAG];
+        const QVariant &v = innerMap[LINE_STYLE_SETTINGS_TAG];
 
         if (v.canConvert<int>()) {
           Qt::PenStyle ps = static_cast<Qt::PenStyle>(v.value<int>());
@@ -57,7 +57,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(LINE_COLOR_SETTINGS_TAG)) {
-        QVariant v = innerMap[LINE_COLOR_SETTINGS_TAG];
+        const QVariant &v = innerMap[LINE_COLOR_SETTINGS_TAG];
 
         if (v.canConvert<QColor>()) {
           QColor c = v.value<QColor>();
@@ -66,7 +66,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(LINE_THICKNESS_SETTINGS_TAG)) {
-        QVariant v = innerMap[LINE_THICKNESS_SETTINGS_TAG];
+        const QVariant &v = innerMap[LINE_THICKNESS_SETTINGS_TAG];
 
         if (v.canConvert<qreal>()) {
           qreal t = v.value<qreal>();
@@ -75,7 +75,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(POINT_COLOR_SETTINGS_TAG)) {
-        QVariant v = innerMap[POINT_COLOR_SETTINGS_TAG];
+        const QVariant &v = innerMap[POINT_COLOR_SETTINGS_TAG];
 
         if (v.canConvert<QColor>()) {
           QColor c = v.value<QColor>();
@@ -86,7 +86,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(POINT_FILLCOLOR_SETTINGS_TAG)) {
-        QVariant v = innerMap[POINT_FILLCOLOR_SETTINGS_TAG];
+        const QVariant &v = innerMap[POINT_FILLCOLOR_SETTINGS_TAG];
 
         if (v.canConvert<QColor>()) {
           QColor c = v.value<QColor>();
@@ -97,7 +97,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(POINT_LINETHICKNESS_SETTINGS_TAG)) {
-        QVariant v = innerMap[POINT_LINETHICKNESS_SETTINGS_TAG];
+        const QVariant &v = innerMap[POINT_LINETHICKNESS_SETTINGS_TAG];
 
         if (v.canConvert<qreal>()) {
           qreal r = v.value<qreal>();
@@ -108,14 +108,14 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
       }
 
       if (innerMap.contains(POINT_SIZE_SETTINGS_TAG)) {
-        QVariant v = innerMap[POINT_SIZE_SETTINGS_TAG];
+        const QVariant &v = innerMap[POINT_SIZE_SETTINGS_TAG];
 
         if (v.canConvert<int>())
           vs.symbol()->setSize(v.toInt());
       }
 
       if (innerMap.contains(POINT_STYLE_SETTINGS_TAG)) {
-        QVariant v = innerMap[POINT_STYLE_SETTINGS_TAG];
+        const QVariant &v = innerMap[POINT_STYLE_SETTINGS_TAG];
 
         if (v.canConvert<int>())
           vs.symbol()->setStyle(static_cast<QwtSymbol::Style>(v.toInt()));
@@ -126,14 +126,14 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
   }
 
   if (outerMap.contains(AXES_SETTINGS_TAG)) {
-    QVariant v = outerMap[AXES_SETTINGS_TAG];
+    const QVariant &v = outerMap[AXES_SETTINGS_TAG];
     EMT::StringVariantMap map;
 
     if (v.canConvert<EMT::StringVariantMap>())
       map = v.value<EMT::StringVariantMap>();
 
     if (map.contains(AXIS_X_BOTTOM_SETTINGS_TAG)) {
-      QVariant v = map[AXIS_X_BOTTOM_SETTINGS_TAG];
+      const QVariant &v = map[AXIS_X_BOTTOM_SETTINGS_TAG];
 
       if (v.canConvert<QFont>()) {
         QFont f = v.value<QFont>();
@@ -142,7 +142,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
     }
 
     if (map.contains(AXIS_Y_LEFT_SETTINGS_TAG)) {
-      QVariant v = map[AXIS_Y_LEFT_SETTINGS_TAG];
+      const QVariant &v = map[AXIS_Y_LEFT_SETTINGS_TAG];
 
       if (v.canConvert<QFont>()) {
         QFont f = v.value<QFont>();

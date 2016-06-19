@@ -1011,13 +1011,13 @@ void HyperboleFittingEngine::loadUserSettings(const QVariant &settings)
 
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
   if (map.contains(LAST_LOADSAVE_PATH_SETTINGS_TAG)) {
-    QVariant v = map[LAST_LOADSAVE_PATH_SETTINGS_TAG];
+    const QVariant &v = map[LAST_LOADSAVE_PATH_SETTINGS_TAG];
 
     m_lastDataTablePath = v.toString();
   }
 
   if (map.contains(LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG)) {
-    QVariant v = map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG];
+    const QVariant &v = map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG];
 
     m_lastExportToCsvPath = v.toString();
     m_exportDTToCsvDlg->setLastPath(m_lastExportToCsvPath);

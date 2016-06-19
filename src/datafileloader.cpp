@@ -247,19 +247,19 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
 
   if (map.contains(LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG)) {
-    QVariant v = map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG];
+    const QVariant &v = map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG];
 
     m_lastChemStationPath = v.toString();
   }
 
   if (map.contains(LAST_CSV_LOAD_PATH_SETTINGS_TAG)) {
-    QVariant v = map[LAST_CSV_LOAD_PATH_SETTINGS_TAG];
+    const QVariant &v = map[LAST_CSV_LOAD_PATH_SETTINGS_TAG];
 
     m_lastCsvPath = v.toString();
   }
 
   if (map.contains(LAST_CHEMSTATION_DLG_SIZE_TAG)) {
-    QVariant v = map[LAST_CHEMSTATION_DLG_SIZE_TAG];
+    const QVariant &v = map[LAST_CHEMSTATION_DLG_SIZE_TAG];
 
     m_lastChemStationDlgSize = v.toSize();
   }

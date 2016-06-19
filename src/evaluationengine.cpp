@@ -763,7 +763,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
 
   if (map.contains(DATAFILELOADER_SETTINGS_TAG)) {
-    QVariant v = map[DATAFILELOADER_SETTINGS_TAG];
+    const QVariant &v = map[DATAFILELOADER_SETTINGS_TAG];
 
     m_dataFileLoader->loadUserSettings(v);
   }
