@@ -195,6 +195,11 @@ void HyperboleFitWidget::onAnalyteListDoubleClicked(const QModelIndex &idx)
       QString newName = dlg.textValue();
       if (newName.length() > 0) {
         emit renameAnalyte(internalId, newName, srcidx.row());
+
+        /* Model might have resorted, make sure we select the correct analyte again */
+        const QModelIndex newIdx = m_analytesSortProxy.mapFromSource(srcidx);
+        ui->qlv_analytes->setCurrentIndex(newIdx);
+        onAnalyteListClicked();
         return;
       }
     } else
