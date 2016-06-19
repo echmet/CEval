@@ -6,9 +6,15 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1069</width>
+    <width>796</width>
     <height>644</height>
    </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
   </property>
   <property name="minimumSize">
    <size>
@@ -79,7 +85,7 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>1037</width>
+            <width>764</width>
             <height>537</height>
            </rect>
           </property>
@@ -142,6 +148,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="0">
@@ -166,6 +178,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="1">
@@ -175,6 +193,12 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -193,6 +217,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="2" column="0">
@@ -210,6 +240,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="0" column="1">
@@ -219,6 +255,12 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -251,6 +293,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="3" column="2">
@@ -259,19 +307,6 @@
                    <string>Auto</string>
                   </property>
                  </widget>
-                </item>
-                <item row="3" column="3">
-                 <spacer name="horizontalSpacer_4">
-                  <property name="orientation">
-                   <enum>Qt::Horizontal</enum>
-                  </property>
-                  <property name="sizeHint" stdset="0">
-                   <size>
-                    <width>40</width>
-                    <height>20</height>
-                   </size>
-                  </property>
-                 </spacer>
                 </item>
                 <item row="5" column="0">
                  <widget class="QLabel" name="ql_noiseLODcoeff">
@@ -287,6 +322,12 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -319,6 +360,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="2">
@@ -350,6 +397,12 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
                 </item>
                 <item row="1" column="6">
@@ -366,6 +419,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="4" column="4">
+                 <widget class="QLabel" name="ql_slopeRefPoint">
+                  <property name="text">
+                   <string>Slope ref. point [min]</string>
+                  </property>
+                 </widget>
+                </item>
                 <item row="2" column="5">
                  <widget class="QComboBox" name="qcbox_baselineAlgorithm">
                   <property name="sizePolicy">
@@ -373,6 +433,12 @@
                     <horstretch>0</horstretch>
                     <verstretch>0</verstretch>
                    </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -384,12 +450,11 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
-                 </widget>
-                </item>
-                <item row="4" column="4">
-                 <widget class="QLabel" name="ql_slopeRefPoint">
-                  <property name="text">
-                   <string>Slope ref. point [min]</string>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
                   </property>
                  </widget>
                 </item>
@@ -401,6 +466,19 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item row="5" column="4">
+                 <widget class="QLabel" name="ql_noiseSlopeCorrection">
+                  <property name="text">
+                   <string>Noise slope correction</string>
+                  </property>
                  </widget>
                 </item>
                 <item row="4" column="6">
@@ -410,10 +488,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="5" column="4">
-                 <widget class="QLabel" name="ql_noiseSlopeCorrection">
+                <item row="6" column="4">
+                 <widget class="QLabel" name="ql_showWindow">
                   <property name="text">
-                   <string>Noise slope correction</string>
+                   <string>Show window</string>
                   </property>
                  </widget>
                 </item>
@@ -425,15 +503,14 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="text">
                    <string>Enable</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="6" column="4">
-                 <widget class="QLabel" name="ql_showWindow">
-                  <property name="text">
-                   <string>Show window</string>
                   </property>
                  </widget>
                 </item>
@@ -445,7 +522,26 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                  </widget>
+                </item>
+                <item row="3" column="3">
+                 <spacer name="horizontalSpacer_4">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>40</width>
+                    <height>20</height>
+                   </size>
+                  </property>
+                 </spacer>
                 </item>
                </layout>
               </item>
@@ -478,6 +574,12 @@
         <verstretch>0</verstretch>
        </sizepolicy>
       </property>
+      <property name="minimumSize">
+       <size>
+        <width>250</width>
+        <height>0</height>
+       </size>
+      </property>
       <attribute name="title">
        <string>Results</string>
       </attribute>
@@ -500,9 +602,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-365</y>
-            <width>1017</width>
-            <height>1038</height>
+            <y>-513</y>
+            <width>744</width>
+            <height>1076</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -573,6 +675,18 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_vEof">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -586,6 +700,18 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_vEofEff">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -599,6 +725,18 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_uEof">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -662,6 +800,18 @@
                 </item>
                 <item row="2" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_vPeak">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -675,6 +825,18 @@
                 </item>
                 <item row="2" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_uPeak">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -695,6 +857,18 @@
                 </item>
                 <item row="2" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_vPeakEff">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -757,6 +931,18 @@
                 </item>
                 <item row="0" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakFromXRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -770,6 +956,18 @@
                 </item>
                 <item row="0" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakFromYRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -783,6 +981,18 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_peakXRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -796,6 +1006,18 @@
                 </item>
                 <item row="1" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakToXRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -809,6 +1031,18 @@
                 </item>
                 <item row="1" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakToYRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -822,6 +1056,18 @@
                 </item>
                 <item row="1" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_peakHeightRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -842,6 +1088,18 @@
                 </item>
                 <item row="3" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_areaPeak">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -859,6 +1117,18 @@
                 </item>
                 <item row="3" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_hvlTUSP">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -913,8 +1183,39 @@
               </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_9">
+                <item row="2" column="5">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlEpsilon">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                 </widget>
+                </item>
                 <item row="3" column="5">
                  <widget class="QLineEdit" name="qle_hvlMaxIterations">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -922,6 +1223,18 @@
                 </item>
                 <item row="1" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_hvlA2">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -946,6 +1259,18 @@
                 </item>
                 <item row="0" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_hvlA1">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -956,6 +1281,18 @@
                 </item>
                 <item row="1" column="5">
                  <widget class="FloatingValueLineEdit" name="qle_hvlA3">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -979,7 +1316,20 @@
                  </widget>
                 </item>
                 <item row="0" column="2">
-                 <widget class="FloatingValueLineEdit" name="qle_hvlA0"/>
+                 <widget class="FloatingValueLineEdit" name="qle_hvlA0">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item row="1" column="3">
                  <widget class="QMappedCheckBox" name="qcb_hvlA2Fixed">
@@ -1004,6 +1354,18 @@
                 </item>
                 <item row="3" column="2">
                  <widget class="QLineEdit" name="qle_hvlDigits">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -1039,6 +1401,18 @@
                 </item>
                 <item row="2" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_hvlChiSquared">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
@@ -1054,10 +1428,29 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="5">
-                 <widget class="FloatingValueLineEdit" name="qle_hvlEpsilon">
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                <item row="4" column="0">
+                 <widget class="QLabel" name="ql_hvlA1Mobility">
+                  <property name="text">
+                   <string>a1 u! (1e-9 m.m/V/s)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="4" column="2">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlA1Mobility">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
                   </property>
                  </widget>
                 </item>
@@ -1065,27 +1458,6 @@
               </item>
               <item>
                <layout class="QHBoxLayout" name="horizontalLayout_7">
-                <item>
-                 <layout class="QFormLayout" name="formLayout">
-                  <property name="formAlignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <item row="0" column="0">
-                   <widget class="QLabel" name="ql_hvlA1Mobility">
-                    <property name="text">
-                     <string>a1 u! (1e-9 m.m/V/s)</string>
-                    </property>
-                   </widget>
-                  </item>
-                  <item row="0" column="1">
-                   <widget class="FloatingValueLineEdit" name="qle_hvlA1Mobility">
-                    <property name="readOnly">
-                     <bool>true</bool>
-                    </property>
-                   </widget>
-                  </item>
-                 </layout>
-                </item>
                 <item>
                  <spacer name="horizontalSpacer_6">
                   <property name="orientation">
@@ -1221,6 +1593,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="1" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1234,6 +1618,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="1" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1247,6 +1643,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="1" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1267,6 +1675,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="2" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1287,6 +1707,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="3" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfMLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1300,6 +1732,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="2" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1313,6 +1757,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="2" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1326,6 +1782,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="3" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfMRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1339,6 +1807,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="3" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakWidthHalfMFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1359,6 +1839,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="4" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaMRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1372,6 +1864,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="4" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaMFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1385,6 +1889,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="4" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakSigmaMLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1405,6 +1921,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="5" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakNLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1418,6 +1946,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="5" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakNFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1431,6 +1971,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="5" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakNRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1451,6 +2003,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="6" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakNhLeft">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1461,6 +2025,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="6" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_peakNhRight">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1474,6 +2050,18 @@ padding-right: 2em;</string>
                 </item>
                 <item row="6" column="3">
                  <widget class="FloatingValueLineEdit" name="qle_peakNhFull">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="focusPolicy">
                    <enum>Qt::ClickFocus</enum>
                   </property>
@@ -1607,7 +2195,6 @@ padding-right: 3em;</string>
   <tabstop>qle_hvlEpsilon</tabstop>
   <tabstop>qle_hvlDigits</tabstop>
   <tabstop>qle_hvlMaxIterations</tabstop>
-  <tabstop>qle_hvlA1Mobility</tabstop>
   <tabstop>qpb_replotHvl</tabstop>
   <tabstop>qpb_doHvlFit</tabstop>
   <tabstop>qpb_findPeak</tabstop>
