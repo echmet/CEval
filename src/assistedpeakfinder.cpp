@@ -409,29 +409,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
       #undef _X
       #undef _Y
-    } else { //Noise::ChcbNoiseCorrection
-      /* ??? Is this supposed to be correct?
-      MinValue = YMax;
-      MaxValue = YMin;
-      */
-
-      /* Set Min and Max values to their absolutes because the following
-       * noise calculation code works with absolutes too.
-       * I am not going to pretend that it makes any sense to me but not doing
-       * this may lead to incorrectly computed noise levels if one of the "if" conditions
-       * in the for-loop is never true.
-       */
-      const double _minAbs = Helpers::minYValue(Data, diL, diR);
-      const double _maxAbs = Helpers::maxYValue(Data, diL, diR);
-
-      if (_minAbs < _maxAbs) {
-        MinValue = _minAbs;
-        MaxValue = _maxAbs;
-      } else {
-        MinValue = _maxAbs;
-        MaxValue = _minAbs;
-      }
-    }
+    } //Noise::ChcbNoiseCorrection
 
     SummValue = 0.0; /* Used only if we need to draw noise window */
     for (long i = diL; i < diR; ++i) {
@@ -442,10 +420,20 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       //Neni treba uvazovat Intercept, zbytecna operace scitani,
       //Noise = Max - Min => Nezalezi na konstante.
      //Nemusi byt if ... else, ale lepsi vyhodnocovat Checked, nez operace "*,-" s double
+
+      /* Checking for Min and Max values does not seem to make much
+       * sense since Noise is calculated from absolute values but
+       * Min and Max values can be negative
+       *
       if (Noise > MaxValue)
         MaxValue = Noise;
       if (Noise < MinValue)
         MinValue = Noise;
+       */
+
+      MinValue = Helpers::minYValue(Data, diL, diR);
+      MaxValue = Helpers::maxYValue(Data, diL, diR);
+
       SummValue += Noise;
     }
   } //Noise::(ReadOnly || CbxWindow == wkNoise)
