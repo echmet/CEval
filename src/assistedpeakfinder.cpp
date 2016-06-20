@@ -180,17 +180,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   if (C == 0)
     return r;
 
-  double XMin = Data.front().x();
-  double XMax = Data.back().x();
-  double YMin = Helpers::minYValue(Data);
-  double YMax = Helpers::maxYValue(Data);
-
-  if (XMax == XMin)
-    return r;
-
-  double ppm = C / (XMax - XMin); /* Points per minute */
-
-  double SlopeThreshold, SlopeSensitivity; /* Declare here and use as synonyme for noise calculations*/
+ double SlopeThreshold, SlopeSensitivity; /* Declare here and use as synonyme for noise calculations*/
 
   /* Initialize settings */
   if (p.autoFrom)
@@ -211,7 +201,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   if (p.autoTo) {
     tENDi = C;
-    tEND = XMax;
+    tEND = Data.at(tENDi - 1).x();
   } else {
     long idx = Data.size() - 1;
     tEND = p.to;
@@ -225,6 +215,18 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     if (!checkBounds(tENDi, Data))
         return r;
   }
+
+  double XMin = Data.at(tBEGi).x();
+  double XMax = tEND;
+  double YMin = Helpers::minYValue(Data);
+  double YMax = Helpers::maxYValue(Data);
+
+  if (XMax <= XMin)
+    return r;
+
+  double ppm = C / (XMax - XMin); /* Points per minute */
+
+
 
   long NoiseWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
