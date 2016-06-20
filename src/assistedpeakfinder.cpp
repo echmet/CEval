@@ -148,6 +148,96 @@ bool AssistedPeakFinder::checkBounds(const int i, const QVector<QPointF> &data)
   return true;
 }
 
+int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, const int fromIdx, const int toIdx)
+{
+  enum class VarianceState {
+    LEFT_GREATER,
+    RIGHT_GREATER,
+    LEFT_RIGHT_SAME,
+    ALL_SAME
+  };
+
+  const int mid = ((toIdx - fromIdx) / 2) + fromIdx;
+  double totalVariance;
+  double leftVariance;
+  double rightVariance;
+
+  const auto calcVariance = [&data](const int from, const int to) {
+    double mean = 0.0;
+    double variance = 0.0;
+
+    for (int idx = from; idx <= to; idx++)
+      mean += data.at(idx).y();
+
+      mean /= (to - from);
+
+    for (int idx = from; idx <= to; idx++)
+      variance += std::pow(data.at(idx).y() - mean, 2);
+
+    return variance / (to - from);
+  };
+
+  const auto evalThreeVariances = [](const double left, const double right, const double total) {
+    const double halfTotal = total / 2.0;
+    const double halfLeft = left / 2.0;
+    const double halfRight = right / 2.0;
+
+    if (left < halfRight)
+      return VarianceState::RIGHT_GREATER;
+    else if (right < halfLeft)
+      return VarianceState::LEFT_GREATER;
+    else if (left < halfTotal && right < halfTotal)
+      return VarianceState::LEFT_RIGHT_SAME;
+
+    return VarianceState::ALL_SAME;
+  };
+
+  const auto evalTwoVariances = [](const double left, const double right) {
+    const double avg = (left + right) / 2.0;
+    const double low = avg - avg * 0.1;
+    const double high = avg + avg * 0.1;
+
+    if (left >= low && left <= high &&
+        right >= low && right <= high)
+      return true;
+
+    return false;
+  };
+
+  if (toIdx >= data.length())
+    return -1;
+  if (fromIdx >= toIdx)
+    return -1;
+
+  totalVariance = calcVariance(fromIdx, toIdx);
+  leftVariance = calcVariance(fromIdx, mid);
+  rightVariance = calcVariance(mid, toIdx);
+
+
+  switch (evalThreeVariances(leftVariance, rightVariance, totalVariance)) {
+  case VarianceState::LEFT_GREATER:
+  case VarianceState::LEFT_RIGHT_SAME:
+    return chopLeadingDisturbance(data, mid, toIdx);
+    break;
+  case VarianceState::RIGHT_GREATER:
+    return fromIdx;
+    break;
+  case VarianceState::ALL_SAME:
+  {
+    if (toIdx + mid >= data.length())
+      return -1;
+
+    const double shiftedTotalVariance = calcVariance(mid, toIdx + mid);
+
+    if (evalTwoVariances(totalVariance, shiftedTotalVariance) ||
+        totalVariance < shiftedTotalVariance)
+      return fromIdx;
+
+    return mid;
+  }
+  }
+}
+
 std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) noexcept(false)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
@@ -215,6 +305,26 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     if (!checkBounds(tENDi, Data))
         return r;
   }
+
+  /* TODO: Make optional */
+  if (true) {
+    int chopToIdx = tBEGi;
+
+    while (chopToIdx < C) {
+      const double t = Data.at(chopToIdx).x();
+
+      if (t >= 10.0 / 60.0)
+        break;
+
+      chopToIdx++;
+    }
+
+    const int choppedBegin = chopLeadingDisturbance(Data, tBEGi, chopToIdx);
+
+    if (choppedBegin > 0)
+      tBEGi = choppedBegin;
+  }
+
 
   double XMin = Data.at(tBEGi).x();
   double XMax = tEND;

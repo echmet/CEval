@@ -104,6 +104,7 @@ private:
     virtual void OnMinimum(double Value, int Index);
   };
 
+  int chopLeadingDisturbance(const QVector<QPointF> &data, const int fromIdx, const int toIdx);
 };
 
 #endif // PEAKFINDER_H
