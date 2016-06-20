@@ -200,7 +200,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   }
 
   if (p.autoTo) {
-    tENDi = C;
+    tENDi = C - 1;
     tEND = Data.at(tENDi - 1).x();
   } else {
     long idx = Data.size() - 1;
@@ -218,8 +218,8 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   double XMin = Data.at(tBEGi).x();
   double XMax = tEND;
-  double YMin = Helpers::minYValue(Data);
-  double YMax = Helpers::maxYValue(Data);
+  double YMin = Helpers::minYValue(Data, tBEGi, tENDi);
+  double YMax = Helpers::maxYValue(Data, tBEGi, tENDi);
 
   if (XMax <= XMin)
     return r;
@@ -293,8 +293,30 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       #undef _Y
     } //Noise::ChcbNoiseCorrection
 
+    /* ??? Is this supposed to be correct?
     MinValue = YMax;
     MaxValue = YMin;
+    */
+
+    /* Set Min and Max values to their absolutes because the following
+     * noise calculation code works with absolutes too.
+     * I am not going to pretend that it makes any sense to me but not doing
+     * this may lead to incorrectly computed noise levels if one of the "if" conditions
+     * in the for-loop is never true.
+     */
+    {
+      double _minAbs = std::abs(YMin);
+      double _maxAbs = std::abs(YMax);
+
+      if (_minAbs < _maxAbs) {
+        MinValue = _minAbs;
+        MaxValue = _maxAbs;
+      } else {
+        MinValue = _maxAbs;
+        MaxValue = _minAbs;
+      }
+    }
+
     SummValue = 0.0; /* Used only if we need to draw noise window */
     for (long i = diL; i < diR; ++i) {
       if (p.noiseCorrection)

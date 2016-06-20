@@ -53,12 +53,18 @@ public:
     return max;
   }
 
-  static qreal maxYValue(const QVector<QPointF> &v)
+  static qreal maxYValue(const QVector<QPointF> &v, const int from = 0, int to = -1)
   {
     Q_ASSERT(v.length() > 0);
 
-    qreal max = v.at(0).y();
-    for (int idx = 1; idx < v.length(); idx++) {
+    if (to < 0)
+      to = v.length() - 1;
+
+    Q_ASSERT(to < v.length());
+    Q_ASSERT(from < to);
+
+    qreal max = v.at(from).y();
+    for (int idx = from + 1; idx < to; idx++) {
       if (max < v.at(idx).y())
         max = v.at(idx).y();
     }
@@ -93,12 +99,18 @@ public:
     return max;
   }
 
-  static qreal minYValue(const QVector<QPointF> &v)
+  static qreal minYValue(const QVector<QPointF> &v, const int from = 0, int to = -1)
   {
     Q_ASSERT(v.length() > 0);
 
-    qreal max = v.at(0).y();
-    for (int idx = 1; idx < v.length(); idx++) {
+    if (to < 0)
+      to = v.length() - 1;
+
+    Q_ASSERT(to < v.length());
+    Q_ASSERT(from < to);
+
+    qreal max = v.at(from).y();
+    for (int idx = from + 1; idx <= to; idx++) {
       if (max > v.at(idx).y())
         max = v.at(idx).y();
     }
