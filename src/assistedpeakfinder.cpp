@@ -255,6 +255,9 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
                                                                                                "in the data file (%2). Clamping to %2").arg(tnrp).arg(tEND)));
     tnrp = tEND;
   }
+  if (tnrp < Data.at(tBEGi).x())
+    tnrp = Data.at(tBEGi).x();
+
   SEARCH_I(nrp)
   if (!checkBounds(tnrpi, Data))
     return r;
@@ -264,7 +267,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   #define SLOPE BSLSlope
   #define INTERCEPT BSLIntercept /* Used only if we need to draw noise window */
   if (p.autoNoise || p.showWindow == EvaluationParametersItems::ComboShowWindow::NOISE) {
-    diL = tnrpi - (NoiseWindow / 2); if (diL < 0) diL = 0;
+    diL = tnrpi - (NoiseWindow / 2); if (diL < tBEGi) diL = tBEGi;
     diR = diL + NoiseWindow; if (diR > C) diR = C;
 
     if (p.noiseCorrection) {
