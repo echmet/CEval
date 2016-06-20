@@ -409,22 +409,20 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
       #undef _X
       #undef _Y
-    } //Noise::ChcbNoiseCorrection
+    } else { //Noise::ChcbNoiseCorrection
+      /* ??? Is this supposed to be correct?
+      MinValue = YMax;
+      MaxValue = YMin;
+      */
 
-    /* ??? Is this supposed to be correct?
-    MinValue = YMax;
-    MaxValue = YMin;
-    */
-
-    /* Set Min and Max values to their absolutes because the following
-     * noise calculation code works with absolutes too.
-     * I am not going to pretend that it makes any sense to me but not doing
-     * this may lead to incorrectly computed noise levels if one of the "if" conditions
-     * in the for-loop is never true.
-     */
-    {
-      double _minAbs = std::abs(YMin);
-      double _maxAbs = std::abs(YMax);
+      /* Set Min and Max values to their absolutes because the following
+       * noise calculation code works with absolutes too.
+       * I am not going to pretend that it makes any sense to me but not doing
+       * this may lead to incorrectly computed noise levels if one of the "if" conditions
+       * in the for-loop is never true.
+       */
+      const double _minAbs = Helpers::minYValue(Data, diL, diR);
+      const double _maxAbs = Helpers::maxYValue(Data, diL, diR);
 
       if (_minAbs < _maxAbs) {
         MinValue = _minAbs;
