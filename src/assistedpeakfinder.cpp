@@ -250,7 +250,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   tnrp = p.noisePoint;
   if (tnrp > tEND) {
     QMessageBox::information(nullptr, QObject::tr("Incorrent parameters"), QString(QObject::tr("Noise point reference (%1) is beyond the last time point"
-                                                                                               "in the data file (%2). Clamping to %1").arg(tnrp).arg(tEND)));
+                                                                                               "in the data file (%2). Clamping to %2").arg(tnrp).arg(tEND)));
     tnrp = tEND;
   }
   SEARCH_I(nrp)
