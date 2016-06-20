@@ -83,10 +83,10 @@
          <widget class="QWidget" name="scrollAreaWidgetContents_2">
           <property name="geometry">
            <rect>
-            <x>0</x>
+            <x>-76</x>
             <y>0</y>
-            <width>764</width>
-            <height>537</height>
+            <width>845</width>
+            <height>507</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -543,6 +543,23 @@
                   </property>
                  </spacer>
                 </item>
+                <item row="7" column="4">
+                 <widget class="QLabel" name="ql_disturbanceDetection">
+                  <property name="text">
+                   <string>Disturbance det. window</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="7" column="5">
+                 <widget class="FloatingValueLineEdit" name="qle_disturbanceDetection"/>
+                </item>
+                <item row="7" column="6">
+                 <widget class="QCheckBox" name="qcb_disturbanceDetection">
+                  <property name="text">
+                   <string>Enable</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item>
@@ -602,9 +619,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-513</y>
-            <width>744</width>
-            <height>1076</height>
+            <y>0</y>
+            <width>828</width>
+            <height>1048</height>
            </rect>
           </property>
           <property name="sizePolicy">

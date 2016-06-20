@@ -22,7 +22,9 @@ const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SL
                                                                      true  /* TO */
                                                                     });
 
-const QVector<bool> EvaluationEngine::s_defaultEvaluationBooleanValues({false /* NOISE_CORRECTION */});
+const QVector<bool> EvaluationEngine::s_defaultEvaluationBooleanValues({false, /* NOISE_CORRECTION */
+                                                                        true   /* DISTURBANCE_DETECTION */
+                                                                       });
 
 /* Do not reorder these before reviewing the rest of the code! */
 const QVector<double> EvaluationEngine::s_defaultEvaluationFloatingValues({0.5, /* NOISE_WINDOW */
@@ -35,7 +37,8 @@ const QVector<double> EvaluationEngine::s_defaultEvaluationFloatingValues({0.5, 
                                                                           0.0, /* NOISE_REF_POINT*/
                                                                           0.0, /* SLOPE_REF_POINT */
                                                                           0.0, /* FROM */
-                                                                          0.0  /* TO */
+                                                                          0.0, /* TO */
+                                                                          0.167 /* DISTURBANCE_DETECTION */
                                                                           });
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>>
@@ -820,6 +823,8 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
   p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
   p.to = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::TO);
   p.windowUnits = m_windowUnit;
+  p.disturbanceDetection = m_evaluationBooleanValues.at(EvaluationParametersItems::Boolean::DISTURBANCE_DETECTION);
+  p.disturbanceDetectionWindow = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::DISTURBANCE_DETECTION);
 
   return p;
 }

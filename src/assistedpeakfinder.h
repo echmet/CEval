@@ -26,6 +26,7 @@ public:
 
     /* Bools */
     bool noiseCorrection;
+    bool disturbanceDetection;
 
     /* Numeric */
     double from;
@@ -40,6 +41,7 @@ public:
     double slopeWindow;
     double tEOF;
     double to;
+    double disturbanceDetectionWindow;
 
     /* Constrained */
     EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;

@@ -21,6 +21,7 @@ public:
 
   enum class Boolean : int {
     NOISE_CORRECTION,
+    DISTURBANCE_DETECTION,
     LAST_INDEX
   };
 
@@ -36,6 +37,7 @@ public:
     SLOPE_REF_POINT,
     FROM,
     TO,
+    DISTURBANCE_DETECTION,
     LAST_INDEX
   };
 

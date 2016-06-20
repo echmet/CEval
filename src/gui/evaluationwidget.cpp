@@ -237,6 +237,7 @@ void EvaluationWidget::setEvaluationParametersBooleanModel(AbstractMapperModel<b
   m_evaluationParametersBooleanMapper->setModel(model);
 
   m_evaluationParametersBooleanMapper->addMapping(ui->qcb_noiseSlopeCorrection, model->indexFromItem(EvaluationParametersItems::Boolean::NOISE_CORRECTION));
+  m_evaluationParametersBooleanMapper->addMapping(ui->qcb_disturbanceDetection, model->indexFromItem(EvaluationParametersItems::Boolean::DISTURBANCE_DETECTION));
   m_evaluationParametersBooleanMapper->toFirst();
 }
 
@@ -256,6 +257,7 @@ void EvaluationWidget::setEvaluationParametersFloatingModel(AbstractMapperModel<
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_to, model->indexFromItem(EvaluationParametersItems::Floating::TO));
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_noiseRefPoint, model->indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
   m_evaluationParametersFloatingMapper->addMapping(ui->qle_slopeRefPoint, model->indexFromItem(EvaluationParametersItems::Floating::SLOPE_REF_POINT));
+  m_evaluationParametersFloatingMapper->addMapping(ui->qle_disturbanceDetection, model->indexFromItem(EvaluationParametersItems::Floating::DISTURBANCE_DETECTION));
   m_evaluationParametersFloatingMapper->toFirst();
 }
 

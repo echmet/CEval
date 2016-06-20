@@ -235,6 +235,7 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
 
     return mid;
   }
+    break;
   }
 }
 
@@ -307,22 +308,24 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   }
 
   /* TODO: Make optional */
-  if (true) {
+  if (p.disturbanceDetection) {
     int chopToIdx = tBEGi;
 
     while (chopToIdx < C) {
       const double t = Data.at(chopToIdx).x();
 
-      if (t >= 10.0 / 60.0)
+      if (t >= p.disturbanceDetectionWindow)
         break;
 
       chopToIdx++;
     }
 
-    const int choppedBegin = chopLeadingDisturbance(Data, tBEGi, chopToIdx);
+    if (chopToIdx < C) {
+      const int choppedBegin = chopLeadingDisturbance(Data, tBEGi, chopToIdx);
 
-    if (choppedBegin > 0)
-      tBEGi = choppedBegin;
+      if (choppedBegin > 0)
+        tBEGi = choppedBegin;
+    }
   }
 
 
