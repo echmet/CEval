@@ -332,8 +332,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   double XMin = Data.at(tBEGi).x();
   double XMax = tEND;
-  double YMin = Helpers::minYValue(Data, tBEGi, tENDi);
-  double YMax = Helpers::maxYValue(Data, tBEGi, tENDi);
 
   if (XMax <= XMin)
     return r;

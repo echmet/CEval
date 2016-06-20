@@ -15,7 +15,6 @@ FloatingValueLineEdit::FloatingValueLineEdit(QWidget *parent) :
 void FloatingValueLineEdit::ensureSanity(QString text)
 {
   bool ok;
-  const QLocale &loc = DoubleToStringConvertor::locale();
 
   QString _text = text.replace(QChar::Nbsp, QString(""), Qt::CaseInsensitive);
 
