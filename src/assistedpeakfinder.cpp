@@ -309,7 +309,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
         return r;
   }
 
-  /* TODO: Make optional */
   if (p.disturbanceDetection) {
     int chopToIdx = tBEGi;
 

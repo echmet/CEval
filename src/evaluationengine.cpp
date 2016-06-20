@@ -38,7 +38,7 @@ const QVector<double> EvaluationEngine::s_defaultEvaluationFloatingValues({0.5, 
                                                                           0.0, /* SLOPE_REF_POINT */
                                                                           0.0, /* FROM */
                                                                           0.0, /* TO */
-                                                                          0.167 /* DISTURBANCE_DETECTION */
+                                                                          0.2 /* DISTURBANCE_DETECTION */
                                                                           });
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>>
