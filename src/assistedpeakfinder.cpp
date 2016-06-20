@@ -237,6 +237,8 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
   }
     break;
   }
+
+  return -1; /* We should never reach this line */
 }
 
 std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) noexcept(false)
