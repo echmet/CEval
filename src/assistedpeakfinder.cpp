@@ -220,8 +220,29 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
     return chopLeadingDisturbance(data, mid, toIdx);
     break;
   case VarianceState::RIGHT_GREATER:
-    return fromIdx;
+  {
+    /* Move disturbance window right by half of its width.
+     * If the new right interval has lower jitter than
+     * the left one, chop the entire lenght of the original
+     * disturbance window. Otherwise chop only half of the
+     * original window.
+     *
+     * The rationale for this is that the leading disturbance
+     * we are trying to chop off might in the right part
+     * of the window; in such a case the jitter in the shifted
+     * right part of the window will be lower.
+     */
+    if (toIdx + mid >= data.length())
+      return -1;
+
+    const double shiftedRightVariance = calcVariance(toIdx, toIdx + mid);
+
+    if (shiftedRightVariance < rightVariance)
+      return toIdx;
+
+    return toIdx + mid;
     break;
+  }
   case VarianceState::ALL_SAME:
   {
     if (toIdx + mid >= data.length())
