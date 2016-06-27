@@ -317,8 +317,12 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     tENDi = C - 1;
     tEND = Data.at(tENDi - 1).x();
   } else {
-    long idx = Data.size() - 1;
     tEND = p.to;
+    if (tEND <= p.from) {
+      QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("\"To\" value (%1) is less or equal to \"From\" value (%2)")).arg(tEND).arg(p.from));
+      return r;
+    }
+    long idx = Data.size() - 1;
     while (Data.at(idx).x() > tEND)
       idx--;
 
