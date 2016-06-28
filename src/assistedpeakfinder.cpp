@@ -268,10 +268,10 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double MaxValue, MinValue, SummValue;
   double SummX, SummXX, SummY, SummXY;
-  long diL = -1, diR = -1;
-  long tBEGi, tENDi, tnrpi, tsrpi, tAi, tBi, tPi;
+  int diL = -1, diR = -1;
+  int tBEGi, tENDi, tnrpi, tsrpi, tAi, tBi, tPi;
   double tEND, tnrp, tsrp, tA, tB, tP;
-  long twPLefti, twPRighti;
+  int twPLefti, twPRighti;
   double twPLeft, twPRight;
   double HP, HP_, HA, HB;
   double BSLSlope, BSLIntercept;
@@ -290,7 +290,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   }
 
   const QVector<QPointF> &Data = p.data;
-  const long C = Data.size();
+  const int C = Data.size();
 
   if (C == 0)
     return r;
@@ -301,7 +301,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   if (p.autoFrom)
     tBEGi = 0;
   else {
-    long idx = 0;
+    int idx = 0;
     double tBEG = p.from;
     while (Data.at(idx).x() < tBEG)
       idx++;
@@ -323,7 +323,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("\"To\" value (%1) is less or equal to \"From\" value (%2)")).arg(tEND).arg(p.from));
       return r;
     }
-    long idx = Data.size() - 1;
+    int idx = Data.size() - 1;
     while (Data.at(idx).x() > tEND)
       idx--;
 
@@ -366,19 +366,19 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
 
 
-  long NoiseWindow;
+  int NoiseWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
     NoiseWindow = p.noiseWindow * ppm;
   else
     NoiseWindow = p.noiseWindow;
 
-  long PeakWindow;
+  int PeakWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
     PeakWindow = p.peakWindow * ppm;
   else
     PeakWindow = p.peakWindow;
 
-  long SlopeWindow; /* Calculated later, see below */
+  int SlopeWindow; /* Calculated later, see below */
 
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
@@ -413,7 +413,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       #define _Y MinValue
 
       SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-      for (long i = diL; i < diR; ++i) {
+      for (int i = diL; i < diR; ++i) {
         _X = Data[i].x(); _Y = Data[i].y();
         SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
       }
@@ -435,7 +435,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     } //Noise::ChcbNoiseCorrection
 
     SummValue = 0.0; /* Used only if we need to draw noise window */
-    for (long i = diL; i < diR; ++i) {
+    for (int i = diL; i < diR; ++i) {
       if (p.noiseCorrection)
         Noise = fabs(Data[i].y() - SLOPE * Data[i].x());
       else
@@ -526,7 +526,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       diR = C;
 
     SummX = 0.0; SummXX = 0.0; SummY = 0.0; SummXY = 0.0;
-    for (long i = diL; i < diR; ++i) {
+    for (int i = diL; i < diR; ++i) {
       _X = Data[i].x();
       _Y = Data[i].y();
       SummX += _X;
@@ -587,7 +587,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
         int peakNumber;
         bool ok;
 
-        for (const long idx : maxima)
+        for (const int idx : maxima)
           modelData.push_back(FoundPeaksModel::Peak(Data.at(idx).x(), idx));
 
         FoundPeaksModel model(modelData);
@@ -711,7 +711,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       #define _Y MinValue
 
       //(SlopeWindow || HP || TP)::TP::Init
-      long CC = tENDi - 1;
+      int CC = tENDi - 1;
       diR = tPi + SlopeWindow / 2;
       if (diR > CC)
         diR = CC;
@@ -722,7 +722,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
       t1i = (diR + diL) / 2;
       SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-      for (long i = diR; i > diL; --i) {
+      for (int i = diR; i > diL; --i) {
         _X = Data[i].X;
         _Y = Data[i].Y;
         SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
@@ -846,7 +846,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     #define _X MaxValue
     #define _Y MinValue
     SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-    for (long i = diL; i < diR; ++i) {
+    for (int i = diL; i < diR; ++i) {
       _X = Data[i].x();
       _Y = Data[i].y();
       SummX += _X; SummXX += _X*_X; SummY += _Y; SummXY += _X*_Y;
@@ -911,7 +911,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     diR = tENDi;
 
   HA = Data[diL].y();
-  for (long i = diL+1; i < diR; ++i)
+  for (int i = diL+1; i < diR; ++i)
     HA += Data[i].y();
 
   if (diR != diL)
@@ -933,7 +933,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   } else { //BSL B::tB::Algirithm == Noise
     // toto usporadani plati pro budouci posun Window k VYSSIM hodnotam t
     // Priorita zachovani sirky SlopeWindow
-    const long CC = tENDi - 1;
+    const int CC = tENDi - 1;
     diR = tPi + (SlopeWindow / 2);
     if (diR > CC)
       diR = CC;
@@ -954,7 +954,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     #define _X MaxValue
     #define _Y MinValue
     SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-    for (long i = diR; i > diL; --i) {
+    for (int i = diR; i > diL; --i) {
       _X = Data[i].x();
       _Y = Data[i].y();
       SummX += _X;
@@ -1024,7 +1024,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     diR = tENDi;
 
   HB = Data[diL].y();
-  for (long i = diL+1; i < diR; ++i)
+  for (int i = diL+1; i < diR; ++i)
     HB += Data[i].y();
 
   if (diR != diL)
@@ -1041,7 +1041,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     if (diR > tENDi)
       diR = tENDi;
 
-    for (long i = diL; i < diR; ++i) {
+    for (int i = diL; i < diR; ++i) {
       seriesA->push_back(QPointF(Data[i].x(), Data[i].y()));
     }
 
@@ -1094,11 +1094,11 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   if (p.showWindow == EvaluationParametersItems::ComboShowWindow::SMOOTHED) {
     diR = NoiseWindow; if (diR > C) diR = C;
     diL = 0;
-    long Position = (diR + diL) / 2;
+    int Position = (diR + diL) / 2;
 
     #define _Y MinValue
     SummY = 0.;
-    for (long i = diL; i < diR; ++i)
+    for (int i = diL; i < diR; ++i)
       SummY += Data[i].y();
 
     while (diR < C) {
@@ -1116,10 +1116,10 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   if (p.showWindow == EvaluationParametersItems::ComboShowWindow::FIRST_DERIVATIVE ||
       p.showWindow == EvaluationParametersItems::ComboShowWindow::SECOND_DERIVATIVE ||
       p.showWindow == EvaluationParametersItems::ComboShowWindow::BOTH_DERIVATIVES) {
-    const long CC = C - 1;
+    const int CC = C - 1;
     diR = SlopeWindow; if (diR > CC) diR = CC;
     diL = 0;
-    long Position = (diR + diL) / 2;
+    int Position = (diR + diL) / 2;
 
     double _Slope;
     #define SLOPE _Slope
@@ -1128,7 +1128,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     #define _X MaxValue
     #define _Y MinValue
     SummX = 0.; SummXX = 0.; SummY = 0.; SummXY = 0.;
-    for (long i = diR; i > diL; --i) {
+    for (int i = diR; i > diL; --i) {
       _X = Data[i].x();
       _Y = Data[i].y();
       SummX += _X;
