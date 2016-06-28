@@ -41,6 +41,11 @@ void SoftwareUpdater::checkAutomatically()
 
 void SoftwareUpdater::checkForUpdate(const bool automatic)
 {
+#ifdef UNSTABLE_VERSION
+  emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Update checks are disabled in development versions.")));
+  return;
+#endif
+
   UpdateListFetcher::RetCode tRet = m_fetcher.fetch(UPDATE_LINK);
 
   switch (tRet) {
