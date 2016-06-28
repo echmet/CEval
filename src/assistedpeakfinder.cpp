@@ -207,7 +207,7 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
   if (toIdx >= data.length())
     return -1;
   if (fromIdx >= toIdx)
-    return -1;
+    return fromIdx >= data.length() ? -1 : fromIdx;
 
   totalVariance = calcVariance(fromIdx, toIdx);
   leftVariance = calcVariance(fromIdx, mid);
@@ -569,10 +569,10 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
     /* Peak lookup complete, let`s check the resuts */
     {
-      TPeaksSearcher::container_type &maxima = Searcher.Extremes;
+      const TPeaksSearcher::container_type &maxima = Searcher.Extremes;
 
       /* No peak has been found */
-      if (maxima.size() == 0) {
+      if (maxima.size() < 1) {
         QMessageBox::information(nullptr, QObject::tr("No peak"), QObject::tr("No peaks were found for the given parameters."));
         return r;
       }
