@@ -1,4 +1,5 @@
 #include "assistedpeakfinder.h"
+#include "globals.h"
 #include "helpers.h"
 #include "foundpeaksmodel.h"
 #include <QMessageBox>
@@ -267,7 +268,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double MaxValue, MinValue, SummValue;
   double SummX, SummXX, SummY, SummXY;
-  long diL, diR;
+  long diL = -1, diR = -1;
   long tBEGi, tENDi, tnrpi, tsrpi, tAi, tBi, tPi;
   double tEND, tnrp, tsrp, tA, tB, tP;
   long twPLefti, twPRighti;
@@ -688,6 +689,11 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   }
 
   /* * (SlopeWindow || HP || TP)::HP * */
+  if (diL < 0 || diR < 0) {
+    QMessageBox::information(nullptr, QObject::tr("Runtime error"),QString(QObject::tr("Values of \"diL\" or \"diR\" were not set properly by peak finder\n"
+                                                                                        "Please consider reporting a bug to %1 developers.")).arg(Globals::SOFTWARE_NAME));
+    return r;
+  }
   HP = SummValue / (diR - diL);
 
   /* * (SlopeWindow || HP || TP)::TP * */
