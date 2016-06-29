@@ -19,6 +19,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   m_upmostSplitter = new QSplitter(Qt::Vertical, this);
   m_controlsSplitter = new QSplitter(Qt::Horizontal, m_upmostSplitter);
   m_mainControlsWidget = new MainControlsWidget(m_controlsSplitter);
+  m_numberFormatDialog = new NumberFormatDialog(this);
   m_updateDlg = new CheckForUpdateDialog(this);
 
   ui->setupUi(this);
@@ -176,10 +177,8 @@ void EvalMainWindow::onActionSaveDataTable()
 
 void EvalMainWindow::onActionSetNumberFormat()
 {
-  NumberFormatDialog dlg;
-
-  dlg.setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
-  dlg.exec();
+  m_numberFormatDialog->setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
+  m_numberFormatDialog->exec();
 }
 
 void EvalMainWindow::onActionWholePeakToClipboard()

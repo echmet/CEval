@@ -11,6 +11,7 @@
 #include "qwt_plot.h"
 
 class CheckForUpdateDialog;
+class NumberFormatDialog;
 class SoftwareUpdater;
 
 namespace Ui {
@@ -34,6 +35,7 @@ private:
   QSplitter *m_upmostSplitter;
   QSplitter *m_controlsSplitter;
   MainControlsWidget *m_mainControlsWidget;
+  NumberFormatDialog *m_numberFormatDialog;
 
   CheckForUpdateDialog *m_updateDlg;
   QMenu *m_exportEvaluationMenu;
