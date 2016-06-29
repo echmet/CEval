@@ -1,6 +1,7 @@
 #include "numberformatdialog.h"
 #include "ui_numberformatdialog.h"
 #include "../doubletostringconvertor.h"
+#include <algorithm>
 
 NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
   QDialog(parent),
@@ -17,6 +18,44 @@ NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
     int locIdx = 0;
     int ctr = 0;
     QList<QLocale> allLocales = QLocale::matchingLocales(QLocale::Language::AnyLanguage, QLocale::Script::AnyScript, QLocale::Country::AnyCountry);
+
+    std::sort(allLocales.begin(), allLocales.end(), [](const QLocale &first, const QLocale &second) {
+      auto removeDiacritics = [](const QString &string) {
+        static const QString diacriticLetters = QString::fromUtf8("ŠŒŽšœžŸ¥µÀÁÂÃÄÅÆČÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝŘŇßàáâãäåæčçèéêëìíîïðñòóôõöøùúûüýÿřň");
+        static const QStringList noDiacriticLetters = QStringList() <<"S"<<"OE"<<"Z"<<"s"<<"oe"<<"z"<<"Y"<<"Y"<<"u"<<"A"<<"A"<<"A"<<"A"<<"A"<<"A"<<"AE"<<
+                                                                      "C"<<"C"<<"E"<<"E"<<"E"<<"E"<<"I"<<"I"<<"I"<<"I"<<"D"<<"N"<<"O"<<"O"<<"O"<<"O"<<"O"<<
+                                                                      "O"<<"U"<<"U"<<"U"<<"U"<<"Y"<<"R"<<"N"<<"s"<<"a"<<"a"<<"a"<<"a"<<"a"<<"a"<<"ae"<<"č"<<"c"<<
+                                                                      "e"<<"e"<<"e"<<"e"<<"i"<<"i"<<"i"<<"i"<<"o"<<"n"<<"o"<<"o"<<"o"<<"o"<<"o"<<"o"<<"u"<<
+                                                                      "u"<<"u"<<"u"<<"y"<<"y"<<"r"<<"n";
+        static const int dlLength = diacriticLetters.length();
+        Q_ASSERT(diacriticLetters.length() == noDiacriticLetters.length());
+
+        QString newString;
+
+        for (const QChar &ch : string) {
+          QString cnvCh = QString(ch);
+
+          for (int idx = 0; idx < dlLength; idx++) {
+            const QChar &diaCh = diacriticLetters.at(idx);
+
+            if (ch == diaCh) {
+              cnvCh = noDiacriticLetters.at(idx);
+              break;
+            }
+          }
+          newString += cnvCh;
+
+        }
+
+        return newString;
+      };
+
+      const QString firstName = removeDiacritics(first.nativeCountryName());
+      const QString secondName = removeDiacritics(second.nativeCountryName());
+
+      return firstName < secondName;
+    });
+
     for (const QLocale &loc : allLocales) {
       ui->qcbox_formatting->addItem(QString("%1 (%2)").arg(loc.nativeCountryName()).arg(loc.bcp47Name()), loc.name());
       if (loc.name() == currentName)
