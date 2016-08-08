@@ -50,10 +50,28 @@ DataFileLoader::Data &DataFileLoader::Data::operator=(const Data &other)
 
 DataFileLoader::DataFileLoader(QObject *parent) :
   QObject(parent),
-  m_lastChemStationPath(QDir::homePath()),
   m_lastCsvPath(QDir::homePath()),
-  m_lastChemStationDlgSize(QSize(0,0))
+  m_lastChemStationDlgSize(QSize(0,0)),
+  m_defaultPathsToTry([]() {
+    QStringList pathsToTry = { QDir::homePath() };
+
+    #ifdef Q_OS_UNIX
+      pathsToTry.append( { "/home", "/" } );
+    #elif defined Q_OS_WIN
+      char drive = 'C';
+
+      do {
+        pathsToTry.append(QString(drive) + ":\\");
+        drive++;
+      } while (drive <= 'Z');
+
+      pathsToTry.append( { "A:\\", "B:\\" } );
+    #endif // Q_OS_
+
+      return pathsToTry;
+  }())
 {
+  m_lastChemStationPath = defaultPath();
   m_loadChemStationDataDlg = new LoadChemStationDataDialog();
   m_loadCsvFileDlg = new LoadCsvFileDialog();
 
@@ -105,6 +123,27 @@ QString DataFileLoader::chemStationTypeToString(const ChemStationFileLoader::Typ
   }
 }
 
+QString DataFileLoader::defaultPath() const
+{
+  for (const QString &path : m_defaultPathsToTry) {
+    QDir dir(path);
+
+    if (dir.exists() && dir.isReadable())
+      return path;
+  }
+
+  QMessageBox::critical(nullptr, tr("Unable to determine default path. The application may misbehave or crash."), tr("Runtime error"));
+
+  return "";
+}
+
+bool DataFileLoader::isDirectoryUsable(const QString &path) const
+{
+  const QDir dir(path);
+
+  return (dir.exists() && dir.isReadable());
+}
+
 void DataFileLoader::loadChemStationFile()
 {
   QString filePath;
@@ -113,8 +152,8 @@ void DataFileLoader::loadChemStationFile()
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
       m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
 
-  if (!QDir(m_lastChemStationPath).exists())
-    m_lastChemStationPath = QDir::homePath();
+  if (!isDirectoryUsable(m_lastChemStationPath))
+    m_lastChemStationPath = defaultPath();
 
   m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
 
@@ -272,8 +311,8 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
 
   /* Act upon the loaded settings where necessary */
   if (m_lastChemStationPath.length() > 0) {
-    if (!QDir(m_lastChemStationPath).exists())
-      m_lastChemStationPath = QDir::homePath();
+    if (!isDirectoryUsable(m_lastChemStationPath))
+      m_lastChemStationPath = defaultPath();
 
     m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
   }

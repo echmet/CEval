@@ -43,6 +43,7 @@ public:
 private:
   QString chemStationTypeToString(const ChemStationFileLoader::Type type);
   QString defaultPath() const;
+  bool isDirectoryUsable(const QString &path) const;
   void loadChemStationFile();
   void loadCsvFile(const bool readFromClipboard);
 
@@ -52,6 +53,8 @@ private:
   QString m_lastChemStationPath;
   QString m_lastCsvPath;
   QSize m_lastChemStationDlgSize;
+
+  const QStringList m_defaultPathsToTry;
 
   static const QString LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG;
   static const QString LAST_CSV_LOAD_PATH_SETTINGS_TAG;
