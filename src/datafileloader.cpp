@@ -254,7 +254,6 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
 
   switch (p.header) {
   case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
-  case LoadCsvFileDialog::HeaderHandling::SKIP_HEADER:
     xType = p.xType;
     yType = p.yType;
     xUnit = p.xUnit;

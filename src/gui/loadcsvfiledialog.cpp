@@ -83,13 +83,9 @@ LoadCsvFileDialog::LoadCsvFileDialog(QWidget *parent) :
 
     ui->qcb_bom->setEnabled(enable);
   }
-  /* Hide input for skipping lines by default as "No header" is the default value in the ComboBox */
-  ui->ql_linesToSkip->setVisible(false);
-  ui->qspbox_linesToSkip->setVisible(false);
 
   /* Add header handling options */
   ui->qcbox_headerHandling->addItem(tr("No header"), QVariant::fromValue<HeaderHandling>(HeaderHandling::NO_HEADER));
-  ui->qcbox_headerHandling->addItem(tr("Skip header"), QVariant::fromValue<HeaderHandling>(HeaderHandling::SKIP_HEADER));
   ui->qcbox_headerHandling->addItem(tr("Header contains units"), QVariant::fromValue<HeaderHandling>(HeaderHandling::HEADER_WITH_UNITS));
   ui->qcbox_headerHandling->addItem(tr("Header without units"), QVariant::fromValue<HeaderHandling>(HeaderHandling::HEADER_WITHOUT_UNITS));
 
@@ -132,7 +128,6 @@ void LoadCsvFileDialog::onEncodingChanged(const int idx)
 
 void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
 {
-  bool skipLinesVisible = false;
   QVariant v = ui->qcbox_headerHandling->itemData(idx);
 
   if (!v.canConvert<HeaderHandling>())
@@ -147,13 +142,6 @@ void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
     ui->qle_xUnit->setEnabled(true);
     ui->qle_yUnit->setEnabled(true);
     break;
-  case HeaderHandling::SKIP_HEADER:
-    ui->qle_xType->setEnabled(true);
-    ui->qle_yType->setEnabled(true);
-    ui->qle_xUnit->setEnabled(true);
-    ui->qle_yUnit->setEnabled(true);
-    skipLinesVisible = true;
-    break;
   case HeaderHandling::HEADER_WITH_UNITS:
     ui->qle_xType->setEnabled(false);
     ui->qle_yType->setEnabled(false);
@@ -167,9 +155,6 @@ void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
     ui->qle_yUnit->setEnabled(true);
     break;
   }
-
-  ui->ql_linesToSkip->setVisible(skipLinesVisible);
-  ui->qspbox_linesToSkip->setVisible(skipLinesVisible);
 }
 
 void LoadCsvFileDialog::onLoadClicked()
@@ -190,10 +175,7 @@ void LoadCsvFileDialog::onLoadClicked()
 
   HeaderHandling h = v.value<HeaderHandling>();
 
-  if (h == HeaderHandling::SKIP_HEADER)
-    linesToSkip = ui->qspbox_linesToSkip->value();
-  else
-    linesToSkip = 0;
+  linesToSkip = ui->qspbox_linesToSkip->value();
 
   m_parameters = Parameters(ui->qle_delimiter->text(),
                             ui->qcbox_decimalSeparator->currentData().toChar(),

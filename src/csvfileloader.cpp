@@ -145,19 +145,32 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   QVector<QPointF> points;
   QString xType;
   QString yType;
-  quint32 linesRead = 0;
+  QStringList lines;
   int highColumn = (yColumn > xColumn) ? yColumn : xColumn;
+  int linesRead = 0;
+  int emptyLines = 0;
 
-  if (linesToSkip > 0) {
-    while (linesRead < linesToSkip) {
-      stream.readLine();
-      linesRead++;
+  /* Skip leading blank lines */
+  while (true) {
+    QString line = stream.readLine();
+
+    if (line.trimmed() != QString("")) {
+      lines.append(line);
+      break;
     }
-  } else if (hasHeader) {
-    QStringList header;
-    QString line;
 
-    line = stream.readLine();
+    emptyLines++;
+  }
+
+  /* Read the rest of the file */
+  while (!stream.atEnd())
+    lines.append(stream.readLine());
+
+  linesRead = linesToSkip;
+  if (hasHeader) {
+    QStringList header;
+    const QString &line = lines.at(linesRead);
+
     header = line.split(delimiter.toLatin1());
     if (header.size() < highColumn) {
       QMessageBox::warning(nullptr, QObject::tr("Malformed file"),
@@ -171,46 +184,45 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   }
 
   const QChar qcDelimiter = delimiter;
-  while (!stream.atEnd()) {
+  for (int idx = linesRead; idx < lines.size(); idx++) {
     QStringList values;
-    QString line;
     qreal x, y;
     bool ok;
     QString *s;
     QLocale cLoc(QLocale::C);
+    const QString &line = lines.at(idx);
 
-    line = stream.readLine();
     values = line.split(qcDelimiter);
     if (values.size() < highColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
       return Data(points, xType, yType);
     }
 
     s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(linesRead + 1));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
       return Data(points, xType, yType);
     }
 
     s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + 1));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(linesRead + 1));
+      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
       return Data(points, xType, yType);
     }
 
