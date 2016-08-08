@@ -5,6 +5,8 @@
 #include <QFileDialog>
 #include <QMessageBox>
 
+#include <QDebug>
+
 const QString DataFileLoader::LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG("LastChemStationLoadPath");
 const QString DataFileLoader::LAST_CSV_LOAD_PATH_SETTINGS_TAG("LastCsvLoadPath");
 const QString DataFileLoader::LAST_CHEMSTATION_DLG_SIZE_TAG("LastChemStationDlgSize");
@@ -111,7 +113,11 @@ void DataFileLoader::loadChemStationFile()
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
       m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
 
-  m_loadChemStationDataDlg->refresh();
+  if (!QDir(m_lastChemStationPath).exists())
+    m_lastChemStationPath = QDir::homePath();
+
+  m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
+
   ret = m_loadChemStationDataDlg->exec();
   m_lastChemStationDlgSize = m_loadChemStationDataDlg->size();
 
@@ -266,8 +272,10 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
 
   /* Act upon the loaded settings where necessary */
   if (m_lastChemStationPath.length() > 0) {
-    if (QFile::exists(m_lastChemStationPath))
-      m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
+    if (!QDir(m_lastChemStationPath).exists())
+      m_lastChemStationPath = QDir::homePath();
+
+    m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
   }
 }
 

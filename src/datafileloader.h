@@ -42,6 +42,7 @@ public:
 
 private:
   QString chemStationTypeToString(const ChemStationFileLoader::Type type);
+  QString defaultPath() const;
   void loadChemStationFile();
   void loadCsvFile(const bool readFromClipboard);
 

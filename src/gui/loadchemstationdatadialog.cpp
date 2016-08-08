@@ -98,6 +98,8 @@ QString LoadChemStationDataDialog::createAdditionalInfo(const ChemStationFileLoa
 
 void LoadChemStationDataDialog::expandToPath(const QString &path)
 {
+  m_fsModel->refresh();
+
   const QModelIndex &index = m_fsModel->index(path);
   qtrv_fileSystem->setCurrentIndex(index);
   qtrv_fileSystem->scrollTo(index);
