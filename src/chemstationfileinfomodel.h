@@ -34,12 +34,5 @@ public:
 private:
   QVector<Entry> m_entries;
 
-  static bool greaterThanName(const Entry &e1, const Entry &e2);
-  static bool greaterThanType(const Entry &e1, const Entry &e2);
-  static bool greaterThanInfo(const Entry &e1, const Entry &e2);
-  static bool lessThanName(const Entry &e1, const Entry &e2);
-  static bool lessThanType(const Entry &e1, const Entry &e2);
-  static bool lessThanInfo(const Entry &e1, const Entry &e2);
-
 };
 #endif // CHEMSTATIONFILEINFOMODEL_H

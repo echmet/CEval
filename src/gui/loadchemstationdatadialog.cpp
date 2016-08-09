@@ -215,7 +215,6 @@ void LoadChemStationDataDialog::multipleDirectoriesSelected()
 {
   const QModelIndexList &indexes = qtrv_fileSystem->selectionModel()->selectedIndexes();
   QStringList dirPaths;
-  QVector<ChemStationBatchLoadModel::Entry> entries;
 
   for (const QModelIndex &index : indexes) {
     const QString path = m_fsModel->filePath(index);
@@ -228,13 +227,7 @@ void LoadChemStationDataDialog::multipleDirectoriesSelected()
 
   ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(dirPaths);
 
-  for (const ChemStationFileLoader::Data &chData : common) {
-    ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
-
-    entries.push_back(ChemStationBatchLoadModel::Entry(createFileType(chData.type), createAdditionalInfo(chData), filter));
-  }
-  m_batchLoadModel->setNewData(entries);
-  m_batchLoadModel->sort(0, Qt::AscendingOrder);
+  setBatchLoadModel(common);
 }
 
 void LoadChemStationDataDialog::onCancelClicked(const bool clicked)
@@ -337,6 +330,20 @@ QString LoadChemStationDataDialog::processFileName(const QVariant &fileNameVaria
   return dir.absoluteFilePath(fileNameVariant.toString());
 }
 
+void LoadChemStationDataDialog::setBatchLoadModel(const ChemStationBatchLoader::CHSDataVec &common)
+{
+  QVector<ChemStationBatchLoadModel::Entry> entries;
+
+  for (const ChemStationFileLoader::Data &chData : common) {
+    ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
+
+    entries.push_back(ChemStationBatchLoadModel::Entry(createFileType(chData.type), createAdditionalInfo(chData), filter));
+  }
+
+  m_batchLoadModel->setNewData(entries);
+  m_batchLoadModel->sort(0, Qt::AscendingOrder);
+}
+
 void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
 {
   QVector<ChemStationFileInfoModel::Entry> entries;
@@ -354,13 +361,12 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
     QString absoluteFilePath = dir.absoluteFilePath(fileName);
     QString name = QFileInfo(absoluteFilePath).fileName();
 
-    ChemStationFileLoader::Data data = ChemStationFileLoader::loadHeader(absoluteFilePath);
-    if (!data.isValid())
+    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(absoluteFilePath);
+    if (!chData.isValid())
       entries.push_back(ChemStationFileInfoModel::Entry(name, "", "", false));
     else
-      entries.push_back(ChemStationFileInfoModel::Entry(name, createFileType(data.type), createAdditionalInfo(data), true));
+      entries.push_back(ChemStationFileInfoModel::Entry(name, createFileType(chData.type), createAdditionalInfo(chData), true));
   }
-
 
   m_finfoModel->setNewData(entries);
   m_finfoModel->sort(0, Qt::AscendingOrder);
@@ -368,15 +374,7 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
 
 void LoadChemStationDataDialog::wholeDirectorySelected(const QModelIndex &index)
 {
-  QVector<ChemStationBatchLoadModel::Entry> entries;
   ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(m_fsModel->filePath(index));
 
-  for (const ChemStationFileLoader::Data &chData : common) {
-    ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
-
-    entries.push_back(ChemStationBatchLoadModel::Entry(createFileType(chData.type), createAdditionalInfo(chData), filter));
-  }
-
-  m_batchLoadModel->setNewData(entries);
-  m_batchLoadModel->sort(0, Qt::AscendingOrder);
+  setBatchLoadModel(common);
 }

@@ -1,6 +1,15 @@
 #include "chemstationfileinfomodel.h"
 #include <QPalette>
 
+#define LESS_THAN_CPR(member) \
+   [](const Entry &e1, const Entry &e2) -> bool { \
+    return e1.member < e2.member; \
+  }
+#define GREATER_THAN_CPR(member) \
+   [](const Entry &e1, const Entry &e2) -> bool { \
+    return e1.member > e2.member; \
+  }
+
 ChemStationFileInfoModel::Entry::Entry(const QString &name, const QString &type, const QString &info, const bool isChFile) :
   name(name),
   type(type),
@@ -90,21 +99,6 @@ QVariant ChemStationFileInfoModel::data(const QModelIndex &index, int role) cons
   }
 }
 
-bool ChemStationFileInfoModel::greaterThanInfo(const Entry &e1, const Entry &e2)
-{
-  return e1.info > e2.info;
-}
-
-bool ChemStationFileInfoModel::greaterThanName(const Entry &e1, const Entry &e2)
-{
-  return e1.name > e2.name;
-}
-
-bool ChemStationFileInfoModel::greaterThanType(const Entry &e1, const Entry &e2)
-{
-  return e1.type > e2.type;
-}
-
 QVariant ChemStationFileInfoModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (role != Qt::DisplayRole)
@@ -135,21 +129,6 @@ QModelIndex ChemStationFileInfoModel::index(int row, int column, const QModelInd
   return createIndex(row, column);
 }
 
-bool ChemStationFileInfoModel::lessThanInfo(const Entry &e1, const Entry &e2)
-{
-  return e1.info < e2.info;
-}
-
-bool ChemStationFileInfoModel::lessThanName(const Entry &e1, const Entry &e2)
-{
-  return e1.name < e2.name;
-}
-
-bool ChemStationFileInfoModel::lessThanType(const Entry &e1, const Entry &e2)
-{
-  return e1.type < e2.type;
-}
-
 QModelIndex ChemStationFileInfoModel::parent(const QModelIndex &child) const
 {
   Q_UNUSED(child);
@@ -175,13 +154,13 @@ void ChemStationFileInfoModel::sort(int column, Qt::SortOrder order)
 {
   switch (column) {
   case 0:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? ChemStationFileInfoModel::lessThanName : ChemStationFileInfoModel::greaterThanName);
+    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(name) : GREATER_THAN_CPR(name));
     break;
   case 1:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? ChemStationFileInfoModel::lessThanType : ChemStationFileInfoModel::greaterThanType);
+    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(type) : GREATER_THAN_CPR(type));
     break;
   case 2:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? ChemStationFileInfoModel::lessThanInfo : ChemStationFileInfoModel::greaterThanInfo);
+    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(info) : GREATER_THAN_CPR(info));
     break;
   default:
     break;

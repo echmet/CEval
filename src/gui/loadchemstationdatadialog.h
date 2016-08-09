@@ -56,6 +56,7 @@ private:
   void loadWholeDirectory(const QModelIndex &index);
   void multipleDirectoriesSelected();
   QString processFileName(const QVariant &fileNameVariant, bool &ok);
+  void setBatchLoadModel(const ChemStationBatchLoader::CHSDataVec &common);
   void singleSelected(const QModelIndex &index);
   void wholeDirectorySelected(const QModelIndex &index);
 
