@@ -40,6 +40,13 @@ ChemStationFileInfoModel::ChemStationFileInfoModel(QObject *parent) :
 {
 }
 
+void ChemStationFileInfoModel::clear()
+{
+  beginResetModel();
+  m_entries.clear();
+  endResetModel();
+}
+
 int ChemStationFileInfoModel::columnCount(const QModelIndex &parent) const
 {
   Q_UNUSED(parent);

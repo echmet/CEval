@@ -131,8 +131,10 @@ void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
 {
   QVector<ChemStationFileInfoModel::Entry> entries;
 
-  if (!index.isValid())
+  if (!index.isValid()) {
+    m_finfoModel->clear();
     return;
+  }
 
   m_currentDirPath = m_fsModel->filePath(index);
   QDir dir(m_currentDirPath);
@@ -195,6 +197,18 @@ void LoadChemStationDataDialog::onLoadingModeActivated()
     return;
 
   m_loadingMode = v.value<LoadingMode>();
+
+  switch (m_loadingMode) {
+  case LoadingMode::SINGLE_FILE:
+  case LoadingMode::WHOLE_DIRECTORY:
+    qtrv_fileSystem->setSelectionMode(QAbstractItemView::SingleSelection);
+    qtrv_fileSystem->clearSelection();
+    m_finfoModel->clear();
+    break;
+  case LoadingMode::MULTIPLE_DIRECTORIES:
+    qtrv_fileSystem->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    break;
+  }
 }
 
 bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
