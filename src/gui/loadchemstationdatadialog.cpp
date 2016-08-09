@@ -11,19 +11,18 @@ LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   ui->setupUi(this);
 
   try {
-    m_fsModel = new QDirModel(this);
+    m_fsModel = new QFileSystemModel(this);
     m_finfoModel = new ChemStationFileInfoModel(this);
     qs_splitter = new QSplitter(Qt::Horizontal, this);
     qtrv_fileSystem = new QTreeView(qs_splitter);
     qtbv_files = new QTableView(qs_splitter);
-  } catch (std::bad_alloc& ) {
+  } catch (std::bad_alloc&) {
     return;
   }
 
   m_fsModel->setReadOnly(true);
   m_fsModel->setResolveSymlinks(false);
   m_fsModel->setFilter(QDir::Dirs | QDir::Drives | QDir::NoDotAndDotDot);
-  m_fsModel->setSorting(QDir::Name | QDir::IgnoreCase);
 
 
   qtrv_fileSystem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -98,9 +97,13 @@ QString LoadChemStationDataDialog::createAdditionalInfo(const ChemStationFileLoa
 
 void LoadChemStationDataDialog::expandToPath(const QString &path)
 {
-  m_fsModel->refresh();
-
   const QModelIndex &index = m_fsModel->index(path);
+
+  if (!index.isValid())
+    return;
+
+  m_fsModel->setRootPath(path);
+
   qtrv_fileSystem->setCurrentIndex(index);
   qtrv_fileSystem->scrollTo(index);
   onClicked(index);
@@ -125,9 +128,7 @@ void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
   if (!index.isValid())
     return;
 
-  m_fsModel->refresh(index);
-
-  m_currentDirPath = m_fsModel->data(index, QDirModel::FilePathRole).toString();
+  m_currentDirPath = m_fsModel->filePath(index);
   QDir dir(m_currentDirPath);
 
   if (!dir.exists())
@@ -189,11 +190,4 @@ bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
 
   m_lastSelectedFile = dir.absoluteFilePath(fileNameVariant.toString());
   return true;
-}
-
-
-void LoadChemStationDataDialog::refresh()
-{
-  if (QDir(m_currentDirPath).exists())
-    m_fsModel->refresh();
 }

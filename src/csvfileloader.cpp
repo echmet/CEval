@@ -151,7 +151,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   int emptyLines = 0;
 
   /* Skip leading blank lines */
-  while (true) {
+  while (!stream.atEnd()) {
     QString line = stream.readLine();
 
     if (line.trimmed() != QString("")) {
@@ -165,6 +165,11 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   /* Read the rest of the file */
   while (!stream.atEnd())
     lines.append(stream.readLine());
+
+  if (lines.size() < 1) {
+    QMessageBox::warning(nullptr, QObject::tr("No data"), QObject::tr("Input stream contains no data"));
+    return Data();
+  }
 
   linesRead = linesToSkip;
   if (hasHeader) {

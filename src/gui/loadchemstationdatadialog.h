@@ -2,7 +2,7 @@
 #define LOADCHEMSTATIONDATADIALOG_H
 
 #include <QDialog>
-#include <QDirModel>
+#include <QFileSystemModel>
 #include <QTreeView>
 #include <QTableView>
 #include <QSplitter>
@@ -21,7 +21,6 @@ public:
   ~LoadChemStationDataDialog();
   void expandToPath(const QString &path);
   QString lastSelectedFile();
-  void refresh();
 
 private:
   QString createFileType(const ChemStationFileLoader::Type type);
@@ -31,7 +30,7 @@ private:
   QTreeView *qtrv_fileSystem;
   QTableView *qtbv_files;
   QString m_currentDirPath;
-  QDirModel *m_fsModel;
+  QFileSystemModel *m_fsModel;
   ChemStationFileInfoModel *m_finfoModel;
   QString m_lastSelectedFile;
 

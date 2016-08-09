@@ -180,23 +180,19 @@ void DataFileLoader::loadChemStationFile()
 void DataFileLoader::loadCsvFile(const bool readFromClipboard)
 {
   LoadCsvFileDialog::Parameters p;
-  QString filePath;
-  std::shared_ptr<Data> data;
+  QStringList filePaths;
   QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
-  QString fileID;
 
   if (!readFromClipboard) {
     openDlg.setAcceptMode(QFileDialog::AcceptOpen);
-    openDlg.setFileMode(QFileDialog::ExistingFile);
+    openDlg.setFileMode(QFileDialog::ExistingFiles);
 
     if (openDlg.exec() != QDialog::Accepted)
       return;
 
-    QStringList files = openDlg.selectedFiles();
-    if (files.length() < 1)
+    filePaths = openDlg.selectedFiles();
+    if (filePaths.length() < 1)
       return;
-
-    filePath = files.at(0);
   }
 
   while (true) {
@@ -228,59 +224,72 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
     delimiter = p.delimiter.at(0);
 
   const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
-  CsvFileLoader::Data csvData;
+
+  auto doLoad = [this, &p](const CsvFileLoader::Data &csvData, const QString &path) {
+    QString xType;
+    QString yType;
+    QString xUnit;
+    QString yUnit;
+    QString fileName = "";
+
+    switch (p.header) {
+    case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
+      xType = p.xType;
+      yType = p.yType;
+      xUnit = p.xUnit;
+      yUnit = p.yUnit;
+      break;
+    case LoadCsvFileDialog::HeaderHandling::HEADER_WITH_UNITS:
+      xType = csvData.xType;
+      yType = csvData.yType;
+      break;
+    case LoadCsvFileDialog::HeaderHandling::HEADER_WITHOUT_UNITS:
+      xType = csvData.xType;
+      yType = csvData.yType;
+      xUnit = p.xUnit;
+      yUnit = p.yUnit;
+      break;
+    }
+
+    if (yUnit.length() > 0) {
+      if (yUnit.at(yUnit.length() - 1) == '\n')
+        yUnit.chop(1);
+    }
+
+    std::shared_ptr<Data> data = std::shared_ptr<Data>(new Data(csvData.data,
+                                                       xType, xUnit,
+                                                       yType, yUnit));
+
+    if (path != "")
+      fileName = QFileInfo(path).fileName();
+    emit dataLoaded(data, path, fileName);
+  };
 
   if (readFromClipboard) {
-    csvData = CsvFileLoader::readClipboard(delimiter, p.decimalSeparator, p.xColumn, p.yColumn,
-                                           p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
-                                           p.linesToSkip, p.encodingId);
-    fileID = "";
+    CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(delimiter, p.decimalSeparator, p.xColumn, p.yColumn,
+                                                               p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
+                                                               p.linesToSkip, p.encodingId);
+
+    if (!csvData.isValid())
+      return;
+
+    doLoad(csvData, "");
+
   } else {
-    csvData = CsvFileLoader::readFile(filePath, delimiter, p.decimalSeparator,
-                                      p.xColumn, p.yColumn,
-                                      p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
-                                      p.encodingId, bom);
-    fileID = filePath;
-    m_lastCsvPath = filePath;
+    for (const QString &path : filePaths) {
+      CsvFileLoader::Data csvData = CsvFileLoader::readFile(path, delimiter, p.decimalSeparator,
+                                                            p.xColumn, p.yColumn,
+                                                            p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
+                                                            p.encodingId, bom);
+
+      if (!csvData.isValid())
+        continue;
+
+      m_lastCsvPath = path;
+      doLoad(csvData, path);
+    }
   }
 
-  if (!csvData.isValid())
-    return;
-
-  QString xType;
-  QString yType;
-  QString xUnit;
-  QString yUnit;
-
-  switch (p.header) {
-  case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
-    xType = p.xType;
-    yType = p.yType;
-    xUnit = p.xUnit;
-    yUnit = p.yUnit;
-    break;
-  case LoadCsvFileDialog::HeaderHandling::HEADER_WITH_UNITS:
-    xType = csvData.xType;
-    yType = csvData.yType;
-    break;
-  case LoadCsvFileDialog::HeaderHandling::HEADER_WITHOUT_UNITS:
-    xType = csvData.xType;
-    yType = csvData.yType;
-    xUnit = p.xUnit;
-    yUnit = p.yUnit;
-    break;
-  }
-
-  if (yUnit.length() > 0) {
-    if (yUnit.at(yUnit.length() - 1) == '\n')
-      yUnit.chop(1);
-  }
-
-  data = std::shared_ptr<Data>(new Data(csvData.data,
-                                        xType, xUnit,
-                                        yType, yUnit));
-
-  emit dataLoaded(data, fileID, QFileInfo(filePath).fileName());
 }
 
 void DataFileLoader::loadUserSettings(const QVariant &settings)
