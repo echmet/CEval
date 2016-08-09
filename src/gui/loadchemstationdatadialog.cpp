@@ -158,8 +158,14 @@ void LoadChemStationDataDialog::loadMultipleDirectories(const QModelIndex &index
   const ChemStationBatchLoader::Filter filter = m_batchLoadModel->filter(index);
   QStringList dirPaths;
 
-  for (const QModelIndex &idx : indexes)
+  for (const QModelIndex &idx : indexes) {
+    const QString path = m_fsModel->filePath(idx);
+
+    if (dirPaths.contains(path))
+      continue;
+
     dirPaths.push_back(m_fsModel->filePath(idx));
+  }
 
   m_loadInfo = LoadInfo(m_loadingMode, "", dirPaths, filter);
   accept();
@@ -203,8 +209,14 @@ void LoadChemStationDataDialog::multipleDirectoriesSelected()
   QStringList dirPaths;
   QVector<ChemStationBatchLoadModel::Entry> entries;
 
-  for (const QModelIndex &index : indexes)
+  for (const QModelIndex &index : indexes) {
+    const QString path = m_fsModel->filePath(index);
+
+    if (dirPaths.contains(path))
+      continue;
+
     dirPaths.push_back(m_fsModel->filePath(index));
+  }
 
   ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::inspectDirectories(dirPaths);
 

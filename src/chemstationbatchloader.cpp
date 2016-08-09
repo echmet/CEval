@@ -121,7 +121,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectory(cons
 
 ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectories(const QStringList &dirPaths)
 {
-  CHSDataVecVec kfVecVec;
+  CHSDataVecVec chVecVec;
   CHSDataVec common;
 
   for (const QString &path : dirPaths) {
@@ -130,11 +130,11 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectories(co
     if (!dir.exists() || !dir.isReadable())
       continue;
 
-    kfVecVec.push_back(getChemStationFiles(dir));
+    chVecVec.push_back(getChemStationFiles(dir));
   }
 
-  if (kfVecVec.size() > 0)
-    common = intersection(kfVecVec);
+  if (chVecVec.size() > 0)
+    common = intersection(chVecVec);
 
   return common;
 }

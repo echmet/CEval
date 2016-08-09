@@ -31,7 +31,7 @@ public:
 
 private:
   static CHSDataVec getChemStationFiles(const QDir &dir);
-  static CHSDataVec intersection(const CHSDataVecVec &kfvVec);
+  static CHSDataVec intersection(const CHSDataVecVec &chvVec);
   static QStringList walkDirectory(const QString &path, const Filter &filter);
 
 };
