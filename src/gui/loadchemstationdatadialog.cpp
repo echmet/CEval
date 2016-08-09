@@ -30,6 +30,11 @@ LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   qtrv_fileSystem->setModel(m_fsModel);
   qtbv_files->setModel(m_finfoModel);
 
+  ui->qcbox_loadingMode->addItem(tr("Single file"), QVariant::fromValue(LoadingMode::SINGLE_FILE));
+  ui->qcbox_loadingMode->addItem(tr("Whole directory"), QVariant::fromValue(LoadingMode::WHOLE_DIRECTORY));
+  ui->qcbox_loadingMode->addItem(tr("Multiple directories"), QVariant::fromValue(LoadingMode::MULTIPLE_DIRECTORIES));
+  m_loadingMode = LoadingMode::SINGLE_FILE;
+
   /* Hide all additonal information and show only the name
    * of the file in the browsing tree */
   qtrv_fileSystem->hideColumn(1);
@@ -46,6 +51,7 @@ LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &LoadChemStationDataDialog::onCancelClicked);
   connect(ui->qpb_load, &QPushButton::clicked, this, &LoadChemStationDataDialog::onLoadClicked);
   connect(qtbv_files, &QTableView::doubleClicked, this, &LoadChemStationDataDialog::onFilesDoubleClicked);
+  connect(ui->qcbox_loadingMode, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &LoadChemStationDataDialog::onLoadingModeActivated);
 }
 
 LoadChemStationDataDialog::~LoadChemStationDataDialog()
@@ -179,6 +185,16 @@ void LoadChemStationDataDialog::onLoadClicked(const bool clicked)
   if (!processFileName(var))
     return;
   accept();
+}
+
+void LoadChemStationDataDialog::onLoadingModeActivated()
+{
+  QVariant v = ui->qcbox_loadingMode->currentData(Qt::UserRole);
+
+  if (!v.canConvert<LoadingMode>())
+    return;
+
+  m_loadingMode = v.value<LoadingMode>();
 }
 
 bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)

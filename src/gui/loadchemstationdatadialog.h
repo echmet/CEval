@@ -17,6 +17,13 @@ class LoadChemStationDataDialog : public QDialog
 {
   Q_OBJECT
 public:
+  enum class LoadingMode {
+    SINGLE_FILE,
+    WHOLE_DIRECTORY,
+    MULTIPLE_DIRECTORIES
+  };
+  Q_ENUM(LoadingMode);
+
   explicit LoadChemStationDataDialog(QWidget *parent = nullptr);
   ~LoadChemStationDataDialog();
   void expandToPath(const QString &path);
@@ -33,6 +40,7 @@ private:
   QFileSystemModel *m_fsModel;
   ChemStationFileInfoModel *m_finfoModel;
   QString m_lastSelectedFile;
+  LoadingMode m_loadingMode;
 
 private:
   bool processFileName(const QVariant &fileNameVariant);
@@ -45,6 +53,7 @@ private slots:
   void onClicked(const QModelIndex &index);
   void onFilesDoubleClicked(const QModelIndex &index);
   void onLoadClicked(const bool clicked);
+  void onLoadingModeActivated();
 
 };
 
