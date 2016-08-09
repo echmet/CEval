@@ -154,13 +154,13 @@ void ChemStationFileInfoModel::sort(int column, Qt::SortOrder order)
 {
   switch (column) {
   case 0:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(name) : GREATER_THAN_CPR(name));
+    std::sort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(name) : GREATER_THAN_CPR(name));
     break;
   case 1:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(type) : GREATER_THAN_CPR(type));
+    std::sort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(type) : GREATER_THAN_CPR(type));
     break;
   case 2:
-    qSort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(info) : GREATER_THAN_CPR(info));
+    std::sort(m_entries.begin(), m_entries.end(), (order == Qt::AscendingOrder) ? LESS_THAN_CPR(info) : GREATER_THAN_CPR(info));
     break;
   default:
     break;
