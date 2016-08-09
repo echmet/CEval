@@ -132,7 +132,7 @@ QString DataFileLoader::defaultPath() const
       return path;
   }
 
-  QMessageBox::critical(nullptr, tr("Unable to determine default path. The application may misbehave or crash."), tr("Runtime error"));
+  QMessageBox::critical(nullptr, tr("Runtime error"), tr("Unable to determine default path. The application may misbehave or crash."));
 
   return "";
 }
