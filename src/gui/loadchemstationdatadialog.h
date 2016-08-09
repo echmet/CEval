@@ -6,8 +6,8 @@
 #include <QTreeView>
 #include <QTableView>
 #include <QSplitter>
-#include "../chemstationfileloader.h"
 #include "../chemstationfileinfomodel.h"
+#include "../chemstationfileloader.h"
 
 namespace Ui {
 class LoadChemStationDataDialog;
@@ -32,6 +32,10 @@ public:
 private:
   QString createFileType(const ChemStationFileLoader::Type type);
   QString createAdditionalInfo(const ChemStationFileLoader::Data &data);
+  void multipleDirectoriesSelected();
+  void singleSelected(const QModelIndex &index);
+  void wholeDirectorySelected(const QModelIndex &index);
+
   Ui::LoadChemStationDataDialog *ui;
   QSplitter *qs_splitter;
   QTreeView *qtrv_fileSystem;

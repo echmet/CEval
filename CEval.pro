@@ -122,7 +122,8 @@ SOURCES += src/main.cpp \
     src/softwareupdater.cpp \
     src/evalmainwindowsoftwareupdaterconnector.cpp \
     src/updatecheckresults.cpp \
-    src/chemstationbatchloadmodel.cpp
+    src/chemstationbatchloadmodel.cpp \
+    src/chemstationbatchloader.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -293,7 +294,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/updatelistfetcher.h \
     src/softwareupdater.h \
     src/updatecheckresults.h \
-    src/chemstationbatchloadmodel.h
+    src/chemstationbatchloadmodel.h \
+    src/chemstationbatchloader.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

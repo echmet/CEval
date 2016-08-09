@@ -3,6 +3,9 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QMessageBox>
+#include "../chemstationbatchloader.h"
+
+#include <QDebug>
 
 LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   QDialog(parent),
@@ -120,6 +123,24 @@ QString LoadChemStationDataDialog::lastSelectedFile()
   return m_lastSelectedFile;
 }
 
+void LoadChemStationDataDialog::multipleDirectoriesSelected()
+{
+  const QModelIndexList &indexes = qtrv_fileSystem->selectionModel()->selectedIndexes();
+  QStringList dirPaths;
+
+  for (const QModelIndex &index : indexes) {
+    dirPaths.push_back(m_fsModel->filePath(index));
+  }
+
+  ChemStationBatchLoader::KeyFileDataVec common = ChemStationBatchLoader::inspectDirectories(dirPaths);
+
+  /* TESTING */
+  for (const ChemStationBatchLoader::KeyFileData &kfData : common) {
+    qDebug() << (int)kfData.type << kfData.wlMeasured << kfData.wlReference;
+  }
+  qDebug("---\n");
+}
+
 void LoadChemStationDataDialog::onCancelClicked(const bool clicked)
 {
   Q_UNUSED(clicked);
@@ -129,35 +150,24 @@ void LoadChemStationDataDialog::onCancelClicked(const bool clicked)
 
 void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
 {
-  QVector<ChemStationFileInfoModel::Entry> entries;
-
   if (!index.isValid()) {
     m_finfoModel->clear();
     return;
   }
 
-  m_currentDirPath = m_fsModel->filePath(index);
-  QDir dir(m_currentDirPath);
-
-  if (!dir.exists())
-    return;
-  QDirIterator dirIt(m_currentDirPath, QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
-
-  while (dirIt.hasNext()) {
-    QString fileName = dirIt.next();
-    QString absoluteFilePath = dir.absoluteFilePath(fileName);
-    QString name = QFileInfo(absoluteFilePath).fileName();
-
-    ChemStationFileLoader::Data data = ChemStationFileLoader::loadHeader(absoluteFilePath);
-    if (!data.isValid())
-      entries.push_back(ChemStationFileInfoModel::Entry(name, "", "", false));
-    else
-      entries.push_back(ChemStationFileInfoModel::Entry(name, createFileType(data.type), createAdditionalInfo(data), true));
+  switch (m_loadingMode) {
+  case LoadingMode::SINGLE_FILE:
+    singleSelected(index);
+    break;
+  case LoadingMode::WHOLE_DIRECTORY:
+    wholeDirectorySelected(index);
+    break;
+  case LoadingMode::MULTIPLE_DIRECTORIES:
+    multipleDirectoriesSelected();
+    break;
+  default:
+    break;
   }
-
-
-  m_finfoModel->setNewData(entries);
-  m_finfoModel->sort(0, Qt::AscendingOrder);
 }
 
 void LoadChemStationDataDialog::onFilesDoubleClicked(const QModelIndex &index)
@@ -220,4 +230,44 @@ bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
 
   m_lastSelectedFile = dir.absoluteFilePath(fileNameVariant.toString());
   return true;
+}
+
+void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
+{
+  QVector<ChemStationFileInfoModel::Entry> entries;
+
+  m_currentDirPath = m_fsModel->filePath(index);
+  QDir dir(m_currentDirPath);
+
+  if (!dir.exists())
+    return;
+
+  QDirIterator dirIt(m_currentDirPath, QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
+
+  while (dirIt.hasNext()) {
+    QString fileName = dirIt.next();
+    QString absoluteFilePath = dir.absoluteFilePath(fileName);
+    QString name = QFileInfo(absoluteFilePath).fileName();
+
+    ChemStationFileLoader::Data data = ChemStationFileLoader::loadHeader(absoluteFilePath);
+    if (!data.isValid())
+      entries.push_back(ChemStationFileInfoModel::Entry(name, "", "", false));
+    else
+      entries.push_back(ChemStationFileInfoModel::Entry(name, createFileType(data.type), createAdditionalInfo(data), true));
+  }
+
+
+  m_finfoModel->setNewData(entries);
+  m_finfoModel->sort(0, Qt::AscendingOrder);
+}
+
+void LoadChemStationDataDialog::wholeDirectorySelected(const QModelIndex &index)
+{
+  ChemStationBatchLoader::KeyFileDataVec common = ChemStationBatchLoader::inspectDirectory(m_fsModel->filePath(index));
+
+  /* TESTING */
+  for (const ChemStationBatchLoader::KeyFileData &kfData : common) {
+    qDebug() << (int)kfData.type << kfData.wlMeasured << kfData.wlReference;
+  }
+  qDebug("---\n");
 }
