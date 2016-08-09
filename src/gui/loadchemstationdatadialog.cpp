@@ -55,7 +55,11 @@ LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   m_fsModel->setReadOnly(true);
   m_fsModel->setResolveSymlinks(false);
   m_fsModel->setFilter(QDir::Dirs | QDir::Drives | QDir::NoDotAndDotDot);
-
+#ifdef Q_OS_UNIX
+  m_fsModel->setRootPath("/");
+#else
+  m_fsModel->setRootPath("");
+#endif // Q_OS_
 
   qtrv_fileSystem->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
   qtbv_files->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
@@ -139,8 +143,6 @@ void LoadChemStationDataDialog::expandToPath(const QString &path)
 
   if (!index.isValid())
     return;
-
-  m_fsModel->setRootPath(path);
 
   qtrv_fileSystem->setCurrentIndex(index);
   qtrv_fileSystem->scrollTo(index);
