@@ -93,32 +93,32 @@ QString DataFileLoader::chemStationTypeToString(const ChemStationFileLoader::Typ
 {
   switch (type) {
   case ChemStationFileLoader::Type::CE_ANALOG:
-    return "Analog input";
+    return tr("Analog input");
     break;
   case ChemStationFileLoader::Type::CE_CCD:
-    return "Conductivity";
+    return tr("Conductivity");
     break;
   case ChemStationFileLoader::Type::CE_CURRENT:
-    return "Current";
+    return tr("Current");
     break;
   case ChemStationFileLoader::Type::CE_DAD:
-    return "Absorbance";
+    return tr("Absorbance");
     break;
   case ChemStationFileLoader::Type::CE_POWER:
-    return "Power";
+    return tr("Power");
     break;
   case ChemStationFileLoader::Type::CE_PRESSURE:
-    return "Pressure";
+    return tr("Pressure");
     break;
   case ChemStationFileLoader::Type::CE_TEMPERATURE:
-    return "Temperature";
+    return tr("Temperature");
     break;
   case ChemStationFileLoader::Type::CE_VOLTAGE:
-    return "Voltage";
+    return tr("Voltage");
     break;
   case ChemStationFileLoader::Type::CE_UNKNOWN:
   default:
-    return "Unknown";
+    return tr("Unknown");
     break;
   }
 }
