@@ -158,6 +158,9 @@ void LoadChemStationDataDialog::loadMultipleDirectories(const QModelIndex &index
   const ChemStationBatchLoader::Filter filter = m_batchLoadModel->filter(index);
   QStringList dirPaths;
 
+  if (!filter.isValid)
+    return;
+
   for (const QModelIndex &idx : indexes) {
     const QString path = m_fsModel->filePath(idx);
 
@@ -193,6 +196,9 @@ void LoadChemStationDataDialog::loadWholeDirectory(const QModelIndex &index)
 {
   const ChemStationBatchLoader::Filter filter = m_batchLoadModel->filter(index);
   const QModelIndex idx = qtrv_fileSystem->selectionModel()->currentIndex();
+
+  if (!filter.isValid)
+    return;
 
   if (!idx.isValid())
     return;

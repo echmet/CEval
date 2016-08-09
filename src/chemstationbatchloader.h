@@ -11,11 +11,13 @@ public:
   public:
     explicit Filter();
     explicit Filter(const ChemStationFileLoader::Type type, const int wlMeasured, const int wlReference);
+    Filter(const Filter &other);
+    Filter & operator=(const Filter &other);
 
-    ChemStationFileLoader::Type type;
-    int wlMeasured;
-    int wlReference;
-    bool isValid;
+    const ChemStationFileLoader::Type type;
+    const int wlMeasured;
+    const int wlReference;
+    const bool isValid;
   };
 
   typedef QVector<ChemStationFileLoader::Data> CHSDataVec;

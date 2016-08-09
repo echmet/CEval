@@ -31,6 +31,24 @@ ChemStationBatchLoader::Filter::Filter(const ChemStationFileLoader::Type type, c
 {
 }
 
+ChemStationBatchLoader::Filter::Filter(const Filter &other) :
+  type(other.type),
+  wlMeasured(other.wlMeasured),
+  wlReference(other.wlReference),
+  isValid(other.isValid)
+{
+}
+
+ChemStationBatchLoader::Filter & ChemStationBatchLoader::Filter::operator=(const Filter &other)
+{
+  const_cast<ChemStationFileLoader::Type&>(type) = other.type;
+  const_cast<int&>(wlMeasured) = other.wlMeasured;
+  const_cast<int&>(wlReference) = other.wlReference;
+  const_cast<bool&>(isValid) = other.isValid;
+
+  return *this;
+}
+
 bool ChemStationBatchLoader::filterMatches(const ChemStationFileLoader::Data &chData, const Filter &filter)
 {
   if (chData.type != filter.type)
