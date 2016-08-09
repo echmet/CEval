@@ -32,6 +32,28 @@ bool ChemStationFileLoader::Data::isValid() const
   return m_valid;
 }
 
+ChemStationFileLoader::Data & ChemStationFileLoader::Data::operator=(const Data &other)
+{
+  const_cast<QString&>(fileDescription) = other.fileDescription;
+  const_cast<QString&>(sampleInfo) = other.sampleInfo;
+  const_cast<QString&>(operatorName) = other.operatorName;
+  const_cast<QDate&>(date) = other.date;
+  const_cast<QTime&>(time) = other.time;
+  const_cast<QString&>(methodName) = other.methodName;
+  const_cast<QString&>(chemstationVersion) = other.chemstationVersion;
+  const_cast<QString&>(chemstationRevision) = other.chemstationRevision;
+  const_cast<double&>(samplingRate) = other.samplingRate;
+  const_cast<Wavelength&>(wavelengthMeasured) = other.wavelengthMeasured;
+  const_cast<Wavelength&>(wavelengthReference) = other.wavelengthReference;
+  const_cast<Type&>(type) = other.type;
+  const_cast<QString&>(yUnits) = other.yUnits;
+  const_cast<QVector<QPointF>&>(data) = other.data;
+
+  m_valid = other.m_valid;
+
+  return *this;
+}
+
 ChemStationFileLoader::Wavelength::Wavelength(const struct HPCS_Wavelength wl) :
   wavelength(wl.wavelength),
   interval(wl.interval)

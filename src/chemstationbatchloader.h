@@ -7,29 +7,34 @@
 class ChemStationBatchLoader
 {
 public:
-  class KeyFileData {
+  class Filter {
   public:
-    explicit KeyFileData(const ChemStationFileLoader::Type type = ChemStationFileLoader::Type::CE_UNKNOWN, const int wlMeasured = 0, const int wlReference = 0);
+    explicit Filter();
+    explicit Filter(const ChemStationFileLoader::Type type, const int wlMeasured, const int wlReference);
 
-    const ChemStationFileLoader::Type type;
-    const int wlMeasured;
-    const int wlReference;
-
-    KeyFileData & operator=(const KeyFileData &other);
-    bool operator==(const KeyFileData &other) const;
+    ChemStationFileLoader::Type type;
+    int wlMeasured;
+    int wlReference;
+    bool isValid;
   };
 
-  typedef QVector<KeyFileData> KeyFileDataVec;
-  typedef QVector<KeyFileDataVec> KeyFileDataVecVec;
+  typedef QVector<ChemStationFileLoader::Data> CHSDataVec;
+  typedef QVector<CHSDataVec> CHSDataVecVec;
 
   ChemStationBatchLoader() = delete;
 
-  static KeyFileDataVec inspectDirectory(const QString &path);
-  static KeyFileDataVec inspectDirectories(const QStringList &dirPaths);
+  static bool filterMatches(const ChemStationFileLoader::Data &chData, const Filter &filter);
+  static QStringList getFilesList(const QString &path, const Filter &filter);
+  static QStringList getFilesList(const QStringList &dirPaths, const Filter &filter);
+  static CHSDataVec inspectDirectory(const QString &path);
+  static CHSDataVec inspectDirectories(const QStringList &dirPaths);
 
 private:
-  static KeyFileDataVec getChemStationFiles(const QDir &dir);
-  static KeyFileDataVec intersection(const KeyFileDataVecVec &kfvVec);
+  static CHSDataVec getChemStationFiles(const QDir &dir);
+  static CHSDataVec intersection(const CHSDataVecVec &kfvVec);
+  static QStringList walkDirectory(const QString &path, const Filter &filter);
+
 };
+Q_DECLARE_METATYPE(ChemStationBatchLoader::Filter)
 
 #endif // CHEMSTATIONBATCHLOADER_H

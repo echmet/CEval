@@ -2,65 +2,103 @@
 #include <QDirIterator>
 #include <QString>
 
-#include <QDebug>
+bool operator==(const ChemStationFileLoader::Data &d1, const ChemStationFileLoader::Data &d2)
+{
+  if (d1.type != d2.type)
+    return false;
 
-ChemStationBatchLoader::KeyFileData::KeyFileData(const ChemStationFileLoader::Type type, const int wlMeasured, const int wlReference) :
+  if (d1.type == ChemStationFileLoader::Type::CE_DAD) {
+    return (d1.wavelengthMeasured.wavelength == d2.wavelengthMeasured.wavelength) &&
+           (d1.wavelengthReference.wavelength == d2.wavelengthReference.wavelength);
+  }
+
+  return true;
+}
+
+ChemStationBatchLoader::Filter::Filter() :
+  type(ChemStationFileLoader::Type::CE_UNKNOWN),
+  wlMeasured(0),
+  wlReference(0),
+  isValid(false)
+{
+}
+
+ChemStationBatchLoader::Filter::Filter(const ChemStationFileLoader::Type type, const int wlMeasured, const int wlReference) :
   type(type),
   wlMeasured(wlMeasured),
-  wlReference(wlReference)
+  wlReference(wlReference),
+  isValid(true)
 {
 }
 
-ChemStationBatchLoader::KeyFileData & ChemStationBatchLoader::KeyFileData::operator=(const KeyFileData &other)
+bool ChemStationBatchLoader::filterMatches(const ChemStationFileLoader::Data &chData, const Filter &filter)
 {
-  const_cast<ChemStationFileLoader::Type&>(type) = other.type;
-  const_cast<int&>(wlMeasured) = other.wlMeasured;
-  const_cast<int&>(wlReference) = other.wlReference;
+  if (chData.type != filter.type)
+    return false;
 
-  return *this;
+  if (chData.type == ChemStationFileLoader::Type::CE_DAD) {
+    return (chData.wavelengthMeasured.wavelength == filter.wlMeasured) &&
+           (chData.wavelengthReference.wavelength == filter.wlReference);
+  }
+
+  return true;
 }
 
-bool ChemStationBatchLoader::KeyFileData::operator==(const KeyFileData &other) const
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getChemStationFiles(const QDir &dir)
 {
-  return (type == other.type) &&
-         (wlMeasured == other.wlMeasured) &&
-         (wlReference == other.wlReference);
-}
-
-ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::getChemStationFiles(const QDir &dir)
-{
-  KeyFileDataVec kfVec;
+  CHSDataVec chsVec;
 
   QDirIterator dirIt(dir.absolutePath(), QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
 
   while (dirIt.hasNext()) {
-    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(dirIt.next());
+    const ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(dirIt.next());
 
     if (!chData.isValid())
       continue;
 
-    int wlMeasured;
-    int wlReference;
-
-    if (chData.type == ChemStationFileLoader::Type::CE_DAD) {
-      wlMeasured = chData.wavelengthMeasured.wavelength;
-      wlReference = chData.wavelengthReference.wavelength;
-    } else {
-      wlMeasured = 0;
-      wlReference = 0;
-    }
-
-    kfVec.push_back(KeyFileData(chData.type, wlMeasured, wlReference));
+    chsVec.push_back(chData);
   }
 
-  return kfVec;
+  return chsVec;
 }
 
-ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::inspectDirectory(const QString &path)
+QStringList ChemStationBatchLoader::getFilesList(const QString &path, const Filter &filter)
 {
   QDir dir(path);
-  KeyFileDataVecVec kfVecVec;
-  KeyFileDataVec common;
+  QStringList files;
+
+  if (!dir.exists() || !dir.isReadable())
+    return files;
+
+  QDirIterator dirIt(path, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
+
+  while (dirIt.hasNext())
+    files.append(walkDirectory(dirIt.next(), filter));
+
+  return files;
+}
+
+QStringList ChemStationBatchLoader::getFilesList(const QStringList &dirPaths, const Filter &filter)
+{
+  QStringList files;
+
+  for (const QString &path : dirPaths) {
+    QDir dir(path);
+
+    if (!dir.exists() || !dir.isReadable())
+      continue;
+
+    files.append(walkDirectory(path, filter));
+  }
+
+  return files;
+}
+
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectory(const QString &path)
+{
+  QDir dir(path);
+  CHSDataVecVec chVecVec;
+  CHSDataVec common;
 
   if (!dir.exists() || !dir.isReadable())
     return common;
@@ -71,20 +109,20 @@ ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::inspectDirectory(
     QDir innerDir(dirIt.next());
 
     if (innerDir.isReadable()) {
-      kfVecVec.push_back(getChemStationFiles(innerDir));
+      chVecVec.push_back(getChemStationFiles(innerDir));
     }
   }
 
-  if (kfVecVec.size() > 0)
-    common = intersection(kfVecVec);
+  if (chVecVec.size() > 0)
+    common = intersection(chVecVec);
 
   return common;
 }
 
-ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::inspectDirectories(const QStringList &dirPaths)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectories(const QStringList &dirPaths)
 {
-  KeyFileDataVecVec kfVecVec;
-  KeyFileDataVec common;
+  CHSDataVecVec kfVecVec;
+  CHSDataVec common;
 
   for (const QString &path : dirPaths) {
     QDir dir(path);
@@ -101,25 +139,25 @@ ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::inspectDirectorie
   return common;
 }
 
-ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::intersection(const KeyFileDataVecVec &kfvVec)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::intersection(const CHSDataVecVec &chvVec)
 {
-  KeyFileDataVec common;
-  const KeyFileDataVec &first = kfvVec.front();
+  CHSDataVec common;
+  const CHSDataVec &first = chvVec.front();
 
-  if (kfvVec.size() < 2)
+  if (chvVec.size() < 2)
     return first;
 
-  for (const KeyFileData &kfDataFirst : first) {
+  for (const ChemStationFileLoader::Data &chDataFirst : first) {
     bool isCommon = true;
 
-    for (int idx = 1; idx <  kfvVec.size(); idx++) {
-      const KeyFileDataVec &next = kfvVec.at(idx);
+    for (int idx = 1; idx <  chvVec.size(); idx++) {
+      const CHSDataVec &next = chvVec.at(idx);
 
       int jdx;
       for (jdx = 0; jdx < next.size(); jdx++) {
-        const KeyFileData &kfDataNext = next.at(jdx);
+        const ChemStationFileLoader::Data &kfDataNext = next.at(jdx);
 
-        if (kfDataFirst == kfDataNext)
+        if (chDataFirst == kfDataNext)
           break;
       }
 
@@ -130,8 +168,28 @@ ChemStationBatchLoader::KeyFileDataVec ChemStationBatchLoader::intersection(cons
     }
 
     if (isCommon)
-      common.push_back(kfDataFirst);
+      common.push_back(chDataFirst);
   }
 
   return common;
+}
+
+QStringList ChemStationBatchLoader::walkDirectory(const QString &path, const Filter &filter)
+{
+  QStringList files;
+  QDirIterator dirIt(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
+
+  while (dirIt.hasNext()) {
+    QString filePath = dirIt.next();
+
+    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(filePath);
+
+    if (!chData.isValid())
+      continue;
+
+    if (filterMatches(chData, filter))
+      files.push_back(filePath);
+  }
+
+  return files;
 }

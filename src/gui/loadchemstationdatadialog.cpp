@@ -4,18 +4,47 @@
 #include <QDirIterator>
 #include <QMessageBox>
 #include "../chemstationbatchloader.h"
+#include "../chemstationbatchloadmodel.h"
 
-#include <QDebug>
+LoadChemStationDataDialog::LoadInfo::LoadInfo(const LoadingMode loadingMode, const QString &path,
+                                              const QStringList &dirPaths,
+                                              const ChemStationBatchLoader::Filter &filter) :
+  loadingMode(loadingMode),
+  path(path),
+  dirPaths(dirPaths),
+  filter(filter)
+{
+}
+
+LoadChemStationDataDialog::LoadInfo::LoadInfo(const LoadInfo &other) :
+  loadingMode(other.loadingMode),
+  path(other.path),
+  dirPaths(other.dirPaths),
+  filter(other.filter)
+{
+}
+
+LoadChemStationDataDialog::LoadInfo & LoadChemStationDataDialog::LoadInfo::operator=(const LoadInfo &other)
+{
+  const_cast<LoadingMode&>(loadingMode) = other.loadingMode;
+  const_cast<QString&>(path) = other.path;
+  const_cast<QStringList&>(dirPaths) = other.dirPaths;
+  const_cast<ChemStationBatchLoader::Filter&>(filter) = other.filter;
+
+  return *this;
+}
 
 LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::LoadChemStationDataDialog)
+  ui(new Ui::LoadChemStationDataDialog),
+  m_loadInfo(LoadInfo(LoadingMode::SINGLE_FILE, ""))
 {
   ui->setupUi(this);
 
   try {
     m_fsModel = new QFileSystemModel(this);
     m_finfoModel = new ChemStationFileInfoModel(this);
+    m_batchLoadModel = new ChemStationBatchLoadModel(this);
     qs_splitter = new QSplitter(Qt::Horizontal, this);
     qtrv_fileSystem = new QTreeView(qs_splitter);
     qtbv_files = new QTableView(qs_splitter);
@@ -118,27 +147,74 @@ void LoadChemStationDataDialog::expandToPath(const QString &path)
   onClicked(index);
 }
 
-QString LoadChemStationDataDialog::lastSelectedFile()
+LoadChemStationDataDialog::LoadInfo LoadChemStationDataDialog::loadInfo()
 {
-  return m_lastSelectedFile;
+  return m_loadInfo;
+}
+
+void LoadChemStationDataDialog::loadMultipleDirectories(const QModelIndex &index)
+{
+  const QModelIndexList &indexes = qtrv_fileSystem->selectionModel()->selectedIndexes();
+  const ChemStationBatchLoader::Filter filter = m_batchLoadModel->filter(index);
+  QStringList dirPaths;
+
+  for (const QModelIndex &idx : indexes)
+    dirPaths.push_back(m_fsModel->filePath(idx));
+
+  m_loadInfo = LoadInfo(m_loadingMode, "", dirPaths, filter);
+  accept();
+}
+
+void LoadChemStationDataDialog::loadSingleFile(const QModelIndex &index)
+{
+  QVariant var;
+  bool ok;
+
+  if (!index.isValid())
+    return;
+
+  var = m_finfoModel->data(m_finfoModel->index(index.row(), 0), Qt::DisplayRole);
+
+  QString path = processFileName(var, ok);
+  if (!ok)
+    return;
+
+  m_loadInfo = LoadInfo(LoadingMode::SINGLE_FILE, path);
+  accept();
+}
+
+void LoadChemStationDataDialog::loadWholeDirectory(const QModelIndex &index)
+{
+  const ChemStationBatchLoader::Filter filter = m_batchLoadModel->filter(index);
+  const QModelIndex idx = qtrv_fileSystem->selectionModel()->currentIndex();
+
+  if (!idx.isValid())
+    return;
+
+  const QString path = m_fsModel->filePath(idx);
+
+  m_loadInfo = LoadInfo(m_loadingMode, path, QStringList(), filter);
+  accept();
 }
 
 void LoadChemStationDataDialog::multipleDirectoriesSelected()
 {
   const QModelIndexList &indexes = qtrv_fileSystem->selectionModel()->selectedIndexes();
   QStringList dirPaths;
+  QVector<ChemStationBatchLoadModel::Entry> entries;
 
-  for (const QModelIndex &index : indexes) {
+  for (const QModelIndex &index : indexes)
     dirPaths.push_back(m_fsModel->filePath(index));
-  }
 
-  ChemStationBatchLoader::KeyFileDataVec common = ChemStationBatchLoader::inspectDirectories(dirPaths);
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::inspectDirectories(dirPaths);
 
-  /* TESTING */
-  for (const ChemStationBatchLoader::KeyFileData &kfData : common) {
-    qDebug() << (int)kfData.type << kfData.wlMeasured << kfData.wlReference;
+  for (const ChemStationFileLoader::Data &chData : common) {
+    ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
+
+    entries.push_back(ChemStationBatchLoadModel::Entry(createFileType(chData.type), createAdditionalInfo(chData), filter));
   }
-  qDebug("---\n");
+  m_batchLoadModel->setNewData(entries);
+  m_batchLoadModel->sort(0, Qt::AscendingOrder);
 }
 
 void LoadChemStationDataDialog::onCancelClicked(const bool clicked)
@@ -172,31 +248,30 @@ void LoadChemStationDataDialog::onClicked(const QModelIndex &index)
 
 void LoadChemStationDataDialog::onFilesDoubleClicked(const QModelIndex &index)
 {
-  QVariant var;
-
   if (!index.isValid())
     return;
 
-  var = m_finfoModel->data(m_finfoModel->index(index.row(), 0), Qt::DisplayRole);
-
-  if (!processFileName(var))
-    return;
-  accept();
-
+  switch (m_loadingMode) {
+  case LoadingMode::SINGLE_FILE:
+    loadSingleFile(index);
+    break;
+  case LoadingMode::WHOLE_DIRECTORY:
+    loadWholeDirectory(index);
+    break;
+  case LoadingMode::MULTIPLE_DIRECTORIES:
+    loadMultipleDirectories(index);
+    break;
+  }
 }
 
 void LoadChemStationDataDialog::onLoadClicked(const bool clicked)
 {
   Q_UNUSED(clicked);
   QModelIndex idx;
-  QVariant var;
 
   idx = m_finfoModel->index(qtbv_files->currentIndex().row(), 0);
-  var = m_finfoModel->data(idx, Qt::DisplayRole);
 
-  if (!processFileName(var))
-    return;
-  accept();
+  onFilesDoubleClicked(idx);
 }
 
 void LoadChemStationDataDialog::onLoadingModeActivated()
@@ -208,28 +283,38 @@ void LoadChemStationDataDialog::onLoadingModeActivated()
 
   m_loadingMode = v.value<LoadingMode>();
 
+  qtrv_fileSystem->clearSelection();
+
   switch (m_loadingMode) {
   case LoadingMode::SINGLE_FILE:
+    qtrv_fileSystem->setSelectionMode(QAbstractItemView::SingleSelection);
+    m_finfoModel->clear();
+    qtbv_files->setModel(m_finfoModel);
+    break;
   case LoadingMode::WHOLE_DIRECTORY:
     qtrv_fileSystem->setSelectionMode(QAbstractItemView::SingleSelection);
-    qtrv_fileSystem->clearSelection();
-    m_finfoModel->clear();
+    m_batchLoadModel->clear();
+    qtbv_files->setModel(m_batchLoadModel);
     break;
   case LoadingMode::MULTIPLE_DIRECTORIES:
-    qtrv_fileSystem->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    qtrv_fileSystem->setSelectionMode(QAbstractItemView::MultiSelection);
+    m_batchLoadModel->clear();
+    qtbv_files->setModel(m_batchLoadModel);
     break;
   }
 }
 
-bool LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant)
+QString LoadChemStationDataDialog::processFileName(const QVariant &fileNameVariant, bool &ok)
 {
   QDir dir(m_currentDirPath);
 
-  if (!fileNameVariant.isValid())
-    return false;
+  if (!fileNameVariant.isValid()) {
+    ok = false;
+    return "";
+  }
 
-  m_lastSelectedFile = dir.absoluteFilePath(fileNameVariant.toString());
-  return true;
+  ok = true;
+  return dir.absoluteFilePath(fileNameVariant.toString());
 }
 
 void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
@@ -263,11 +348,15 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
 
 void LoadChemStationDataDialog::wholeDirectorySelected(const QModelIndex &index)
 {
-  ChemStationBatchLoader::KeyFileDataVec common = ChemStationBatchLoader::inspectDirectory(m_fsModel->filePath(index));
+  QVector<ChemStationBatchLoadModel::Entry> entries;
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::inspectDirectory(m_fsModel->filePath(index));
 
-  /* TESTING */
-  for (const ChemStationBatchLoader::KeyFileData &kfData : common) {
-    qDebug() << (int)kfData.type << kfData.wlMeasured << kfData.wlReference;
+  for (const ChemStationFileLoader::Data &chData : common) {
+    ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
+
+    entries.push_back(ChemStationBatchLoadModel::Entry(createFileType(chData.type), createAdditionalInfo(chData), filter));
   }
-  qDebug("---\n");
+
+  m_batchLoadModel->setNewData(entries);
+  m_batchLoadModel->sort(0, Qt::AscendingOrder);
 }

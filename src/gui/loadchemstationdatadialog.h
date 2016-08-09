@@ -8,6 +8,9 @@
 #include <QSplitter>
 #include "../chemstationfileinfomodel.h"
 #include "../chemstationfileloader.h"
+#include "../chemstationbatchloader.h"
+
+class ChemStationBatchLoadModel;
 
 namespace Ui {
 class LoadChemStationDataDialog;
@@ -24,15 +27,35 @@ public:
   };
   Q_ENUM(LoadingMode);
 
+  class LoadInfo {
+  public:
+    explicit LoadInfo(const LoadingMode loadingMode, const QString &path,
+                      const QStringList &dirPaths = QStringList(),
+                      const ChemStationBatchLoader::Filter &filter = ChemStationBatchLoader::Filter());
+    LoadInfo(const LoadInfo &other);
+    LoadInfo & operator=(const LoadInfo &other);
+
+    const LoadingMode loadingMode;
+    const QString path;
+    const QStringList dirPaths;
+
+    /* Used only in WHOLE_DIRECTORY or MULTIPLE_DIRECTORIES mode */
+    const ChemStationBatchLoader::Filter filter;
+  };
+
   explicit LoadChemStationDataDialog(QWidget *parent = nullptr);
   ~LoadChemStationDataDialog();
   void expandToPath(const QString &path);
-  QString lastSelectedFile();
+  LoadInfo loadInfo();
 
 private:
   QString createFileType(const ChemStationFileLoader::Type type);
   QString createAdditionalInfo(const ChemStationFileLoader::Data &data);
+  void loadSingleFile(const QModelIndex &index);
+  void loadMultipleDirectories(const QModelIndex &index);
+  void loadWholeDirectory(const QModelIndex &index);
   void multipleDirectoriesSelected();
+  QString processFileName(const QVariant &fileNameVariant, bool &ok);
   void singleSelected(const QModelIndex &index);
   void wholeDirectorySelected(const QModelIndex &index);
 
@@ -43,11 +66,11 @@ private:
   QString m_currentDirPath;
   QFileSystemModel *m_fsModel;
   ChemStationFileInfoModel *m_finfoModel;
+  ChemStationBatchLoadModel *m_batchLoadModel;
   QString m_lastSelectedFile;
   LoadingMode m_loadingMode;
+  LoadInfo m_loadInfo;
 
-private:
-  bool processFileName(const QVariant &fileNameVariant);
 
 signals:
   void loadFile(const QString &path);

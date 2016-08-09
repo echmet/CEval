@@ -10,9 +10,10 @@
 #include "chemstationfileloader.h"
 #include "csvfileloader.h"
 #include "datafileloadermsgs.h"
+#include "chemstationbatchloader.h"
 
-class LoadChemStationDataDialog;
 class LoadCsvFileDialog;
+class LoadChemStationDataDialog;
 
 class DataFileLoader : public QObject
 {
@@ -45,6 +46,9 @@ private:
   QString defaultPath() const;
   bool isDirectoryUsable(const QString &path) const;
   void loadChemStationFile();
+  void loadChemStationFileSingle(const QString &path);
+  void loadChemStationFileMultipleDirectories(const QStringList &dirFiles, const ChemStationBatchLoader::Filter &filter);
+  void loadChemStationFileWholeDirectory(const QString &path, const ChemStationBatchLoader::Filter &filter);
   void loadCsvFile(const bool readFromClipboard);
 
   LoadChemStationDataDialog *m_loadChemStationDataDlg;

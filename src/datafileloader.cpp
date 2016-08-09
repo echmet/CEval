@@ -146,7 +146,6 @@ bool DataFileLoader::isDirectoryUsable(const QString &path) const
 
 void DataFileLoader::loadChemStationFile()
 {
-  QString filePath;
   int ret;
 
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
@@ -162,19 +161,51 @@ void DataFileLoader::loadChemStationFile()
 
   if (ret != QDialog::Accepted)
     return;
-  filePath = m_loadChemStationDataDlg->lastSelectedFile();
 
-  ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(filePath, true);
+  LoadChemStationDataDialog::LoadInfo loadInfo = m_loadChemStationDataDlg->loadInfo();
+
+  switch (loadInfo.loadingMode) {
+  case LoadChemStationDataDialog::LoadingMode::SINGLE_FILE:
+    loadChemStationFileSingle(loadInfo.path);
+    break;
+  case LoadChemStationDataDialog::LoadingMode::MULTIPLE_DIRECTORIES:
+    loadChemStationFileMultipleDirectories(loadInfo.dirPaths, loadInfo.filter);
+    break;
+  case LoadChemStationDataDialog::LoadingMode::WHOLE_DIRECTORY:
+    loadChemStationFileWholeDirectory(loadInfo.path, loadInfo.filter);
+    break;
+  }
+}
+
+void DataFileLoader::loadChemStationFileSingle(const QString &path)
+{
+  ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(path, true);
 
   if (!chData.isValid())
     return;
 
-  QDir d(filePath);
+  QDir d(path);
   d.cdUp();
   m_lastChemStationPath = d.path();
 
   emit dataLoaded(std::shared_ptr<Data>(new Data(chData.data, "Time", "minute", chemStationTypeToString(chData.type), chData.yUnits)),
-                  filePath, QFileInfo(filePath).fileName());
+                  path, QFileInfo(path).fileName());
+}
+
+void DataFileLoader::loadChemStationFileMultipleDirectories(const QStringList &dirPaths, const ChemStationBatchLoader::Filter &filter)
+{
+  QStringList files = ChemStationBatchLoader::getFilesList(dirPaths, filter);
+
+  for (const QString &path : files)
+    loadChemStationFileSingle(path);
+}
+
+void DataFileLoader::loadChemStationFileWholeDirectory(const QString &path, const ChemStationBatchLoader::Filter &filter)
+{
+  QStringList files = ChemStationBatchLoader::getFilesList(path, filter);
+
+  for (const QString &filePath : files)
+    loadChemStationFileSingle(filePath);
 }
 
 void DataFileLoader::loadCsvFile(const bool readFromClipboard)

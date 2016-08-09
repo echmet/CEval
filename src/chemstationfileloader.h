@@ -35,6 +35,7 @@ public:
     Data(const struct HPCS_MeasuredData *mdata);
     Data();
     bool isValid() const;
+    Data & operator=(const Data &other);
 
     const QString fileDescription;
     const QString sampleInfo;
