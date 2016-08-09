@@ -24,10 +24,10 @@ public:
   ChemStationBatchLoader() = delete;
 
   static bool filterMatches(const ChemStationFileLoader::Data &chData, const Filter &filter);
+  static CHSDataVec getCommonTypes(const QString &path);
+  static CHSDataVec getCommonTypes(const QStringList &dirPaths);
   static QStringList getFilesList(const QString &path, const Filter &filter);
   static QStringList getFilesList(const QStringList &dirPaths, const Filter &filter);
-  static CHSDataVec inspectDirectory(const QString &path);
-  static CHSDataVec inspectDirectories(const QStringList &dirPaths);
 
 private:
   static CHSDataVec getChemStationFiles(const QDir &dir);
@@ -35,6 +35,6 @@ private:
   static QStringList walkDirectory(const QString &path, const Filter &filter);
 
 };
-Q_DECLARE_METATYPE(ChemStationBatchLoader::Filter)
+//Q_DECLARE_METATYPE(ChemStationBatchLoader::Filter)
 
 #endif // CHEMSTATIONBATCHLOADER_H

@@ -218,7 +218,7 @@ void LoadChemStationDataDialog::multipleDirectoriesSelected()
     dirPaths.push_back(m_fsModel->filePath(index));
   }
 
-  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::inspectDirectories(dirPaths);
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(dirPaths);
 
   for (const ChemStationFileLoader::Data &chData : common) {
     ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);
@@ -361,7 +361,7 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
 void LoadChemStationDataDialog::wholeDirectorySelected(const QModelIndex &index)
 {
   QVector<ChemStationBatchLoadModel::Entry> entries;
-  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::inspectDirectory(m_fsModel->filePath(index));
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(m_fsModel->filePath(index));
 
   for (const ChemStationFileLoader::Data &chData : common) {
     ChemStationBatchLoader::Filter filter(chData.type, chData.wavelengthMeasured.wavelength, chData.wavelengthReference.wavelength);

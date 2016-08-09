@@ -94,7 +94,7 @@ QStringList ChemStationBatchLoader::getFilesList(const QStringList &dirPaths, co
   return files;
 }
 
-ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectory(const QString &path)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const QString &path)
 {
   QDir dir(path);
   CHSDataVecVec chVecVec;
@@ -108,9 +108,9 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectory(cons
   while (dirIt.hasNext()) {
     QDir innerDir(dirIt.next());
 
-    if (innerDir.isReadable()) {
+    if (innerDir.isReadable())
       chVecVec.push_back(getChemStationFiles(innerDir));
-    }
+
   }
 
   if (chVecVec.size() > 0)
@@ -119,7 +119,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectory(cons
   return common;
 }
 
-ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::inspectDirectories(const QStringList &dirPaths)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const QStringList &dirPaths)
 {
   CHSDataVecVec chVecVec;
   CHSDataVec common;
