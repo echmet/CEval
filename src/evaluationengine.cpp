@@ -2004,5 +2004,4 @@ QAbstractItemModel *EvaluationEngine::windowUnitsModel()
 
 void EvaluationEngine::testExporter()
 {
-  m_dataExporter->exportAll(this);
 }
