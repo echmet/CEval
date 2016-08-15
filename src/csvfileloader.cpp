@@ -176,7 +176,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     QStringList header;
     const QString &line = lines.at(linesRead);
 
-    header = line.split(delimiter.toLatin1());
+    header = line.split(delimiter);
     if (header.size() < highColumn) {
       warnMalformedFile();
 
