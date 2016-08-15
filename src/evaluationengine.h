@@ -31,7 +31,8 @@ public:
     PEAK_FROM_HERE_SIGSNAP,
     NOISE_REF_POINT,
     SLOPE_REF_POINT,
-    SET_AXIS_TITLES
+    SET_AXIS_TITLES,
+    SET_EOF_TIME
   };
   Q_ENUM(FindPeakMenuActions)
 
@@ -48,7 +49,8 @@ public:
     MOVE_PEAK_TO,
     MOVE_PEAK_TO_SIGSNAP,
     DESELECT_PEAK,
-    SET_AXIS_TITLES
+    SET_AXIS_TITLES,
+    SET_EOF_TIME
   };
   Q_ENUM(PostProcessMenuActions)
 
@@ -195,6 +197,7 @@ private:
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
+  void setEofTime(const QPointF& point);
   bool setEvaluationContext(const EvaluationContext &ctx);
   void setEvaluationResults(const std::shared_ptr<PeakFinderResults> &fr, const PeakEvaluator::Results &er);
   bool setPeakContext(const PeakContext &ctx);

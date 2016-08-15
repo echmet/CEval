@@ -331,6 +331,12 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
   m_findPeakMenu->addSeparator();
 
+  a = new QAction(tr("Set EOF time"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_EOF_TIME));
+  m_findPeakMenu->addAction(a);
+
+  m_findPeakMenu->addSeparator();
+
   a = new QAction(tr("Set axis titles"), m_findPeakMenu);
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_AXIS_TITLES));
   m_findPeakMenu->addAction(a);
@@ -373,6 +379,12 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
   a = new QAction(tr("Deselect peak"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::DESELECT_PEAK));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
+  a = new QAction(tr("Set EOF time"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_EOF_TIME));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
@@ -642,6 +654,9 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
     break;
   case FindPeakMenuActions::SET_AXIS_TITLES:
     showSetAxisTitlesDialog();
+    break;
+  case FindPeakMenuActions::SET_EOF_TIME:
+    setEofTime(point);
     break;
   }
 
@@ -1560,8 +1575,8 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   case PostProcessMenuActions::SET_AXIS_TITLES:
     showSetAxisTitlesDialog();
     break;
-  default:
-    return;
+  case PostProcessMenuActions::SET_EOF_TIME:
+    setEofTime(point);
     break;
   }
 }
@@ -1682,6 +1697,19 @@ void EvaluationEngine::setDefaultFinderParameters()
                                                                    EvaluationParametersItems::index(EvaluationParametersItems::ComboShowWindow::NONE)));
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                                    EvaluationParametersItems::index(EvaluationParametersItems::ComboWindowUnits::MINUTES)));
+}
+
+void EvaluationEngine::setEofTime(const QPointF &point)
+{
+  const double tEof = point.x();
+
+  if (!isContextValid())
+    return;
+
+  if (tEof < 0 || tEof >= m_currentDataContext->data->data.back().x())
+    return;
+
+  emit updateTEof(tEof);
 }
 
 bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
