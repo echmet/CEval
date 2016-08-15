@@ -50,6 +50,7 @@ signals:
   void loadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type);
   void loadDataTable();
   void saveDataTable();
+  void testExporter();
 
 public slots:
   void onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode);
@@ -68,6 +69,7 @@ private slots:
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
   void onActionWholePeakToClipboard();
+  void onActionTestExporter();
 
 };
 

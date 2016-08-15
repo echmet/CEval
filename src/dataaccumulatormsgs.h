@@ -11,7 +11,8 @@ public:
   enum class ExportAction {
     EXPORT_DATATABLE_CSV,
     EXPORT_PLOT,
-    WHOLE_PEAK_TO_CLIPBOARD
+    WHOLE_PEAK_TO_CLIPBOARD,
+    TEST_EXPORTER
   };
   Q_ENUM(ExportAction)
 

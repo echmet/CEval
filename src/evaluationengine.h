@@ -81,6 +81,7 @@ public:
   AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
   QVariant saveUserSettings() const;
   QAbstractItemModel *showWindowModel();
+  void testExporter();
   QAbstractItemModel *windowUnitsModel();
 
 private:

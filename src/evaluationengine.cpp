@@ -2001,3 +2001,8 @@ QAbstractItemModel *EvaluationEngine::windowUnitsModel()
 {
   return &m_windowUnitsModel;
 }
+
+void EvaluationEngine::testExporter()
+{
+  m_dataExporter->exportAll(this);
+}
