@@ -289,7 +289,6 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
 void EvaluationEngine::clearPeakPlots()
 {
   m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
   m_modeCtx->clearSerieSamples(seriesIndex(Series::PEAK_HEIGHT));
   m_modeCtx->clearSerieSamples(seriesIndex(Series::PEAK_TIME));
   m_modeCtx->clearSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A));
@@ -461,6 +460,35 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   def[m_hvlFitIntModel.indexFromItem(HVLFitParametersItems::Int::ITERATIONS)] = s_defaultHvlIterations;
 
   return def;
+}
+
+void EvaluationEngine::drawEofMarker()
+{
+  if (!isContextValid()) {
+    m_modeCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
+
+    m_modeCtx->replot();
+    return;
+  }
+
+  /* Mark the EOF  */
+  {
+    double tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
+
+    if (tEOF > 0.0) {
+      const double minY = Helpers::minYValue(m_currentDataContext->data->data);
+      const double maxY = Helpers::maxYValue(m_currentDataContext->data->data);
+      QVector<QPointF> vec;
+
+      vec.push_back(QPointF(tEOF, minY));
+      vec.push_back(QPointF(tEOF, maxY));
+      m_modeCtx->setSerieSamples(seriesIndex(Series::EOF_MARK), vec);
+    } else
+      m_modeCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
+
+    m_modeCtx->replot();
+  }
+
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noexcept(false)
@@ -965,6 +993,7 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 
   m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
   setEvaluationContext(m_currentDataContext->evaluationContext);
+  drawEofMarker();
 
   m_allDataContexts.remove(oldKey);
 }
@@ -1149,6 +1178,8 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
 
   if (ctx->data->data.length() > 0)
     setPeakFinderParameters(ctx->data->data.last().x());
+
+  drawEofMarker();
 }
 
 void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
@@ -1464,10 +1495,13 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!isContextValid())
     return;
 
+  drawEofMarker();
+
   if (!m_currentPeak.finderResults->isValid())
     return;
 
   processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false);
+
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
@@ -1475,19 +1509,6 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
                                          const double widthHalfLeft, const double widthHalfRight,
                                          const double peakHeight, const double peakHeightBaseline)
 {
-  /* Mark the EOF  */
-  {
-    double tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
-
-    if (tEOF > 0.0) {
-      QVector<QPointF> vec;
-
-      vec.push_back(QPointF(tEOF, minY));
-      vec.push_back(QPointF(tEOF, maxY));
-      m_modeCtx->setSerieSamples(seriesIndex(Series::EOF_MARK), vec);
-    }
-  }
-
   /* Draw the baseline */
   {
     QVector<QPointF> blVec;
@@ -1887,6 +1908,8 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
   setEvaluationContext(m_currentDataContext->evaluationContext);
   m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
   connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+
+  drawEofMarker();
 }
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)
