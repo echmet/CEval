@@ -666,9 +666,9 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
     emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
 }
 
-EvaluationEngine::EvaluationContext EvaluationEngine:: freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
-                                                                              const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
-                                                                              const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const
+EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                                                                             const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                                                                             const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const
 {
   QVector<PeakContext> fresh;
 
