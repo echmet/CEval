@@ -178,15 +178,26 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     header = line.split(delimiter.toLatin1());
     if (header.size() < highColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"),
-                           QString(QObject::tr("The selected file does not appear to have the desired format")).arg(delimiter));
+      warnMalformedFile();
+
       return Data();
     }
     xType = header.at(xColumn - 1);
     yType = header.at(yColumn - 1);
 
     linesRead++;
+  } else {
+    /* Check file format and warn the user early if the expected format does not match to that of the file */
+
+    const QString &line = lines.at(linesRead);
+    const QStringList splitted = line.split(delimiter);
+
+    if (splitted.size() < highColumn) {
+      warnMalformedFile();
+
+      return Data();
   }
+}
 
   const QChar qcDelimiter = delimiter;
   for (int idx = linesRead; idx < lines.size(); idx++) {
@@ -238,3 +249,9 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   return Data(points, xType, yType);
 }
 
+void CsvFileLoader::warnMalformedFile()
+{
+  QMessageBox::warning(nullptr, QObject::tr("Malformed file"),
+                       QString(QObject::tr("The selected file does not appear to have the desired format.\n"
+                                           "Check that delimiter and decimal separator are set correctly.")));
+}
