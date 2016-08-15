@@ -123,7 +123,8 @@ SOURCES += src/main.cpp \
     src/evalmainwindowsoftwareupdaterconnector.cpp \
     src/updatecheckresults.cpp \
     src/chemstationbatchloadmodel.cpp \
-    src/chemstationbatchloader.cpp
+    src/chemstationbatchloader.cpp \
+    src/doubleclickableqwtplotzoomer.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -295,7 +296,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/softwareupdater.h \
     src/updatecheckresults.h \
     src/chemstationbatchloadmodel.h \
-    src/chemstationbatchloader.h
+    src/chemstationbatchloader.h \
+    src/doubleclickableqwtplotzoomer.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

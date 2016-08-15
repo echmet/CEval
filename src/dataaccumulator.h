@@ -11,7 +11,7 @@
 #include "plotexporter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_picker.h"
-#include "qwt_plot_zoomer.h"
+#include "doubleclickableqwtplotzoomer.h"
 
 class DataAccumulator : public QObject
 {
@@ -35,7 +35,7 @@ private:
 
   QwtPlot *m_plot;
   QwtPlotPicker *m_plotPicker;
-  QwtPlotZoomer *m_plotZoomer;
+  DoubleClickableQwtPlotZoomer *m_plotZoomer;
 
   PlotExporter *m_plotExporter;
 

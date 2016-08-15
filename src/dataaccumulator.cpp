@@ -44,9 +44,9 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   }
 
   try {
-    m_plotZoomer = new QwtPlotZoomer(m_plot->canvas());
+    m_plotZoomer = new DoubleClickableQwtPlotZoomer(m_plot->canvas());
     m_plotZoomer->setTrackerMode(QwtPicker::AlwaysOn);
-    m_plotZoomer->setMousePattern(QwtEventPattern::MouseSelect2, Qt::LeftButton, Qt::ShiftModifier);
+    m_plotZoomer->setMousePattern(QwtEventPattern::MouseSelect3, Qt::LeftButton, Qt::ShiftModifier);
 
     m_plotPicker = new QwtPlotPicker(QwtPlot::Axis::xBottom, QwtPlot::Axis::yLeft,
                                      QwtPicker::NoRubberBand, QwtPicker::AlwaysOff,
