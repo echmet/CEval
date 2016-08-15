@@ -1,6 +1,7 @@
 #include "setup.h"
 
 #include "evaluationengine.h"
+#include "dataexporter.h"
 #include "doubletostringconvertor.h"
 #include "gui/addpeakdialog.h"
 #include "gui/setaxistitlesdialog.h"
@@ -137,6 +138,14 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     createContextMenus();
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate context menus"));
+    throw;
+  }
+
+  try {
+    m_dataExporter = new DataExporter<EvaluationEngine>();
+    initDataExporter();
+  } catch (std::bad_alloc&) {
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));
     throw;
   }
 

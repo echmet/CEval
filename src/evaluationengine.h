@@ -13,6 +13,7 @@
 #include "evaluationenginemsgs.h"
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
+#include "idataexportable.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -20,9 +21,10 @@
 #include "assistedpeakfinder.h"
 
 class AddPeakDialog;
+template<typename T> class DataExporter;
 class QMenu;
 
-class EvaluationEngine : public QObject
+class EvaluationEngine : public QObject, IDataExportable<EvaluationEngine>
 {
   Q_OBJECT
 public:
@@ -185,6 +187,7 @@ private:
                                            const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues = MappedVectorWrapper<double, EvaluationParametersItems::Floating>()) const;
   PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
+  void initDataExporter();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr);
@@ -254,6 +257,8 @@ private:
   BooleanMapperModel<HVLFitParametersItems::Boolean> m_hvlFixedModel;
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
+
+  DataExporter<EvaluationEngine> *m_dataExporter;
 
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;
