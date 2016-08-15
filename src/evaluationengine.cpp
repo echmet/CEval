@@ -1551,11 +1551,6 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 
 void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)
 {
-  QModelIndex autoFrom;
-  QModelIndex autoTo;
-  QModelIndex valueFrom;
-  QModelIndex valueTo;
-
   switch (action) {
   case PostProcessMenuActions::MOVE_PEAK_FROM:
     findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false);
