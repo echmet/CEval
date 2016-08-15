@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>30</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -31,7 +31,7 @@
     </property>
     <widget class="QMenu" name="menuLoad_comma_separated_file">
      <property name="title">
-      <string>Load &amp;comma-separated file</string>
+      <string>Load &amp;text data</string>
      </property>
      <addaction name="actionCsv_from_file"/>
      <addaction name="actionCsv_from_clipboard"/>
@@ -73,7 +73,7 @@
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLoad_ChemStation_file">
    <property name="text">
-    <string>&amp;Load ChemStation file</string>
+    <string>&amp;Load ChemStation data</string>
    </property>
   </action>
   <action name="actionLoad_data_table">
@@ -123,12 +123,12 @@
   </action>
   <action name="actionCsv_from_file">
    <property name="text">
-    <string>From file</string>
+    <string>&amp;From file</string>
    </property>
   </action>
   <action name="actionCsv_from_clipboard">
    <property name="text">
-    <string>From clipboard</string>
+    <string>From &amp;clipboard</string>
    </property>
   </action>
  </widget>
