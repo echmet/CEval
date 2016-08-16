@@ -1,7 +1,6 @@
 #include "setup.h"
 
 #include "evaluationengine.h"
-#include "dataexporter.h"
 #include "doubletostringconvertor.h"
 #include "gui/addpeakdialog.h"
 #include "gui/setaxistitlesdialog.h"
@@ -2007,6 +2006,12 @@ void EvaluationEngine::testExporter()
   if (!isContextValid())
     return;
 
-  //m_dataExporter.schemes.at(0)->exportData(this);
-  //m_dataExporter.schemes.at(1)->exportData(this);
+  DataExporter::Scheme *scheme = m_dataExporter.createScheme();
+
+  if (scheme == nullptr)
+    return;
+
+  scheme->exportData(this);
+
+  delete scheme;
 }

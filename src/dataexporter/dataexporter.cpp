@@ -1,4 +1,5 @@
 #include "dataexporter.h"
+#include "schemecreator.h"
 
 using namespace DataExporter;
 
@@ -81,6 +82,11 @@ bool Scheme::exportData(const IExportable *exportee) const
   return m_base->exportData(exportee, selectedExportables);
 }
 
+Exporter::Exporter()
+{
+  m_schemeCreator = new SchemeCreator();
+}
+
 Exporter::~Exporter()
 {
   for (const Scheme *s : m_schemes)
@@ -88,6 +94,30 @@ Exporter::~Exporter()
 
   for (const SchemeBaseRoot *s : m_schemeBases)
     delete s;
+}
+
+Scheme *Exporter::createScheme()
+{
+  const SchemeCreator::NewScheme ns = m_schemeCreator->interact();
+  if (!ns.isValid)
+    return nullptr;
+
+  if (!m_schemeBases.contains(ns.baseName))
+    return nullptr;
+
+  const SchemeBaseRoot *sbr = m_schemeBases.value(ns.baseName);
+  SelectedExportablesMap seMap;
+
+  for (const QString &s : ns.exportables) {
+    if (!sbr->exportables.contains(s))
+      return nullptr;
+
+    seMap.insert(s, new SelectedExportable(sbr->exportables.value(s)));
+  }
+
+  Scheme *s = new Scheme(ns.name, seMap, sbr);
+
+  return s;
 }
 
 bool Exporter::registerScheme(Scheme *scheme)
@@ -107,5 +137,9 @@ bool Exporter::registerSchemeBase(const SchemeBaseRoot *schemeBase)
 
   m_schemeBases.insert(schemeBase->name, schemeBase);
 
-  return true;
+  QStringList exportables;
+  for (const ExportableRoot *e : schemeBase->exportables)
+    exportables << e->name;
+
+  return m_schemeCreator->registerSchemeBase(SchemeCreator::SchemeBase(schemeBase->name, schemeBase->description, exportables));
 }

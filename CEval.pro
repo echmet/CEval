@@ -126,7 +126,8 @@ SOURCES += src/main.cpp \
     src/chemstationbatchloader.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
-    src/dataexporter/dataexporter.cpp
+    src/dataexporter/dataexporter.cpp \
+    src/dataexporter/schemecreator.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -300,7 +301,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/chemstationbatchloadmodel.h \
     src/chemstationbatchloader.h \
     src/doubleclickableqwtplotzoomer.h \
-    src/dataexporter/dataexporter.h
+    src/dataexporter/dataexporter.h \
+    src/dataexporter/schemecreator.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -323,7 +325,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/exportplottoimagedialog.ui \
     src/gui/softwareupdatewidget.ui \
     src/gui/autoupdatecheckdialog.ui \
-    src/gui/checkforupdatedialog.ui
+    src/gui/checkforupdatedialog.ui \
+    src/dataexporter/schemecreator.ui
 
 unix {
     LIBS += -ldl

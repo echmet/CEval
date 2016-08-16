@@ -13,7 +13,7 @@
 #include "evaluationenginemsgs.h"
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
-#include "dataexporter.h"
+#include "dataexporter/dataexporter.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
