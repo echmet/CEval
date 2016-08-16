@@ -142,7 +142,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   }
 
   try {
-    m_dataExporter = new DataExporter<EvaluationEngine>();
+    m_dataExporter = new DataExporter();
     initDataExporter();
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));

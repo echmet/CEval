@@ -21,7 +21,7 @@
 #include "assistedpeakfinder.h"
 
 class AddPeakDialog;
-template<typename T> class DataExporter;
+class DataExporter;
 class QMenu;
 
 class EvaluationEngine : public QObject, IDataExportable<EvaluationEngine>
@@ -259,7 +259,7 @@ private:
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
 
-  DataExporter<EvaluationEngine> *m_dataExporter;
+  DataExporter *m_dataExporter;
 
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;

@@ -5,19 +5,27 @@
 #include <QPoint>
 #include <QDebug>
 
-template<typename T>
-class DataExporter {
-private:
-  typedef typename IDataExportable<T>::Retriever Retriever;
-
+class ExportableBase {};
+class SelectedExportableBase {
 public:
+  virtual const QString & name() const;
+  QVariant value(const void *) const
+  {
+    return QVariant();
+  }
+};
+
   enum class CaptionPosition {
     NONE,
     ABOVE,
     LEFT_OF
   };
 
-  class Exportable {
+  template<typename T>
+  class Exportable : public ExportableBase {
+  //typedef typename IDataExportable<T>::Retriever Retriever;
+  typedef std::function<QVariant (const T *)> Retriever;
+
   public:
     explicit Exportable() :
       m_name(""),
@@ -35,7 +43,7 @@ public:
       return m_name;
     }
 
-    QVariant value(const T *exportee) const
+    QVariant valueInternal(const T *exportee) const
     {
       return m_r(exportee);
     }
@@ -46,19 +54,20 @@ public:
 
   };
 
+  template<typename T>
   class SelectedExportable {
   public:
     explicit SelectedExportable() :
-      m_exportable(Exportable()),
+      m_exportable(Exportable<T>()),
       m_captionPosition(CaptionPosition::NONE)
     {}
-    explicit SelectedExportable(const Exportable &exportable, const QPoint &position, const CaptionPosition captionPosition) :
+    explicit SelectedExportable(const Exportable<T> &exportable, const QPoint &position, const CaptionPosition captionPosition) :
       m_exportable(exportable),
       m_position(position),
       m_captionPosition(captionPosition)
     {}
 
-    QString name() const
+    const QString & name() const override
     {
       return m_exportable.name();
     }
@@ -69,14 +78,18 @@ public:
     }
 
   private:
-    const Exportable *m_exportable;
+    const Exportable<T> *m_exportable;
     QPoint m_position;
     CaptionPosition m_captionPosition;
   };
 
-  typedef QMap<QString, Exportable *> ExportablesMap;
-  typedef QMap<QString, SelectedExportable *> SelectedExportablesMap;
-  typedef std::function<bool (const T *, const SelectedExportablesMap &)> Executor;
+
+class DataExporter {
+private:
+
+public:
+  typedef QMap<QString, ExportableBase *> ExportablesMap;
+  typedef QMap<QString, SelectedExportableBase *> SelectedExportablesMap;
 
   enum class SchemeTypes {
     NONE,
@@ -84,30 +97,51 @@ public:
     LIST
   };
 
-  class SchemeBase {
+  class SchemeBaseRoot {
   public:
+    explicit SchemeBaseRoot(const QString &name, const QString &description) :
+      name(name), description(description)
+    {}
+
+    const QString name;
+    const QString description;
+
+  };
+  class SchemeRoot {
+  public:
+    explicit SchemeRoot(const QString &name) :
+      name(name)
+    {}
+
+    const QString name;
+
+  };
+
+  template<typename T>
+  class SchemeBase : public SchemeBaseRoot {
+  public:
+    typedef std::function<bool (const T *, const SelectedExportablesMap &)> Executor;
+
     explicit SchemeBase() :
-      name(""), description(""), exportables(ExportablesMap()), type(SchemeTypes::NONE),
+      SchemeBaseRoot("", ""),
+      exportables(ExportablesMap()), type(SchemeTypes::NONE),
       m_executor([](const T *) { return false; })
     {}
     explicit SchemeBase(const QString &name, const QString &description,
-                        const QMap<QString, Exportable> exportables, const SchemeTypes type,
+                        const ExportablesMap &exportables, const SchemeTypes type,
                         Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap)
     {
-      for (const SelectedExportable &se : seMap)
-        qDebug() << se.name() << se.value(exportee);
+      for (const SelectedExportableBase *se : seMap)
+        qDebug() << se->name() << se->value(exportee);
 
       return true;
     }) :
-      name(name),
-      description(description),
+      SchemeBaseRoot(name, description),
       exportables(exportables),
       type(type),
       m_executor(executor)
     {}
 
-    const QString name;
-    const QString description;
     const ExportablesMap exportables;
     const SchemeTypes type;
 
@@ -121,15 +155,16 @@ public:
 
   };
 
-  class Scheme {
+  template<typename T>
+  class Scheme : public SchemeRoot {
   public:
     explicit Scheme() :
-      name(""),
-      m_base(new SchemeBase())
+      SchemeRoot(""),
+      m_base(new SchemeBase<T>())
     {}
 
-    explicit Scheme(const QString &name, const SchemeBase *base) :
-      name(name),
+    explicit Scheme(const QString &name, const SchemeBase<T> *base) :
+      SchemeRoot(name),
       m_base(base)
     {}
 
@@ -138,18 +173,17 @@ public:
       return m_base(exportee, m_selectedExportables);
     }
 
-    const QString name;
 
   private:
-    const SchemeBase *m_base;
+    const SchemeBase<T> *m_base;
     SelectedExportablesMap m_selectedExportables;
 
   };
 
-  typedef QMap<QString, SchemeBase *> SchemeBasesMap;
-  typedef QMap<QString, Scheme *> SchemesMap;
+  typedef QMap<QString, SchemeBaseRoot *> SchemeBasesMap;
+  typedef QMap<QString, SchemeRoot *> SchemesMap;
 
-  void registerScheme(Scheme *scheme)
+  void registerScheme(SchemeRoot *scheme)
   {
     if (m_schemes.contains(scheme->name))
       return;
@@ -157,7 +191,7 @@ public:
     m_schemes.insert(scheme->name, scheme);
   }
 
-  void registerSchemeBase(SchemeBase *base)
+  void registerSchemeBase(SchemeBaseRoot *base)
   {
     if (m_schemeBases.contains(base->name))
       return;
