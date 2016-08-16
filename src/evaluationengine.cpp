@@ -2007,6 +2007,6 @@ void EvaluationEngine::testExporter()
   if (!isContextValid())
     return;
 
-  m_dataExporter.schemes.at(0)->exportData(this);
-  m_dataExporter.schemes.at(1)->exportData(this);
+  //m_dataExporter.schemes.at(0)->exportData(this);
+  //m_dataExporter.schemes.at(1)->exportData(this);
 }

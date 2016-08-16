@@ -20,6 +20,12 @@ enum class SchemeTypes {
   LIST
 };
 
+class ExportableExistsException : std::exception {
+public:
+  const char * what() const noexcept;
+
+};
+
 class InvalidExportableException : std::exception {
 public:
   const char * what() const noexcept;
@@ -28,13 +34,13 @@ public:
 
 class IExportable {
 public:
-  virtual ~IExportable() {};
+  virtual ~IExportable();
 };
 
 class ExportableRoot {
 public:
   explicit ExportableRoot(const QString &name);
-
+  virtual ~ExportableRoot();
   virtual QVariant value(const IExportable *exportee) const = 0;
 
   const QString name;
@@ -92,13 +98,8 @@ typedef QMap<QString, SelectedExportable *> SelectedExportablesMap;
 class SchemeBaseRoot {
 public:
   explicit SchemeBaseRoot(const QString &name, const QString &description,
-                          const ExportablesMap &exportables, const SchemeTypes type) :
-    name(name),
-    description(description),
-    exportables(exportables),
-    type(type)
-  {
-  }
+                          const ExportablesMap &exportables, const SchemeTypes type);
+  virtual ~SchemeBaseRoot();
 
   virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap) const = 0;
 
@@ -143,6 +144,7 @@ private:
 class Scheme {
 public:
   explicit Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base);
+  ~Scheme();
 
   bool exportData(const IExportable *exportee) const;
 
@@ -156,10 +158,17 @@ private:
 
 class Exporter {
 public:
-  void registerSchemeBase(const SchemeBaseRoot *schemeBase);
-  void registerScheme(const Scheme *scheme);
+  ~Exporter();
+  bool registerSchemeBase(const SchemeBaseRoot *schemeBase);
+  bool registerScheme(Scheme *scheme);
 
-  QVector<Scheme *> schemes;
+private:
+  typedef QMap<QString, const SchemeBaseRoot *> SchemeBasesMap;
+  typedef QMap<QString, Scheme *> SchemesMap;
+
+  SchemeBasesMap m_schemeBases;
+  SchemesMap m_schemes;
+
 };
 
 } // namespace DataExporter

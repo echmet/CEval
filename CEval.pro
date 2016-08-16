@@ -126,7 +126,7 @@ SOURCES += src/main.cpp \
     src/chemstationbatchloader.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
-    src/dataexporter.cpp
+    src/dataexporter/dataexporter.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -300,7 +300,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/chemstationbatchloadmodel.h \
     src/chemstationbatchloader.h \
     src/doubleclickableqwtplotzoomer.h \
-    src/dataexporter.h
+    src/dataexporter/dataexporter.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -333,5 +333,5 @@ unix {
 
 include($$PWD/CEval.pri)
 
-QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH\"\include"
+QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem $$BOOSTPATH -isystem $$ARMAPATH/include"
 

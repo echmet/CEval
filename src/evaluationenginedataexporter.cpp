@@ -1,74 +1,54 @@
 #include "dataexporter.h"
 #include "evaluationengine.h"
 
-/*
 #define MAKE_EXPORTABLE(map, TT, name, getter) \
-  map.insert(name, new Exportable<TT>(name, \
-    [](const TT *me) { \
-      if (!me->isContextValid()) \
-        return QVariant(); \
-      return QVariant(me->getter); \
-  }))
-*/
-
-#define MAKE_EXPORTABLE(map, TT, name, getter) \
+  if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
   map.insert(name, new DataExporter::Exportable<TT>(name, \
     [](const TT *me) { \
       return QVariant(me->getter); \
   }))
 
-void EvaluationEngine::initDataExporter()
+bool EvaluationEngine::initDataExporter()
 {
-  /* THE OBVIOUS PART */
-  {
-  DataExporter::ExportablesMap exportables;
+  DataExporter::ExportablesMap currentPeakExportables;
+  DataExporter::ExportablesMap peakListExportables;
 
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "EOF velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak from X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak from Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak to X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak to Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak max at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak effective velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak effective mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak area", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
-  MAKE_EXPORTABLE(exportables, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "EOF velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak from X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak from Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak to X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak to Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak max at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak effective velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak effective mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak area", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
 
-  DataExporter::SchemeBase<EvaluationEngine> *cps = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "", exportables, DataExporter::SchemeTypes::SINGLE_ITEM);
-  DataExporter::SelectedExportablesMap selExps;
-  selExps.insert("Peak area", new DataExporter::SelectedExportable(exportables.value("Peak area")));
-  selExps.insert("Peak height", new DataExporter::SelectedExportable(exportables.value("Peak height")));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "EOF velocity", resultsValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak from X", resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak from Y", resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak to X", resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak to Y", resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak max at X", resultsValues.at(EvaluationResultsItems::Floating::PEAK_X));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak velocity", resultsValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak effective velocity", resultsValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak mobility", resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak effective mobility", resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak area", resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak height", resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+  MAKE_EXPORTABLE(peakListExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
 
-  m_dataExporter.schemes.push_back(new DataExporter::Scheme("Current peak", selExps, cps));
-  }
-
-  /* THE SCARY PART */
-  {
-  DataExporter::ExportablesMap listExportables;
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "EOF velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak from X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak from Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak to X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak to Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak max at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak effective velocity", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak effective mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak area", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
-  MAKE_EXPORTABLE(listExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
-
-  auto executor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap) -> bool {
+  auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap) -> bool {
     if (exportee->m_allPeaks.size() < 1) {
       qDebug() << "No peaks in list";
       return true;
     }
 
-    for (const PeakContext &ctx : exportee->m_allPeaks) {
-      const PeakContext *pCtx = &ctx;
+    for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
+      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
       qDebug() << pCtx->peakName;
 
       for (const DataExporter::SelectedExportable *se : seMap) {
@@ -81,18 +61,19 @@ void EvaluationEngine::initDataExporter()
     }
 
     const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
-    qDebug() << eof->name() << eof->value(exportee);
+    if (eof != nullptr)
+      qDebug() << eof->name() << eof->value(exportee);
 
     return true;
   };
 
-  DataExporter::SchemeBase<EvaluationEngine> *peaksBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "", listExportables, DataExporter::SchemeTypes::LIST, executor);
+  DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables, DataExporter::SchemeTypes::SINGLE_ITEM);
+  DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "Export complete list of evaluated peaks", peakListExportables, DataExporter::SchemeTypes::LIST, peakListExecutor);
 
-  DataExporter::SelectedExportablesMap selExps;
-  selExps.insert("Peak area", new DataExporter::SelectedExportable(listExportables.value("Peak area")));
-  selExps.insert("Peak height", new DataExporter::SelectedExportable(listExportables.value("Peak height")));
-  selExps.insert("EOF time", new DataExporter::SelectedExportable(listExportables.value("EOF time")));
+  if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase))
+    return false;
+  if (!m_dataExporter.registerSchemeBase(peakListSchemeBase))
+    return false;
 
-  m_dataExporter.schemes.push_back(new DataExporter::Scheme("List of peaks", selExps, peaksBase));
-  }
+  return true;
 }

@@ -187,7 +187,7 @@ private:
                                            const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues = MappedVectorWrapper<double, EvaluationParametersItems::Floating>()) const;
   PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
-  void initDataExporter();
+  bool initDataExporter();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr);
