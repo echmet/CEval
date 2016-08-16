@@ -13,7 +13,7 @@
 #include "evaluationenginemsgs.h"
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
-#include "idataexportable.h"
+#include "dataexporter.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -21,10 +21,9 @@
 #include "assistedpeakfinder.h"
 
 class AddPeakDialog;
-class DataExporter;
 class QMenu;
 
-class EvaluationEngine : public QObject, IDataExportable<EvaluationEngine>
+class EvaluationEngine : public QObject, public DataExporter::IExportable
 {
   Q_OBJECT
 public:
@@ -101,7 +100,7 @@ private:
     LAST_INDEX
   };
 
-  class PeakContext {
+  class PeakContext : public DataExporter::IExportable {
   public:
     explicit PeakContext();
     explicit PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
@@ -259,8 +258,6 @@ private:
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
 
-  DataExporter *m_dataExporter;
-
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboShowWindow>> s_showWindowValues;
@@ -293,6 +290,8 @@ private:
   static const QString HVLFITOPTIONS_SHOW_FIT_STATS_TAG;
 
   static int seriesIndex(const Series iid);
+
+  DataExporter::Exporter m_dataExporter;
 
 signals:
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);

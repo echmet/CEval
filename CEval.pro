@@ -126,7 +126,7 @@ SOURCES += src/main.cpp \
     src/chemstationbatchloader.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
-    src/dataexporterschemes.cpp
+    src/dataexporter.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -300,9 +300,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/chemstationbatchloadmodel.h \
     src/chemstationbatchloader.h \
     src/doubleclickableqwtplotzoomer.h \
-    src/idataexportable.h \
-    src/dataexporter.h \
-    src/dataexporterschemes.h
+    src/dataexporter.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
