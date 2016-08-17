@@ -130,7 +130,22 @@ void SchemeCreator::onRemoveExportableClicked()
   if (itemList.size() < 1)
     return;
 
-  m_avaliableExportablesModel->appendRow(itemList.at(0));
+  bool ok;
+  int origRow = itemList.at(0)->data(Qt::UserRole + 1).toInt(&ok);
+  if (!ok)
+    m_avaliableExportablesModel->appendRow(itemList);
+
+  for (int idx = 0; idx < m_avaliableExportablesModel->rowCount(); idx++) {
+    QStandardItem *item = m_avaliableExportablesModel->item(idx);
+
+    int itemRow = item->data(Qt::UserRole + 1).toInt();
+    if (itemRow >= origRow) {
+      m_avaliableExportablesModel->insertRow(idx, itemList);
+      return;
+    }
+  }
+
+  m_avaliableExportablesModel->appendRow(itemList);
 }
 
 void SchemeCreator::onSchemeChanged(const int idx)
@@ -143,11 +158,14 @@ void SchemeCreator::onSchemeChanged(const int idx)
 
   ui->qpte_descriptionText->setPlainText(base.description);
 
+  int posCounter = 0;
   for (const QString &s : base.exportables) {
     QStandardItem *item = new QStandardItem(s);
     item->setData(s, Qt::UserRole);
+    item->setData(posCounter, Qt::UserRole + 1);
 
     m_avaliableExportablesModel->appendRow(item);
+    posCounter++;
   }
 }
 
