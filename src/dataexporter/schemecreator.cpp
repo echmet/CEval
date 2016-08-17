@@ -48,6 +48,9 @@ SchemeCreator::SchemeCreator(QWidget *parent) :
   ui->qlv_availableExportables->setModel(m_avaliableExportablesModel);
   ui->qlv_selectedExportables->setModel(m_selectedExportablesModel);
 
+  ui->qlv_availableExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
+  ui->qlv_selectedExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
   connect(ui->qpb_addExportable, &QPushButton::clicked, this, &SchemeCreator::onAddExportableClicked);
   connect(ui->qpb_removeExportable, &QPushButton::clicked, this, &SchemeCreator::onRemoveExportableClicked);
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SchemeCreator::onCancelClicked);
