@@ -56,6 +56,8 @@ SchemeCreator::SchemeCreator(QWidget *parent) :
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SchemeCreator::onCancelClicked);
   connect(ui->qpb_create, &QPushButton::clicked, this, &SchemeCreator::onCreateClicked);
   connect(ui->qcbox_availableSchemeBases, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SchemeCreator::onSchemeChanged);
+  connect(ui->qlv_availableExportables, &QListView::doubleClicked, this, &SchemeCreator::onAddExportableClicked);
+  connect(ui->qlv_selectedExportables, &QListView::doubleClicked, this, &SchemeCreator::onRemoveExportableClicked);
 }
 
 SchemeCreator::~SchemeCreator()
