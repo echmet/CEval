@@ -1,5 +1,6 @@
 #include "schemecreator.h"
 #include "ui_schemecreator.h"
+#include <QInputDialog>
 #include <QStandardItem>
 #include <QStandardItemModel>
 
@@ -50,7 +51,7 @@ SchemeCreator::SchemeCreator(QWidget *parent) :
   connect(ui->qpb_addExportable, &QPushButton::clicked, this, &SchemeCreator::onAddExportableClicked);
   connect(ui->qpb_removeExportable, &QPushButton::clicked, this, &SchemeCreator::onRemoveExportableClicked);
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SchemeCreator::onCancelClicked);
-  connect(ui->qpb_export, &QPushButton::clicked, this, &SchemeCreator::onExportClicked);
+  connect(ui->qpb_create, &QPushButton::clicked, this, &SchemeCreator::onCreateClicked);
   connect(ui->qcbox_availableSchemeBases, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SchemeCreator::onSchemeChanged);
 }
 
@@ -81,7 +82,7 @@ SchemeCreator::NewScheme SchemeCreator::interact()
     selected << item->data(Qt::UserRole).toString();
  }
 
-  return NewScheme("xxx", baseName, selected);
+  return NewScheme(m_schemeName, baseName, selected);
 }
 
 void SchemeCreator::onAddExportableClicked()
@@ -102,8 +103,17 @@ void SchemeCreator::onCancelClicked()
   reject();
 }
 
-void SchemeCreator::onExportClicked()
+void SchemeCreator::onCreateClicked()
 {
+  QInputDialog dlg;
+
+  dlg.setLabelText("Enter name for the scheme");
+  dlg.setInputMode(QInputDialog::TextInput);
+
+  if (dlg.exec() != QDialog::Accepted)
+    return;
+
+  m_schemeName = dlg.textValue();
   accept();
 }
 

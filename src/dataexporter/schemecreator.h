@@ -45,11 +45,12 @@ private:
 
   QStandardItemModel *m_avaliableExportablesModel;
   QStandardItemModel *m_selectedExportablesModel;
+  QString m_schemeName;
 
 private slots:
   void onAddExportableClicked();
   void onCancelClicked();
-  void onExportClicked();
+  void onCreateClicked();
   void onRemoveExportableClicked();
   void onSchemeChanged(const int idx);
 };
