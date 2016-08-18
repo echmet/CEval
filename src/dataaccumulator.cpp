@@ -150,7 +150,7 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
     m_evaluationEngine->onCopyToClipboard(EvaluationEngineMsgs::CopyToClipboard::EVERYTHING);
     break;
   case DataAccumulatorMsgs::ExportAction::TEST_EXPORTER:
-    m_evaluationEngine->testExporter();
+    m_evaluationEngine->createExporterScheme();
     break;
   }
 }

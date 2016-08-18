@@ -2001,17 +2001,17 @@ QAbstractItemModel *EvaluationEngine::windowUnitsModel()
   return &m_windowUnitsModel;
 }
 
-void EvaluationEngine::testExporter()
+void EvaluationEngine::createExporterScheme()
 {
   if (!isContextValid())
     return;
 
   DataExporter::Scheme *scheme = m_dataExporter.createScheme();
 
-  if (scheme == nullptr)
+  if (scheme == nullptr) {
+    QMessageBox::warning(nullptr, tr("Cannnot create scheme"), tr("Unable to create scheme. Please check the input and try again."));
     return;
+  }
 
-  scheme->exportData(this);
-
-  delete scheme;
+  m_dataExporter.registerScheme(scheme);
 }
