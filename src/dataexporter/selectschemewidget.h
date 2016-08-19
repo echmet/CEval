@@ -26,7 +26,9 @@ signals:
   void closed();
   void createScheme();
   void editScheme(const QString &name);
+  void loadScheme();
   void removeScheme(const QString &name);
+  void saveScheme(const QString &name);
   void useScheme(const QString &name);
 
 private slots:

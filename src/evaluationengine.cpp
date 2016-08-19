@@ -124,7 +124,8 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_baselineAlgorithmModel(s_baselineAlgorithmValues, this),
   m_loadedFilesModel(QVector<ComboBoxItem<QString>>(), this),
   m_showWindowModel(s_showWindowValues, this),
-  m_windowUnitsModel(s_windowUnitsValues, this)
+  m_windowUnitsModel(s_windowUnitsValues, this),
+  m_dataExporter("EVALUATION_ENGINE_DEXP")
 {
   try {
     m_dataFileLoader = new DataFileLoader(this);

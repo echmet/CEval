@@ -1,10 +1,11 @@
 #include "schemeserializer.h"
+#include <QCryptographicHash>
 #include <QDataStream>
 #include <QFile>
 
 using namespace DataExporter;
 
-SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(const Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const ExportablesMap &exportables, const QString &path)
+SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const QString &path)
 {
   SelectedExportablesMap selected;
 
@@ -46,6 +47,23 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(const Scheme **s, 
   QChar delimiter;
   stream >> delimiter;
 
+  /* Check the hash */
+  {
+    const quint64 pos = inFile.pos();
+
+    QByteArray dataHash;
+    stream >> dataHash;
+
+    inFile.seek(0);
+    QByteArray bytes = inFile.read(pos);
+
+    QByteArray computedHash = QCryptographicHash::hash(bytes, QCryptographicHash::Sha256);
+
+    if (computedHash != dataHash)
+      return RetCode::E_CORRUPTED_FILE;
+  }
+
+  const ExportablesMap &exportables = bases.value(baseName)->exportables;
   SerializedExportablesMap::ConstIterator cit = serMap.cbegin();
   while (cit != serMap.cend()) {
     const QString key = cit.key();
@@ -55,6 +73,7 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(const Scheme **s, 
       return RetCode::E_UNKNOWN_EXPORTABLE;
 
     selected.insert(key, new SelectedExportable(exportables.value(rootName)));
+    cit++;
   }
 
   try {
@@ -85,8 +104,16 @@ SchemeSerializer::RetCode SchemeSerializer::serializeScheme(const Scheme *s, con
   if (!outFile.open(QIODevice::WriteOnly))
     return RetCode::E_CANT_OPEN;
 
-  QDataStream stream(&outFile);
+  QByteArray outBuffer;
+  QDataStream stream(&outBuffer, QIODevice::WriteOnly);
   stream << exporterId << s->baseName() << s->name << map << arr << s->delimiter;
+
+  QByteArray hash = QCryptographicHash::hash(outBuffer, QCryptographicHash::Sha256);
+
+  stream << hash;
+
+  if (outFile.write(outBuffer) < outBuffer.size())
+    return RetCode::E_CANT_WRITE;
 
   outFile.close();
 

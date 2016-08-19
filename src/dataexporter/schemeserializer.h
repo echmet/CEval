@@ -12,6 +12,7 @@ public:
   enum class RetCode {
     OK,
     E_CANT_OPEN,
+    E_CANT_WRITE,
     E_CORRUPTED_FILE,
     E_INCORRECT_EXPORTER,
     E_NO_MEMORY,
@@ -21,7 +22,7 @@ public:
 
   SchemeSerializer() = delete;
 
-  static RetCode deserializeScheme(const Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const ExportablesMap &exportables, const QString &path);
+  static RetCode deserializeScheme(Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const QString &path);
   static RetCode serializeScheme(const Scheme *s, const QString &exporterId, const QString &path);
 
 private:

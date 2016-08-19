@@ -5,6 +5,7 @@
 #include "schemecreator.h"
 
 class QDialog;
+class QFileDialog;
 class QStandardItemModel;
 
 namespace DataExporter {
@@ -14,7 +15,7 @@ class SelectSchemeWidget;
 class Exporter : public QObject {
   Q_OBJECT
 public:
-  explicit Exporter();
+  explicit Exporter(const QString &exporterId);
   ~Exporter();
   bool registerSchemeBase(const SchemeBaseRoot *schemeBase);
   void showSchemes(const IExportable *exportee);
@@ -33,7 +34,13 @@ private:
   SelectSchemeWidget *m_selectSchemeWidget;
   QDialog *m_selectSchemeDialog;
 
+  QFileDialog *m_loadSchemeDialog;
+  QFileDialog *m_saveSchemeDialog;
+
   const IExportable *m_currentExportee;
+  const QString m_exporterId;
+
+  static const QString FILEDIALOG_NAME_FILTER;
 
 private slots:
   void onCreateScheme();
@@ -41,7 +48,8 @@ private slots:
   void onEditScheme(const QString &name);
   void onRemoveScheme(const QString &name);
   void onUseScheme(const QString &name);
-  void onSerializeScheme();
+  void onSerializeScheme(const QString &name);
+
 };
 
 } // namespace DataExporter
