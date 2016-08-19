@@ -26,11 +26,13 @@ ExportableRoot::~ExportableRoot()
 }
 
 SelectedExportable::SelectedExportable() :
+  position(-1),
   m_exportable(new Exportable<>())
 {
 }
 
-SelectedExportable::SelectedExportable(const ExportableRoot *exportable) :
+SelectedExportable::SelectedExportable(const ExportableRoot *exportable, const int position) :
+  position(position),
   m_exportable(exportable)
 {
 }

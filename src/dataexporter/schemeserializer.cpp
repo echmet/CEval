@@ -5,6 +5,47 @@
 
 using namespace DataExporter;
 
+QDataStream & operator<<(QDataStream &stream, const SchemeSerializer::SerializedExportable &e)
+{
+  stream << e.rootName << e.position;
+
+  return stream;
+}
+
+QDataStream & operator>>(QDataStream &stream, SchemeSerializer::SerializedExportable &e)
+{
+  QString rootName;
+  int position;
+
+  stream >> rootName;
+  stream >> position;
+
+  const_cast<QString&>(e.rootName) = rootName;
+  const_cast<int&>(e.position) = position;
+
+  return stream;
+}
+
+SchemeSerializer::SerializedExportable::SerializedExportable() :
+  rootName(""),
+  position(-1)
+{
+}
+
+SchemeSerializer::SerializedExportable::SerializedExportable(const QString &rootName, const int position) :
+  rootName(rootName),
+  position(position)
+{
+}
+
+SchemeSerializer::SerializedExportable & SchemeSerializer::SerializedExportable::operator=(const SerializedExportable &other)
+{
+  const_cast<QString&>(rootName) = other.rootName;
+  const_cast<int&>(position) = other.position;
+
+  return *this;
+}
+
 SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const QString &path)
 {
   SelectedExportablesMap selected;
@@ -67,12 +108,12 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
   SerializedExportablesMap::ConstIterator cit = serMap.cbegin();
   while (cit != serMap.cend()) {
     const QString key = cit.key();
-    const QString rootName = cit.value();
+    const SerializedExportable serEx = cit.value();
 
-    if (!exportables.contains(rootName))
+    if (!exportables.contains(serEx.rootName))
       return RetCode::E_UNKNOWN_EXPORTABLE;
 
-    selected.insert(key, new SelectedExportable(exportables.value(rootName)));
+    selected.insert(key, new SelectedExportable(exportables.value(serEx.rootName), serEx.position));
     cit++;
   }
 
@@ -94,9 +135,9 @@ SchemeSerializer::RetCode SchemeSerializer::serializeScheme(const Scheme *s, con
   SelectedExportablesMap::ConstIterator cit = s->selectedExportables.cbegin();
   while (cit != s->selectedExportables.cend()) {
     const QString name = cit.key();
-    const QString rootName = cit.value()->name();
+    SerializedExportable serEx(cit.value()->name(), cit.value()->position);
 
-    map.insert(name, rootName);
+    map.insert(name, serEx);
     cit++;
   }
 

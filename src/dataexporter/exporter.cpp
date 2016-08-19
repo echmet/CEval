@@ -107,16 +107,24 @@ Scheme * Exporter::makeScheme(const SchemeCreator::UserScheme &scheme)
   const SchemeBaseRoot *sbr = m_schemeBases.value(scheme.baseName);
   SelectedExportablesMap seMap;
 
-  for (const QString &s : scheme.exportables) {
+  for (int idx = 0; idx < scheme.exportables.size(); idx++) {
+    const QString &s = scheme.exportables.at(idx);
+
     if (!sbr->exportables.contains(s))
       return nullptr;
 
-    seMap.insert(s, new SelectedExportable(sbr->exportables.value(s)));
+    seMap.insert(s, new SelectedExportable(sbr->exportables.value(s), idx));
   }
 
   Scheme *s;
   try {
-    s = new Scheme(scheme.name, seMap, sbr, scheme.arrangement, scheme.delimiter.at(0));
+    QChar delim;
+    if (scheme.delimiter == "\\t")
+      delim = '\t';
+    else
+      delim = scheme.delimiter.at(0);
+
+    s = new Scheme(scheme.name, seMap, sbr, scheme.arrangement, delim);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Cannnot create scheme"), tr("Unable to create scheme. Please check the input and try again."));
     return nullptr;

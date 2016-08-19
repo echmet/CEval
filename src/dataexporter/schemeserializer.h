@@ -20,6 +20,17 @@ public:
     E_UNKNOWN_EXPORTABLE
   };
 
+  class SerializedExportable {
+  public:
+    SerializedExportable();
+    SerializedExportable(const QString &rootName, const int position);
+
+    SerializedExportable & operator=(const SerializedExportable &other);
+
+    const QString rootName;
+    const int position;
+  };
+
   SchemeSerializer() = delete;
 
   static RetCode deserializeScheme(Scheme **s, const QString &exporterId, const SchemeBasesMap &bases, const QString &path);
@@ -28,11 +39,7 @@ public:
 private:
   typedef typename std::underlying_type<Globals::DataArrangement>::type ARType;
 
-  class SerializedExportable {
-    QString rootName;
-  };
-
-  typedef QMap<QString, QString> SerializedExportablesMap;
+  typedef QMap<QString, SerializedExportable> SerializedExportablesMap;
 };
 
 } //namespace DataExporter

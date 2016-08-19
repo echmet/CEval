@@ -75,9 +75,10 @@ private:
 class SelectedExportable {
 public:
   explicit SelectedExportable();
-  explicit SelectedExportable(const ExportableRoot *exportable);
+  explicit SelectedExportable(const ExportableRoot *exportable, const int position);
 
   const QString & name() const;
+  const int position;
   QVariant value(const IExportable *exportee) const;
 
 private:
