@@ -13,7 +13,7 @@
 #include "evaluationenginemsgs.h"
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
-#include "dataexporter/dataexporter.h"
+#include "dataexporter/exporter.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -79,8 +79,8 @@ public:
   AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
   AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
   QVariant saveUserSettings() const;
+  void showExporterSchemes();
   QAbstractItemModel *showWindowModel();
-  void createExporterScheme();
   QAbstractItemModel *windowUnitsModel();
 
 private:

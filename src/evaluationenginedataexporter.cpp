@@ -1,5 +1,6 @@
-#include "dataexporter/dataexporter.h"
+#include "dataexporter/exporterelems.h"
 #include "evaluationengine.h"
+
 
 #define MAKE_EXPORTABLE(map, TT, name, getter) \
   if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
@@ -42,7 +43,10 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
 
   auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap) -> bool {
-    if (exportee->m_allPeaks.size() < 1) {
+    if (!exportee->isContextValid())
+      return false;
+
+    if (exportee->m_allPeaks.size() < 2) {
       qDebug() << "No peaks in list";
       return true;
     }

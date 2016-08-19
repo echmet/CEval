@@ -1,5 +1,5 @@
-#ifndef DATAEXPORTER_H
-#define DATAEXPORTER_H
+#ifndef EXPORTERELEMS_H
+#define EXPORTERELEMS_H
 
 #include <functional>
 #include <QVariant>
@@ -8,6 +8,7 @@
 
 namespace DataExporter {
 
+class SelectSchemeWidget;
 class SchemeCreator;
 
 enum class CaptionPosition {
@@ -158,24 +159,6 @@ private:
 
 };
 
-class Exporter {
-public:
-  explicit Exporter();
-  ~Exporter();
-  Scheme * createScheme();
-  bool registerSchemeBase(const SchemeBaseRoot *schemeBase);
-  bool registerScheme(Scheme *scheme);
-
-private:
-  typedef QMap<QString, const SchemeBaseRoot *> SchemeBasesMap;
-  typedef QMap<QString, Scheme *> SchemesMap;
-
-  SchemeCreator *m_schemeCreator;
-  SchemeBasesMap m_schemeBases;
-  SchemesMap m_schemes;
-
-};
-
 } // namespace DataExporter
 
-#endif // DATAEXPORTER_H
+#endif // EXPORTERELEMS_H

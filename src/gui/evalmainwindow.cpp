@@ -118,8 +118,8 @@ void EvalMainWindow::makeExportMenus()
   m_exportEvaluationMenu->addAction(a);
 
   /* TESTING CODE */
-  a = new QAction("-- TEST EXPORTER --", this);
-  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionTestExporter);
+  a = new QAction("Show export schemes", this);
+  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionShowExportSchemes);
   m_exportEvaluationMenu->addAction(a);
 }
 
@@ -186,9 +186,9 @@ void EvalMainWindow::onActionSetNumberFormat()
   m_numberFormatDialog->exec();
 }
 
-void EvalMainWindow::onActionTestExporter()
+void EvalMainWindow::onActionShowExportSchemes()
 {
-  emit exportAction(DataAccumulatorMsgs::ExportAction::TEST_EXPORTER);
+  emit exportAction(DataAccumulatorMsgs::ExportAction::SHOW_EXPORTER_SCHEMES);
 }
 
 void EvalMainWindow::onActionWholePeakToClipboard()
