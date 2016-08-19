@@ -25,6 +25,7 @@ private:
 signals:
   void closed();
   void createScheme();
+  void editScheme(const QString &name);
   void removeScheme(const QString &name);
   void useScheme(const QString &name);
 

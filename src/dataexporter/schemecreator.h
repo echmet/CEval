@@ -1,6 +1,7 @@
 #ifndef SCHEMECREATOR_H
 #define SCHEMECREATOR_H
 
+#include "exporterglobals.h"
 #include <QDialog>
 class QStandardItemModel;
 
@@ -24,28 +25,37 @@ public:
     const QStringList exportables;
   };
 
-  class NewScheme {
+  class UserScheme {
   public:
-    explicit NewScheme();
-    explicit NewScheme(const QString &name, const QString &baseName, const QStringList &exportables);
+    explicit UserScheme();
+    explicit UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
+                        const QString &delimiter);
+    UserScheme & operator=(const UserScheme &other);
 
     const QString name;
     const QString baseName;
     const QStringList exportables;
+    const Globals::DataArrangement arrangement;
+    const QString delimiter;
     const bool isValid;
   };
 
   explicit SchemeCreator(QWidget *parent = nullptr);
   ~SchemeCreator();
-  NewScheme interact();
+  UserScheme interact(bool &canceled);
+  UserScheme interact(const UserScheme &scheme, bool &canceled);
   bool registerSchemeBase(const SchemeBase &base);
+  void resetForm();
 
 private:
+  void addExportable(const int row);
+
   Ui::SchemeCreator *ui;
 
   QStandardItemModel *m_avaliableExportablesModel;
   QStandardItemModel *m_selectedExportablesModel;
   QString m_schemeName;
+  QString m_currentSchemeName;
 
 private slots:
   void onAddExportableClicked();

@@ -1,6 +1,7 @@
 #include "schemecreator.h"
 #include "ui_schemecreator.h"
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QStandardItem>
 #include <QStandardItemModel>
 
@@ -20,20 +21,36 @@ SchemeCreator::SchemeBase::SchemeBase(const QString &name, const QString &descri
 {
 }
 
-SchemeCreator::NewScheme::NewScheme() :
+SchemeCreator::UserScheme::UserScheme() :
   name(""),
   baseName(""),
   exportables(QStringList()),
+  arrangement(Globals::DataArrangement::VERTICAL),
   isValid(false)
 {
 }
 
-SchemeCreator::NewScheme::NewScheme(const QString &name, const QString &baseName, const QStringList &exportables) :
+SchemeCreator::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
+                                      const QString &delimiter) :
   name(name),
   baseName(baseName),
   exportables(exportables),
+  arrangement(arrangement),
+  delimiter(delimiter),
   isValid(true)
 {
+}
+
+SchemeCreator::UserScheme & SchemeCreator::UserScheme::operator=(const UserScheme &other)
+{
+  const_cast<QString&>(name) = other.name;
+  const_cast<QString&>(baseName) = other.baseName;
+  const_cast<QStringList&>(exportables) = other.exportables;
+  const_cast<Globals::DataArrangement&>(arrangement) = other.arrangement;
+  const_cast<QString&>(delimiter) = other.delimiter;
+  const_cast<bool&>(isValid) = other.isValid;
+
+  return *this;
 }
 
 SchemeCreator::SchemeCreator(QWidget *parent) :
@@ -47,6 +64,9 @@ SchemeCreator::SchemeCreator(QWidget *parent) :
 
   ui->qlv_availableExportables->setModel(m_avaliableExportablesModel);
   ui->qlv_selectedExportables->setModel(m_selectedExportablesModel);
+
+  ui->qcbox_dataArrangement->addItem("Vertical", QVariant::fromValue<Globals::DataArrangement>(Globals::DataArrangement::VERTICAL));
+  ui->qcbox_dataArrangement->addItem("Horizontal", QVariant::fromValue<Globals::DataArrangement>(Globals::DataArrangement::HORIZONTAL));
 
   ui->qlv_availableExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->qlv_selectedExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -65,29 +85,113 @@ SchemeCreator::~SchemeCreator()
   delete ui;
 }
 
-SchemeCreator::NewScheme SchemeCreator::interact()
+void SchemeCreator::addExportable(const int row)
+{
+  QList<QStandardItem *> itemList = m_avaliableExportablesModel->takeRow(row);
+  if (itemList.size() < 1)
+    return;
+
+  m_selectedExportablesModel->appendRow(itemList.at(0));
+}
+
+SchemeCreator::UserScheme SchemeCreator::interact(bool &canceled)
 {
   QStringList selected;
   const QVariant base = ui->qcbox_availableSchemeBases->currentData(Qt::UserRole);
 
   if (!base.canConvert<SchemeBase>())
-    return NewScheme();
+    return UserScheme();
   const QString baseName = base.value<SchemeBase>().name;
 
-  int ret = this->exec();
-  if (ret != QDialog::Accepted)
-    return NewScheme();
+  while (true) {
+    int ret = this->exec();
+    if (ret != QDialog::Accepted) {
+      canceled = true;
+      return UserScheme();
+    }
+    canceled = false;
 
-  for (int idx = 0; idx < m_selectedExportablesModel->rowCount(); idx++) {
-    const QStandardItem *item = m_selectedExportablesModel->item(idx, 0);
-
-    if (item == nullptr)
+    if (m_selectedExportablesModel->rowCount() < 1)
       continue;
+    for (int idx = 0; idx < m_selectedExportablesModel->rowCount(); idx++) {
+      const QStandardItem *item = m_selectedExportablesModel->item(idx, 0);
 
-    selected << item->data(Qt::UserRole).toString();
- }
+      if (item == nullptr)
+        continue;
 
-  return NewScheme(m_schemeName, baseName, selected);
+      selected << item->data(Qt::UserRole).toString();
+    }
+
+    QVariant var = ui->qcbox_dataArrangement->currentData(Qt::UserRole);
+    if (!var.canConvert<Globals::DataArrangement>())
+      return UserScheme();
+
+    Globals::DataArrangement arr = var.value<Globals::DataArrangement>();
+
+    return UserScheme(m_schemeName, baseName, selected, arr, ui->qle_delimiter->text());
+  }
+}
+
+SchemeCreator::UserScheme SchemeCreator::interact(const UserScheme &scheme, bool &canceled)
+{
+  resetForm();
+
+  /* Set base scheme */
+  {
+    const QAbstractItemModel *model = ui->qcbox_availableSchemeBases->model();
+
+    int idx;
+    for (idx = 0; idx < model->rowCount(); idx++) {
+      const QVariant &var = model->data(model->index(idx, 0), Qt::UserRole);
+
+      if (var.canConvert<SchemeBase>()) {
+        const SchemeBase b = var.value<SchemeBase>();
+
+        if (scheme.baseName == b.name) {
+          ui->qcbox_availableSchemeBases->setCurrentIndex(idx);
+          onSchemeChanged(idx);
+          break;
+        }
+      }
+    }
+    if (idx == model->rowCount())
+      return UserScheme();
+  }
+
+  /* Set selected exporables list */
+  {
+    const QAbstractItemModel *model = m_avaliableExportablesModel; /* Alias */
+
+    for (const QString &s : scheme.exportables) {
+      for (int idx = 0; idx < model->rowCount(); idx++) {
+        const QVariant &var = model->data(model->index(idx, 0), Qt::UserRole);
+
+        if (var.toString() == s)
+          addExportable(idx);
+      }
+    }
+  }
+
+  /* Set data arrangement */
+  {
+    const QAbstractItemModel *model = ui->qcbox_dataArrangement->model();
+
+    for (int idx = 0; idx < model->rowCount(); idx++) {
+      const QVariant &var = model->data(model->index(idx, 0), Qt::UserRole);
+
+      if (var.canConvert<Globals::DataArrangement>()) {
+        Globals::DataArrangement arr = var.value<Globals::DataArrangement>();
+
+        if (arr == scheme.arrangement)
+          ui->qcbox_dataArrangement->setCurrentIndex(idx);
+      }
+    }
+  }
+
+  ui->qle_delimiter->setText(scheme.delimiter);
+
+  m_currentSchemeName = scheme.name;
+  return interact(canceled);
 }
 
 void SchemeCreator::onAddExportableClicked()
@@ -96,11 +200,7 @@ void SchemeCreator::onAddExportableClicked()
   if (!idx.isValid())
     return;
 
-  QList<QStandardItem *> itemList = m_avaliableExportablesModel->takeRow(idx.row());
-  if (itemList.size() < 1)
-    return;
-
-  m_selectedExportablesModel->appendRow(itemList.at(0));
+  addExportable(idx.row());
 }
 
 void SchemeCreator::onCancelClicked()
@@ -114,6 +214,7 @@ void SchemeCreator::onCreateClicked()
 
   dlg.setLabelText("Enter name for the scheme");
   dlg.setInputMode(QInputDialog::TextInput);
+  dlg.setTextValue(m_currentSchemeName);
 
   if (dlg.exec() != QDialog::Accepted)
     return;
@@ -175,5 +276,18 @@ bool SchemeCreator::registerSchemeBase(const SchemeBase &base)
 {
   ui->qcbox_availableSchemeBases->addItem(base.name, QVariant::fromValue<SchemeBase>(base));
 
+  if (ui->qcbox_availableSchemeBases->model()->rowCount() == 1)
+    onSchemeChanged(0);
+
   return true;
+}
+
+void SchemeCreator::resetForm()
+{
+  if (ui->qcbox_availableSchemeBases->model()->rowCount() < 1)
+    return;
+
+  ui->qcbox_availableSchemeBases->setCurrentIndex(0);
+  onSchemeChanged(0);
+  m_currentSchemeName = "";
 }

@@ -26,15 +26,12 @@ ExportableRoot::~ExportableRoot()
 }
 
 SelectedExportable::SelectedExportable() :
-  m_exportable(new Exportable<>()),
-  m_captionPosition(CaptionPosition::NONE)
+  m_exportable(new Exportable<>())
 {
 }
 
-SelectedExportable::SelectedExportable(const ExportableRoot *exportable, const QPoint &position, const CaptionPosition captionPosition) :
-  m_exportable(exportable),
-  m_position(position),
-  m_captionPosition(captionPosition)
+SelectedExportable::SelectedExportable(const ExportableRoot *exportable) :
+  m_exportable(exportable)
 {
 }
 
@@ -63,9 +60,12 @@ SchemeBaseRoot::~SchemeBaseRoot()
     delete e;
 }
 
-Scheme::Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base) :
+Scheme::Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement,
+               const QChar &delimiter) :
   name(name),
   selectedExportables(seMap),
+  arrangement(arrangement),
+  delimiter(delimiter),
   m_base(base)
 {
 }
@@ -74,6 +74,11 @@ Scheme::~Scheme()
 {
   for (const SelectedExportable *se : selectedExportables)
     delete se;
+}
+
+QString Scheme::baseName() const
+{
+  return m_base->name;
 }
 
 bool Scheme::exportData(const IExportable *exportee) const

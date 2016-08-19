@@ -129,7 +129,8 @@ SOURCES += src/main.cpp \
     src/dataexporter/schemecreator.cpp \
     src/dataexporter/selectschemewidget.cpp \
     src/dataexporter/exporterelems.cpp \
-    src/dataexporter/exporter.cpp
+    src/dataexporter/exporter.cpp \
+    src/dataexporter/schemeserializer.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -306,7 +307,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/dataexporter/schemecreator.h \
     src/dataexporter/selectschemewidget.h \
     src/dataexporter/exporter.h \
-    src/dataexporter/exporterelems.h
+    src/dataexporter/exporterelems.h \
+    src/dataexporter/exporterglobals.h \
+    src/dataexporter/schemeserializer.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

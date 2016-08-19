@@ -1,21 +1,13 @@
 #ifndef EXPORTERELEMS_H
 #define EXPORTERELEMS_H
 
+#include "exporterglobals.h"
 #include <functional>
 #include <QVariant>
 #include <QPoint>
 #include <QDebug>
 
 namespace DataExporter {
-
-class SelectSchemeWidget;
-class SchemeCreator;
-
-enum class CaptionPosition {
-  NONE,
-  ABOVE,
-  LEFT_OF
-};
 
 enum class SchemeTypes {
   NONE,
@@ -83,15 +75,13 @@ private:
 class SelectedExportable {
 public:
   explicit SelectedExportable();
-  explicit SelectedExportable(const ExportableRoot *exportable, const QPoint &position = QPoint(0, 0), const CaptionPosition captionPosition = CaptionPosition::NONE);
+  explicit SelectedExportable(const ExportableRoot *exportable);
 
   const QString & name() const;
   QVariant value(const IExportable *exportee) const;
 
 private:
   const ExportableRoot *m_exportable;
-  QPoint m_position;
-  CaptionPosition m_captionPosition;
 
 };
 
@@ -146,18 +136,25 @@ private:
 
 class Scheme {
 public:
-  explicit Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base);
+  explicit Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement,
+                  const QChar &delimiter);
   ~Scheme();
 
+  QString baseName() const;
   bool exportData(const IExportable *exportee) const;
 
   const QString name;
   const SelectedExportablesMap selectedExportables;
+  const Globals::DataArrangement arrangement;
+  const QChar delimiter;
 
 private:
   const SchemeBaseRoot *m_base;
 
 };
+
+typedef QMap<QString, const SchemeBaseRoot *> SchemeBasesMap;
+typedef QMap<QString, Scheme *> SchemesMap;
 
 } // namespace DataExporter
 

@@ -28,6 +28,7 @@ Exporter::Exporter() :
   connect(m_selectSchemeWidget, &SelectSchemeWidget::closed, m_selectSchemeDialog, &QDialog::close);
 
   connect(m_selectSchemeWidget, &SelectSchemeWidget::createScheme, this, &Exporter::onCreateScheme);
+  connect(m_selectSchemeWidget, &SelectSchemeWidget::editScheme, this, &Exporter::onEditScheme);
   connect(m_selectSchemeWidget, &SelectSchemeWidget::removeScheme, this, &Exporter::onRemoveScheme);
   connect(m_selectSchemeWidget, &SelectSchemeWidget::useScheme, this, &Exporter::onUseScheme);
 }
@@ -43,26 +44,67 @@ Exporter::~Exporter()
   delete m_selectSchemeDialog;
 }
 
-Scheme *Exporter::createScheme()
+Scheme * Exporter::createScheme()
 {
-  const SchemeCreator::NewScheme ns = m_schemeCreator->interact();
-  if (!ns.isValid)
+  m_schemeCreator->resetForm();
+
+  SchemeCreator::UserScheme ns;
+
+  bool canceled;
+  while (true) {
+    ns = m_schemeCreator->interact(canceled);
+
+    if (canceled)
+      return nullptr;
+
+    if (!isUserSchemeValid(ns))
+      continue;
+
+    break;
+  }
+
+  return makeScheme(ns);
+}
+
+bool Exporter::isUserSchemeValid(SchemeCreator::UserScheme &scheme)
+{
+  if (scheme.delimiter.length() > 1 && scheme.delimiter != "\t") {
+    QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
+    return false;
+  }
+  if (scheme.delimiter.length() < 1) {
+    QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter is not specified"));
+    return false;
+  }
+
+  if (!scheme.isValid)
+    return false;
+
+  return true;
+}
+
+Scheme * Exporter::makeScheme(const SchemeCreator::UserScheme &scheme)
+{
+  if (!m_schemeBases.contains(scheme.baseName))
     return nullptr;
 
-  if (!m_schemeBases.contains(ns.baseName))
-    return nullptr;
-
-  const SchemeBaseRoot *sbr = m_schemeBases.value(ns.baseName);
+  const SchemeBaseRoot *sbr = m_schemeBases.value(scheme.baseName);
   SelectedExportablesMap seMap;
 
-  for (const QString &s : ns.exportables) {
+  for (const QString &s : scheme.exportables) {
     if (!sbr->exportables.contains(s))
       return nullptr;
 
     seMap.insert(s, new SelectedExportable(sbr->exportables.value(s)));
   }
 
-  Scheme *s = new Scheme(ns.name, seMap, sbr);
+  Scheme *s;
+  try {
+    s = new Scheme(scheme.name, seMap, sbr, scheme.arrangement, scheme.delimiter.at(0));
+  } catch (std::bad_alloc &) {
+    QMessageBox::warning(nullptr, tr("Cannnot create scheme"), tr("Unable to create scheme. Please check the input and try again."));
+    return nullptr;
+  }
 
   return s;
 }
@@ -71,26 +113,63 @@ void Exporter::onCreateScheme()
 {
   Scheme *scheme = createScheme();
 
-  if (scheme == nullptr) {
-    QMessageBox::warning(nullptr, tr("Cannnot create scheme"), tr("Unable to create scheme. Please check the input and try again."));
+  if (scheme == nullptr)
     return;
-  }
 
   if (!registerScheme(scheme))
     QMessageBox::warning(m_selectSchemeDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
 }
 
+void Exporter::onDeserializeScheme()
+{
+}
+
+void Exporter::onEditScheme(const QString &name)
+{
+  bool canceled;
+
+  if (!m_schemes.contains(name))
+    return;
+
+  Scheme *s = m_schemes.value(name);
+
+  QStringList selectedExportables;
+
+  for (const QString &s : s->selectedExportables.keys())
+    selectedExportables << s;
+
+  SchemeCreator::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement, s->delimiter);
+
+  SchemeCreator::UserScheme ns;
+  while (true) {
+    ns = m_schemeCreator->interact(us, canceled);
+
+    if (canceled)
+      return;
+
+    if (!isUserSchemeValid(ns))
+      continue;
+
+    break;
+  }
+
+  removeScheme(name);
+  s = makeScheme(ns);
+
+  if (s == nullptr)
+    return;
+
+  if (!registerScheme(s))
+    QMessageBox::warning(m_selectSchemeDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
+}
+
 void Exporter::onRemoveScheme(const QString &name)
 {
-  m_schemes.remove(name);
-  for (int idx = 0; idx < m_schemesModel->rowCount(); idx++) {
-    const QStandardItem *item = m_schemesModel->item(idx);
+  removeScheme(name);
+}
 
-    if (item->data(Qt::UserRole).toString() == name) {
-      m_schemesModel->removeRows(idx, 1);
-      return;
-    }
-  }
+void Exporter::onSerializeScheme()
+{
 }
 
 void Exporter::onUseScheme(const QString &name)
@@ -99,7 +178,7 @@ void Exporter::onUseScheme(const QString &name)
     return;
 
   if (m_currentExportee == nullptr) {
-    QMessageBox::critical(m_selectSchemeDialog, tr("Runtime error"), QString(tr("Invalid pointer to \"exportee\". Please report this as a bug to %1 developers.")).arg(Globals::SOFTWARE_NAME));
+    QMessageBox::critical(m_selectSchemeDialog, tr("Runtime error"), QString(tr("Invalid pointer to \"exportee\". Please report this as a bug to %1 developers.")).arg(::Globals::SOFTWARE_NAME));
     return;
   }
 
@@ -133,6 +212,19 @@ bool Exporter::registerSchemeBase(const SchemeBaseRoot *schemeBase)
     exportables << e->name;
 
   return m_schemeCreator->registerSchemeBase(SchemeCreator::SchemeBase(schemeBase->name, schemeBase->description, exportables));
+}
+
+void Exporter::removeScheme(const QString &name)
+{
+  m_schemes.remove(name);
+  for (int idx = 0; idx < m_schemesModel->rowCount(); idx++) {
+    const QStandardItem *item = m_schemesModel->item(idx);
+
+    if (item->data(Qt::UserRole).toString() == name) {
+      m_schemesModel->removeRows(idx, 1);
+      return;
+    }
+  }
 }
 
 void Exporter::showSchemes(const IExportable *exportee)

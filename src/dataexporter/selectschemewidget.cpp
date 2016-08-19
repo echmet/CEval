@@ -13,6 +13,7 @@ SelectSchemeWidget::SelectSchemeWidget(QWidget *parent) :
   ui->qlv_schemes->setEditTriggers(QListView::NoEditTriggers);
 
   connect(ui->qpb_createScheme, &QPushButton::clicked, this, &SelectSchemeWidget::onCreateSchemeClicked);
+  connect(ui->qpb_editScheme, &QPushButton::clicked, this, &SelectSchemeWidget::onEditSchemeClicked);
   connect(ui->qpb_removeScheme, &QPushButton::clicked, this, &SelectSchemeWidget::onRemoveSchemeClicked);
   connect(ui->qpb_useScheme, &QPushButton::clicked, this, &SelectSchemeWidget::onUseSchemeClicked);
   connect(ui->qpb_close, &QPushButton::clicked, this, &SelectSchemeWidget::onCloseClicked);
@@ -35,6 +36,13 @@ void SelectSchemeWidget::onCreateSchemeClicked()
 
 void SelectSchemeWidget::onEditSchemeClicked()
 {
+  const QModelIndex &idx = ui->qlv_schemes->currentIndex();
+  if (!idx.isValid())
+    return;
+
+  const QString name = ui->qlv_schemes->model()->data(idx, Qt::UserRole).toString();
+
+  emit editScheme(name);
 }
 
 void SelectSchemeWidget::onLoadSchemeClicked()
