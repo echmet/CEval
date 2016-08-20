@@ -97,11 +97,6 @@ void SchemeCreator::addExportable(const int row)
 SchemeCreator::UserScheme SchemeCreator::interact(bool &canceled)
 {
   QStringList selected;
-  const QVariant base = ui->qcbox_availableSchemeBases->currentData(Qt::UserRole);
-
-  if (!base.canConvert<SchemeBase>())
-    return UserScheme();
-  const QString baseName = base.value<SchemeBase>().name;
 
   while (true) {
     int ret = this->exec();
@@ -110,6 +105,12 @@ SchemeCreator::UserScheme SchemeCreator::interact(bool &canceled)
       return UserScheme();
     }
     canceled = false;
+
+    const QVariant base = ui->qcbox_availableSchemeBases->currentData(Qt::UserRole);
+
+    if (!base.canConvert<SchemeBase>())
+      return UserScheme();
+    const QString baseName = base.value<SchemeBase>().name;
 
     if (m_selectedExportablesModel->rowCount() < 1)
       continue;

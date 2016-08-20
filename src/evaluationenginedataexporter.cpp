@@ -47,10 +47,8 @@ bool EvaluationEngine::initDataExporter()
     if (!exportee->isContextValid())
       return false;
 
-    if (exportee->m_allPeaks.size() < 2) {
-      qDebug() << "No peaks in list";
+    if (exportee->m_allPeaks.size() < 2)
       return true;
-    }
 
     int blockCtr = 0;
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
@@ -70,7 +68,7 @@ bool EvaluationEngine::initDataExporter()
       blockCtr++;
     }
 
-    return true;
+    return backend.exportData();
   };
 
   DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables, DataExporter::SchemeTypes::SINGLE_ITEM);
