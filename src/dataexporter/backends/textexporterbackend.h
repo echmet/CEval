@@ -14,12 +14,7 @@ public:
   virtual bool exportData() override;
 
 private:
-  typedef QVector<QString> OutputMatrixRow;
-  typedef QVector<QVector<QString>> OutputMatrix;
-
-  bool exportHorizontal(const OutputMatrix &m, QTextStream &stream);
-  bool exportVertical(const OutputMatrix &m, QTextStream &stream, const int rows, const int cols);
-  OutputMatrix makeOutputMatrix(const int x, const int y);
+  void write(const OutputMatrix &m, QTextStream &stream);
 
   const QChar m_delimiter;
   const QString m_path;

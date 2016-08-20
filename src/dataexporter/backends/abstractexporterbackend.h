@@ -25,10 +25,16 @@ public:
   virtual bool exportData() = 0;
 
 protected:
+  typedef QVector<QString> OutputMatrixRow;
+  typedef QVector<QVector<QString>> OutputMatrix;
+
   class Block {
   public:
     QVector<Cell *> cells;
   };
+
+  OutputMatrix allocateOutputMatrix(const int x, const int y);
+  OutputMatrix makeOutputMatrix();
 
   Globals::DataArrangement m_arrangement;
   QVector<Block> m_blocks;
