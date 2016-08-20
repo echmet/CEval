@@ -10,6 +10,9 @@
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
+/* HACK!!! */
+#include "backends/textexporterbackend.h"
+
 using namespace DataExporter;
 
 const QString Exporter::FILEDIALOG_NAME_FILTER = "CEval exporter scheme (*.exs)";
@@ -84,7 +87,7 @@ Scheme * Exporter::createScheme()
 
 bool Exporter::isUserSchemeValid(SchemeCreator::UserScheme &scheme)
 {
-  if (scheme.delimiter.length() > 1 && scheme.delimiter != "\t") {
+  if (scheme.delimiter.length() > 1 && scheme.delimiter != "\\t") {
     QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
     return false;
   }
@@ -264,7 +267,9 @@ void Exporter::onUseScheme(const QString &name)
   }
 
   const Scheme *s = m_schemes.value(name);
-  s->exportData(m_currentExportee);
+
+  TextExporterBackend backend("testfile.csv", s->delimiter, s->arrangement);
+  s->exportData(m_currentExportee, backend);
 }
 
 bool Exporter::registerScheme(Scheme *scheme)

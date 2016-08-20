@@ -42,7 +42,8 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak height", resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
   MAKE_EXPORTABLE(peakListExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
 
-  auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap) -> bool {
+  auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+    typedef DataExporter::AbstractExporterBackend::Cell Cell;
     if (!exportee->isContextValid())
       return false;
 
@@ -51,22 +52,23 @@ bool EvaluationEngine::initDataExporter()
       return true;
     }
 
+    int blockCtr = 0;
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      qDebug() << pCtx->peakName;
+      backend.addCell(new Cell(pCtx->peakName, ""), blockCtr++, 0);
 
       for (const DataExporter::SelectedExportable *se : seMap) {
         try {
-          qDebug() << se->name() << se->value(pCtx);
+          backend.addCell(new Cell(se->name(), se->value(pCtx)), blockCtr, se->position);
         } catch (DataExporter::InvalidExportableException &) {
           /* We expect this to happen */
+          const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
+          if (eof != nullptr)
+            backend.addCell(new Cell(se->name(), se->value(exportee)), blockCtr, se->position);
         }
       }
+      blockCtr++;
     }
-
-    const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
-    if (eof != nullptr)
-      qDebug() << eof->name() << eof->value(exportee);
 
     return true;
   };

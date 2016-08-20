@@ -2,6 +2,7 @@
 #define EXPORTERELEMS_H
 
 #include "exporterglobals.h"
+#include "backends/abstractexporterbackend.h"
 #include <functional>
 #include <QVariant>
 #include <QPoint>
@@ -95,7 +96,7 @@ public:
                           const ExportablesMap &exportables, const SchemeTypes type);
   virtual ~SchemeBaseRoot();
 
-  virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap) const = 0;
+  virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) const = 0;
 
   const QString name;
   const QString description;
@@ -107,27 +108,32 @@ public:
 template<typename T>
 class SchemeBase : public SchemeBaseRoot {
 public:
-  typedef std::function<bool (const T *, const SelectedExportablesMap &)> Executor;
+  typedef std::function<bool (const T *, const SelectedExportablesMap &, AbstractExporterBackend &)> Executor;
 
   explicit SchemeBase(const QString &name, const QString &description,
                       const ExportablesMap &exportables, const SchemeTypes type,
-                      Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap) {
-                        for (const SelectedExportable *se : seMap)
-                          qDebug() << se->name() << se->value(exportee);
+                      Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) {
+                        for (const SelectedExportable *se : seMap) {
+                          try {
+                            backend.addCell(new AbstractExporterBackend::Cell(se->name(), se->value(exportee)), 0, se->position);
+                          } catch (std::bad_alloc &) {
+                            return false;
+                          }
+                        }
 
-                        return true;
+                        return backend.exportData();
                       }) :
     SchemeBaseRoot(name, description, exportables, type),
     m_executor(executor)
   {
   }
 
-  virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap) const override
+  virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) const override
   {
     const T *_exportee = dynamic_cast<const T *>(exportee);
     Q_ASSERT(_exportee != nullptr);
 
-    return m_executor(_exportee, seMap);
+    return m_executor(_exportee, seMap, backend);
   }
 
 private:
@@ -142,7 +148,7 @@ public:
   ~Scheme();
 
   QString baseName() const;
-  bool exportData(const IExportable *exportee) const;
+  bool exportData(const IExportable *exportee, AbstractExporterBackend &backend) const;
 
   const QString name;
   const SelectedExportablesMap selectedExportables;

@@ -83,7 +83,7 @@ QString Scheme::baseName() const
   return m_base->name;
 }
 
-bool Scheme::exportData(const IExportable *exportee) const
+bool Scheme::exportData(const IExportable *exportee, AbstractExporterBackend &backend) const
 {
-  return m_base->exportData(exportee, selectedExportables);
+  return m_base->exportData(exportee, selectedExportables, backend);
 }
