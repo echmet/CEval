@@ -53,7 +53,7 @@ bool EvaluationEngine::initDataExporter()
     int blockCtr = 0;
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      backend.addCell(new Cell(pCtx->peakName, ""), blockCtr++, 0);
+      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, 0);
 
       for (const DataExporter::SelectedExportable *se : seMap) {
         try {

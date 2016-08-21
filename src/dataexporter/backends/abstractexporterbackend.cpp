@@ -2,9 +2,10 @@
 
 using namespace DataExporter;
 
-AbstractExporterBackend::Cell::Cell(const QString &name, const QVariant &value) :
+AbstractExporterBackend::Cell::Cell(const QString &name, const QVariant &value, const uint32_t options) :
   name(name),
-  value(value)
+  value(value),
+  options(options)
 {
 }
 
@@ -52,45 +53,71 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::allocateOutputMat
 
 AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix()
 {
-  int dimY = m_blocks.size();
+  int dimY = 0;
   int dimX = 0;
 
   for (const Block &b : m_blocks) {
-    if (b.cells.size() > dimX)
+    if (dimX < b.cells.size())
       dimX = b.cells.size();
-  }
 
-  dimY *= 2;
+    int _dimY = 0;
+    for (const Cell *c : b.cells) {
+      if (c == nullptr)
+        continue;
+
+      if (c->options & Cell::NO_VALUE) {
+        if (_dimY < 1) _dimY = 1;
+      } else {
+        _dimY = 2;
+      }
+    }
+    dimY += _dimY;
+  }
 
   if (m_arrangement == Globals::DataArrangement::VERTICAL)
     std::swap(dimX, dimY);
 
   OutputMatrix m = allocateOutputMatrix(dimX, dimY);
 
-  for (int idx = 0; idx < m_blocks.size(); idx++) {
-    const Block &b = m_blocks.at(idx);
+  int blockCtr = 0;
+  /*for (int idx = 0; idx < m_blocks.size(); idx++) {
+    const Block &b = m_blocks.at(idx);*/
+  for (const Block &b : m_blocks) {
+    int next = 0;
 
     for (int jdx = 0; jdx < b.cells.size(); jdx++) {
       const Cell *c = b.cells.at(jdx);
       QString k;
       QString v;
+      const bool has_value = !(c->options & Cell::NO_VALUE);
 
       if (c != nullptr) {
         k = c->name;
-        v = c->value.toString();
+        if (has_value)
+          v = c->value.toString();
       }
 
       switch (m_arrangement) {
       case Globals::DataArrangement::HORIZONTAL:
-        m[2*idx][jdx] = k;
-        m[2*idx + 1][jdx] = v;
+        m[blockCtr][jdx] = k;
+        if (has_value)
+          m[blockCtr + 1][jdx] = v;
         break;
       case Globals::DataArrangement::VERTICAL:
-        m[jdx][2*idx] = k;
-        m[jdx][2*idx + 1] = v;
+        m[jdx][blockCtr] = k;
+        if (has_value)
+          m[jdx][blockCtr + 1] = v;
         break;
       }
+
+      if (has_value) {
+        next = 2;
+      } else {
+        if (next < 1) next = 1;
+      }
     }
+
+    blockCtr += next;
   }
 
   return m;

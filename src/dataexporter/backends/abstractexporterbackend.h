@@ -4,6 +4,7 @@
 #include "../exporterglobals.h"
 #include <QVariant>
 #include <QVector>
+#include <cstdint>
 
 namespace DataExporter {
 
@@ -12,10 +13,16 @@ class AbstractExporterBackend
 public:
   class Cell {
   public:
-    explicit Cell(const QString &name, const QVariant &value);
+    enum Options {
+      NO_VALUE = 1
+    };
+
+    explicit Cell(const QString &name, const QVariant &value, const uint32_t options = 0);
 
     const QString name;
     const QVariant value;
+    const uint32_t options;
+
   };
 
   explicit AbstractExporterBackend(const Globals::DataArrangement arrangement);
