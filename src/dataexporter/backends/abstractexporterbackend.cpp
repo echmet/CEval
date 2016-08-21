@@ -60,16 +60,13 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
     if (dimX < b.cells.size())
       dimX = b.cells.size();
 
-    int _dimY = 0;
+    int _dimY = 1;
     for (const Cell *c : b.cells) {
       if (c == nullptr)
         continue;
 
-      if (c->options & Cell::NO_VALUE) {
-        if (_dimY < 1) _dimY = 1;
-      } else {
+      if (!(c->options & Cell::NO_VALUE))
         _dimY = 2;
-      }
     }
     dimY += _dimY;
   }
@@ -80,22 +77,23 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
   OutputMatrix m = allocateOutputMatrix(dimX, dimY);
 
   int blockCtr = 0;
-  /*for (int idx = 0; idx < m_blocks.size(); idx++) {
-    const Block &b = m_blocks.at(idx);*/
   for (const Block &b : m_blocks) {
-    int next = 0;
+    int next = 1;
 
     for (int jdx = 0; jdx < b.cells.size(); jdx++) {
       const Cell *c = b.cells.at(jdx);
       QString k;
       QString v;
-      const bool has_value = !(c->options & Cell::NO_VALUE);
+      bool has_value = false;
 
       if (c != nullptr) {
+        has_value = !(c->options & Cell::NO_VALUE);
+
         k = c->name;
         if (has_value)
           v = c->value.toString();
       }
+
 
       switch (m_arrangement) {
       case Globals::DataArrangement::HORIZONTAL:
@@ -110,11 +108,8 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
         break;
       }
 
-      if (has_value) {
+      if (has_value)
         next = 2;
-      } else {
-        if (next < 1) next = 1;
-      }
     }
 
     blockCtr += next;
