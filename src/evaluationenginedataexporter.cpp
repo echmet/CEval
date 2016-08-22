@@ -19,7 +19,7 @@ Q_DECLARE_METATYPE(PeakDimsTuple)
   if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
   map.insert(name, new DataExporter::Exportable<TT>(name, \
     [](const TT *me) { \
-      return QVariant(me->getter); \
+      return QVariant(DoubleToStringConvertor::convert(me->getter)); \
   }))
 
 #define MAKE_EXPORTABLE_DIMS(map, TT, name, dimitem) \
