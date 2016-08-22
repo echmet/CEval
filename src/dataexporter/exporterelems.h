@@ -10,12 +10,6 @@
 
 namespace DataExporter {
 
-enum class SchemeTypes {
-  NONE,
-  SINGLE_ITEM,
-  LIST
-};
-
 class ExportableExistsException : std::exception {
 public:
   const char * what() const noexcept;
@@ -23,6 +17,12 @@ public:
 };
 
 class InvalidExportableException : std::exception {
+public:
+  const char * what() const noexcept;
+
+};
+
+class UnknownExportableException : std::exception {
 public:
   const char * what() const noexcept;
 
@@ -93,7 +93,7 @@ typedef QMap<QString, SelectedExportable *> SelectedExportablesMap;
 class SchemeBaseRoot {
 public:
   explicit SchemeBaseRoot(const QString &name, const QString &description,
-                          const ExportablesMap &exportables, const SchemeTypes type);
+                          const ExportablesMap &exportables);
   virtual ~SchemeBaseRoot();
 
   virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) const = 0;
@@ -101,7 +101,6 @@ public:
   const QString name;
   const QString description;
   const ExportablesMap exportables;
-  const SchemeTypes type;
 
 };
 
@@ -111,7 +110,7 @@ public:
   typedef std::function<bool (const T *, const SelectedExportablesMap &, AbstractExporterBackend &)> Executor;
 
   explicit SchemeBase(const QString &name, const QString &description,
-                      const ExportablesMap &exportables, const SchemeTypes type,
+                      const ExportablesMap &exportables,
                       Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) {
                         for (const SelectedExportable *se : seMap) {
                           try {
@@ -123,7 +122,7 @@ public:
 
                         return backend.exportData();
                       }) :
-    SchemeBaseRoot(name, description, exportables, type),
+    SchemeBaseRoot(name, description, exportables),
     m_executor(executor)
   {
   }

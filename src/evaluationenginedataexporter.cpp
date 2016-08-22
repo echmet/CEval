@@ -32,7 +32,7 @@ Q_DECLARE_METATYPE(PeakDimsTuple)
   }))
 
 #define MAKE_SELECTED_EXPORTABLE_CTC(bmap, map, name, position) \
-  if (!bmap.contains(name)) throw DataExporter::InvalidExportableException(); \
+  if (!bmap.contains(name)) throw DataExporter::UnknownExportableException(); \
   map.insert(name, new DataExporter::SelectedExportable(bmap.value(name), position));
 
 void EvaluationEngine::initClipboardExporter()
@@ -96,10 +96,10 @@ void EvaluationEngine::initClipboardExporter()
     return backend.exportData();
   };
 
-  m_ctcEofSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("EOF", "", eof, DataExporter::SchemeTypes::SINGLE_ITEM);
-  m_ctcHvlSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("HVL", "", hvl, DataExporter::SchemeTypes::SINGLE_ITEM);
-  m_ctcPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Peak", "", peak, DataExporter::SchemeTypes::SINGLE_ITEM);
-  m_ctcPeakDimsSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("PeakDims", "", peakDims, DataExporter::SchemeTypes::SINGLE_ITEM, peakDimsExecutor);
+  m_ctcEofSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("EOF", "", eof);
+  m_ctcHvlSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("HVL", "", hvl);
+  m_ctcPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Peak", "", peak);
+  m_ctcPeakDimsSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("PeakDims", "", peakDims, peakDimsExecutor);
 
   DataExporter::SelectedExportablesMap seEof;
   DataExporter::SelectedExportablesMap seHvl;
@@ -204,8 +204,8 @@ bool EvaluationEngine::initDataExporter()
     return backend.exportData();
   };
 
-  DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables, DataExporter::SchemeTypes::SINGLE_ITEM);
-  DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "Export complete list of evaluated peaks", peakListExportables, DataExporter::SchemeTypes::LIST, peakListExecutor);
+  DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables);
+  DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "Export complete list of evaluated peaks", peakListExportables, peakListExecutor);
 
   if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase))
     return false;

@@ -12,6 +12,11 @@ const char * InvalidExportableException::what() const noexcept
   return "Unable to cast IExportable object to the expected type";
 }
 
+const char * UnknownExportableException::what() const noexcept
+{
+  return "Unknown exportable ID";
+}
+
 IExportable::~IExportable()
 {
 }
@@ -48,11 +53,10 @@ QVariant SelectedExportable::value(const IExportable *exportee) const
 }
 
 SchemeBaseRoot::SchemeBaseRoot(const QString &name, const QString &description,
-                              const ExportablesMap &exportables, const SchemeTypes type) :
+                              const ExportablesMap &exportables) :
   name(name),
   description(description),
-  exportables(exportables),
-  type(type)
+  exportables(exportables)
 {
 }
 
