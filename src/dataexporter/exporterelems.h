@@ -6,7 +6,6 @@
 #include <functional>
 #include <QVariant>
 #include <QPoint>
-#include <QDebug>
 
 namespace DataExporter {
 
