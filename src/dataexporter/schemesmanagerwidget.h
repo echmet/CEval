@@ -1,5 +1,5 @@
-#ifndef SELECTSCHEMEWIDGET_H
-#define SELECTSCHEMEWIDGET_H
+#ifndef SCHEMESMANAGERWIDGET_H
+#define SCHEMESMANAGERWIDGET_H
 
 #include <QWidget>
 
@@ -43,4 +43,4 @@ private slots:
 
 } // namespace DataExporter
 
-#endif // SELECTSCHEMEWIDGET_H
+#endif // SCHEMESMANAGERWIDGET_H
