@@ -24,6 +24,7 @@
 class AddPeakDialog;
 class QFileDialog;
 class QMenu;
+class TextExporterBackendConfigurationDialog;
 
 class EvaluationEngine : public QObject, public DataExporter::IExportable
 {
@@ -307,6 +308,9 @@ private:
   QString m_currentDataExporterSchemeId;
   DataExporterBackends m_currentDataExporterBackend;
   QFileDialog *m_dataExporterFileDlg;
+  TextExporterBackendConfigurationDialog *m_textDataExporterCfgDlg;
+  QChar m_textDataExporterDelimiter;
+
 
 
 signals:

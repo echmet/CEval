@@ -4,6 +4,7 @@
 #include "doubletostringconvertor.h"
 #include "gui/addpeakdialog.h"
 #include "gui/setaxistitlesdialog.h"
+#include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
 #include "helpers.h"
 #include "manualpeakfinder.h"
@@ -159,6 +160,9 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
     m_dataExporterFileDlg = new QFileDialog();
     m_dataExporterFileDlg->setAcceptMode(QFileDialog::AcceptSave);
+
+    m_textDataExporterDelimiter = QChar(';');
+    m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));
     throw;
@@ -213,6 +217,7 @@ EvaluationEngine::~EvaluationEngine()
   delete m_postProcessMenu;
   delete m_dataExporterBackendsModel;
   delete m_dataExporterFileDlg;
+  delete m_textDataExporterCfgDlg;
 }
 
 void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
@@ -1054,7 +1059,34 @@ void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier 
 
 void EvaluationEngine::onConfigureExporterBackend()
 {
+  switch (m_currentDataExporterBackend) {
+  case DataExporterBackends::HTML:
+    return; /* This backend has no configuration options */
+  case DataExporterBackends::TEXT:
+  {
+    bool canceled = false;
 
+    while (true) {
+      QString str = m_textDataExporterCfgDlg->interact(canceled, m_textDataExporterDelimiter);
+      if (canceled)
+        return;
+
+      if (str == "\\t") {
+        m_textDataExporterDelimiter = QChar('\t');
+        return;
+      } else {
+        if (str.length() != 1) {
+          QMessageBox::warning(nullptr, tr("Invalid input data"), tr("Delimiter must be a single character"));
+          continue;
+        }
+
+        m_textDataExporterDelimiter = QChar(str.at(0));
+        return;
+      }
+    }
+  }
+    return;
+  }
 }
 
 void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc)
@@ -1346,7 +1378,7 @@ void EvaluationEngine::onExportScheme()
       backend = new DataExporter::HtmlExporterBackend(path, s->arrangement);
       break;
     case DataExporterBackends::TEXT:
-      backend = new DataExporter::TextExporterBackend(path, ';', s->arrangement);
+      backend = new DataExporter::TextExporterBackend(path, m_textDataExporterDelimiter, s->arrangement);
       break;
     default:
       break;
@@ -1356,7 +1388,7 @@ void EvaluationEngine::onExportScheme()
       return;
   }
 
-  if (s->exportData(this, *backend))
+  if (!s->exportData(this, *backend))
     QMessageBox::warning(nullptr, tr("Data export error"), tr("Unable to export data"));
 
   delete backend;
