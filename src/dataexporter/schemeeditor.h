@@ -47,6 +47,7 @@ public:
 
 private:
   void addExportable(const int row);
+  UserScheme interactInternal(bool &canceled);
 
   Ui::SchemeEditor *ui;
 

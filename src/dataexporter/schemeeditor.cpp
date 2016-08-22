@@ -93,46 +93,16 @@ void SchemeEditor::addExportable(const int row)
 
 SchemeEditor::UserScheme SchemeEditor::interact(bool &canceled)
 {
-  QStringVector selected;
+  ui->qpb_create->setText(tr("Create"));
 
-  while (true) {
-    int ret = this->exec();
-    if (ret != QDialog::Accepted) {
-      canceled = true;
-      return UserScheme();
-    }
-    canceled = false;
-
-    const QVariant base = ui->qcbox_availableSchemeBases->currentData(Qt::UserRole);
-
-    if (!base.canConvert<SchemeBase>())
-      return UserScheme();
-    const QString baseName = base.value<SchemeBase>().name;
-
-    if (m_selectedExportablesModel->rowCount() < 1)
-      continue;
-    for (int idx = 0; idx < m_selectedExportablesModel->rowCount(); idx++) {
-      const QStandardItem *item = m_selectedExportablesModel->item(idx, 0);
-
-      if (item == nullptr)
-        continue;
-
-      selected << item->data(Qt::UserRole).toString();
-    }
-
-    QVariant var = ui->qcbox_dataArrangement->currentData(Qt::UserRole);
-    if (!var.canConvert<Globals::DataArrangement>())
-      return UserScheme();
-
-    Globals::DataArrangement arr = var.value<Globals::DataArrangement>();
-
-    return UserScheme(m_schemeName, baseName, selected, arr);
-  }
+  return interactInternal(canceled);
 }
 
 SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &canceled)
 {
   resetForm();
+
+  ui->qpb_create->setText(tr("Confim"));
 
   /* Set base scheme */
   {
@@ -187,7 +157,46 @@ SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &
   }
 
   m_currentSchemeName = scheme.name;
-  return interact(canceled);
+  return interactInternal(canceled);
+}
+
+SchemeEditor::UserScheme SchemeEditor::interactInternal(bool &canceled)
+{
+  QStringVector selected;
+
+  while (true) {
+    int ret = this->exec();
+    if (ret != QDialog::Accepted) {
+      canceled = true;
+      return UserScheme();
+    }
+    canceled = false;
+
+    const QVariant base = ui->qcbox_availableSchemeBases->currentData(Qt::UserRole);
+
+    if (!base.canConvert<SchemeBase>())
+      return UserScheme();
+    const QString baseName = base.value<SchemeBase>().name;
+
+    if (m_selectedExportablesModel->rowCount() < 1)
+      continue;
+    for (int idx = 0; idx < m_selectedExportablesModel->rowCount(); idx++) {
+      const QStandardItem *item = m_selectedExportablesModel->item(idx, 0);
+
+      if (item == nullptr)
+        continue;
+
+      selected << item->data(Qt::UserRole).toString();
+    }
+
+    QVariant var = ui->qcbox_dataArrangement->currentData(Qt::UserRole);
+    if (!var.canConvert<Globals::DataArrangement>())
+      return UserScheme();
+
+    Globals::DataArrangement arr = var.value<Globals::DataArrangement>();
+
+    return UserScheme(m_schemeName, baseName, selected, arr);
+  }
 }
 
 void SchemeEditor::onAddExportableClicked()
