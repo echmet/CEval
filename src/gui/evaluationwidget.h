@@ -68,6 +68,8 @@ signals:
   void replotHvl();
 
 public slots:
+  void onClipboardExporterDataArrangementSet(const QModelIndex &midx);
+  void onClipboardExporterDelimiterSet(const QString &text);
   void onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
 
 private slots:

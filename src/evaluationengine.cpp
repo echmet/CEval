@@ -90,6 +90,8 @@ const int EvaluationEngine::s_defaultHvlIterations = 10;
 const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
 const QString EvaluationEngine::HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG("HVLFitOptions-DisableAutoFit");
 const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-ShowFitStats");
+const QString EvaluationEngine::CLIPBOARDEXPORTER_DELIMTIER_TAG("ClipboardExporter-Delimiter");
+const QString EvaluationEngine::CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG("ClipboardExporter-DataArrangement");
 
 EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
                                            const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
@@ -176,7 +178,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     m_ctcDataArrangementModel->appendRow(item);
 
     m_ctcDelimiter = ";";
-
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));
     throw;
@@ -887,6 +888,29 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
       m_hvlFitOptionsModel.notifyDataChanged(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS, HVLFitOptionsItems::Boolean::SHOW_FIT_STATS, { Qt::EditRole });
    }
   }
+
+  if (map.contains(CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG)) {
+    const QVariant &v = map[CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG];
+
+    if (v.canConvert<DataExporter::Globals::DataArrangement>()) {
+      m_ctcDataArrangement = v.value<DataExporter::Globals::DataArrangement>();
+
+      for (int idx = 0; idx < m_ctcDataArrangementModel->rowCount(); idx++) {
+        const QModelIndex &midx = m_ctcDataArrangementModel->index(idx, 0);
+        const QVariant &_v = m_ctcDataArrangementModel->data(midx, Qt::UserRole);
+
+        if (_v.value<DataExporter::Globals::DataArrangement>() == m_ctcDataArrangement)
+          emit clipboardExporterDataArrangementSet(midx);
+      }
+    }
+  }
+
+  if (map.contains(CLIPBOARDEXPORTER_DELIMTIER_TAG)) {
+    const QVariant &v = map[CLIPBOARDEXPORTER_DELIMTIER_TAG];
+
+    m_ctcDelimiter = v.toString();
+  }
+  emit clipboardExporterDelimiterSet(m_ctcDelimiter); /* Default value is used if none is set */
 }
 
 PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr)
@@ -1801,6 +1825,8 @@ QVariant EvaluationEngine::saveUserSettings() const
   map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
   map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
   map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS);
+  map[CLIPBOARDEXPORTER_DELIMTIER_TAG] = m_ctcDelimiter;
+  map[CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG] = QVariant::fromValue<DataExporter::Globals::DataArrangement>(m_ctcDataArrangement);
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }

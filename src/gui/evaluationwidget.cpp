@@ -88,6 +88,27 @@ void EvaluationWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBox
   }
 }
 
+void EvaluationWidget::onClipboardExporterDataArrangementSet(const QModelIndex &midx)
+{
+  if (!midx.isValid())
+    return;
+
+  disconnect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
+
+  ui->qcbox_clipboardDataArrangement->setCurrentIndex(midx.row());
+
+  connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
+}
+
+void EvaluationWidget::onClipboardExporterDelimiterSet(const QString &text)
+{
+  disconnect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
+
+  ui->qle_clipboardDelimiter->setText(text);
+
+  connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
+}
+
 void EvaluationWidget::onConfigureExporterBackendClicked()
 {
   emit configureExporterBackend();

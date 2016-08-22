@@ -299,6 +299,8 @@ private:
   static const QString DATAFILELOADER_SETTINGS_TAG;
   static const QString HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG;
   static const QString HVLFITOPTIONS_SHOW_FIT_STATS_TAG;
+  static const QString CLIPBOARDEXPORTER_DELIMTIER_TAG;
+  static const QString CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG;
 
   static int seriesIndex(const Series iid);
 
@@ -324,6 +326,8 @@ private:
   QStandardItemModel *m_ctcDataArrangementModel;
 
 signals:
+  void clipboardExporterDataArrangementSet(const QModelIndex &idx);
+  void clipboardExporterDelimiterSet(const QString &text);
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void evaluationFileAdded(const int idx);
   void evaluationFileSwitched(const int idx);

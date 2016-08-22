@@ -1,4 +1,5 @@
 #include "custommetatypes.h"
+#include "dataexporter/exporterglobals.h"
 #include "softwareupdater.h"
 
 QDataStream &operator>>(QDataStream &in, EMT::SeriesSettingsMap &map)
@@ -52,8 +53,32 @@ QDataStream &operator<<(QDataStream &out, const EMT::SeriesSettingsMap &map)
   return out;
 }
 
+QDataStream &operator>>(QDataStream &in, DataExporter::Globals::DataArrangement &a)
+{
+  typedef typename std::underlying_type<DataExporter::Globals::DataArrangement>::type ARType;
+
+  QVariant v;
+
+  in >> v;
+
+  if (v.canConvert<ARType>())
+    a = static_cast<DataExporter::Globals::DataArrangement>(v.value<ARType>());
+
+  return in;
+}
+
+QDataStream &operator<<(QDataStream &out, const DataExporter::Globals::DataArrangement a)
+{
+  typedef typename std::underlying_type<DataExporter::Globals::DataArrangement>::type ARType;
+
+  out << QVariant::fromValue<ARType>(static_cast<ARType>(a));
+
+  return out;
+}
+
 void EMT::registerAll()
 {
+  qRegisterMetaTypeStreamOperators<DataExporter::Globals::DataArrangement>("DataArrangement");
   qRegisterMetaTypeStreamOperators<SeriesSettingsMap>("SeriesSettingsMap");
   qRegisterMetaType<UpdateCheckResults>();
 }
