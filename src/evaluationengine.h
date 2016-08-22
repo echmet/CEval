@@ -76,6 +76,7 @@ public:
   void assignContext(std::shared_ptr<ModeContextLimited> ctx);
   QAbstractItemModel *baselineModel();
   AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
+  QAbstractItemModel *clipboardDataArrangementModel();
   const DataFileLoader *dataFileLoader() const { return m_dataFileLoader; }
   QAbstractItemModel *evaluatedPeaksModel();
   QAbstractItemModel *exporterBackendsModel();
@@ -318,6 +319,9 @@ private:
   DataExporter::Scheme *m_ctcHvlScheme;
   DataExporter::Scheme *m_ctcPeakScheme;
   DataExporter::Scheme *m_ctcPeakDimsScheme;
+  QString m_ctcDelimiter;
+  DataExporter::Globals::DataArrangement m_ctcDataArrangement;
+  QStandardItemModel *m_ctcDataArrangementModel;
 
 signals:
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
@@ -329,6 +333,8 @@ signals:
 public slots:
   void onAddPeak();
   void onCancelEvaluatedPeakSelection();
+  void onClipboardExporterDataArrangementChanged(const QModelIndex &idx);
+  void onClipboardExporterDelimiterChanged(const QString &delimiter);
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void onConfigureExporterBackend();

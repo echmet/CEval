@@ -147,9 +147,8 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   }
 
   try {
+    /* Exporters to file */
     initDataExporter();
-    initClipboardExporter();
-
     m_dataExporterBackendsModel = new QStandardItemModel();
 
     QStandardItem *item = new QStandardItem(tr("Text"));
@@ -165,6 +164,19 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
     m_textDataExporterDelimiter = QChar(';');
     m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
+
+    /* Clipboard exporter */
+    initClipboardExporter();
+    m_ctcDataArrangementModel = new QStandardItemModel();
+    item = new QStandardItem(tr("Vertical"));
+    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::VERTICAL));
+    m_ctcDataArrangementModel->appendRow(item);
+    item = new QStandardItem(tr("Horizontal"));
+    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::HORIZONTAL));
+    m_ctcDataArrangementModel->appendRow(item);
+
+    m_ctcDelimiter = ";";
+
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));
     throw;
@@ -228,6 +240,7 @@ EvaluationEngine::~EvaluationEngine()
   delete m_ctcHvlSchemeBase;
   delete m_ctcPeakSchemeBase;
   delete m_ctcPeakDimsSchemeBase;
+  delete m_ctcDataArrangementModel;
 }
 
 void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
@@ -339,6 +352,11 @@ void EvaluationEngine::clearPeakPlots()
   m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
 
   m_modeCtx->replot();
+}
+
+QAbstractItemModel *EvaluationEngine::clipboardDataArrangementModel()
+{
+  return m_ctcDataArrangementModel;
 }
 
 void EvaluationEngine::createContextMenus() noexcept(false)
@@ -1017,6 +1035,21 @@ void EvaluationEngine::onCancelEvaluatedPeakSelection()
   m_userInteractionState = UserInteractionState::FINDING_PEAK;
 }
 
+void EvaluationEngine::onClipboardExporterDataArrangementChanged(const QModelIndex &idx)
+{
+  QVariant v = m_ctcDataArrangementModel->data(idx, Qt::UserRole);
+
+  if (!v.canConvert<DataExporter::Globals::DataArrangement>())
+    return;
+
+  m_ctcDataArrangement = v.value<DataExporter::Globals::DataArrangement>();
+}
+
+void EvaluationEngine::onClipboardExporterDelimiterChanged(const QString &delimiter)
+{
+  m_ctcDelimiter = delimiter;
+}
+
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
   int newIdx;
@@ -1104,10 +1137,20 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   QClipboard *clipboard = QApplication::clipboard();
   QString out;
   QTextStream toCopy(&out, QIODevice::WriteOnly);
-  DataExporter::TextStreamExporterBackend backend(&toCopy, ';', DataExporter::Globals::DataArrangement::VERTICAL);
+  QChar delimiter;
 
   if (!isContextValid())
     return;
+
+  if (m_ctcDelimiter == "\\t")
+    delimiter = '\t';
+  else if (m_ctcDelimiter.length() != 1) {
+    QMessageBox::warning(nullptr, tr("Invalid exporter options"), tr("Delimiter is set to nonsensical value. Please check clipboard exporter options on the Export tab."));
+    return;
+  }
+  delimiter = m_ctcDelimiter.at(0);
+
+  DataExporter::TextStreamExporterBackend backend(&toCopy, delimiter, m_ctcDataArrangement);
 
   toCopy.setCodec("UTF-8");
 

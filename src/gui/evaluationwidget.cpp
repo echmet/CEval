@@ -35,6 +35,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_export, &QPushButton::clicked, this, &EvaluationWidget::onExportSchemeClicked);
   connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
   connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
+  connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
+  connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -52,6 +54,21 @@ void EvaluationWidget::onBaselineComboBoxChanged(const int idx){
   EvaluationParametersItems::ComboBaselineAlgorithm val = ui->qcbox_baselineAlgorithm->model()->data(midx, Qt::UserRole + 1).value<EvaluationParametersItems::ComboBaselineAlgorithm>();
   emit comboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::BASELINE_ALGORITHM,
                                                               EvaluationParametersItems::index(val)));
+}
+
+void EvaluationWidget::onClipboardExporterArrangementChanged(const int idx)
+{
+  const QModelIndex &midx = ui->qcbox_clipboardDataArrangement->model()->index(idx, 0);
+
+  if (!midx.isValid())
+    return;
+
+  emit clipboardExporterArrangementChanged(midx);
+}
+
+void EvaluationWidget::onClipboardExporterDelimiterTextChanged(const QString &text)
+{
+  emit clipboardExporterDelimiterChanged(text);
 }
 
 void EvaluationWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier)
@@ -198,6 +215,11 @@ void EvaluationWidget::onWindowUnitsComboBoxChanged(const int idx)
   EvaluationParametersItems::ComboWindowUnits val = ui->qcbox_windowUnits->model()->data(midx, Qt::UserRole + 1).value<EvaluationParametersItems::ComboWindowUnits>();
   emit comboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                               EvaluationParametersItems::index(val)));
+}
+
+void EvaluationWidget::setClipboardDataArrangementModel(QAbstractItemModel *model)
+{
+  ui->qcbox_clipboardDataArrangement->setModel(model);
 }
 
 void EvaluationWidget::setDefaultState()

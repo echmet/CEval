@@ -23,6 +23,7 @@ public:
   explicit EvaluationWidget(QWidget *parent = nullptr);
   ~EvaluationWidget();
   void connectToAccumulator(QObject *dac);
+  void setClipboardDataArrangementModel(QAbstractItemModel *model);
   void setDefaultState();
   void setEvaluationBaselineModel(QAbstractItemModel *model);
   void setEvaluationHvlFixedModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model);
@@ -52,6 +53,8 @@ private:
   FloatingValueDelegate m_floatingMapperDelegate;
 
 signals:
+  void clipboardExporterArrangementChanged(const QModelIndex &idx);
+  void clipboardExporterDelimiterChanged(const QString &delimiter);
   void copyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void configureExporterBackend();
@@ -69,6 +72,8 @@ public slots:
 
 private slots:
   void onBaselineComboBoxChanged(int idx);
+  void onClipboardExporterArrangementChanged(const int idx);
+  void onClipboardExporterDelimiterTextChanged(const QString &text);
   void onConfigureExporterBackendClicked();
   void onCtcEOFClicked();
   void onCtcHVLClicked();

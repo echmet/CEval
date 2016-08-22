@@ -34,6 +34,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
   w->setExporterBackendsModel(e->exporterBackendsModel());
   w->setExporterSchemesModel(e->exporterSchemesModel());
+  w->setClipboardDataArrangementModel(e->clipboardDataArrangementModel());
 
   QObject::connect(w, &EvaluationWidget::comboBoxChanged, e, &EvaluationEngine::onComboBoxChanged);
   QObject::connect(w, &EvaluationWidget::evaluationSetDefault, e, &EvaluationEngine::onSetDefault);
@@ -48,4 +49,6 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(w, &EvaluationWidget::manageExporterSchemes, e, &EvaluationEngine::onManageExporterScheme);
   QObject::connect(w, &EvaluationWidget::exporterBackendChanged, e, &EvaluationEngine::onExporterBackendChanged);
   QObject::connect(w, &EvaluationWidget::exporterSchemeChanged, e, &EvaluationEngine::onExporterSchemeChanged);
+  QObject::connect(w, &EvaluationWidget::clipboardExporterArrangementChanged, e, &EvaluationEngine::onClipboardExporterDataArrangementChanged);
+  QObject::connect(w, &EvaluationWidget::clipboardExporterDelimiterChanged, e, &EvaluationEngine::onClipboardExporterDelimiterChanged);
 }
