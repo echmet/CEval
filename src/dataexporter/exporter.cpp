@@ -97,12 +97,12 @@ Scheme * Exporter::makeScheme(const SchemeEditor::UserScheme &scheme)
   SelectedExportablesMap seMap;
 
   for (int idx = 0; idx < scheme.exportables.size(); idx++) {
-    const QString &s = scheme.exportables.at(idx);
+    const SchemeEditor::UserExportable &ue = scheme.exportables.at(idx);
 
-    if (!sbr->exportables.contains(s))
+    if (!sbr->exportables.contains(ue.name))
       return nullptr;
 
-    seMap.insert(s, new SelectedExportable(sbr->exportables.value(s), idx));
+    seMap.insert(ue.name, new SelectedExportable(sbr->exportables.value(ue.name), idx, ue.customName));
   }
 
   Scheme *s;
@@ -129,7 +129,7 @@ void Exporter::onCreateScheme()
     return;
 
   if (!registerScheme(scheme))
-    QMessageBox::warning(m_schemesManagerDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
+    QMessageBox::warning(m_schemesManagerDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name already exists?"));
 }
 
 void Exporter::onDeserializeScheme()
@@ -178,7 +178,7 @@ void Exporter::onEditScheme(const QString &name)
 
   Scheme *s = m_schemes.value(name);
 
-  QStringVector selectedExportables;
+  SchemeEditor::UserExportablesVector selectedExportables;
   /* Keep the order of selected exportables */
   {
     int max = 0;
@@ -194,7 +194,7 @@ void Exporter::onEditScheme(const QString &name)
       const QString &key = cit.key();
       const SelectedExportable *se = cit.value();
 
-      selectedExportables[se->position] = key;
+      selectedExportables[se->position] = SchemeEditor::UserExportable(key, se->displayName);
       cit++;
     }
   }

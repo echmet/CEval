@@ -33,7 +33,7 @@ Q_DECLARE_METATYPE(PeakDimsTuple)
 
 #define MAKE_SELECTED_EXPORTABLE_CTC(bmap, map, name, position) \
   if (!bmap.contains(name)) throw DataExporter::UnknownExportableException(); \
-  map.insert(name, new DataExporter::SelectedExportable(bmap.value(name), position));
+  map.insert(name, new DataExporter::SelectedExportable(bmap.value(name), position, name));
 
 void EvaluationEngine::initClipboardExporter()
 {
@@ -79,9 +79,9 @@ void EvaluationEngine::initClipboardExporter()
 
     int blockCtr = 0;
     for (const DataExporter::SelectedExportable *se : seMap) {
-      backend.addCell(new Cell(se->name() + " left", "", Cell::NO_VALUE), blockCtr, 0);
-      backend.addCell(new Cell(se->name() + " right", "", Cell::NO_VALUE), blockCtr, 1);
-      backend.addCell(new Cell(se->name() + " full", "", Cell::NO_VALUE), blockCtr, 2);
+      backend.addCell(new Cell(se->displayName + " left", "", Cell::NO_VALUE), blockCtr, 0);
+      backend.addCell(new Cell(se->displayName + " right", "", Cell::NO_VALUE), blockCtr, 1);
+      backend.addCell(new Cell(se->displayName + " full", "", Cell::NO_VALUE), blockCtr, 2);
 
       blockCtr++;
 
@@ -195,7 +195,7 @@ bool EvaluationEngine::initDataExporter()
           /* We expect this to happen */
           const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
           if (eof != nullptr)
-            backend.addCell(new Cell(se->name(), se->value(exportee)), blockCtr, se->position);
+            backend.addCell(new Cell(se->displayName, se->value(exportee)), blockCtr, se->position);
         }
       }
       blockCtr++;

@@ -23,11 +23,12 @@ public:
   class SerializedExportable {
   public:
     SerializedExportable();
-    SerializedExportable(const QString &rootName, const int position);
+    SerializedExportable(const QString &rootName, const QString &displayName, const int position);
 
     SerializedExportable & operator=(const SerializedExportable &other);
 
     const QString rootName;
+    const QString displayName;
     const int position;
   };
 

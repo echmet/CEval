@@ -21,16 +21,42 @@ SchemeEditor::SchemeBase::SchemeBase(const QString &name, const QString &descrip
 {
 }
 
+SchemeEditor::UserExportable::UserExportable() :
+  name(""),
+  customName("")
+{
+}
+
+SchemeEditor::UserExportable::UserExportable(const QString &name, const QString &customName) :
+  name(name),
+  customName(customName)
+{
+}
+
+SchemeEditor::UserExportable::UserExportable(const UserExportable &other) :
+  name(other.name),
+  customName(other.customName)
+{
+}
+
+SchemeEditor::UserExportable & SchemeEditor::UserExportable::operator=(const UserExportable &other)
+{
+  const_cast<QString&>(name) = other.name;
+  const_cast<QString&>(customName) = other.customName;
+
+  return *this;
+}
+
 SchemeEditor::UserScheme::UserScheme() :
   name(""),
   baseName(""),
-  exportables(QStringVector()),
+  exportables(UserExportablesVector()),
   arrangement(Globals::DataArrangement::VERTICAL),
   isValid(false)
 {
 }
 
-SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringVector &exportables, const Globals::DataArrangement arrangement) :
+SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const UserExportablesVector &exportables, const Globals::DataArrangement arrangement) :
   name(name),
   baseName(baseName),
   exportables(exportables),
@@ -43,7 +69,7 @@ SchemeEditor::UserScheme & SchemeEditor::UserScheme::operator=(const UserScheme 
 {
   const_cast<QString&>(name) = other.name;
   const_cast<QString&>(baseName) = other.baseName;
-  const_cast<QStringVector&>(exportables) = other.exportables;
+  const_cast<UserExportablesVector&>(exportables) = other.exportables;
   const_cast<Globals::DataArrangement&>(arrangement) = other.arrangement;
   const_cast<bool&>(isValid) = other.isValid;
 
@@ -83,12 +109,13 @@ SchemeEditor::~SchemeEditor()
   delete ui;
 }
 
-void SchemeEditor::addExportable(const int row)
+void SchemeEditor::addExportable(const int row, const QVariant caption)
 {
   QList<QStandardItem *> itemList = m_avaliableExportablesModel->takeRow(row);
   if (itemList.size() < 1)
     return;
 
+  itemList[0]->setData(caption, Qt::UserRole + 2);
   m_selectedExportablesModel->appendRow(itemList.at(0));
 }
 
@@ -131,12 +158,12 @@ SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &
   {
     const QAbstractItemModel *model = m_avaliableExportablesModel; /* Alias */
 
-    for (const QString &s : scheme.exportables) {
+    for (const UserExportable &ue : scheme.exportables) {
       for (int idx = 0; idx < model->rowCount(); idx++) {
         const QVariant &var = model->data(model->index(idx, 0), Qt::UserRole);
 
-        if (var.toString() == s)
-          addExportable(idx);
+        if (var.toString() == ue.name)
+          addExportable(idx, ue.customName);
       }
     }
   }
@@ -163,7 +190,7 @@ SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &
 
 SchemeEditor::UserScheme SchemeEditor::interactInternal(bool &canceled)
 {
-  QStringVector selected;
+  UserExportablesVector selected;
 
   while (true) {
     int ret = this->exec();
@@ -187,7 +214,9 @@ SchemeEditor::UserScheme SchemeEditor::interactInternal(bool &canceled)
       if (item == nullptr)
         continue;
 
-      selected << item->data(Qt::UserRole).toString();
+      const QVariant v = item->data(Qt::UserRole + 2);
+      const QString name = item->data(Qt::UserRole).toString();
+      selected << UserExportable(name, v.isValid() ? v.toString() : name);
     }
 
     QVariant var = ui->qcbox_dataArrangement->currentData(Qt::UserRole);
@@ -240,9 +269,11 @@ void SchemeEditor::onRemoveExportableClicked()
     return;
 
   bool ok;
-  int origRow = itemList.at(0)->data(Qt::UserRole + 1).toInt(&ok);
-  if (!ok)
+  const int origRow = itemList.at(0)->data(Qt::UserRole + 1).toInt(&ok);
+  if (!ok) {
+    itemList[0]->setData(QVariant(), Qt::UserRole + 2);
     m_avaliableExportablesModel->appendRow(itemList);
+  }
 
   for (int idx = 0; idx < m_avaliableExportablesModel->rowCount(); idx++) {
     QStandardItem *item = m_avaliableExportablesModel->item(idx);
@@ -296,7 +327,10 @@ void SchemeEditor::onSetCustomCaptionClicked()
   if (dlg.exec() != QDialog::Accepted)
     return;
 
-  m_selectedExportablesModel->setData(idx, QVariant(dlg.textValue()), Qt::UserRole + 2);
+  if (dlg.textValue().length() > 1)
+    m_selectedExportablesModel->setData(idx, dlg.textValue(), Qt::UserRole + 2);
+  else
+    m_selectedExportablesModel->setData(idx, QVariant(), Qt::UserRole + 2);
 }
 
 bool SchemeEditor::registerSchemeBase(const SchemeBase &base)

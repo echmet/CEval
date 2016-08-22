@@ -31,12 +31,14 @@ ExportableRoot::~ExportableRoot()
 }
 
 SelectedExportable::SelectedExportable() :
+  displayName(""),
   position(-1),
   m_exportable(new Exportable<>())
 {
 }
 
-SelectedExportable::SelectedExportable(const ExportableRoot *exportable, const int position) :
+SelectedExportable::SelectedExportable(const ExportableRoot *exportable, const int position, const QString &displayName) :
+  displayName(displayName),
   position(position),
   m_exportable(exportable)
 {

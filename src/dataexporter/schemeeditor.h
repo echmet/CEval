@@ -3,6 +3,8 @@
 
 #include "exporterglobals.h"
 #include <QDialog>
+#include <QVariant>
+
 class QStandardItemModel;
 
 namespace Ui {
@@ -25,15 +27,28 @@ public:
     const QStringVector exportables;
   };
 
+  class UserExportable {
+  public:
+    explicit UserExportable();
+    explicit UserExportable(const QString &name, const QString &customName);
+    explicit UserExportable(const UserExportable &other);
+    UserExportable & operator=(const UserExportable &other);
+
+    const QString name;
+    const QString customName;
+  };
+
+  typedef QVector<UserExportable> UserExportablesVector;
+
   class UserScheme {
   public:
     explicit UserScheme();
-    explicit UserScheme(const QString &name, const QString &baseName, const QStringVector &exportables, const Globals::DataArrangement arrangement);
+    explicit UserScheme(const QString &name, const QString &baseName, const UserExportablesVector &exportables, const Globals::DataArrangement arrangement);
     UserScheme & operator=(const UserScheme &other);
 
     const QString name;
     const QString baseName;
-    const QStringVector exportables;
+    const UserExportablesVector exportables;
     const Globals::DataArrangement arrangement;
     const bool isValid;
   };
@@ -46,7 +61,7 @@ public:
   void resetForm();
 
 private:
-  void addExportable(const int row);
+  void addExportable(const int row, const QVariant caption = QVariant());
   UserScheme interactInternal(bool &canceled);
 
   Ui::SchemeEditor *ui;

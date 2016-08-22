@@ -160,6 +160,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     item = new QStandardItem(tr("HTML"));
     item->setData(QVariant::fromValue<DataExporterBackends>(DataExporterBackends::HTML), Qt::UserRole);
     m_dataExporterBackendsModel->appendRow(item);
+    m_currentDataExporterBackend = DataExporterBackends::TEXT;
 
     m_dataExporterFileDlg = new QFileDialog();
     m_dataExporterFileDlg->setAcceptMode(QFileDialog::AcceptSave);

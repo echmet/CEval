@@ -7,7 +7,7 @@ using namespace DataExporter;
 
 QDataStream & operator<<(QDataStream &stream, const SchemeSerializer::SerializedExportable &e)
 {
-  stream << e.rootName << e.position;
+  stream << e.rootName << e.displayName << e.position;
 
   return stream;
 }
@@ -15,12 +15,15 @@ QDataStream & operator<<(QDataStream &stream, const SchemeSerializer::Serialized
 QDataStream & operator>>(QDataStream &stream, SchemeSerializer::SerializedExportable &e)
 {
   QString rootName;
+  QString displayName;
   int position;
 
   stream >> rootName;
+  stream >> displayName;
   stream >> position;
 
   const_cast<QString&>(e.rootName) = rootName;
+  const_cast<QString&>(e.displayName) = displayName;
   const_cast<int&>(e.position) = position;
 
   return stream;
@@ -28,12 +31,14 @@ QDataStream & operator>>(QDataStream &stream, SchemeSerializer::SerializedExport
 
 SchemeSerializer::SerializedExportable::SerializedExportable() :
   rootName(""),
+  displayName(""),
   position(-1)
 {
 }
 
-SchemeSerializer::SerializedExportable::SerializedExportable(const QString &rootName, const int position) :
+SchemeSerializer::SerializedExportable::SerializedExportable(const QString &rootName, const QString &displayName, const int position) :
   rootName(rootName),
+  displayName(displayName),
   position(position)
 {
 }
@@ -108,7 +113,7 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
     if (!exportables.contains(serEx.rootName))
       return RetCode::E_UNKNOWN_EXPORTABLE;
 
-    selected.insert(key, new SelectedExportable(exportables.value(serEx.rootName), serEx.position));
+    selected.insert(key, new SelectedExportable(exportables.value(serEx.rootName), serEx.position, serEx.displayName));
     cit++;
   }
 
@@ -130,7 +135,7 @@ SchemeSerializer::RetCode SchemeSerializer::serializeScheme(const Scheme *s, con
   SelectedExportablesMap::ConstIterator cit = s->selectedExportables.cbegin();
   while (cit != s->selectedExportables.cend()) {
     const QString name = cit.key();
-    SerializedExportable serEx(cit.value()->name(), cit.value()->position);
+    SerializedExportable serEx(cit.value()->name(), cit.value()->displayName, cit.value()->position);
 
     map.insert(name, serEx);
     cit++;

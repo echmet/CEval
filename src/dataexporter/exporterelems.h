@@ -75,9 +75,11 @@ private:
 class SelectedExportable {
 public:
   explicit SelectedExportable();
-  explicit SelectedExportable(const ExportableRoot *exportable, const int position);
+  explicit SelectedExportable(const ExportableRoot *exportable, const int position, const QString &displayName);
 
   const QString & name() const;
+
+  const QString displayName;
   const int position;
   QVariant value(const IExportable *exportee) const;
 
@@ -113,7 +115,7 @@ public:
                       Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) {
                         for (const SelectedExportable *se : seMap) {
                           try {
-                            backend.addCell(new AbstractExporterBackend::Cell(se->name(), se->value(exportee)), 0, se->position);
+                            backend.addCell(new AbstractExporterBackend::Cell(se->displayName, se->value(exportee)), 0, se->position);
                           } catch (std::bad_alloc &) {
                             return false;
                           }
