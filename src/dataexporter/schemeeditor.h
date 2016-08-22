@@ -1,17 +1,17 @@
-#ifndef SCHEMECREATOR_H
-#define SCHEMECREATOR_H
+#ifndef SCHEMESMANAGER_H
+#define SCHEMESMANAGER_H
 
 #include "exporterglobals.h"
 #include <QDialog>
 class QStandardItemModel;
 
 namespace Ui {
-class SchemeCreator;
+class SchemeEditor;
 }
 
 namespace DataExporter {
 
-class SchemeCreator : public QDialog
+class SchemeEditor : public QDialog
 {
   Q_OBJECT
 public:
@@ -40,8 +40,8 @@ public:
     const bool isValid;
   };
 
-  explicit SchemeCreator(QWidget *parent = nullptr);
-  ~SchemeCreator();
+  explicit SchemeEditor(QWidget *parent = nullptr);
+  ~SchemeEditor();
   UserScheme interact(bool &canceled);
   UserScheme interact(const UserScheme &scheme, bool &canceled);
   bool registerSchemeBase(const SchemeBase &base);
@@ -50,7 +50,7 @@ public:
 private:
   void addExportable(const int row);
 
-  Ui::SchemeCreator *ui;
+  Ui::SchemeEditor *ui;
 
   QStandardItemModel *m_avaliableExportablesModel;
   QStandardItemModel *m_selectedExportablesModel;
@@ -66,6 +66,6 @@ private slots:
 };
 
 } // namespace DataExporter
-Q_DECLARE_METATYPE(DataExporter::SchemeCreator::SchemeBase)
+Q_DECLARE_METATYPE(DataExporter::SchemeEditor::SchemeBase)
 
 #endif // SCHEMECREATOR_H

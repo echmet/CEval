@@ -149,9 +149,6 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
   case DataAccumulatorMsgs::ExportAction::WHOLE_PEAK_TO_CLIPBOARD:
     m_evaluationEngine->onCopyToClipboard(EvaluationEngineMsgs::CopyToClipboard::EVERYTHING);
     break;
-  case DataAccumulatorMsgs::ExportAction::SHOW_EXPORTER_SCHEMES:
-    m_evaluationEngine->showExporterSchemes();
-    break;
   }
 }
 

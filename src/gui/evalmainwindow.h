@@ -69,7 +69,6 @@ private slots:
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
   void onActionWholePeakToClipboard();
-  void onActionShowExportSchemes();
 
 };
 

@@ -35,6 +35,8 @@ public:
   void setEvaluationResultsModel(AbstractMapperModel<double, EvaluationResultsItems::Floating> *model);
   void setEvaluationShowWindowModel(QAbstractItemModel *model);
   void setEvaluationWindowUnitsModel(QAbstractItemModel *model);
+  void setExporterBackendsModel(QAbstractItemModel *model);
+  void setExporterSchemesModel(QAbstractItemModel *model);
 
 private:
   Ui::EvaluationWidget *ui;
@@ -52,9 +54,14 @@ private:
 signals:
   void copyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void comboBoxChanged(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
+  void configureExporterBackend();
   void doHvlFit();
   void evaluationSetDefault(const EvaluationEngineMsgs::Default msg);
+  void exporterBackendChanged(const QModelIndex &idx);
+  void exportScheme();
+  void exporterSchemeChanged(const QModelIndex &idx);
   void findPeaks();
+  void manageExporterSchemes();
   void replotHvl();
 
 public slots:
@@ -62,12 +69,17 @@ public slots:
 
 private slots:
   void onBaselineComboBoxChanged(int idx);
+  void onConfigureExporterBackendClicked();
   void onCtcEOFClicked();
   void onCtcHVLClicked();
   void onCtcPeakClicked();
   void onCtcPeakDimsClicked();
   void onDoHvlFitClicked();
+  void onExporterBackendComboBoxChanged(int idx);
+  void onExporterSchemeComboBoxChanged(int idx);
+  void onExportSchemeClicked();
   void onFindPeaksClicked();
+  void onManageExporterSchemesClicked();
   void onReplotHvl();
   void onShowWindowComboBoxChanged(int idx);
   void onWindowUnitsComboBoxChanged(int idx);

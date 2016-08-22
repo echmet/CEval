@@ -116,11 +116,6 @@ void EvalMainWindow::makeExportMenus()
   a = new QAction("Whole peak to clipboard", this);
   connect(a, &QAction::triggered, this, &EvalMainWindow::onActionWholePeakToClipboard);
   m_exportEvaluationMenu->addAction(a);
-
-  /* TESTING CODE */
-  a = new QAction("Show export schemes", this);
-  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionShowExportSchemes);
-  m_exportEvaluationMenu->addAction(a);
 }
 
 void EvalMainWindow::onActionAbout()
@@ -184,11 +179,6 @@ void EvalMainWindow::onActionSetNumberFormat()
 {
   m_numberFormatDialog->setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
   m_numberFormatDialog->exec();
-}
-
-void EvalMainWindow::onActionShowExportSchemes()
-{
-  emit exportAction(DataAccumulatorMsgs::ExportAction::SHOW_EXPORTER_SCHEMES);
 }
 
 void EvalMainWindow::onActionWholePeakToClipboard()

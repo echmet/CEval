@@ -70,6 +70,7 @@ public:
   AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
   const DataFileLoader *dataFileLoader() const { return m_dataFileLoader; }
   QAbstractItemModel *evaluatedPeaksModel();
+  QAbstractItemModel *exporterSchemesModel();
   AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitFixedModel();
   AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
   AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
@@ -79,7 +80,6 @@ public:
   AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
   AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
   QVariant saveUserSettings() const;
-  void showExporterSchemes();
   QAbstractItemModel *showWindowModel();
   QAbstractItemModel *windowUnitsModel();
 
@@ -305,11 +305,16 @@ public slots:
   void onCancelEvaluatedPeakSelection();
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
+  void onConfigureExporterBackend();
   void onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void onDeletePeak(const QModelIndex &idx);
   void onDoHvlFit();
   void onEvaluationFileSwitched(const int idx);
+  void onExporterBackendChanged(const QModelIndex &idx);
+  void onExporterSchemeChanged(const QModelIndex &idx);
+  void onExportScheme();
   void onFindPeaks();
+  void onManageExporterScheme();
   void onPeakSwitched(const QModelIndex &idx);
   void onPlotPointHovered(const QPointF &point, const QPoint &cursor);
   void onPlotPointSelected(const QPointF &point, const QPoint &cursor);

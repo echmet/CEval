@@ -2,42 +2,43 @@
 #define EXPORTER_H
 
 #include "exporterelems.h"
-#include "schemecreator.h"
+#include "schemeeditor.h"
 
+class QAbstractItemModel;
 class QDialog;
 class QFileDialog;
 class QStandardItemModel;
 
 namespace DataExporter {
 
-class SelectSchemeWidget;
+class SchemesManagerWidget;
 
 class Exporter : public QObject {
   Q_OBJECT
 public:
   explicit Exporter(const QString &exporterId);
   ~Exporter();
+  void manageSchemes();
   bool registerSchemeBase(const SchemeBaseRoot *schemeBase);
-  void showSchemes(const IExportable *exportee);
+  QAbstractItemModel * schemesModel();
 
 private:
   Scheme * createScheme();
-  bool isUserSchemeValid(SchemeCreator::UserScheme &scheme);
-  Scheme * makeScheme(const SchemeCreator::UserScheme &scheme);
+  bool isUserSchemeValid(SchemeEditor::UserScheme &scheme);
+  Scheme * makeScheme(const SchemeEditor::UserScheme &scheme);
   bool registerScheme(Scheme *scheme);
   void removeScheme(const QString &name);
 
-  SchemeCreator *m_schemeCreator;
+  SchemeEditor *m_schemeEditor;
   SchemeBasesMap m_schemeBases;
   SchemesMap m_schemes;
   QStandardItemModel *m_schemesModel;
-  SelectSchemeWidget *m_selectSchemeWidget;
-  QDialog *m_selectSchemeDialog;
+  SchemesManagerWidget *m_schemesManagerWidget;
+  QDialog *m_schemesManagerDialog;
 
   QFileDialog *m_loadSchemeDialog;
   QFileDialog *m_saveSchemeDialog;
 
-  const IExportable *m_currentExportee;
   const QString m_exporterId;
 
   static const QString FILEDIALOG_NAME_FILTER;
@@ -47,7 +48,6 @@ private slots:
   void onDeserializeScheme();
   void onEditScheme(const QString &name);
   void onRemoveScheme(const QString &name);
-  void onUseScheme(const QString &name);
   void onSerializeScheme(const QString &name);
 
 };

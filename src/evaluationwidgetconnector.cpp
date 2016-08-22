@@ -32,6 +32,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationResultsModel(e->resultsValuesModel());
   w->setEvaluationShowWindowModel(e->showWindowModel());
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
+  w->setExporterSchemesModel(e->exporterSchemesModel());
 
   QObject::connect(w, &EvaluationWidget::comboBoxChanged, e, &EvaluationEngine::onComboBoxChanged);
   QObject::connect(w, &EvaluationWidget::evaluationSetDefault, e, &EvaluationEngine::onSetDefault);
@@ -41,4 +42,9 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(w, &EvaluationWidget::doHvlFit, e, &EvaluationEngine::onDoHvlFit);
   QObject::connect(w, &EvaluationWidget::replotHvl, e, &EvaluationEngine::onReplotHvl);
   QObject::connect(w, &EvaluationWidget::copyToClipboard, e, &EvaluationEngine::onCopyToClipboard);
+  QObject::connect(w, &EvaluationWidget::configureExporterBackend, e, &EvaluationEngine::onConfigureExporterBackend);
+  QObject::connect(w, &EvaluationWidget::exportScheme, e, &EvaluationEngine::onExportScheme);
+  QObject::connect(w, &EvaluationWidget::manageExporterSchemes, e, &EvaluationEngine::onManageExporterScheme);
+  QObject::connect(w, &EvaluationWidget::exporterBackendChanged, e, &EvaluationEngine::onExporterBackendChanged);
+  QObject::connect(w, &EvaluationWidget::exporterSchemeChanged, e, &EvaluationEngine::onExporterSchemeChanged);
 }

@@ -6,21 +6,21 @@
 class QAbstractItemModel;
 
 namespace Ui {
-class SelectSchemeWidget;
+class SchemesManagerWidget;
 }
 
 namespace DataExporter {
 
-class SelectSchemeWidget : public QWidget
+class SchemesManagerWidget : public QWidget
 {
   Q_OBJECT
 public:
-  explicit SelectSchemeWidget(QWidget *parent = nullptr);
-  ~SelectSchemeWidget();
+  explicit SchemesManagerWidget(QWidget *parent = nullptr);
+  ~SchemesManagerWidget();
   void setSchemesModel(QAbstractItemModel *model);
 
 private:
-  Ui::SelectSchemeWidget *ui;
+  Ui::SchemesManagerWidget *ui;
 
 signals:
   void closed();
@@ -38,7 +38,7 @@ private slots:
   void onLoadSchemeClicked();
   void onRemoveSchemeClicked();
   void onSaveSchemeClicked();
-  void onUseSchemeClicked();
+
 };
 
 } // namespace DataExporter

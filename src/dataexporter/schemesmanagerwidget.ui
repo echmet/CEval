@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SelectSchemeWidget</class>
- <widget class="QWidget" name="SelectSchemeWidget">
+ <class>SchemesManagerWidget</class>
+ <widget class="QWidget" name="SchemesManagerWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -21,13 +21,6 @@
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
-       <item>
-        <widget class="QPushButton" name="qpb_useScheme">
-         <property name="text">
-          <string>Use scheme</string>
-         </property>
-        </widget>
-       </item>
        <item>
         <widget class="QPushButton" name="qpb_createScheme">
          <property name="text">

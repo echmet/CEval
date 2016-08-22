@@ -126,14 +126,14 @@ SOURCES += src/main.cpp \
     src/chemstationbatchloader.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
-    src/dataexporter/schemecreator.cpp \
-    src/dataexporter/selectschemewidget.cpp \
     src/dataexporter/exporterelems.cpp \
     src/dataexporter/exporter.cpp \
     src/dataexporter/schemeserializer.cpp \
     src/dataexporter/backends/abstractexporterbackend.cpp \
     src/dataexporter/backends/textexporterbackend.cpp \
-    src/dataexporter/backends/htmlexporterbackend.cpp
+    src/dataexporter/backends/htmlexporterbackend.cpp \
+    src/dataexporter/schemesmanagerwidget.cpp \
+    src/dataexporter/schemeeditor.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -307,15 +307,15 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/chemstationbatchloadmodel.h \
     src/chemstationbatchloader.h \
     src/doubleclickableqwtplotzoomer.h \
-    src/dataexporter/schemecreator.h \
-    src/dataexporter/selectschemewidget.h \
     src/dataexporter/exporter.h \
     src/dataexporter/exporterelems.h \
     src/dataexporter/exporterglobals.h \
     src/dataexporter/schemeserializer.h \
     src/dataexporter/backends/abstractexporterbackend.h \
     src/dataexporter/backends/textexporterbackend.h \
-    src/dataexporter/backends/htmlexporterbackend.h
+    src/dataexporter/backends/htmlexporterbackend.h \
+    src/dataexporter/schemesmanagerwidget.h \
+    src/dataexporter/schemeeditor.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -339,8 +339,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/softwareupdatewidget.ui \
     src/gui/autoupdatecheckdialog.ui \
     src/gui/checkforupdatedialog.ui \
-    src/dataexporter/schemecreator.ui \
-    src/dataexporter/selectschemewidget.ui
+    src/dataexporter/schemesmanagerwidget.ui \
+    src/dataexporter/schemeeditor.ui
 
 unix {
     LIBS += -ldl

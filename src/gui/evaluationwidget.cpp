@@ -30,6 +30,11 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_ctcHVL, &QPushButton::clicked, this, &EvaluationWidget::onCtcHVLClicked);
   connect(ui->qpb_ctcPeak, &QPushButton::clicked, this, &EvaluationWidget::onCtcPeakClicked);
   connect(ui->qpb_ctcPeakDims, &QPushButton::clicked, this, &EvaluationWidget::onCtcPeakDimsClicked);
+  connect(ui->qpb_configureExporterBackend, &QPushButton::clicked, this, &EvaluationWidget::onConfigureExporterBackendClicked);
+  connect(ui->qpb_manageSchemes, &QPushButton::clicked, this, &EvaluationWidget::onManageExporterSchemesClicked);
+  connect(ui->qpb_export, &QPushButton::clicked, this, &EvaluationWidget::onExportSchemeClicked);
+  connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
+  connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -64,6 +69,11 @@ void EvaluationWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBox
   default:
     break;
   }
+}
+
+void EvaluationWidget::onConfigureExporterBackendClicked()
+{
+  emit configureExporterBackend();
 }
 
 void EvaluationWidget::onCtcEOFClicked()
@@ -136,14 +146,42 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
   }
 }
 
+void EvaluationWidget::onExportSchemeClicked()
+{
+  emit exportScheme();
+}
+
 void EvaluationWidget::onFindPeaksClicked()
 {
   emit findPeaks();
 }
 
+void EvaluationWidget::onManageExporterSchemesClicked()
+{
+  emit manageExporterSchemes();
+}
+
 void EvaluationWidget::onReplotHvl()
 {
   emit replotHvl();
+}
+
+void EvaluationWidget::onExporterBackendComboBoxChanged(const int idx)
+{
+  const QModelIndex &midx = ui->qcbox_availableExporterBackends->model()->index(idx, 0);
+  if (!midx.isValid())
+    return;
+
+  emit exporterBackendChanged(midx);
+}
+
+void EvaluationWidget::onExporterSchemeComboBoxChanged(const int idx)
+{
+  const QModelIndex &midx = ui->qcbox_schemes->model()->index(idx, 0);
+  if (!midx.isValid())
+    return;
+
+  emit exporterSchemeChanged(midx);
 }
 
 void EvaluationWidget::onShowWindowComboBoxChanged(const int idx)
@@ -308,4 +346,14 @@ void EvaluationWidget::setEvaluationShowWindowModel(QAbstractItemModel *model)
 void EvaluationWidget::setEvaluationWindowUnitsModel(QAbstractItemModel *model)
 {
   ui->qcbox_windowUnits->setModel(model);
+}
+
+void EvaluationWidget::setExporterBackendsModel(QAbstractItemModel *model)
+{
+  ui->qcbox_availableExporterBackends->setModel(model);
+}
+
+void EvaluationWidget::setExporterSchemesModel(QAbstractItemModel *model)
+{
+  ui->qcbox_schemes->setModel(model);
 }

@@ -1,7 +1,7 @@
 #include "exporter.h"
 #include "../globals.h"
-#include "selectschemewidget.h"
-#include "schemecreator.h"
+#include "schemesmanagerwidget.h"
+#include "schemeeditor.h"
 #include "schemeserializer.h"
 #include <QDialog>
 #include <QFileDialog>
@@ -21,8 +21,6 @@ Exporter::Exporter(const QString &exporterId) :
   QObject(nullptr),
   m_exporterId(exporterId)
 {
-  m_currentExportee = nullptr;
-
   m_loadSchemeDialog = new QFileDialog(nullptr, tr("Load exporter scheme"));
   m_saveSchemeDialog = new QFileDialog(nullptr, tr("Save exporter scheme"));
 
@@ -31,25 +29,24 @@ Exporter::Exporter(const QString &exporterId) :
   m_saveSchemeDialog->setAcceptMode(QFileDialog::AcceptSave);
   m_saveSchemeDialog->setNameFilter(FILEDIALOG_NAME_FILTER);
 
-  m_schemeCreator = new SchemeCreator();
-  m_selectSchemeDialog = new QDialog();
-  m_selectSchemeDialog->setLayout(new QVBoxLayout());
-  m_selectSchemeDialog->setWindowTitle(QObject::tr("Exporter schemes"));
+  m_schemeEditor = new SchemeEditor();
+  m_schemesManagerDialog = new QDialog();
+  m_schemesManagerDialog->setLayout(new QVBoxLayout());
+  m_schemesManagerDialog->setWindowTitle(QObject::tr("Manage schemes"));
 
-  m_selectSchemeWidget = new SelectSchemeWidget(m_selectSchemeDialog);
-  m_selectSchemeDialog->layout()->addWidget(m_selectSchemeWidget);
+  m_schemesManagerWidget = new SchemesManagerWidget(m_schemesManagerDialog);
+  m_schemesManagerDialog->layout()->addWidget(m_schemesManagerWidget);
 
   m_schemesModel = new QStandardItemModel();
-  m_selectSchemeWidget->setSchemesModel(m_schemesModel);
+  m_schemesManagerWidget->setSchemesModel(m_schemesModel);
 
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::closed, m_selectSchemeDialog, &QDialog::close);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::closed, m_schemesManagerDialog, &QDialog::close);
 
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::createScheme, this, &Exporter::onCreateScheme);
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::editScheme, this, &Exporter::onEditScheme);
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::loadScheme, this, &Exporter::onDeserializeScheme);
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::removeScheme, this, &Exporter::onRemoveScheme);
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::saveScheme, this, &Exporter::onSerializeScheme);
-  connect(m_selectSchemeWidget, &SelectSchemeWidget::useScheme, this, &Exporter::onUseScheme);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::createScheme, this, &Exporter::onCreateScheme);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::editScheme, this, &Exporter::onEditScheme);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::loadScheme, this, &Exporter::onDeserializeScheme);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::removeScheme, this, &Exporter::onRemoveScheme);
+  connect(m_schemesManagerWidget, &SchemesManagerWidget::saveScheme, this, &Exporter::onSerializeScheme);
 }
 
 Exporter::~Exporter()
@@ -60,18 +57,21 @@ Exporter::~Exporter()
   for (const SchemeBaseRoot *s : m_schemeBases)
     delete s;
 
-  delete m_selectSchemeDialog;
+  delete m_schemesManagerDialog;
+
+  delete m_loadSchemeDialog;
+  delete m_saveSchemeDialog;
 }
 
 Scheme * Exporter::createScheme()
 {
-  m_schemeCreator->resetForm();
+  m_schemeEditor->resetForm();
 
-  SchemeCreator::UserScheme ns;
+  SchemeEditor::UserScheme ns;
 
   bool canceled;
   while (true) {
-    ns = m_schemeCreator->interact(canceled);
+    ns = m_schemeEditor->interact(canceled);
 
     if (canceled)
       return nullptr;
@@ -85,7 +85,7 @@ Scheme * Exporter::createScheme()
   return makeScheme(ns);
 }
 
-bool Exporter::isUserSchemeValid(SchemeCreator::UserScheme &scheme)
+bool Exporter::isUserSchemeValid(SchemeEditor::UserScheme &scheme)
 {
   if (scheme.delimiter.length() > 1 && scheme.delimiter != "\\t") {
     QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
@@ -102,7 +102,7 @@ bool Exporter::isUserSchemeValid(SchemeCreator::UserScheme &scheme)
   return true;
 }
 
-Scheme * Exporter::makeScheme(const SchemeCreator::UserScheme &scheme)
+Scheme * Exporter::makeScheme(const SchemeEditor::UserScheme &scheme)
 {
   if (!m_schemeBases.contains(scheme.baseName))
     return nullptr;
@@ -136,6 +136,11 @@ Scheme * Exporter::makeScheme(const SchemeCreator::UserScheme &scheme)
   return s;
 }
 
+void Exporter::manageSchemes()
+{
+  m_schemesManagerDialog->exec();
+}
+
 void Exporter::onCreateScheme()
 {
   Scheme *scheme = createScheme();
@@ -144,7 +149,7 @@ void Exporter::onCreateScheme()
     return;
 
   if (!registerScheme(scheme))
-    QMessageBox::warning(m_selectSchemeDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
+    QMessageBox::warning(m_schemesManagerDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
 }
 
 void Exporter::onDeserializeScheme()
@@ -157,7 +162,7 @@ void Exporter::onDeserializeScheme()
     switch (tRet) {
     case SchemeSerializer::RetCode::OK:
       if (!registerScheme(s))
-        QMessageBox::warning(m_selectSchemeDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
+        QMessageBox::warning(m_schemesManagerDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name is already exists?"));
       return;
     case SchemeSerializer::RetCode::E_CANT_OPEN:
       QMessageBox::warning(nullptr, tr("IO error"), tr("Selected file cannot be opened for reading"));
@@ -198,11 +203,11 @@ void Exporter::onEditScheme(const QString &name)
   for (const QString &s : s->selectedExportables.keys())
     selectedExportables << s;
 
-  SchemeCreator::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement, s->delimiter);
+  SchemeEditor::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement, s->delimiter);
 
-  SchemeCreator::UserScheme ns;
+  SchemeEditor::UserScheme ns;
   while (true) {
-    ns = m_schemeCreator->interact(us, canceled);
+    ns = m_schemeEditor->interact(us, canceled);
 
     if (canceled)
       return;
@@ -220,7 +225,7 @@ void Exporter::onEditScheme(const QString &name)
     return;
 
   if (!registerScheme(s))
-    QMessageBox::warning(m_selectSchemeDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name already exists?"));
+    QMessageBox::warning(m_schemesManagerDialog, tr("Failed to register scheme"), tr("Scheme could not have been registered. Maybe a scheme with the same name already exists?"));
 }
 
 void Exporter::onRemoveScheme(const QString &name)
@@ -256,22 +261,6 @@ void Exporter::onSerializeScheme(const QString &name)
   }
 }
 
-void Exporter::onUseScheme(const QString &name)
-{
-  if (!m_schemes.contains(name))
-    return;
-
-  if (m_currentExportee == nullptr) {
-    QMessageBox::critical(m_selectSchemeDialog, tr("Runtime error"), QString(tr("Invalid pointer to \"exportee\". Please report this as a bug to %1 developers.")).arg(::Globals::SOFTWARE_NAME));
-    return;
-  }
-
-  const Scheme *s = m_schemes.value(name);
-
-  TextExporterBackend backend("testfile.csv", s->delimiter, s->arrangement);
-  s->exportData(m_currentExportee, backend);
-}
-
 bool Exporter::registerScheme(Scheme *scheme)
 {
   if (m_schemes.contains(scheme->name))
@@ -297,7 +286,7 @@ bool Exporter::registerSchemeBase(const SchemeBaseRoot *schemeBase)
   for (const ExportableRoot *e : schemeBase->exportables)
     exportables << e->name;
 
-  return m_schemeCreator->registerSchemeBase(SchemeCreator::SchemeBase(schemeBase->name, schemeBase->description, exportables));
+  return m_schemeEditor->registerSchemeBase(SchemeEditor::SchemeBase(schemeBase->name, schemeBase->description, exportables));
 }
 
 void Exporter::removeScheme(const QString &name)
@@ -313,11 +302,7 @@ void Exporter::removeScheme(const QString &name)
   }
 }
 
-void Exporter::showSchemes(const IExportable *exportee)
+QAbstractItemModel *Exporter::schemesModel()
 {
-  m_currentExportee = exportee;
-
-  m_selectSchemeDialog->exec();
-
-  m_currentExportee = nullptr;
+  return m_schemesModel;
 }

@@ -1,5 +1,5 @@
-#include "schemecreator.h"
-#include "ui_schemecreator.h"
+#include "schemeeditor.h"
+#include "ui_schemeeditor.h"
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QStandardItem>
@@ -7,21 +7,21 @@
 
 using namespace DataExporter;
 
-SchemeCreator::SchemeBase::SchemeBase() :
+SchemeEditor::SchemeBase::SchemeBase() :
   name(""),
   description(""),
   exportables(QStringList())
 {
 }
 
-SchemeCreator::SchemeBase::SchemeBase(const QString &name, const QString &description, const QStringList &exportables) :
+SchemeEditor::SchemeBase::SchemeBase(const QString &name, const QString &description, const QStringList &exportables) :
   name(name),
   description(description),
   exportables(exportables)
 {
 }
 
-SchemeCreator::UserScheme::UserScheme() :
+SchemeEditor::UserScheme::UserScheme() :
   name(""),
   baseName(""),
   exportables(QStringList()),
@@ -30,7 +30,7 @@ SchemeCreator::UserScheme::UserScheme() :
 {
 }
 
-SchemeCreator::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
+SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
                                       const QString &delimiter) :
   name(name),
   baseName(baseName),
@@ -41,7 +41,7 @@ SchemeCreator::UserScheme::UserScheme(const QString &name, const QString &baseNa
 {
 }
 
-SchemeCreator::UserScheme & SchemeCreator::UserScheme::operator=(const UserScheme &other)
+SchemeEditor::UserScheme & SchemeEditor::UserScheme::operator=(const UserScheme &other)
 {
   const_cast<QString&>(name) = other.name;
   const_cast<QString&>(baseName) = other.baseName;
@@ -53,9 +53,9 @@ SchemeCreator::UserScheme & SchemeCreator::UserScheme::operator=(const UserSchem
   return *this;
 }
 
-SchemeCreator::SchemeCreator(QWidget *parent) :
+SchemeEditor::SchemeEditor(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::SchemeCreator)
+  ui(new Ui::SchemeEditor)
 {
   ui->setupUi(this);
 
@@ -71,21 +71,21 @@ SchemeCreator::SchemeCreator(QWidget *parent) :
   ui->qlv_availableExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
   ui->qlv_selectedExportables->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
-  connect(ui->qpb_addExportable, &QPushButton::clicked, this, &SchemeCreator::onAddExportableClicked);
-  connect(ui->qpb_removeExportable, &QPushButton::clicked, this, &SchemeCreator::onRemoveExportableClicked);
-  connect(ui->qpb_cancel, &QPushButton::clicked, this, &SchemeCreator::onCancelClicked);
-  connect(ui->qpb_create, &QPushButton::clicked, this, &SchemeCreator::onCreateClicked);
-  connect(ui->qcbox_availableSchemeBases, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SchemeCreator::onSchemeChanged);
-  connect(ui->qlv_availableExportables, &QListView::doubleClicked, this, &SchemeCreator::onAddExportableClicked);
-  connect(ui->qlv_selectedExportables, &QListView::doubleClicked, this, &SchemeCreator::onRemoveExportableClicked);
+  connect(ui->qpb_addExportable, &QPushButton::clicked, this, &SchemeEditor::onAddExportableClicked);
+  connect(ui->qpb_removeExportable, &QPushButton::clicked, this, &SchemeEditor::onRemoveExportableClicked);
+  connect(ui->qpb_cancel, &QPushButton::clicked, this, &SchemeEditor::onCancelClicked);
+  connect(ui->qpb_create, &QPushButton::clicked, this, &SchemeEditor::onCreateClicked);
+  connect(ui->qcbox_availableSchemeBases, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SchemeEditor::onSchemeChanged);
+  connect(ui->qlv_availableExportables, &QListView::doubleClicked, this, &SchemeEditor::onAddExportableClicked);
+  connect(ui->qlv_selectedExportables, &QListView::doubleClicked, this, &SchemeEditor::onRemoveExportableClicked);
 }
 
-SchemeCreator::~SchemeCreator()
+SchemeEditor::~SchemeEditor()
 {
   delete ui;
 }
 
-void SchemeCreator::addExportable(const int row)
+void SchemeEditor::addExportable(const int row)
 {
   QList<QStandardItem *> itemList = m_avaliableExportablesModel->takeRow(row);
   if (itemList.size() < 1)
@@ -94,7 +94,7 @@ void SchemeCreator::addExportable(const int row)
   m_selectedExportablesModel->appendRow(itemList.at(0));
 }
 
-SchemeCreator::UserScheme SchemeCreator::interact(bool &canceled)
+SchemeEditor::UserScheme SchemeEditor::interact(bool &canceled)
 {
   QStringList selected;
 
@@ -133,7 +133,7 @@ SchemeCreator::UserScheme SchemeCreator::interact(bool &canceled)
   }
 }
 
-SchemeCreator::UserScheme SchemeCreator::interact(const UserScheme &scheme, bool &canceled)
+SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &canceled)
 {
   resetForm();
 
@@ -195,7 +195,7 @@ SchemeCreator::UserScheme SchemeCreator::interact(const UserScheme &scheme, bool
   return interact(canceled);
 }
 
-void SchemeCreator::onAddExportableClicked()
+void SchemeEditor::onAddExportableClicked()
 {
   const QModelIndex &idx = ui->qlv_availableExportables->currentIndex();
   if (!idx.isValid())
@@ -204,12 +204,12 @@ void SchemeCreator::onAddExportableClicked()
   addExportable(idx.row());
 }
 
-void SchemeCreator::onCancelClicked()
+void SchemeEditor::onCancelClicked()
 {
   reject();
 }
 
-void SchemeCreator::onCreateClicked()
+void SchemeEditor::onCreateClicked()
 {
   QInputDialog dlg;
 
@@ -224,7 +224,7 @@ void SchemeCreator::onCreateClicked()
   accept();
 }
 
-void SchemeCreator::onRemoveExportableClicked()
+void SchemeEditor::onRemoveExportableClicked()
 {
   const QModelIndex &idx = ui->qlv_selectedExportables->currentIndex();
   if (!idx.isValid())
@@ -252,7 +252,7 @@ void SchemeCreator::onRemoveExportableClicked()
   m_avaliableExportablesModel->appendRow(itemList);
 }
 
-void SchemeCreator::onSchemeChanged(const int idx)
+void SchemeEditor::onSchemeChanged(const int idx)
 {
   m_selectedExportablesModel->clear();
   m_avaliableExportablesModel->clear();
@@ -273,7 +273,7 @@ void SchemeCreator::onSchemeChanged(const int idx)
   }
 }
 
-bool SchemeCreator::registerSchemeBase(const SchemeBase &base)
+bool SchemeEditor::registerSchemeBase(const SchemeBase &base)
 {
   ui->qcbox_availableSchemeBases->addItem(base.name, QVariant::fromValue<SchemeBase>(base));
 
@@ -283,7 +283,7 @@ bool SchemeCreator::registerSchemeBase(const SchemeBase &base)
   return true;
 }
 
-void SchemeCreator::resetForm()
+void SchemeEditor::resetForm()
 {
   if (ui->qcbox_availableSchemeBases->model()->rowCount() < 1)
     return;

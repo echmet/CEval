@@ -552,6 +552,11 @@ QAbstractItemModel *EvaluationEngine::evaluatedPeaksModel()
   return &m_evaluatedPeaksModel;
 }
 
+QAbstractItemModel *EvaluationEngine::exporterSchemesModel()
+{
+  return m_dataExporter.schemesModel();
+}
+
 void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
@@ -1025,6 +1030,11 @@ void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier 
   }
 }
 
+void EvaluationEngine::onConfigureExporterBackend()
+{
+
+}
+
 void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc)
 {
   auto &locResultsNumericValues = m_resultsNumericValues;
@@ -1276,6 +1286,21 @@ void EvaluationEngine::onEvaluationFileSwitched(const int idx)
   switchEvaluationContext(key);
 }
 
+void EvaluationEngine::onExporterBackendChanged(const QModelIndex &idx)
+{
+
+}
+
+void EvaluationEngine::onExporterSchemeChanged(const QModelIndex &idx)
+{
+
+}
+
+void EvaluationEngine::onExportScheme()
+{
+
+}
+
 void EvaluationEngine::onFindPeaks()
 {
   findPeakAssisted();
@@ -1309,6 +1334,11 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
   m_currentPeak.updateHvlData(m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues);
   if (m_currentPeakIdx > 0)
     m_allPeaks[m_currentPeakIdx] = m_currentPeak;
+}
+
+void EvaluationEngine::onManageExporterScheme()
+{
+  m_dataExporter.manageSchemes();
 }
 
 void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
@@ -2000,9 +2030,4 @@ double EvaluationEngine::timeStep()
 QAbstractItemModel *EvaluationEngine::windowUnitsModel()
 {
   return &m_windowUnitsModel;
-}
-
-void EvaluationEngine::showExporterSchemes()
-{
-  m_dataExporter.showSchemes(this);
 }
