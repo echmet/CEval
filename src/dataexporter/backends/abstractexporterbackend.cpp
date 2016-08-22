@@ -16,10 +16,7 @@ AbstractExporterBackend::AbstractExporterBackend(const Globals::DataArrangement 
 
 AbstractExporterBackend::~AbstractExporterBackend()
 {
-  for (Block &b : m_blocks) {
-    for (const Cell *c : b.cells)
-      delete c;
-  }
+  releaseMatrix();
 }
 
 void AbstractExporterBackend::addCell(Cell *cell, const int block, const int position)
@@ -116,4 +113,18 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
   }
 
   return m;
+}
+
+void AbstractExporterBackend::releaseMatrix()
+{
+  for (Block &b : m_blocks) {
+    for (const Cell *c : b.cells)
+      delete c;
+  }
+}
+
+void AbstractExporterBackend::reset()
+{
+  releaseMatrix();
+  m_blocks.clear();
 }

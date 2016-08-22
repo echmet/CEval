@@ -1,6 +1,19 @@
 #include "dataexporter/exporterelems.h"
+#include "doubletostringconvertor.h"
 #include "evaluationengine.h"
 
+class PeakDimsTuple {
+public:
+  explicit PeakDimsTuple() : left(0.0), right(0.0), full(0.0) {};
+  PeakDimsTuple(const double left, const double right, const double full) :
+    left(left), right(right), full(full) {}
+
+  const double left;
+  const double right;
+  const double full;
+
+};
+Q_DECLARE_METATYPE(PeakDimsTuple)
 
 #define MAKE_EXPORTABLE(map, TT, name, getter) \
   if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
@@ -8,6 +21,126 @@
     [](const TT *me) { \
       return QVariant(me->getter); \
   }))
+
+#define MAKE_EXPORTABLE_DIMS(map, TT, name, dimitem) \
+  if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
+  map.insert(name, new DataExporter::Exportable<TT>(name, \
+    [](const TT *me) { \
+      return QVariant::fromValue<PeakDimsTuple>(PeakDimsTuple(me->m_resultsNumericValues.at(EvaluationResultsItems::Floating::dimitem##_LEFT), \
+                                                              me->m_resultsNumericValues.at(EvaluationResultsItems::Floating::dimitem##_RIGHT), \
+                                                              me->m_resultsNumericValues.at(EvaluationResultsItems::Floating::dimitem##_FULL))); \
+  }))
+
+#define MAKE_SELECTED_EXPORTABLE_CTC(bmap, map, name, position) \
+  if (!bmap.contains(name)) throw DataExporter::InvalidExportableException(); \
+  map.insert(name, new DataExporter::SelectedExportable(bmap.value(name), position));
+
+void EvaluationEngine::initClipboardExporter()
+{
+  DataExporter::ExportablesMap eof;
+  DataExporter::ExportablesMap hvl;
+  DataExporter::ExportablesMap peak;
+  DataExporter::ExportablesMap peakDims;
+
+  MAKE_EXPORTABLE(eof, EvaluationEngine, "v (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
+  MAKE_EXPORTABLE(eof, EvaluationEngine, "v! (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY_EFF));
+  MAKE_EXPORTABLE(eof, EvaluationEngine, "u (1e-9 m.m/V/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_MOBILITY));
+
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a0", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a1", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a2", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a3", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "S", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a1 u! (1e-9 m.m/V/s)", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak from X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak from Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak to X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_X));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak to Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_TO_Y));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak max at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "v (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "v! (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "u! (1e-9 m.m/V/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "Area (Units.min)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "t USP", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP));
+
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "Width 1/2 (min)", WIDTH_HALF_MIN);
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "Sigma (min)", SIGMA_MIN);
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "Width 1/2 (m)", WIDTH_HALF_MET);
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "Sigma (m)", SIGMA_MET);
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "N", N);
+  MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "HETP", N_H);
+
+  auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+    typedef DataExporter::AbstractExporterBackend::Cell Cell;
+    if (!exportee->isContextValid())
+      return false;
+
+    int blockCtr = 0;
+    for (const DataExporter::SelectedExportable *se : seMap) {
+      backend.addCell(new Cell(se->name() + " left", "", Cell::NO_VALUE), blockCtr, 0);
+      backend.addCell(new Cell(se->name() + " right", "", Cell::NO_VALUE), blockCtr, 1);
+      backend.addCell(new Cell(se->name() + " full", "", Cell::NO_VALUE), blockCtr, 2);
+
+      blockCtr++;
+
+      PeakDimsTuple dims = se->value(exportee).value<PeakDimsTuple>();
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.left), "", Cell::NO_VALUE), blockCtr, 0);
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.right), "", Cell::NO_VALUE), blockCtr, 1);
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.full), "", Cell::NO_VALUE), blockCtr, 2);
+
+      blockCtr++;
+    }
+
+    return backend.exportData();
+  };
+
+  m_ctcEofSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("EOF", "", eof, DataExporter::SchemeTypes::SINGLE_ITEM);
+  m_ctcHvlSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("HVL", "", hvl, DataExporter::SchemeTypes::SINGLE_ITEM);
+  m_ctcPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Peak", "", peak, DataExporter::SchemeTypes::SINGLE_ITEM);
+  m_ctcPeakDimsSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("PeakDims", "", peakDims, DataExporter::SchemeTypes::SINGLE_ITEM, peakDimsExecutor);
+
+  DataExporter::SelectedExportablesMap seEof;
+  DataExporter::SelectedExportablesMap seHvl;
+  DataExporter::SelectedExportablesMap sePeak;
+  DataExporter::SelectedExportablesMap sePeakDims;
+
+  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "v (1e-3 m/s)", 0);
+  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "v! (1e-3 m/s)", 1);
+  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "u (1e-9 m.m/V/s)", 2);
+
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a0", 0);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a1", 1);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a2", 2);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a3", 3);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "S", 4);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a1 u! (1e-9 m.m/V/s)", 5);
+
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak from X", 0);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak from Y", 1);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak to X", 2);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak to Y", 3);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak max at X", 4);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak height", 5);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "v (1e-3 m/s)", 6);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "v! (1e-3 m/s)", 7);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "u! (1e-9 m.m/V/s)", 8);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Area (Units.min)", 9);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "t USP", 10);
+
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (min)", 0);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Sigma (min)", 1);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (m)", 2);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (m)", 3);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "N", 4);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "HETP", 5);
+
+  m_ctcEofScheme = new DataExporter::Scheme("EOF", seEof, m_ctcEofSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
+  m_ctcHvlScheme = new DataExporter::Scheme("HVL", seHvl, m_ctcHvlSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
+  m_ctcPeakScheme = new DataExporter::Scheme("Peak", sePeak, m_ctcPeakSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
+  m_ctcPeakDimsScheme = new DataExporter::Scheme("PeakDims", sePeakDims, m_ctcPeakDimsSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
+}
 
 bool EvaluationEngine::initDataExporter()
 {

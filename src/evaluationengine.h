@@ -14,7 +14,6 @@
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
 #include "dataexporter/exporter.h"
-#include "dataexporter/backends/abstractexporterbackend.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -197,6 +196,7 @@ private:
                                            const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues = MappedVectorWrapper<double, EvaluationParametersItems::Floating>()) const;
   PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
+  void initClipboardExporter();
   bool initDataExporter();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
@@ -301,17 +301,23 @@ private:
 
   static int seriesIndex(const Series iid);
 
+  /* Data export section*/
   DataExporter::Exporter m_dataExporter;
-  DataExporter::AbstractExporterBackend *m_textDataExporterBackend;
-  DataExporter::AbstractExporterBackend *m_htmlDataExporterBackend;
   QStandardItemModel *m_dataExporterBackendsModel;
   QString m_currentDataExporterSchemeId;
   DataExporterBackends m_currentDataExporterBackend;
   QFileDialog *m_dataExporterFileDlg;
   TextExporterBackendConfigurationDialog *m_textDataExporterCfgDlg;
   QChar m_textDataExporterDelimiter;
-
-
+  /* Export to clipboard section */
+  DataExporter::SchemeBaseRoot *m_ctcEofSchemeBase;
+  DataExporter::SchemeBaseRoot *m_ctcHvlSchemeBase;
+  DataExporter::SchemeBaseRoot *m_ctcPeakSchemeBase;
+  DataExporter::SchemeBaseRoot *m_ctcPeakDimsSchemeBase;
+  DataExporter::Scheme *m_ctcEofScheme;
+  DataExporter::Scheme *m_ctcHvlScheme;
+  DataExporter::Scheme *m_ctcPeakScheme;
+  DataExporter::Scheme *m_ctcPeakDimsScheme;
 
 signals:
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
