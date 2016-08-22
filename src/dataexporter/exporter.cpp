@@ -135,7 +135,7 @@ void Exporter::onCreateScheme()
 void Exporter::onDeserializeScheme()
 {
   if (m_loadSchemeDialog->exec() == QDialog::Accepted) {
-    const QString &path = m_loadSchemeDialog->selectedFiles().at(0);
+    const QString path = m_loadSchemeDialog->selectedFiles().at(0);
     Scheme *s;
 
     SchemeSerializer::RetCode tRet = SchemeSerializer::deserializeScheme(&s, m_exporterId, m_schemeBases, path);

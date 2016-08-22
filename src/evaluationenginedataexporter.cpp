@@ -132,7 +132,7 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (min)", 0);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Sigma (min)", 1);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (m)", 2);
-  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Width 1/2 (m)", 3);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Sigma (m)", 3);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "N", 4);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "HETP", 5);
 
@@ -207,10 +207,15 @@ bool EvaluationEngine::initDataExporter()
   DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables);
   DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "Export complete list of evaluated peaks", peakListExportables, peakListExecutor);
 
-  if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase))
+  if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase)) {
+    delete currentPeakSchemeBase;
+    delete peakListSchemeBase;
     return false;
-  if (!m_dataExporter.registerSchemeBase(peakListSchemeBase))
+  }
+  if (!m_dataExporter.registerSchemeBase(peakListSchemeBase)) {
+    delete peakListSchemeBase;
     return false;
+  }
 
   return true;
 }
