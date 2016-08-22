@@ -177,10 +177,26 @@ void Exporter::onEditScheme(const QString &name)
 
   Scheme *s = m_schemes.value(name);
 
-  QStringList selectedExportables;
+  QStringVector selectedExportables;
+  /* Keep the order of selected exportables */
+  {
+    int max = 0;
+    for (const SelectedExportable *se : s->selectedExportables) {
+      if (se->position > max)
+        max = se->position;
+    }
 
-  for (const QString &s : s->selectedExportables.keys())
-    selectedExportables << s;
+    selectedExportables.resize(s->selectedExportables.count());
+
+    SelectedExportablesMap::ConstIterator cit = s->selectedExportables.cbegin();
+    while (cit != s->selectedExportables.cend()) {
+      const QString &key = cit.key();
+      const SelectedExportable *se = cit.value();
+
+      selectedExportables[se->position] = key;
+      cit++;
+    }
+  }
 
   SchemeEditor::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement);
 
@@ -261,7 +277,7 @@ bool Exporter::registerSchemeBase(const SchemeBaseRoot *schemeBase)
 
   m_schemeBases.insert(schemeBase->name, schemeBase);
 
-  QStringList exportables;
+  QStringVector exportables;
   for (const ExportableRoot *e : schemeBase->exportables)
     exportables << e->name;
 

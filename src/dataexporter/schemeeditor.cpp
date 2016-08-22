@@ -10,11 +10,11 @@ using namespace DataExporter;
 SchemeEditor::SchemeBase::SchemeBase() :
   name(""),
   description(""),
-  exportables(QStringList())
+  exportables(QStringVector())
 {
 }
 
-SchemeEditor::SchemeBase::SchemeBase(const QString &name, const QString &description, const QStringList &exportables) :
+SchemeEditor::SchemeBase::SchemeBase(const QString &name, const QString &description, const QStringVector &exportables) :
   name(name),
   description(description),
   exportables(exportables)
@@ -24,13 +24,13 @@ SchemeEditor::SchemeBase::SchemeBase(const QString &name, const QString &descrip
 SchemeEditor::UserScheme::UserScheme() :
   name(""),
   baseName(""),
-  exportables(QStringList()),
+  exportables(QStringVector()),
   arrangement(Globals::DataArrangement::VERTICAL),
   isValid(false)
 {
 }
 
-SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement) :
+SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringVector &exportables, const Globals::DataArrangement arrangement) :
   name(name),
   baseName(baseName),
   exportables(exportables),
@@ -43,7 +43,7 @@ SchemeEditor::UserScheme & SchemeEditor::UserScheme::operator=(const UserScheme 
 {
   const_cast<QString&>(name) = other.name;
   const_cast<QString&>(baseName) = other.baseName;
-  const_cast<QStringList&>(exportables) = other.exportables;
+  const_cast<QStringVector&>(exportables) = other.exportables;
   const_cast<Globals::DataArrangement&>(arrangement) = other.arrangement;
   const_cast<bool&>(isValid) = other.isValid;
 
@@ -93,7 +93,7 @@ void SchemeEditor::addExportable(const int row)
 
 SchemeEditor::UserScheme SchemeEditor::interact(bool &canceled)
 {
-  QStringList selected;
+  QStringVector selected;
 
   while (true) {
     int ret = this->exec();

@@ -5,6 +5,8 @@
 
 namespace DataExporter {
 
+typedef QVector<QString> QStringVector;
+
 class Globals : public QObject {
   Q_OBJECT
 public:

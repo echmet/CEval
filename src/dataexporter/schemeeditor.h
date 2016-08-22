@@ -1,5 +1,5 @@
-#ifndef SCHEMESMANAGER_H
-#define SCHEMESMANAGER_H
+#ifndef SCHEMEEDITOR_H
+#define SCHEMEEDITOR_H
 
 #include "exporterglobals.h"
 #include <QDialog>
@@ -18,22 +18,22 @@ public:
   class SchemeBase {
   public:
     explicit SchemeBase();
-    explicit SchemeBase(const QString &name, const QString &description, const QStringList &exportables);
+    explicit SchemeBase(const QString &name, const QString &description, const QStringVector &exportables);
 
     const QString name;
     const QString description;
-    const QStringList exportables;
+    const QStringVector exportables;
   };
 
   class UserScheme {
   public:
     explicit UserScheme();
-    explicit UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement);
+    explicit UserScheme(const QString &name, const QString &baseName, const QStringVector &exportables, const Globals::DataArrangement arrangement);
     UserScheme & operator=(const UserScheme &other);
 
     const QString name;
     const QString baseName;
-    const QStringList exportables;
+    const QStringVector exportables;
     const Globals::DataArrangement arrangement;
     const bool isValid;
   };
@@ -66,4 +66,4 @@ private slots:
 } // namespace DataExporter
 Q_DECLARE_METATYPE(DataExporter::SchemeEditor::SchemeBase)
 
-#endif // SCHEMECREATOR_H
+#endif // SCHEMEEDITOR_H
