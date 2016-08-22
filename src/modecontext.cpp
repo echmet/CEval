@@ -271,7 +271,7 @@ void ModeContext::onPointSelected(const QPointF &pos)
   QPoint cursor = QCursor::pos();
   m_plot->mapToGlobal(cursor);
 
-  emit (pointSelected(pos, cursor));
+  emit pointSelected(pos, cursor);
 }
 
 int ModeContext::pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const
