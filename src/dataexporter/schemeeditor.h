@@ -28,15 +28,13 @@ public:
   class UserScheme {
   public:
     explicit UserScheme();
-    explicit UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
-                        const QString &delimiter);
+    explicit UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement);
     UserScheme & operator=(const UserScheme &other);
 
     const QString name;
     const QString baseName;
     const QStringList exportables;
     const Globals::DataArrangement arrangement;
-    const QString delimiter;
     const bool isValid;
   };
 

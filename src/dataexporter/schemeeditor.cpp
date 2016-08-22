@@ -30,13 +30,11 @@ SchemeEditor::UserScheme::UserScheme() :
 {
 }
 
-SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement,
-                                      const QString &delimiter) :
+SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseName, const QStringList &exportables, const Globals::DataArrangement arrangement) :
   name(name),
   baseName(baseName),
   exportables(exportables),
   arrangement(arrangement),
-  delimiter(delimiter),
   isValid(true)
 {
 }
@@ -47,7 +45,6 @@ SchemeEditor::UserScheme & SchemeEditor::UserScheme::operator=(const UserScheme 
   const_cast<QString&>(baseName) = other.baseName;
   const_cast<QStringList&>(exportables) = other.exportables;
   const_cast<Globals::DataArrangement&>(arrangement) = other.arrangement;
-  const_cast<QString&>(delimiter) = other.delimiter;
   const_cast<bool&>(isValid) = other.isValid;
 
   return *this;
@@ -129,7 +126,7 @@ SchemeEditor::UserScheme SchemeEditor::interact(bool &canceled)
 
     Globals::DataArrangement arr = var.value<Globals::DataArrangement>();
 
-    return UserScheme(m_schemeName, baseName, selected, arr, ui->qle_delimiter->text());
+    return UserScheme(m_schemeName, baseName, selected, arr);
   }
 }
 
@@ -188,8 +185,6 @@ SchemeEditor::UserScheme SchemeEditor::interact(const UserScheme &scheme, bool &
       }
     }
   }
-
-  ui->qle_delimiter->setText(scheme.delimiter);
 
   m_currentSchemeName = scheme.name;
   return interact(canceled);

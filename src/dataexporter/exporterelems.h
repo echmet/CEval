@@ -143,8 +143,7 @@ private:
 
 class Scheme {
 public:
-  explicit Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement,
-                  const QChar &delimiter);
+  explicit Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement);
   ~Scheme();
 
   QString baseName() const;
@@ -153,7 +152,6 @@ public:
   const QString name;
   const SelectedExportablesMap selectedExportables;
   const Globals::DataArrangement arrangement;
-  const QChar delimiter;
 
 private:
   const SchemeBaseRoot *m_base;

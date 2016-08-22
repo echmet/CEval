@@ -83,11 +83,6 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
   ARType arr;
   stream >> arr;
 
-  if (stream.atEnd())
-    return RetCode::E_CORRUPTED_FILE;
-  QChar delimiter;
-  stream >> delimiter;
-
   /* Check the hash */
   {
     const quint64 pos = inFile.pos();
@@ -118,7 +113,7 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
   }
 
   try {
-    *s = new Scheme(name, selected, bases.value(baseName), static_cast<Globals::DataArrangement>(arr), delimiter);
+    *s = new Scheme(name, selected, bases.value(baseName), static_cast<Globals::DataArrangement>(arr));
   } catch (std::bad_alloc &) {
     return RetCode::E_NO_MEMORY;
   }
@@ -147,7 +142,7 @@ SchemeSerializer::RetCode SchemeSerializer::serializeScheme(const Scheme *s, con
 
   QByteArray outBuffer;
   QDataStream stream(&outBuffer, QIODevice::WriteOnly);
-  stream << exporterId << s->baseName() << s->name << map << arr << s->delimiter;
+  stream << exporterId << s->baseName() << s->name << map << arr;
 
   QByteArray hash = QCryptographicHash::hash(outBuffer, QCryptographicHash::Sha256);
 

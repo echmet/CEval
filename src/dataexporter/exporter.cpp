@@ -84,19 +84,7 @@ Scheme * Exporter::createScheme()
 
 bool Exporter::isUserSchemeValid(SchemeEditor::UserScheme &scheme)
 {
-  if (scheme.delimiter.length() > 1 && scheme.delimiter != "\\t") {
-    QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character"));
-    return false;
-  }
-  if (scheme.delimiter.length() < 1) {
-    QMessageBox::information(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter is not specified"));
-    return false;
-  }
-
-  if (!scheme.isValid)
-    return false;
-
-  return true;
+  return scheme.isValid;
 }
 
 Scheme * Exporter::makeScheme(const SchemeEditor::UserScheme &scheme)
@@ -118,13 +106,7 @@ Scheme * Exporter::makeScheme(const SchemeEditor::UserScheme &scheme)
 
   Scheme *s;
   try {
-    QChar delim;
-    if (scheme.delimiter == "\\t")
-      delim = '\t';
-    else
-      delim = scheme.delimiter.at(0);
-
-    s = new Scheme(scheme.name, seMap, sbr, scheme.arrangement, delim);
+    s = new Scheme(scheme.name, seMap, sbr, scheme.arrangement);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Cannnot create scheme"), tr("Unable to create scheme. Please check the input and try again."));
     return nullptr;
@@ -200,7 +182,7 @@ void Exporter::onEditScheme(const QString &name)
   for (const QString &s : s->selectedExportables.keys())
     selectedExportables << s;
 
-  SchemeEditor::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement, s->delimiter);
+  SchemeEditor::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement);
 
   SchemeEditor::UserScheme ns;
   while (true) {

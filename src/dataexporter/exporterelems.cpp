@@ -62,12 +62,10 @@ SchemeBaseRoot::~SchemeBaseRoot()
     delete e;
 }
 
-Scheme::Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement,
-               const QChar &delimiter) :
+Scheme::Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement) :
   name(name),
   selectedExportables(seMap),
   arrangement(arrangement),
-  delimiter(delimiter),
   m_base(base)
 {
 }
