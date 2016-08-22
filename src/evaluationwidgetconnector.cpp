@@ -32,6 +32,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationResultsModel(e->resultsValuesModel());
   w->setEvaluationShowWindowModel(e->showWindowModel());
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
+  w->setExporterBackendsModel(e->exporterBackendsModel());
   w->setExporterSchemesModel(e->exporterSchemesModel());
 
   QObject::connect(w, &EvaluationWidget::comboBoxChanged, e, &EvaluationEngine::onComboBoxChanged);

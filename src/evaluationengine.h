@@ -14,6 +14,7 @@
 #include "floatingmappermodel.h"
 #include "hvlcalculator.h"
 #include "dataexporter/exporter.h"
+#include "dataexporter/backends/abstractexporterbackend.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "modecontextlimited.h"
@@ -21,12 +22,19 @@
 #include "assistedpeakfinder.h"
 
 class AddPeakDialog;
+class QFileDialog;
 class QMenu;
 
 class EvaluationEngine : public QObject, public DataExporter::IExportable
 {
   Q_OBJECT
 public:
+  enum class DataExporterBackends {
+    TEXT,
+    HTML
+  };
+  Q_ENUM(DataExporterBackends)
+
   enum class FindPeakMenuActions {
     PEAK_FROM_HERE,
     PEAK_FROM_HERE_SIGSNAP,
@@ -70,6 +78,7 @@ public:
   AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
   const DataFileLoader *dataFileLoader() const { return m_dataFileLoader; }
   QAbstractItemModel *evaluatedPeaksModel();
+  QAbstractItemModel *exporterBackendsModel();
   QAbstractItemModel *exporterSchemesModel();
   AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitFixedModel();
   AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
@@ -292,6 +301,13 @@ private:
   static int seriesIndex(const Series iid);
 
   DataExporter::Exporter m_dataExporter;
+  DataExporter::AbstractExporterBackend *m_textDataExporterBackend;
+  DataExporter::AbstractExporterBackend *m_htmlDataExporterBackend;
+  QStandardItemModel *m_dataExporterBackendsModel;
+  QString m_currentDataExporterSchemeId;
+  DataExporterBackends m_currentDataExporterBackend;
+  QFileDialog *m_dataExporterFileDlg;
+
 
 signals:
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);

@@ -33,8 +33,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_configureExporterBackend, &QPushButton::clicked, this, &EvaluationWidget::onConfigureExporterBackendClicked);
   connect(ui->qpb_manageSchemes, &QPushButton::clicked, this, &EvaluationWidget::onManageExporterSchemesClicked);
   connect(ui->qpb_export, &QPushButton::clicked, this, &EvaluationWidget::onExportSchemeClicked);
-  connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
-  connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
+  connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
+  connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
 }
 
 EvaluationWidget::~EvaluationWidget()

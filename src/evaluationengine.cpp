@@ -8,8 +8,11 @@
 #include "helpers.h"
 #include "manualpeakfinder.h"
 #include "standardmodecontextsettingshandler.h"
+#include "dataexporter/backends/textexporterbackend.h"
+#include "dataexporter/backends/htmlexporterbackend.h"
 #include <QApplication>
 #include <QClipboard>
+#include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextStream>
@@ -144,6 +147,18 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   try {
     //m_dataExporter = new DataExporter();
     initDataExporter();
+    m_dataExporterBackendsModel = new QStandardItemModel();
+
+    QStandardItem *item = new QStandardItem(tr("Text"));
+    item->setData(QVariant::fromValue<DataExporterBackends>(DataExporterBackends::TEXT), Qt::UserRole);
+    m_dataExporterBackendsModel->appendRow(item);
+
+    item = new QStandardItem(tr("HTML"));
+    item->setData(QVariant::fromValue<DataExporterBackends>(DataExporterBackends::HTML), Qt::UserRole);
+    m_dataExporterBackendsModel->appendRow(item);
+
+    m_dataExporterFileDlg = new QFileDialog();
+    m_dataExporterFileDlg->setAcceptMode(QFileDialog::AcceptSave);
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate data exporter"));
     throw;
@@ -196,6 +211,8 @@ EvaluationEngine::~EvaluationEngine()
   delete m_findPeakMenu;
   delete m_manualIntegrationMenu;
   delete m_postProcessMenu;
+  delete m_dataExporterBackendsModel;
+  delete m_dataExporterFileDlg;
 }
 
 void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
@@ -550,6 +567,11 @@ QVector<double> EvaluationEngine::emptyResultsValues() const
 QAbstractItemModel *EvaluationEngine::evaluatedPeaksModel()
 {
   return &m_evaluatedPeaksModel;
+}
+
+QAbstractItemModel *EvaluationEngine::exporterBackendsModel()
+{
+  return m_dataExporterBackendsModel;
 }
 
 QAbstractItemModel *EvaluationEngine::exporterSchemesModel()
@@ -1288,17 +1310,56 @@ void EvaluationEngine::onEvaluationFileSwitched(const int idx)
 
 void EvaluationEngine::onExporterBackendChanged(const QModelIndex &idx)
 {
+  const QVariant v = m_dataExporterBackendsModel->data(idx, Qt::UserRole);
 
+  if (!v.canConvert<DataExporterBackends>())
+    return;
+
+  m_currentDataExporterBackend = v.value<DataExporterBackends>();
 }
 
 void EvaluationEngine::onExporterSchemeChanged(const QModelIndex &idx)
 {
+  const QVariant v = m_dataExporter.schemesModel()->data(idx, Qt::UserRole);
 
+  m_currentDataExporterSchemeId = v.toString();
 }
 
 void EvaluationEngine::onExportScheme()
 {
+  DataExporter::AbstractExporterBackend *backend = nullptr;
 
+  const DataExporter::Scheme *s = m_dataExporter.scheme(m_currentDataExporterSchemeId);
+  if (s == nullptr) {
+    QMessageBox::information(nullptr, tr("No scheme"), tr("No valid scheme is currently selected"));
+    return;
+  }
+
+  if (m_dataExporterFileDlg->exec() != QDialog::Accepted)
+    return;
+
+  const QString path = m_dataExporterFileDlg->selectedFiles().at(0);
+
+  try {
+    switch (m_currentDataExporterBackend) {
+    case DataExporterBackends::HTML:
+      backend = new DataExporter::HtmlExporterBackend(path, s->arrangement);
+      break;
+    case DataExporterBackends::TEXT:
+      backend = new DataExporter::TextExporterBackend(path, ';', s->arrangement);
+      break;
+    default:
+      break;
+    }
+  } catch (std::bad_alloc &) {
+      QMessageBox::warning(nullptr, tr("Runtime error"), tr("Insufficient memory to export data to file"));
+      return;
+  }
+
+  if (s->exportData(this, *backend))
+    QMessageBox::warning(nullptr, tr("Data export error"), tr("Unable to export data"));
+
+  delete backend;
 }
 
 void EvaluationEngine::onFindPeaks()

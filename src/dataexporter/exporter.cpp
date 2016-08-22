@@ -10,9 +10,6 @@
 #include <QStandardItemModel>
 #include <QVBoxLayout>
 
-/* HACK!!! */
-#include "backends/textexporterbackend.h"
-
 using namespace DataExporter;
 
 const QString Exporter::FILEDIALOG_NAME_FILTER = "CEval exporter scheme (*.exs)";
@@ -300,6 +297,14 @@ void Exporter::removeScheme(const QString &name)
       return;
     }
   }
+}
+
+const Scheme * Exporter::scheme(const QString &id)
+{
+  if (!m_schemes.contains(id))
+    return nullptr;
+
+  return m_schemes.value(id);
 }
 
 QAbstractItemModel *Exporter::schemesModel()

@@ -19,6 +19,7 @@ public:
   explicit Exporter(const QString &exporterId);
   ~Exporter();
   void manageSchemes();
+  const Scheme * scheme(const QString &id);
   bool registerSchemeBase(const SchemeBaseRoot *schemeBase);
   QAbstractItemModel * schemesModel();
 
