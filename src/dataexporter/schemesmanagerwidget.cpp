@@ -1,6 +1,7 @@
 #include "schemesmanagerwidget.h"
 #include "ui_schemesmanagerwidget.h"
 #include <QAbstractItemModel>
+#include <QMessageBox>
 
 using namespace DataExporter;
 
@@ -39,8 +40,10 @@ void SchemesManagerWidget::onCreateSchemeClicked()
 void SchemesManagerWidget::onEditSchemeClicked()
 {
   const QModelIndex &idx = ui->qlv_schemes->currentIndex();
-  if (!idx.isValid())
+  if (!idx.isValid()) {
+    QMessageBox::information(this, tr("Invalid selection"), tr("No scheme is currently selected"));
     return;
+  }
 
   const QString name = ui->qlv_schemes->model()->data(idx, Qt::UserRole).toString();
 
@@ -56,8 +59,10 @@ void SchemesManagerWidget::onRemoveSchemeClicked()
 {
   const QModelIndex &idx = ui->qlv_schemes->currentIndex();
 
-  if (!idx.isValid())
+  if (!idx.isValid()) {
+    QMessageBox::information(this, tr("Invalid selection"), tr("No scheme is currently selected"));
     return;
+  }
 
   const QString name = ui->qlv_schemes->model()->data(idx, Qt::UserRole).toString();
 
@@ -68,8 +73,10 @@ void SchemesManagerWidget::onSaveSchemeClicked()
 {
   const QModelIndex &idx = ui->qlv_schemes->currentIndex();
 
-  if (!idx.isValid())
+  if (!idx.isValid()) {
+    QMessageBox::information(this, tr("Invalid selection"), tr("No scheme is currently selected"));
     return;
+  }
 
   const QString name = ui->qlv_schemes->model()->data(idx, Qt::UserRole).toString();
 
