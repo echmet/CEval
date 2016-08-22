@@ -62,6 +62,7 @@ private slots:
   void onCreateClicked();
   void onRemoveExportableClicked();
   void onSchemeChanged(const int idx);
+  void onSetCustomCaptionClicked();
 };
 
 } // namespace DataExporter

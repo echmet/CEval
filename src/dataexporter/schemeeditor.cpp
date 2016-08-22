@@ -75,6 +75,7 @@ SchemeEditor::SchemeEditor(QWidget *parent) :
   connect(ui->qcbox_availableSchemeBases, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &SchemeEditor::onSchemeChanged);
   connect(ui->qlv_availableExportables, &QListView::doubleClicked, this, &SchemeEditor::onAddExportableClicked);
   connect(ui->qlv_selectedExportables, &QListView::doubleClicked, this, &SchemeEditor::onRemoveExportableClicked);
+  connect(ui->qpb_setCustomCaption, &QPushButton::clicked, this, &SchemeEditor::onSetCustomCaptionClicked);
 }
 
 SchemeEditor::~SchemeEditor()
@@ -248,11 +249,13 @@ void SchemeEditor::onRemoveExportableClicked()
 
     int itemRow = item->data(Qt::UserRole + 1).toInt();
     if (itemRow >= origRow) {
+      itemList[0]->setData(QVariant(), Qt::UserRole + 2);
       m_avaliableExportablesModel->insertRow(idx, itemList);
       return;
     }
   }
 
+  itemList[0]->setData(QVariant(), Qt::UserRole + 2);
   m_avaliableExportablesModel->appendRow(itemList);
 }
 
@@ -275,6 +278,25 @@ void SchemeEditor::onSchemeChanged(const int idx)
     m_avaliableExportablesModel->appendRow(item);
     posCounter++;
   }
+}
+
+void SchemeEditor::onSetCustomCaptionClicked()
+{
+  const QModelIndex &idx = ui->qlv_selectedExportables->currentIndex();
+
+  if (!idx.isValid())
+    return;
+
+  const QVariant v = m_selectedExportablesModel->data(idx, Qt::UserRole + 2);
+  QInputDialog dlg;
+
+  if (v.isValid())
+    dlg.setTextValue(v.toString());
+
+  if (dlg.exec() != QDialog::Accepted)
+    return;
+
+  m_selectedExportablesModel->setData(idx, QVariant(dlg.textValue()), Qt::UserRole + 2);
 }
 
 bool SchemeEditor::registerSchemeBase(const SchemeBase &base)

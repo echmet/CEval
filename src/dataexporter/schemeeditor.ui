@@ -86,6 +86,13 @@
             </widget>
            </item>
            <item>
+            <widget class="QPushButton" name="qpb_setCustomCaption">
+             <property name="text">
+              <string>Set custom caption</string>
+             </property>
+            </widget>
+           </item>
+           <item>
             <spacer name="verticalSpacer_2">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
