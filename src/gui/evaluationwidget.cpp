@@ -283,7 +283,7 @@ void EvaluationWidget::setEvaluationResultsModel(AbstractMapperModel<double, Eva
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfRight, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfFull, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfMLeft, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MET_LEFT));
-  m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfMRight, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT));
+  m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfMRight, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MET_RIGHT));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfMFull, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL));
   m_evaluationResultsMapper->addMapping(ui->qle_peakSigmaLeft, model->indexFromItem(EvaluationResultsItems::Floating::SIGMA_MIN_LEFT));
   m_evaluationResultsMapper->addMapping(ui->qle_peakSigmaRight, model->indexFromItem(EvaluationResultsItems::Floating::SIGMA_MIN_RIGHT));
