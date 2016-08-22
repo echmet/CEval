@@ -21,6 +21,9 @@ QWidget *FloatingValueDelegate::createEditor(QWidget *parent, const QStyleOption
 
 void FloatingValueDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
+  if (!index.isValid())
+    return;
+
   bool ok;
   double value = index.model()->data(index, Qt::EditRole).toDouble(&ok);
   if (!ok)
