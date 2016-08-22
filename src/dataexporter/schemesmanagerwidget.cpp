@@ -18,6 +18,7 @@ SchemesManagerWidget::SchemesManagerWidget(QWidget *parent) :
   connect(ui->qpb_removeScheme, &QPushButton::clicked, this, &SchemesManagerWidget::onRemoveSchemeClicked);
   connect(ui->qpb_saveScheme, &QPushButton::clicked, this, &SchemesManagerWidget::onSaveSchemeClicked);
   connect(ui->qpb_close, &QPushButton::clicked, this, &SchemesManagerWidget::onCloseClicked);
+  connect(ui->qlv_schemes, &QListView::doubleClicked, this, &SchemesManagerWidget::onEditSchemeClicked);
 }
 
 SchemesManagerWidget::~SchemesManagerWidget()

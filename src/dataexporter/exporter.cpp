@@ -66,6 +66,7 @@ Scheme * Exporter::createScheme()
 
   SchemeEditor::UserScheme ns;
 
+  m_schemeEditor->setWindowTitle(tr("Create scheme"));
   bool canceled;
   while (true) {
     ns = m_schemeEditor->interact(canceled);
@@ -200,6 +201,7 @@ void Exporter::onEditScheme(const QString &name)
 
   SchemeEditor::UserScheme us(s->name, s->baseName(), selectedExportables, s->arrangement);
 
+  m_schemeEditor->setWindowTitle(tr("Edit scheme"));
   SchemeEditor::UserScheme ns;
   while (true) {
     ns = m_schemeEditor->interact(us, canceled);
