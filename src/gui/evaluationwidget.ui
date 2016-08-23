@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>764</width>
-            <height>538</height>
+            <width>754</width>
+            <height>545</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -620,8 +620,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>744</width>
-            <height>1050</height>
+            <width>737</width>
+            <height>794</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2114,13 +2114,19 @@ padding-right: 2em;</string>
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="tab">
+     <widget class="QWidget" name="qtab_export">
       <attribute name="title">
        <string>Export</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2">
        <item>
         <widget class="QGroupBox" name="qgbox_exportToFile">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Export to file</string>
          </property>
@@ -2218,6 +2224,12 @@ padding-right: 3em;</string>
        </item>
        <item>
         <widget class="QGroupBox" name="qgbox_clipboardExportingOptions">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="title">
           <string>Clipboard exporting options</string>
          </property>
