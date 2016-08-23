@@ -59,6 +59,19 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
   if (!inFile.open(QIODevice::ReadOnly))
     return RetCode::E_CANT_OPEN;
 
+  /* Check the hash */
+  {
+    QByteArray hash = inFile.read(32);
+    QByteArray bytes = inFile.readAll();
+
+    QByteArray computedHash = QCryptographicHash::hash(bytes, QCryptographicHash::Sha256);
+
+    if (computedHash != hash)
+      return RetCode::E_CORRUPTED_FILE;
+
+    inFile.seek(32);
+  }
+
   QDataStream stream(&inFile);
 
   QString inExporterId;
@@ -87,22 +100,6 @@ SchemeSerializer::RetCode SchemeSerializer::deserializeScheme(Scheme **s, const 
     return RetCode::E_CORRUPTED_FILE;
   ARType arr;
   stream >> arr;
-
-  /* Check the hash */
-  {
-    const quint64 pos = inFile.pos();
-
-    QByteArray dataHash;
-    stream >> dataHash;
-
-    inFile.seek(0);
-    QByteArray bytes = inFile.read(pos);
-
-    QByteArray computedHash = QCryptographicHash::hash(bytes, QCryptographicHash::Sha256);
-
-    if (computedHash != dataHash)
-      return RetCode::E_CORRUPTED_FILE;
-  }
 
   const ExportablesMap &exportables = bases.value(baseName)->exportables;
   SerializedExportablesMap::ConstIterator cit = serMap.cbegin();
@@ -151,7 +148,8 @@ SchemeSerializer::RetCode SchemeSerializer::serializeScheme(const Scheme *s, con
 
   QByteArray hash = QCryptographicHash::hash(outBuffer, QCryptographicHash::Sha256);
 
-  stream << hash;
+  if (outFile.write(hash) < hash.size())
+    return RetCode::E_CANT_WRITE;
 
   if (outFile.write(outBuffer) < outBuffer.size())
     return RetCode::E_CANT_WRITE;
