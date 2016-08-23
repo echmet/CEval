@@ -1215,7 +1215,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
     m_ctcHvlScheme->exportData(this, backend);
     break;
   case EvaluationEngineMsgs::CopyToClipboard::PEAK:
-    m_ctcPeakDimsScheme->exportData(this, backend);
+    m_ctcPeakScheme->exportData(this, backend);
     break;
   case EvaluationEngineMsgs::CopyToClipboard::PEAK_DIMS:
     m_ctcPeakDimsScheme->exportData(this, backend);
