@@ -87,6 +87,11 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   }
 }
 
+void DataAccumulator::announceDefaultState()
+{
+  m_evaluationEngine->announceDefaultState();
+}
+
 void DataAccumulator::checkForCrashRecovery()
 {
   m_hyperboleFittingEngine->checkForCrashRecovery();

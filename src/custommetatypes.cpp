@@ -64,10 +64,19 @@ QDataStream &operator>>(QDataStream &in, DataExporter::Globals::DataArrangement 
   if (v.canConvert<ARType>())
     a = static_cast<DataExporter::Globals::DataArrangement>(v.value<ARType>());
 
+  switch (a) {
+  case DataExporter::Globals::DataArrangement::VERTICAL:
+  case DataExporter::Globals::DataArrangement::HORIZONTAL:
+    break;
+  default:
+    a = DataExporter::Globals::DataArrangement::VERTICAL;
+    break;
+  }
+
   return in;
 }
 
-QDataStream &operator<<(QDataStream &out, const DataExporter::Globals::DataArrangement a)
+QDataStream &operator<<(QDataStream &out, const DataExporter::Globals::DataArrangement &a)
 {
   typedef typename std::underlying_type<DataExporter::Globals::DataArrangement>::type ARType;
 

@@ -9,6 +9,7 @@
 #include "helpers.h"
 #include "manualpeakfinder.h"
 #include "standardmodecontextsettingshandler.h"
+#include "witchcraft.h"
 #include "dataexporter/backends/textexporterbackend.h"
 #include "dataexporter/backends/htmlexporterbackend.h"
 #include "dataexporter/backends/textstreamexporterbackend.h"
@@ -174,11 +175,12 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     initClipboardExporter();
     m_ctcDataArrangementModel = new QStandardItemModel();
     item = new QStandardItem(tr("Vertical"));
-    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::VERTICAL));
+    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::VERTICAL), Qt::UserRole);
     m_ctcDataArrangementModel->appendRow(item);
     item = new QStandardItem(tr("Horizontal"));
-    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::HORIZONTAL));
+    item->setData(QVariant::fromValue<DataExporter::Globals::DataArrangement>(DataExporter::Globals::DataArrangement::HORIZONTAL), Qt::UserRole);
     m_ctcDataArrangementModel->appendRow(item);
+    m_ctcDataArrangement = DataExporter::Globals::DataArrangement::VERTICAL;
 
     m_ctcDelimiter = ";";
   } catch (std::bad_alloc&) {
@@ -245,6 +247,27 @@ EvaluationEngine::~EvaluationEngine()
   delete m_ctcPeakSchemeBase;
   delete m_ctcPeakDimsSchemeBase;
   delete m_ctcDataArrangementModel;
+}
+
+void EvaluationEngine::announceDefaultState()
+{
+  for (int idx = 0; idx < m_dataExporterBackendsModel->rowCount(); idx++) {
+    const QModelIndex midx = m_dataExporterBackendsModel->index(idx, 0);
+    const QVariant &v = m_dataExporterBackendsModel->data(midx, Qt::UserRole);
+
+    if (m_currentDataExporterBackend == v.value<DataExporterBackends>())
+      emit exporterBackendSet(midx);
+  }
+
+  for (int idx = 0; idx < m_ctcDataArrangementModel->rowCount(); idx++) {
+    const QModelIndex midx = m_ctcDataArrangementModel->index(idx, 0);
+    const QVariant &v = m_ctcDataArrangementModel->data(midx, Qt::UserRole);
+
+    if (m_ctcDataArrangement == v.value<DataExporter::Globals::DataArrangement>())
+      emit clipboardExporterDataArrangementSet(midx);
+  }
+
+  emit clipboardExporterDelimiterSet(m_ctcDelimiter);
 }
 
 void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
@@ -912,8 +935,8 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
     const QVariant &v = map[CLIPBOARDEXPORTER_DELIMTIER_TAG];
 
     m_ctcDelimiter = v.toString();
+    emit clipboardExporterDelimiterSet(m_ctcDelimiter);
   }
-  emit clipboardExporterDelimiterSet(m_ctcDelimiter); /* Default value is used if none is set */
 }
 
 PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr)

@@ -72,6 +72,7 @@ public:
 
   explicit EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent = nullptr);
   ~EvaluationEngine();
+  void announceDefaultState();
   AbstractMapperModel<bool, EvaluationParametersItems::Auto> *autoValuesModel();
   void assignContext(std::shared_ptr<ModeContextLimited> ctx);
   QAbstractItemModel *baselineModel();
@@ -332,6 +333,7 @@ signals:
   void comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void evaluationFileAdded(const int idx);
   void evaluationFileSwitched(const int idx);
+  void exporterBackendSet(const QModelIndex &idx);
   void updateTEof(const double t);
   void registerMeasurement(const QString &name, const double selConcentration, const double mobility);
 

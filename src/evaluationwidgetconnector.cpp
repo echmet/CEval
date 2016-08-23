@@ -54,4 +54,5 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(e, &EvaluationEngine::clipboardExporterDataArrangementSet, w, &EvaluationWidget::onClipboardExporterDataArrangementSet);
   QObject::connect(e, &EvaluationEngine::clipboardExporterDelimiterSet, w, &EvaluationWidget::onClipboardExporterDelimiterSet);
   QObject::connect(w, &EvaluationWidget::exportOnFileLeftToggled, e, &EvaluationEngine::onExportFileOnLeftToggled);
+  QObject::connect(e, &EvaluationEngine::exporterBackendSet, w, &EvaluationWidget::onExporterBackendSet);
 }

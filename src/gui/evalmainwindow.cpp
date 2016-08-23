@@ -8,7 +8,7 @@
 #include "../globals.h"
 #include "numberformatdialog.h"
 #include "../doubletostringconvertor.h"
-#include "common/witchcraft.h"
+#include "../witchcraft.h"
 #include <QMessageBox>
 
 EvalMainWindow::EvalMainWindow(QWidget *parent) :

@@ -72,6 +72,7 @@ public slots:
   void onClipboardExporterDataArrangementSet(const QModelIndex &midx);
   void onClipboardExporterDelimiterSet(const QString &text);
   void onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
+  void onExporterBackendSet(const QModelIndex &idx);
 
 private slots:
   void onBaselineComboBoxChanged(int idx);

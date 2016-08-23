@@ -163,6 +163,7 @@ int main(int argc, char *argv[])
   setupBindings(w, dac);
 
   w->show();
+  dac->announceDefaultState();
   loadUserSettings(dac, updater);
 
   setDefaultState(w);

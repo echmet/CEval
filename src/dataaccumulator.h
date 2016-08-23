@@ -18,6 +18,7 @@ class DataAccumulator : public QObject
   Q_OBJECT
 public:
   explicit DataAccumulator(QwtPlot *plot, QObject *parent = nullptr);
+  void announceDefaultState();
   void checkForCrashRecovery();
   CommonParametersEngine *commonParametersEngine() const;
   EvaluationEngine *evaluationEngine() const;

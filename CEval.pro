@@ -92,7 +92,7 @@ SOURCES += src/main.cpp \
     src/doubletostringconvertor.cpp \
     src/gui/numberformatdialog.cpp \
     src/gui/hvlfitinprogressdialog.cpp \
-    src/gui/common/witchcraft.cpp \
+    src/witchcraft.cpp \
     src/crashhandler.cpp \
     src/gui/crashhandlerdialog.cpp \
     src/gui/adjustplotvisualsdialog.cpp \
@@ -272,7 +272,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/setup.h \
     src/math/regressor/hvlPeak.h \
     src/gui/hvlfitinprogressdialog.h \
-    src/gui/common/witchcraft.h \
+    src/witchcraft.h \
     src/mappedvectorwrapper.h \
     src/crashhandler.h \
     src/stacktrace.h \

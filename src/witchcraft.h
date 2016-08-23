@@ -1,6 +1,11 @@
+/*
+ * All out-of-context hakz resideth here
+ */
+
 #ifndef WITCHCRAFT_H
 #define WITCHCRAFT_H
 
+class QTextStream;
 class QSplitter;
 
 class Witchcraft {

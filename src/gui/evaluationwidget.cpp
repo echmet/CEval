@@ -33,7 +33,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qpb_configureExporterBackend, &QPushButton::clicked, this, &EvaluationWidget::onConfigureExporterBackendClicked);
   connect(ui->qpb_manageSchemes, &QPushButton::clicked, this, &EvaluationWidget::onManageExporterSchemesClicked);
   connect(ui->qpb_export, &QPushButton::clicked, this, &EvaluationWidget::onExportSchemeClicked);
-  connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
+  connect(ui->qcbox_availableExporterBackends, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onExporterBackendComboBoxChanged);
   connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
   connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
   connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
@@ -183,6 +183,11 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
       break;
     }
   }
+}
+
+void EvaluationWidget::onExporterBackendSet(const QModelIndex &idx)
+{
+  ui->qcbox_availableExporterBackends->setCurrentIndex(idx.row());
 }
 
 void EvaluationWidget::onExportSchemeClicked()

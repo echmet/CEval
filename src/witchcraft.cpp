@@ -1,5 +1,6 @@
 #include "witchcraft.h"
 #include <QSplitterHandle>
+#include <QTextStream>
 #include <QVBoxLayout>
 
 void Witchcraft::makeSplitterAppear(QSplitter *splitter)
