@@ -1025,8 +1025,10 @@ void EvaluationEngine::onAddPeak()
 
   /* Peak has no meaningful evaluation resutls,
    * do not add it */
-  if (!m_currentPeak.finderResults->isValid())
+  if (!m_currentPeak.finderResults->isValid()) {
+    QMessageBox::information(nullptr, tr("Invalid peak"), tr("Peak has no meaningful evaluation results and will not be added"));
     return;
+  }
 
   m_addPeakDlg->setInformation(m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
