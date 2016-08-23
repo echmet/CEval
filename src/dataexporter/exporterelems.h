@@ -94,7 +94,7 @@ typedef QMap<QString, SelectedExportable *> SelectedExportablesMap;
 class SchemeBaseRoot {
 public:
   explicit SchemeBaseRoot(const QString &name, const QString &description,
-                          const ExportablesMap &exportables);
+                          const ExportablesMap &exportables, const bool dontFree = false);
   virtual ~SchemeBaseRoot();
 
   virtual bool exportData(const IExportable *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend) const = 0;
@@ -102,6 +102,9 @@ public:
   const QString name;
   const QString description;
   const ExportablesMap exportables;
+
+private:
+  const bool m_dontFree;
 
 };
 
@@ -122,8 +125,8 @@ public:
                         }
 
                         return backend.exportData();
-                      }) :
-    SchemeBaseRoot(name, description, exportables),
+                      }, const bool dontFree = false) :
+    SchemeBaseRoot(name, description, exportables, dontFree),
     m_executor(executor)
   {
   }

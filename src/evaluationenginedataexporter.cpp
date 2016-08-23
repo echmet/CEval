@@ -217,16 +217,66 @@ bool EvaluationEngine::initDataExporter()
     return backend.exportData();
   };
 
-  DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", "Export current peak", currentPeakExportables);
-  DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", "Export complete list of evaluated peaks", peakListExportables, peakListExecutor);
+  auto peakListTableExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+    typedef DataExporter::AbstractExporterBackend::Cell Cell;
+    if (!exportee->isContextValid())
+      return false;
+
+    if (exportee->m_allPeaks.size() < 2)
+      return true;
+
+    /* Output peak names along one direction */
+    for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
+      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
+      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), 0, idx);
+    }
+
+    /* Output value names along the other direction */
+    int blockCtr = 1;
+    for (const DataExporter::SelectedExportable *se : seMap)
+      backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, 0);
+
+    /* Output the actual values */
+    for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
+      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
+
+      blockCtr = 1;
+      for (const DataExporter::SelectedExportable *se : seMap) {
+        QVariant v;
+        try {
+          v = se->value(pCtx);
+        } catch (DataExporter::InvalidExportableException &) {
+          /* We expect this to happen */
+          const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
+          if (eof != nullptr)
+            v = se->value(exportee);
+        }
+
+        const QString s = DoubleToStringConvertor::convert(v.toDouble());
+        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, idx);
+      }
+    }
+
+    return backend.exportData();
+  };
+
+  DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", tr("Export current peak"), currentPeakExportables);
+  DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", tr("Export complete list of evaluated peaks"), peakListExportables, peakListExecutor);
+  DataExporter::SchemeBase<EvaluationEngine> *peakListTableShemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks (simple table)", tr("Export complete list of peaks arranged in a table)"), peakListExportables, peakListTableExecutor, true);
 
   if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase)) {
     delete currentPeakSchemeBase;
     delete peakListSchemeBase;
+    delete peakListTableShemeBase;
     return false;
   }
   if (!m_dataExporter.registerSchemeBase(peakListSchemeBase)) {
     delete peakListSchemeBase;
+    delete peakListTableShemeBase;
+    return false;
+  }
+  if (!m_dataExporter.registerSchemeBase(peakListTableShemeBase)) {
+    delete peakListTableShemeBase;
     return false;
   }
 

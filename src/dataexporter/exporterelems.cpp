@@ -55,15 +55,19 @@ QVariant SelectedExportable::value(const IExportable *exportee) const
 }
 
 SchemeBaseRoot::SchemeBaseRoot(const QString &name, const QString &description,
-                              const ExportablesMap &exportables) :
+                              const ExportablesMap &exportables, const bool dontFree) :
   name(name),
   description(description),
-  exportables(exportables)
+  exportables(exportables),
+  m_dontFree(dontFree)
 {
 }
 
 SchemeBaseRoot::~SchemeBaseRoot()
 {
+  if (m_dontFree)
+    return;
+
   for (const ExportableRoot *e : exportables)
     delete e;
 }
