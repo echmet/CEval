@@ -168,6 +168,8 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     m_textDataExporterDelimiter = QChar(';');
     m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
 
+    m_exportOnFileLeftEnabled = false;
+
     /* Clipboard exporter */
     initClipboardExporter();
     m_ctcDataArrangementModel = new QStandardItemModel();
@@ -1080,6 +1082,9 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
   int newIdx;
   QString oldKey(m_currentDataContextKey);
 
+  if (m_exportOnFileLeftEnabled)
+    onExportScheme();
+
   if (m_allDataContexts.size() == 0)
     return;
   else if (m_allDataContexts.size() == 1) {
@@ -1215,6 +1220,9 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
 
 void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName)
 {
+  if (m_exportOnFileLeftEnabled)
+    onExportScheme();
+
   /* Empty file ID, file is coming from a temporary storage such as clipboard */
   if (fileID.compare("") == 0) {
     const QStringList &keys = m_allDataContexts.keys();
@@ -1391,9 +1399,17 @@ void EvaluationEngine::onExporterSchemeChanged(const QModelIndex &idx)
   m_currentDataExporterSchemeId = v.toString();
 }
 
+void EvaluationEngine::onExportFileOnLeftToggled(const bool enabled)
+{
+  m_exportOnFileLeftEnabled = enabled;
+}
+
 void EvaluationEngine::onExportScheme()
 {
   DataExporter::AbstractExporterBackend *backend = nullptr;
+
+  if (!isContextValid())
+    return;
 
   const DataExporter::Scheme *s = m_dataExporter.scheme(m_currentDataExporterSchemeId);
   if (s == nullptr) {
@@ -1671,6 +1687,9 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
     cit++;
     break;
   }
+
+  if (m_exportOnFileLeftEnabled)
+    onExportScheme();
 
   switchEvaluationContext(cit.key());
 

@@ -41,7 +41,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="qtab_evaluationParameters">
       <property name="sizePolicy">
@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>776</width>
-            <height>517</height>
+            <width>764</width>
+            <height>538</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -621,7 +621,7 @@
             <x>0</x>
             <y>0</y>
             <width>744</width>
-            <height>1076</height>
+            <height>1050</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2178,6 +2178,13 @@ padding-right: 2em;</string>
           </item>
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <widget class="QCheckBox" name="qcb_exportOnLeave">
+              <property name="text">
+               <string>Export to file when another file is displayed</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <spacer name="horizontalSpacer_9">
               <property name="orientation">

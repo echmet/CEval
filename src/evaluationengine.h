@@ -312,6 +312,7 @@ private:
   QFileDialog *m_dataExporterFileDlg;
   TextExporterBackendConfigurationDialog *m_textDataExporterCfgDlg;
   QChar m_textDataExporterDelimiter;
+  bool m_exportOnFileLeftEnabled;
   /* Export to clipboard section */
   DataExporter::SchemeBaseRoot *m_ctcEofSchemeBase;
   DataExporter::SchemeBaseRoot *m_ctcHvlSchemeBase;
@@ -348,6 +349,7 @@ public slots:
   void onEvaluationFileSwitched(const int idx);
   void onExporterBackendChanged(const QModelIndex &idx);
   void onExporterSchemeChanged(const QModelIndex &idx);
+  void onExportFileOnLeftToggled(const bool enabled);
   void onExportScheme();
   void onFindPeaks();
   void onManageExporterScheme();

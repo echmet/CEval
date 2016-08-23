@@ -61,6 +61,7 @@ signals:
   void doHvlFit();
   void evaluationSetDefault(const EvaluationEngineMsgs::Default msg);
   void exporterBackendChanged(const QModelIndex &idx);
+  void exportOnFileLeftToggled(const bool enabled);
   void exportScheme();
   void exporterSchemeChanged(const QModelIndex &idx);
   void findPeaks();
@@ -84,6 +85,7 @@ private slots:
   void onDoHvlFitClicked();
   void onExporterBackendComboBoxChanged(int idx);
   void onExporterSchemeComboBoxChanged(int idx);
+  void onExportOnFileLeftClicked();
   void onExportSchemeClicked();
   void onFindPeaksClicked();
   void onManageExporterSchemesClicked();

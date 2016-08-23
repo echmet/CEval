@@ -37,6 +37,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qcbox_schemes, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onExporterSchemeComboBoxChanged);
   connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
   connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
+  connect(ui->qcb_exportOnLeave, &QCheckBox::clicked, this, &EvaluationWidget::onExportOnFileLeftClicked);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -187,6 +188,11 @@ void EvaluationWidget::onEvaluationAutoModelChanged(QModelIndex topLeft, QModelI
 void EvaluationWidget::onExportSchemeClicked()
 {
   emit exportScheme();
+}
+
+void EvaluationWidget::onExportOnFileLeftClicked()
+{
+  emit exportOnFileLeftToggled(ui->qcb_exportOnLeave->checkState() == Qt::Checked);
 }
 
 void EvaluationWidget::onFindPeaksClicked()
