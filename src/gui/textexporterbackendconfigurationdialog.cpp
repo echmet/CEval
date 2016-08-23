@@ -18,7 +18,10 @@ TextExporterBackendConfigurationDialog::~TextExporterBackendConfigurationDialog(
 
 QString TextExporterBackendConfigurationDialog::interact(bool &canceled, const QChar &currentDelimiter)
 {
-  ui->qle_delimiter->setText(currentDelimiter);
+  if (currentDelimiter == QChar('\t'))
+    ui->qle_delimiter->setText("\\t");
+  else
+    ui->qle_delimiter->setText(currentDelimiter);
 
   if (this->exec() != QDialog::Accepted) {
     canceled = true;
