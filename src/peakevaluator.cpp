@@ -245,35 +245,52 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
 
   if (Helpers::isSensible(r.vP)) {
     r.widthHalfMLeft = r.widthHalfLeft * r.vP;
-    r.widthHalfMRight = r.widthHalfMRight * r.vP;
+    r.widthHalfMRight = r.widthHalfRight * r.vP;
     r.widthHalfMFull = r.widthHalfFull * r.vP;
 
     r.sigmaHalfMLeft = r.sigmaHalfLeft * r.vP;
     r.sigmaHalfMRight = r.sigmaHalfRight * r.vP;
     r.sigmaHalfMFull = r.sigmaHalfFull * r.vP;
+  } else {
+    r.widthHalfMLeft = 0.0;
+    r.widthHalfMRight = 0.0;
+    r.widthHalfMFull = 0.0;
+
+    r.sigmaHalfMLeft = 0.0;
+    r.sigmaHalfMRight = 0.0;
+    r.sigmaHalfMFull = 0.0;
   }
 
   if (Helpers::isSensible(r.sigmaHalfLeft)) {
     r.nLeft = r.peakX / r.sigmaHalfLeft;
     r.nLeft *= r.nLeft;
-  }
+  } else
+    r.nLeft = 0.0;
   if (Helpers::isSensible(r.sigmaHalfRight)) {
     r.nRight = r.peakX / r.sigmaHalfRight;
     r.nRight *= r.nRight;
-  }
+  } else
+    r.nRight = 0.0;
   if (Helpers::isSensible(r.sigmaHalfFull)) {
     r.nFull = r.peakX / r.sigmaHalfFull;
     r.nFull *= r.nFull;
-  }
+  } else
+    r.nFull = 0.0;
 
   if (Helpers::isSensible(r.nLeft))
     r.nHLeft = Detector / r.nLeft;
+  else
+    r.nHLeft = 0.0;
 
   if (Helpers::isSensible(r.nRight))
     r.nHRight = Detector / r.nRight;
+  else
+    r.nHRight = 0.0;
 
   if (Helpers::isSensible(r.nFull))
     r.nHFull = Detector / r.nFull;
+  else
+    r.nHFull = 0.0;
 
   /* Convert velocities and mobilities to mode readable values */
   if (std::isfinite(r.uEOF))
