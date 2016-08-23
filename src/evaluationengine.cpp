@@ -648,9 +648,14 @@ void EvaluationEngine::findPeakAssisted()
   if (!isContextValid())
     return;
 
-  if (m_userInteractionState != UserInteractionState::FINDING_PEAK) {
-    QMessageBox::information(nullptr, tr("Peak already selected"), tr("A peak is already selected. Please cancel current selection before finding a new peak."));
+  switch (m_userInteractionState) {
+  case UserInteractionState::PEAK_POSTPROCESSING:
+    onCancelEvaluatedPeakSelection();
+    break;
+  case UserInteractionState::MANUAL_PEAK_INTEGRATION:
     return;
+  case UserInteractionState::FINDING_PEAK:
+    break;
   }
 
   if (m_currentDataContext->data->data.length() == 0)
