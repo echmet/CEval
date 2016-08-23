@@ -170,7 +170,7 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
     for (int idx = from; idx <= to; idx++)
       mean += data.at(idx).y();
 
-      mean /= (to - from);
+    mean /= (to - from);
 
     for (int idx = from; idx <= to; idx++)
       variance += std::pow(data.at(idx).y() - mean, 2);
