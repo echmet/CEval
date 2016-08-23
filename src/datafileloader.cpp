@@ -212,7 +212,7 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
 {
   LoadCsvFileDialog::Parameters p;
   QStringList filePaths;
-  QFileDialog openDlg(nullptr, tr("Pick a comma-separated values file"), m_lastCsvPath);
+  QFileDialog openDlg(nullptr, tr("Pick a text data file"), m_lastCsvPath);
 
   if (!readFromClipboard) {
     openDlg.setAcceptMode(QFileDialog::AcceptOpen);
@@ -232,7 +232,7 @@ void DataFileLoader::loadCsvFile(const bool readFromClipboard)
 
     p = m_loadCsvFileDlg->parameters();
     if (p.delimiter.length() != 1 && (p.delimiter.compare("\\t") != 0)) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character."));
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character or '\\t' to represent TAB."));
       continue;
     }
     if (p.decimalSeparator == p.delimiter) {

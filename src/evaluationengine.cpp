@@ -1149,7 +1149,7 @@ void EvaluationEngine::onConfigureExporterBackend()
         return;
       } else {
         if (str.length() != 1) {
-          QMessageBox::warning(nullptr, tr("Invalid input data"), tr("Delimiter must be a single character"));
+          QMessageBox::warning(nullptr, tr("Invalid input data"), tr("Delimiter must be a single character or '\\t' to represent TAB"));
           continue;
         }
 
@@ -1175,10 +1175,10 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   if (m_ctcDelimiter == "\\t")
     delimiter = '\t';
   else if (m_ctcDelimiter.length() != 1) {
-    QMessageBox::warning(nullptr, tr("Invalid exporter options"), tr("Delimiter is set to nonsensical value. Please check clipboard exporter options on the Export tab."));
+    QMessageBox::warning(nullptr, tr("Invalid exporter options"), tr("Delimiter must be a single character or '\\t' to represent TAB.\nPlease check clipboard exporter options on the Export tab."));
     return;
-  }
-  delimiter = m_ctcDelimiter.at(0);
+  } else
+    delimiter = m_ctcDelimiter.at(0);
 
   DataExporter::TextStreamExporterBackend backend(&toCopy, delimiter, m_ctcDataArrangement);
 
