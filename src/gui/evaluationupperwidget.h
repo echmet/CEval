@@ -34,6 +34,7 @@ private:
 signals:
   void closeFile(const int idx);
   void fileSwitched(const int idx);
+  void traverseFiles(const EvaluationEngineMsgs::Traverse dir);
 
 public slots:
   void onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier);
@@ -42,6 +43,8 @@ public slots:
 private slots:
   void onCloseFileClicked();
   void onFileComboBoxChanged(const int idx);
+  void onNextFileClicked();
+  void onPreviousFileClicked();
 
 };
 

@@ -1650,6 +1650,39 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
   }
 }
 
+void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
+{
+  typedef QMap<QString, std::shared_ptr<DataContext>> DataMap;
+
+  if (!m_allDataContexts.contains(m_currentDataContextKey))
+    return;
+
+  DataMap::ConstIterator cit = m_allDataContexts.find(m_currentDataContextKey);
+
+  switch (dir) {
+  case EvaluationEngineMsgs::Traverse::PREVIOUS:
+    if (cit == m_allDataContexts.cbegin())
+      return;
+    cit--;
+    break;
+  case EvaluationEngineMsgs::Traverse::NEXT:
+    if (cit + 1 == m_allDataContexts.cend())
+      return;
+    cit++;
+    break;
+  }
+
+  switchEvaluationContext(cit.key());
+
+  for (int idx = 0; idx < m_loadedFilesModel.rowCount(); idx++) {
+    const QModelIndex midx = m_loadedFilesModel.index(idx, 0);
+    const QString s = m_loadedFilesModel.data(midx, Qt::UserRole + 1).toString();
+
+    if (s == cit.key())
+      emit evaluationFileSwitched(idx);
+  }
+}
+
 void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
   m_modeCtx->clearSerieSamples(seriesIndex(Series::PROV_PEAK));

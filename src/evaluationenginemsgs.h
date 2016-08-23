@@ -35,12 +35,19 @@ public:
   };
   Q_ENUM(EvaluationEngineMsgs::Default)
 
+  enum class Traverse {
+    PREVIOUS,
+    NEXT
+  };
+  Q_ENUM(Traverse)
+
   struct ComboBoxNotifier {
     ComboBoxNotifier(const ComboBox id, const int value) :
       id(id), value(value) {}
     ComboBox id;
     int value;
   };
+
 };
 
 #endif // EVALUATIONENGINEMSGS_H

@@ -22,6 +22,8 @@ EvaluationUpperWidget::EvaluationUpperWidget(QWidget *parent) :
 
   connect(ui->qcbox_files, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationUpperWidget::onFileComboBoxChanged);
   connect(ui->qpb_closeFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onCloseFileClicked);
+  connect(ui->qpb_nextFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onNextFileClicked);
+  connect(ui->qpb_prevFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onPreviousFileClicked);
 }
 
 EvaluationUpperWidget::~EvaluationUpperWidget()
@@ -61,6 +63,16 @@ void EvaluationUpperWidget::onFileComboBoxChanged(const int idx)
 void EvaluationUpperWidget::onFileSwitched(const int idx)
 {
   ui->qcbox_files->setCurrentIndex(idx);
+}
+
+void EvaluationUpperWidget::onNextFileClicked()
+{
+  emit traverseFiles(EvaluationEngineMsgs::Traverse::NEXT);
+}
+
+void EvaluationUpperWidget::onPreviousFileClicked()
+{
+  emit traverseFiles(EvaluationEngineMsgs::Traverse::PREVIOUS);
 }
 
 void EvaluationUpperWidget::setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)

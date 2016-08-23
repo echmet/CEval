@@ -357,6 +357,7 @@ public slots:
   void onReadEof();
   void onReplotHvl();
   void onSetDefault(EvaluationEngineMsgs::Default msg);
+  void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
   void onUpdateCurrentPeak();
 
 private slots:
