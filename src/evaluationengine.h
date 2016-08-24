@@ -176,6 +176,7 @@ private:
     EvaluationContext evaluationContext;
   };
 
+  void activateCurrentDataContext();
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);

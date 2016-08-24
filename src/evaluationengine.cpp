@@ -249,6 +249,23 @@ EvaluationEngine::~EvaluationEngine()
   delete m_ctcDataArrangementModel;
 }
 
+void EvaluationEngine::activateCurrentDataContext()
+{
+  disconnect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
+  setEvaluationContext(m_currentDataContext->evaluationContext);
+  m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
+  m_commonParamsEngine->revalidate();
+  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+
+  if (m_currentDataContext->data != nullptr) {
+    if (m_currentDataContext->data->data.length() > 0)
+      setPeakFinderParameters(m_currentDataContext->data->data.last().x());
+  }
+
+  drawEofMarker();
+}
+
 void EvaluationEngine::announceDefaultState()
 {
   for (int idx = 0; idx < m_dataExporterBackendsModel->rowCount(); idx++) {
@@ -1124,7 +1141,7 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
     return;
   else if (m_allDataContexts.size() == 1) {
     m_loadedFilesModel.deleteByIdx(idx);
-    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), currentEvaluationContext()));
+    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
     m_currentDataContextKey = "";
   } else {
     m_loadedFilesModel.deleteByIdx(idx);
@@ -1140,11 +1157,9 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
     m_currentDataContextKey = newKey;
   }
 
-  m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
-  setEvaluationContext(m_currentDataContext->evaluationContext);
-  drawEofMarker();
-
   m_allDataContexts.remove(oldKey);
+
+  activateCurrentDataContext();
 }
 
 void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier)
@@ -1322,14 +1337,8 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
 
   m_currentDataContext = ctx;
   m_currentDataContextKey = fileID;
-  setEvaluationContext(ctx->evaluationContext);
-  m_commonParamsEngine->revalidate();
-  m_evaluatedPeaksModel.clearEntries();
 
-  if (ctx->data->data.length() > 0)
-    setPeakFinderParameters(ctx->data->data.last().x());
-
-  drawEofMarker();
+  activateCurrentDataContext();
 }
 
 void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
@@ -2156,13 +2165,7 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
   m_currentDataContext = m_allDataContexts[key];
   m_currentDataContextKey = key;
 
-  disconnect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
-  m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
-  setEvaluationContext(m_currentDataContext->evaluationContext);
-  m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
-  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
-
-  drawEofMarker();
+  activateCurrentDataContext();
 }
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)
