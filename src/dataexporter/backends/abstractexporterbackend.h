@@ -14,7 +14,7 @@ public:
   class Cell {
   public:
     enum Options {
-      NO_VALUE = 1
+      SINGLE = 1        /*!< Cell is a single string and not a key-value pair */
     };
 
     explicit Cell(const QString &name, const QVariant &value, const uint32_t options = 0);

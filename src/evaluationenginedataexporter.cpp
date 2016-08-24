@@ -79,16 +79,16 @@ void EvaluationEngine::initClipboardExporter()
 
     int blockCtr = 0;
     for (const DataExporter::SelectedExportable *se : seMap) {
-      backend.addCell(new Cell(se->displayName + " left", "", Cell::NO_VALUE), blockCtr, 0);
-      backend.addCell(new Cell(se->displayName + " right", "", Cell::NO_VALUE), blockCtr, 1);
-      backend.addCell(new Cell(se->displayName + " full", "", Cell::NO_VALUE), blockCtr, 2);
+      backend.addCell(new Cell(se->displayName + " left", "", Cell::SINGLE), blockCtr, 0);
+      backend.addCell(new Cell(se->displayName + " right", "", Cell::SINGLE), blockCtr, 1);
+      backend.addCell(new Cell(se->displayName + " full", "", Cell::SINGLE), blockCtr, 2);
 
       blockCtr++;
 
       PeakDimsTuple dims = se->value(exportee).value<PeakDimsTuple>();
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.left), "", Cell::NO_VALUE), blockCtr, 0);
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.right), "", Cell::NO_VALUE), blockCtr, 1);
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.full), "", Cell::NO_VALUE), blockCtr, 2);
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.left), "", Cell::SINGLE), blockCtr, 0);
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.right), "", Cell::SINGLE), blockCtr, 1);
+      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.full), "", Cell::SINGLE), blockCtr, 2);
 
       blockCtr++;
     }
@@ -199,7 +199,7 @@ bool EvaluationEngine::initDataExporter()
     int blockCtr = 0;
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, 0);
+      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
 
       for (const DataExporter::SelectedExportable *se : seMap) {
         try {
@@ -228,13 +228,13 @@ bool EvaluationEngine::initDataExporter()
     /* Output peak names along one direction */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), 0, idx);
+      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), 0, idx);
     }
 
     /* Output value names along the other direction */
     int blockCtr = 1;
     for (const DataExporter::SelectedExportable *se : seMap)
-      backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, 0);
+      backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
 
     /* Output the actual values */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
@@ -253,7 +253,7 @@ bool EvaluationEngine::initDataExporter()
         }
 
         const QString s = DoubleToStringConvertor::convert(v.toDouble());
-        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::NO_VALUE), blockCtr++, idx);
+        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, idx);
       }
     }
 

@@ -62,7 +62,7 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
       if (c == nullptr)
         continue;
 
-      if (!(c->options & Cell::NO_VALUE))
+      if (!(c->options & Cell::SINGLE))
         _dimY = 2;
     }
     dimY += _dimY;
@@ -84,7 +84,7 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
       bool has_value = false;
 
       if (c != nullptr) {
-        has_value = !(c->options & Cell::NO_VALUE);
+        has_value = !(c->options & Cell::SINGLE);
 
         k = c->name;
         if (has_value)
