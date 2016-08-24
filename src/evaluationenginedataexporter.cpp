@@ -31,6 +31,13 @@ Q_DECLARE_METATYPE(PeakDimsTuple)
                                                               me->m_resultsNumericValues.at(EvaluationResultsItems::Floating::dimitem##_FULL))); \
   }))
 
+#define MAKE_EXPORTABLE_STR(map, TT, name, getter) \
+  if (map.contains(name)) throw DataExporter::ExportableExistsException(); \
+  map.insert(name, new DataExporter::Exportable<TT>(name, \
+    [](const TT *me) { \
+      return QVariant(me->getter); \
+  }))
+
 #define MAKE_SELECTED_EXPORTABLE_CTC(bmap, map, name, position) \
   if (!bmap.contains(name)) throw DataExporter::UnknownExportableException(); \
   map.insert(name, new DataExporter::SelectedExportable(bmap.value(name), position, name));
@@ -167,6 +174,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a3", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL S", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL effective mobility", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+  MAKE_EXPORTABLE_STR(currentPeakExportables, EvaluationEngine, "Datafile", m_currentDataContextKey);
 
 
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "EOF velocity", resultsValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
@@ -188,6 +196,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a3", hvlValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL S", hvlValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL effective mobility", hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+  MAKE_EXPORTABLE_STR(peakListExportables, EvaluationEngine, "Datafile", m_currentDataContextKey);
 
   auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
@@ -207,10 +216,9 @@ bool EvaluationEngine::initDataExporter()
         try {
           backend.addCell(new Cell(se->name(), se->value(pCtx)), blockCtr, se->position);
         } catch (DataExporter::InvalidExportableException &) {
-          /* We expect this to happen */
-          const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
-          if (eof != nullptr)
-            backend.addCell(new Cell(se->displayName, se->value(exportee)), blockCtr, se->position);
+          /* Other possibilities are either "EOF time" or "Datafile", both take EvaluationEngine as
+           * the exportee */
+          backend.addCell(new Cell(se->displayName, se->value(exportee)), blockCtr, se->position);
         }
       }
       blockCtr++;
@@ -261,9 +269,8 @@ bool EvaluationEngine::initDataExporter()
         try {
           s = se->value(pCtx).toString();
         } catch (DataExporter::InvalidExportableException &) {
-          /* We expect this to happen */
-          const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
-          if (eof != nullptr)
+          /* Other possibilities are either "EOF time" or "Datafile", both take EvaluationEngine as
+           * the exportee */
             s = se->value(exportee).toString();
         }
 
