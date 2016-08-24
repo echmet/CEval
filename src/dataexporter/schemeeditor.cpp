@@ -115,7 +115,9 @@ void SchemeEditor::addExportable(const int row, const QVariant caption)
   if (itemList.size() < 1)
     return;
 
-  itemList[0]->setData(caption, Qt::UserRole + 2);
+  if (caption.isValid())
+    itemList[0]->setData(caption, Qt::UserRole + 2);
+
   m_selectedExportablesModel->appendRow(itemList.at(0));
 }
 
@@ -214,9 +216,9 @@ SchemeEditor::UserScheme SchemeEditor::interactInternal(bool &canceled)
       if (item == nullptr)
         continue;
 
-      const QVariant v = item->data(Qt::UserRole + 2);
+      const QString displayName = item->data(Qt::UserRole + 2).toString();
       const QString name = item->data(Qt::UserRole).toString();
-      selected << UserExportable(name, v.isValid() ? v.toString() : name);
+      selected << UserExportable(name, displayName);
     }
 
     QVariant var = ui->qcbox_dataArrangement->currentData(Qt::UserRole);
@@ -269,9 +271,10 @@ void SchemeEditor::onRemoveExportableClicked()
     return;
 
   bool ok;
+  QVariant defName = itemList[0]->data(Qt::UserRole);
   const int origRow = itemList.at(0)->data(Qt::UserRole + 1).toInt(&ok);
   if (!ok) {
-    itemList[0]->setData(QVariant(), Qt::UserRole + 2);
+    itemList[0]->setData(defName, Qt::UserRole + 2);
     m_avaliableExportablesModel->appendRow(itemList);
   }
 
@@ -280,13 +283,13 @@ void SchemeEditor::onRemoveExportableClicked()
 
     int itemRow = item->data(Qt::UserRole + 1).toInt();
     if (itemRow >= origRow) {
-      itemList[0]->setData(QVariant(), Qt::UserRole + 2);
+      itemList[0]->setData(defName, Qt::UserRole + 2);
       m_avaliableExportablesModel->insertRow(idx, itemList);
       return;
     }
   }
 
-  itemList[0]->setData(QVariant(), Qt::UserRole + 2);
+  itemList[0]->setData(defName, Qt::UserRole + 2);
   m_avaliableExportablesModel->appendRow(itemList);
 }
 
@@ -305,6 +308,7 @@ void SchemeEditor::onSchemeChanged(const int idx)
     QStandardItem *item = new QStandardItem(s);
     item->setData(s, Qt::UserRole);
     item->setData(posCounter, Qt::UserRole + 1);
+    item->setData(s, Qt::UserRole + 2);
 
     m_avaliableExportablesModel->appendRow(item);
     posCounter++;
@@ -319,6 +323,7 @@ void SchemeEditor::onSetCustomCaptionClicked()
     return;
 
   const QVariant v = m_selectedExportablesModel->data(idx, Qt::UserRole + 2);
+  const QVariant vDef = m_selectedExportablesModel->data(idx, Qt::UserRole);
   QInputDialog dlg;
 
   if (v.isValid())
@@ -330,7 +335,7 @@ void SchemeEditor::onSetCustomCaptionClicked()
   if (dlg.textValue().length() > 1)
     m_selectedExportablesModel->setData(idx, dlg.textValue(), Qt::UserRole + 2);
   else
-    m_selectedExportablesModel->setData(idx, QVariant(), Qt::UserRole + 2);
+    m_selectedExportablesModel->setData(idx, vDef, Qt::UserRole + 2);
 }
 
 bool SchemeEditor::registerSchemeBase(const SchemeBase &base)
