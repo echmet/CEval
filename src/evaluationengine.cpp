@@ -1132,7 +1132,7 @@ void EvaluationEngine::onClipboardExporterDelimiterChanged(const QString &delimi
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
   int newIdx;
-  QString oldKey(m_currentDataContextKey);
+  const QString oldKey(m_currentDataContextKey);
 
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
