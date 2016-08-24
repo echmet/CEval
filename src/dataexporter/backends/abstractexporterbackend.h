@@ -30,7 +30,6 @@ public:
 
   void addCell(Cell *cell, const int block, const int position);
   virtual bool exportData() = 0;
-  void reset();
 
 protected:
   typedef QVector<QString> OutputMatrixRow;
@@ -43,6 +42,7 @@ protected:
 
   OutputMatrix allocateOutputMatrix(const int x, const int y);
   OutputMatrix makeOutputMatrix();
+  void reset();
 
   Globals::DataArrangement m_arrangement;
   QVector<Block> m_blocks;

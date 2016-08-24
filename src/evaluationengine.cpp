@@ -1250,15 +1250,15 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   case EvaluationEngineMsgs::CopyToClipboard::EVERYTHING:
     toCopy << "EOF\n";
     m_ctcEofScheme->exportData(this, backend);
-    backend.reset();
+    backend.clear();
 
     toCopy << "\nPeak parameters\n";
     m_ctcPeakScheme->exportData(this, backend);
-    backend.reset();
+    backend.clear();
 
     toCopy << "\nHVL fit results\n";
     m_ctcHvlScheme->exportData(this, backend);
-    backend.reset();
+    backend.clear();
 
     toCopy << "\nPeak dimensions\n";
     m_ctcPeakDimsScheme->exportData(this, backend);

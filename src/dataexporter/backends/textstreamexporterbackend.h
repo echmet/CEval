@@ -11,6 +11,7 @@ class TextStreamExporterBackend : public AbstractExporterBackend
 {
 public:
   explicit TextStreamExporterBackend(QTextStream *outStream, const QChar &delimiter, const Globals::DataArrangement arrangement);
+  void clear();
   virtual bool exportData() override;
 
 private:

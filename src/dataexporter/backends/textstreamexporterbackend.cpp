@@ -10,6 +10,11 @@ TextStreamExporterBackend::TextStreamExporterBackend(QTextStream *outStream, con
 {
 }
 
+void TextStreamExporterBackend::clear()
+{
+  reset();
+}
+
 bool TextStreamExporterBackend::exportData()
 {
   OutputMatrix m = makeOutputMatrix();
