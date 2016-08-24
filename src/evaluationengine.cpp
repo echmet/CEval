@@ -1467,7 +1467,7 @@ void EvaluationEngine::onExportScheme()
   if (m_dataExporterFileDlg->exec() != QDialog::Accepted)
     return;
 
-  const QString path = m_dataExporterFileDlg->selectedFiles().at(0);
+  QString path = m_dataExporterFileDlg->selectedFiles().at(0);
 
   try {
     switch (m_currentDataExporterBackend) {
@@ -1497,6 +1497,13 @@ void EvaluationEngine::onExportScheme()
         default:
           return;
         }
+      }
+
+      /* Append .CSV if no suffix is present */
+      {
+        QFileInfo f(path);
+        if (!f.fileName().contains('.'))
+          path += ".csv";
       }
       backend = new DataExporter::TextExporterBackend(path, m_textDataExporterDelimiter, s->arrangement, append);
     }
