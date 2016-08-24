@@ -72,8 +72,9 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "N", N);
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "HETP", N_H);
 
-  auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+  auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
+    (void)opts;
     if (!exportee->isContextValid())
       return false;
 
@@ -188,8 +189,9 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL S", hvlValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL effective mobility", hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
 
-  auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+  auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
+    (void)opts;
     if (!exportee->isContextValid())
       return false;
 
@@ -217,8 +219,9 @@ bool EvaluationEngine::initDataExporter()
     return backend.exportData();
   };
 
-  auto peakListTableExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend) -> bool {
+  auto peakListTableExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
+    (void)opts;
     if (!exportee->isContextValid())
       return false;
 
