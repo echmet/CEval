@@ -48,6 +48,11 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::allocateOutputMat
   return m;
 }
 
+Globals::DataArrangement AbstractExporterBackend::arrangement() const
+{
+  return m_arrangement;
+}
+
 AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix()
 {
   int dimY = 0;

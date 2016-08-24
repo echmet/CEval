@@ -4,8 +4,9 @@
 
 using namespace DataExporter;
 
-TextExporterBackend::TextExporterBackend(const QString &path, const QChar &delimiter, const Globals::DataArrangement arrangement) :
+TextExporterBackend::TextExporterBackend(const QString &path, const QChar &delimiter, const Globals::DataArrangement arrangement, const bool append) :
   AbstractExporterBackend(arrangement),
+  m_append(append),
   m_delimiter(delimiter),
   m_path(path)
 {
@@ -15,7 +16,11 @@ bool TextExporterBackend::exportData()
 {
   QFile f(m_path);
 
-  if (!f.open(QIODevice::WriteOnly | QIODevice::Text))
+  QIODevice::OpenMode mode = QIODevice::WriteOnly | QIODevice::Text;
+  if (m_append)
+    mode |= QIODevice::Append;
+
+  if (!f.open(mode))
     return false;
 
   QTextStream stream(&f);

@@ -135,7 +135,8 @@ SOURCES += src/main.cpp \
     src/dataexporter/schemesmanagerwidget.cpp \
     src/dataexporter/schemeeditor.cpp \
     src/gui/textexporterbackendconfigurationdialog.cpp \
-    src/dataexporter/backends/textstreamexporterbackend.cpp
+    src/dataexporter/backends/textstreamexporterbackend.cpp \
+    src/gui/appendoverwriteexportfilemessagebox.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -319,7 +320,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/dataexporter/schemesmanagerwidget.h \
     src/dataexporter/schemeeditor.h \
     src/gui/textexporterbackendconfigurationdialog.h \
-    src/dataexporter/backends/textstreamexporterbackend.h
+    src/dataexporter/backends/textstreamexporterbackend.h \
+    src/gui/appendoverwriteexportfilemessagebox.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

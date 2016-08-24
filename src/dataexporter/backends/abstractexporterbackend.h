@@ -29,6 +29,7 @@ public:
   virtual ~AbstractExporterBackend();
 
   void addCell(Cell *cell, const int block, const int position);
+  Globals::DataArrangement arrangement() const; /* UTILITARY HACK - there is no good reason to propagate this information!!! */
   virtual bool exportData() = 0;
 
 protected:

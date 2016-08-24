@@ -228,16 +228,24 @@ bool EvaluationEngine::initDataExporter()
     if (exportee->m_allPeaks.size() < 2)
       return true;
 
-    const int topBlockCtr = (opts & DataExporter::SchemeBaseRoot::EXCLUDE_HEADER) ? 0 : 1;
+    const bool exclude_header = opts & DataExporter::SchemeBaseRoot::EXCLUDE_HEADER;
+    const int shift = (exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::VERTICAL)) ? 1 : 0;
+    const int topBlockCtr = (exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::HORIZONTAL)) ? 0 : 1;
+
+    /* TODO: Remove the utilitary appending hack and header detection once we have a mass-processing mode.
+     * Executor function should NOT! be aware of data arrangement as the backend takes care of the appropriate
+     * transformation */
 
     /* Output peak names along one direction */
-    for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
-      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), 0, idx);
+    if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::HORIZONTAL))) {
+      for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
+        const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
+        backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), 0, idx - shift);
+      }
     }
 
     int blockCtr = topBlockCtr;
-    if (!(opts & DataExporter::SchemeBaseRoot::EXCLUDE_HEADER)) {
+    if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::VERTICAL))) {
       /* Output value names along the other direction */
       for (const DataExporter::SelectedExportable *se : seMap)
         backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
@@ -259,7 +267,7 @@ bool EvaluationEngine::initDataExporter()
             s = se->value(exportee).toString();
         }
 
-        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, idx);
+        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, idx - shift);
       }
     }
 

@@ -3,6 +3,7 @@
 #include "evaluationengine.h"
 #include "doubletostringconvertor.h"
 #include "gui/addpeakdialog.h"
+#include "gui/appendoverwriteexportfilemessagebox.h"
 #include "gui/setaxistitlesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
@@ -165,6 +166,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
     m_dataExporterFileDlg = new QFileDialog();
     m_dataExporterFileDlg->setAcceptMode(QFileDialog::AcceptSave);
+    m_dataExporterFileDlg->setOption(QFileDialog::DontConfirmOverwrite);
 
     m_textDataExporterDelimiter = QChar(';');
     m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
@@ -1451,6 +1453,7 @@ void EvaluationEngine::onExportFileOnLeftToggled(const bool enabled)
 void EvaluationEngine::onExportScheme()
 {
   DataExporter::AbstractExporterBackend *backend = nullptr;
+  uint32_t exportOpts = 0;
 
   if (!isContextValid())
     return;
@@ -1469,10 +1472,34 @@ void EvaluationEngine::onExportScheme()
   try {
     switch (m_currentDataExporterBackend) {
     case DataExporterBackends::HTML:
+      if (QFileInfo::exists(path)) {
+        int ret = QMessageBox::question(nullptr, tr("File exists"), tr("Selected file already exists. Do you wish to overwrite it?"), QMessageBox::Yes | QMessageBox::No);
+        if (ret != QMessageBox::Yes)
+          return;
+      }
       backend = new DataExporter::HtmlExporterBackend(path, s->arrangement);
       break;
     case DataExporterBackends::TEXT:
-      backend = new DataExporter::TextExporterBackend(path, m_textDataExporterDelimiter, s->arrangement);
+    {
+      bool append = false;
+      if (QFileInfo::exists(path)) {
+        AppendOverwriteExportFileMessageBox mbox;
+
+        mbox.exec();
+
+        switch (mbox.action()) {
+        case AppendOverwriteExportFileMessageBox::Action::APPEND:
+          exportOpts |= DataExporter::SchemeBaseRoot::EXCLUDE_HEADER;
+          append = true;
+          break;
+        case AppendOverwriteExportFileMessageBox::Action::OVERWRITE:
+          break;
+        default:
+          return;
+        }
+      }
+      backend = new DataExporter::TextExporterBackend(path, m_textDataExporterDelimiter, s->arrangement, append);
+    }
       break;
     default:
       break;
@@ -1482,7 +1509,7 @@ void EvaluationEngine::onExportScheme()
       return;
   }
 
-  if (!s->exportData(this, *backend))
+  if (!s->exportData(this, *backend, exportOpts))
     QMessageBox::warning(nullptr, tr("Data export error"), tr("Unable to export data"));
 
   delete backend;
