@@ -1481,6 +1481,13 @@ void EvaluationEngine::onExportScheme()
       break;
     case DataExporterBackends::TEXT:
     {
+      /* Append .CSV if no suffix is present */
+      {
+        QFileInfo f(path);
+        if (!f.fileName().contains('.'))
+          path += ".csv";
+      }
+
       bool append = false;
       if (QFileInfo::exists(path)) {
         AppendOverwriteExportFileMessageBox mbox;
@@ -1497,13 +1504,6 @@ void EvaluationEngine::onExportScheme()
         default:
           return;
         }
-      }
-
-      /* Append .CSV if no suffix is present */
-      {
-        QFileInfo f(path);
-        if (!f.fileName().contains('.'))
-          path += ".csv";
       }
       backend = new DataExporter::TextExporterBackend(path, m_textDataExporterDelimiter, s->arrangement, append);
     }
