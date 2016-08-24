@@ -228,34 +228,37 @@ bool EvaluationEngine::initDataExporter()
     if (exportee->m_allPeaks.size() < 2)
       return true;
 
+    const int topBlockCtr = (opts & DataExporter::SchemeBaseRoot::EXCLUDE_HEADER) ? 0 : 1;
+
     /* Output peak names along one direction */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
       backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), 0, idx);
     }
 
-    /* Output value names along the other direction */
-    int blockCtr = 1;
-    for (const DataExporter::SelectedExportable *se : seMap)
-      backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
+    int blockCtr = topBlockCtr;
+    if (!(opts & DataExporter::SchemeBaseRoot::EXCLUDE_HEADER)) {
+      /* Output value names along the other direction */
+      for (const DataExporter::SelectedExportable *se : seMap)
+        backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
+    }
 
     /* Output the actual values */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
 
-      blockCtr = 1;
+      blockCtr = topBlockCtr;
       for (const DataExporter::SelectedExportable *se : seMap) {
-        QVariant v;
+        QString s;
         try {
-          v = se->value(pCtx);
+          s = se->value(pCtx).toString();
         } catch (DataExporter::InvalidExportableException &) {
           /* We expect this to happen */
           const DataExporter::SelectedExportable *eof = seMap.value("EOF time");
           if (eof != nullptr)
-            v = se->value(exportee);
+            s = se->value(exportee).toString();
         }
 
-        const QString s = DoubleToStringConvertor::convert(v.toDouble());
         backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, idx);
       }
     }
