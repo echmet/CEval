@@ -283,7 +283,7 @@ bool EvaluationEngine::initDataExporter()
 
   DataExporter::SchemeBase<EvaluationEngine> *currentPeakSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("Current peak", tr("Export current peak"), currentPeakExportables);
   DataExporter::SchemeBase<EvaluationEngine> *peakListSchemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks", tr("Export complete list of evaluated peaks"), peakListExportables, peakListExecutor);
-  DataExporter::SchemeBase<EvaluationEngine> *peakListTableShemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks (simple table)", tr("Export complete list of peaks arranged in a table)"), peakListExportables, peakListTableExecutor, true);
+  DataExporter::SchemeBase<EvaluationEngine> *peakListTableShemeBase = new DataExporter::SchemeBase<EvaluationEngine>("List of peaks (simple table)", tr("Export complete list of peaks arranged in a table.\n\nThis scheme is reasonably compatible with data appending hack."), peakListExportables, peakListTableExecutor, true);
 
   if (!m_dataExporter.registerSchemeBase(currentPeakSchemeBase)) {
     delete currentPeakSchemeBase;
