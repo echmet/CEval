@@ -53,6 +53,8 @@ public:
   Q_ENUM(ManualIntegrationMenuActions)
 
   enum class PostProcessMenuActions {
+    NEW_PEAK_FROM,
+    NEW_PEAK_FROM_SIGSNAP,
     MOVE_PEAK_FROM,
     MOVE_PEAK_FROM_SIGSNAP,
     MOVE_PEAK_TO,
@@ -177,6 +179,7 @@ private:
   };
 
   void activateCurrentDataContext();
+  void beginManualIntegration(const QPointF &from, const bool snap);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);

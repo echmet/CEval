@@ -352,6 +352,25 @@ QAbstractItemModel *EvaluationEngine::baselineModel()
   return &m_baselineAlgorithmModel;
 }
 
+void EvaluationEngine::beginManualIntegration(const QPointF &from, const bool snap)
+{
+  if (!isContextValid())
+    return;
+
+  m_manualPeakSnapFrom = snap;
+
+  if (snap) {
+     try {
+      m_manualPeakFrom = QPointF(from.x(), Helpers::yForX(from.x(), m_currentDataContext->data->data));
+    } catch (std::out_of_range &) {
+      return;
+    }
+  } else
+    m_manualPeakFrom = from;
+
+  m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+}
+
 AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *EvaluationEngine::booleanValuesModel()
 {
   return &m_evaluationBooleanModel;
@@ -463,6 +482,16 @@ void EvaluationEngine::createContextMenus() noexcept(false)
   m_manualIntegrationMenu->addAction(a);
 
   /* Create Post process menu */
+
+  a = new QAction(tr("New peak from here"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::NEW_PEAK_FROM));
+  m_postProcessMenu->addAction(a);
+
+  a = new QAction(tr("New peak from here (snap to signal)"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::NEW_PEAK_FROM_SIGSNAP));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
 
   a = new QAction(tr("Move peak beginning here"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
@@ -775,18 +804,10 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
 
   switch (action) {
   case FindPeakMenuActions::PEAK_FROM_HERE:
-    m_manualPeakSnapFrom = false;
-    m_manualPeakFrom = point;
-    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+    beginManualIntegration(point, false);
     break;
   case FindPeakMenuActions::PEAK_FROM_HERE_SIGSNAP:
-    try {
-      m_manualPeakFrom = QPointF(point.x(), Helpers::yForX(point.x(), m_currentDataContext->data->data));
-    } catch (std::out_of_range &) {
-      return;
-    }
-    m_manualPeakSnapFrom = true;
-    m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
+    beginManualIntegration(point, true);
     break;
   case FindPeakMenuActions::NOISE_REF_POINT:
     m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = point.x();
@@ -1869,6 +1890,14 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)
 {
   switch (action) {
+  case PostProcessMenuActions::NEW_PEAK_FROM:
+    onCancelEvaluatedPeakSelection();
+    beginManualIntegration(point, false);
+    break;
+  case PostProcessMenuActions::NEW_PEAK_FROM_SIGSNAP:
+    onCancelEvaluatedPeakSelection();
+    beginManualIntegration(point, true);
+    break;
   case PostProcessMenuActions::MOVE_PEAK_FROM:
     findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false);
     break;
