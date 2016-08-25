@@ -1,4 +1,5 @@
 #include "evaluatedpeaksmodel.h"
+#include "doubletostringconvertor.h"
 
 EvaluatedPeaksModel::EvaluatedPeak::EvaluatedPeak() :
   name(""),
@@ -76,10 +77,10 @@ QVariant EvaluatedPeaksModel::data(const QModelIndex &index, int role) const
     case 0:
       return m_data.at(row).name;
     case 1:
-      return m_data.at(row).time;
+      return DoubleToStringConvertor::convert(m_data.at(row).time);
       break;
     case 2:
-      return m_data.at(row).area;
+      return DoubleToStringConvertor::convert(m_data.at(row).area);
       break;
     default:
       return QVariant();
