@@ -167,6 +167,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     m_dataExporterFileDlg = new QFileDialog();
     m_dataExporterFileDlg->setAcceptMode(QFileDialog::AcceptSave);
     m_dataExporterFileDlg->setOption(QFileDialog::DontConfirmOverwrite);
+    m_dataExporterFileDlg->setWindowTitle(tr("Export data to file"));
 
     m_textDataExporterDelimiter = QChar(';');
     m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
