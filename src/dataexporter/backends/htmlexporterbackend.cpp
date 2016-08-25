@@ -32,8 +32,14 @@ void HtmlExporterBackend::write(const OutputMatrix &m, QTextStream &stream)
 
   for (const OutputMatrixRow &row : m) {
     stream << "<tr>";
-    for (const QString &s : row)
-      stream << "<td>" << s << "</td>";
+    for (const Output &o : row ) {
+      QString tag;
+      if (o.options & OO_CAPTION)
+        tag = "th";
+      else
+        tag = "td";
+      stream << QString("<%1>").arg(tag) << o.value.toString() << QString("</%1>").arg(tag);
+    }
 
     stream << "</tr>\n";
   }

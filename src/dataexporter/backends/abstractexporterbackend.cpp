@@ -19,6 +19,26 @@ AbstractExporterBackend::~AbstractExporterBackend()
   releaseMatrix();
 }
 
+AbstractExporterBackend::Output::Output() :
+  value(QVariant()),
+  options(0)
+{
+}
+
+AbstractExporterBackend::Output::Output(const QVariant &value, const uint32_t options) :
+  value(value),
+  options(options)
+{
+}
+
+AbstractExporterBackend::Output & AbstractExporterBackend::Output::operator=(const Output &other)
+{
+  const_cast<QVariant&>(value) = other.value;
+  const_cast<uint32_t&>(options) = other.options;
+
+  return *this;
+}
+
 void AbstractExporterBackend::addCell(Cell *cell, const int block, const int position)
 {
   if (m_blocks.size() <= block)
@@ -84,12 +104,14 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
 
     for (int jdx = 0; jdx < b.cells.size(); jdx++) {
       const Cell *c = b.cells.at(jdx);
-      QString k;
-      QString v;
+      QVariant k;
+      QVariant v;
       bool has_value = false;
+      bool is_caption = false;
 
       if (c != nullptr) {
         has_value = !(c->options & Cell::SINGLE);
+        is_caption = c->options & Cell::CAPTION;
 
         k = c->name;
         if (has_value)
@@ -99,14 +121,14 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
 
       switch (m_arrangement) {
       case Globals::DataArrangement::HORIZONTAL:
-        m[blockCtr][jdx] = k;
+        m[blockCtr][jdx] = Output(k, is_caption ? OO_CAPTION : 0);
         if (has_value)
-          m[blockCtr + 1][jdx] = v;
+          m[blockCtr + 1][jdx] = Output(v);
         break;
       case Globals::DataArrangement::VERTICAL:
-        m[jdx][blockCtr] = k;
+        m[jdx][blockCtr] = Output(k, is_caption ? OO_CAPTION : 0);
         if (has_value)
-          m[jdx][blockCtr + 1] = v;
+          m[jdx][blockCtr + 1] = Output(v);
         break;
       }
 

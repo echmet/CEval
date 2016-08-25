@@ -13,8 +13,9 @@ class AbstractExporterBackend
 public:
   class Cell {
   public:
-    enum Options {
-      SINGLE = 1        /*!< Cell is a single string and not a key-value pair */
+    enum Options : uint32_t {
+      SINGLE = 1 << 0,       /*!< Cell is a single string and not a key-value pair */
+      CAPTION = 1 << 1
     };
 
     explicit Cell(const QString &name, const QVariant &value, const uint32_t options = 0);
@@ -33,8 +34,22 @@ public:
   virtual bool exportData() = 0;
 
 protected:
-  typedef QVector<QString> OutputMatrixRow;
-  typedef QVector<QVector<QString>> OutputMatrix;
+  enum OutputOptions : uint32_t {
+    OO_CAPTION = 1 << 0
+  };
+
+  class Output {
+  public:
+    explicit Output();
+    explicit Output(const QVariant &value, const uint32_t options = 0);
+    Output & operator=(const Output &other);
+
+    const QVariant value;
+    const uint32_t options;
+  };
+
+  typedef QVector<Output> OutputMatrixRow;
+  typedef QVector<OutputMatrixRow> OutputMatrix;
 
   class Block {
   public:

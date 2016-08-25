@@ -35,8 +35,8 @@ bool TextExporterBackend::exportData()
 void TextExporterBackend::write(const OutputMatrix &m, QTextStream &stream)
 {
   for (const OutputMatrixRow &row : m) {
-    for (const QString &s : row)
-      stream << s << m_delimiter;
+    for (const Output &o : row)
+      stream << o.value.toString() << m_delimiter;
 
     stream << "\n";
   }

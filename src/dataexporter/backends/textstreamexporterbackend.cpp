@@ -20,8 +20,8 @@ bool TextStreamExporterBackend::exportData()
   OutputMatrix m = makeOutputMatrix();
 
   for (const OutputMatrixRow &row : m) {
-    for (const QString &s : row)
-      *m_outStream << s << m_delimiter;
+    for (const Output &o : row)
+      *m_outStream << o.value.toString() << m_delimiter;
 
     *m_outStream << "\n";
   }

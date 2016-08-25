@@ -248,7 +248,8 @@ bool EvaluationEngine::initDataExporter()
     if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::HORIZONTAL))) {
       for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
         const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-        backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), 0, idx - shift);
+        backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE | DataExporter::AbstractExporterBackend::Cell::CAPTION),
+                        0, idx - shift);
       }
     }
 
@@ -256,7 +257,8 @@ bool EvaluationEngine::initDataExporter()
     if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::VERTICAL))) {
       /* Output value names along the other direction */
       for (const DataExporter::SelectedExportable *se : seMap)
-        backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
+        backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE | DataExporter::AbstractExporterBackend::Cell::CAPTION),
+                        blockCtr++, 0);
     }
 
     /* Output the actual values */
