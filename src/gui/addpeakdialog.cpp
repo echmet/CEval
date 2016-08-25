@@ -72,6 +72,16 @@ void AddPeakDialog::onMobilityFromActivated(const int idx)
 
 void AddPeakDialog::onOkClicked()
 {
+  for (int idx = 0; idx < m_analytesModel.rowCount(); idx++) {
+    const QStandardItem *item = m_analytesModel.item(idx, 0);
+    const QString &s = item->text();
+
+    if (s == ui->qcbox_analyte->currentText()) {
+      accept();
+      return;
+    }
+  }
+
   QStandardItem *item = new QStandardItem(ui->qcbox_analyte->currentText());
   m_analytesModel.appendRow(item);
 
