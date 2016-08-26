@@ -213,7 +213,7 @@ private:
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true, const QString name = "");
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();

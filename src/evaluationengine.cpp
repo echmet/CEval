@@ -1813,13 +1813,15 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!isContextValid())
     return;
 
+
   drawEofMarker();
 
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false);
+  const QString name = m_currentPeak.peakName;
 
+  processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false, name);
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
@@ -1922,7 +1924,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit, const QString name)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -1962,6 +1964,8 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
   if (doHvlFit)
     onDoHvlFit();
+
+  m_currentPeak.setPeakName(name);
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
