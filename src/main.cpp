@@ -167,7 +167,6 @@ int main(int argc, char *argv[])
   loadUserSettings(dac, updater);
 
   setDefaultState(w);
-  DoubleToStringConvertor::setInitial();
 
   dac->checkForCrashRecovery();
 

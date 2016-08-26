@@ -15,6 +15,7 @@ class NumberFormatDialog : public QDialog
 public:
   explicit NumberFormatDialog(QWidget *parent = nullptr);
   ~NumberFormatDialog();
+  int exec() override;
   void setParameters(const char type, const int digits);
 
 

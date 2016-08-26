@@ -74,6 +74,32 @@ NumberFormatDialog::~NumberFormatDialog()
   delete ui;
 }
 
+int NumberFormatDialog::exec()
+{
+  const QVariant v = ui->qcbox_formatting->currentData();
+
+  if (!v.isValid())
+    return QDialog::exec();
+
+  const QString s = v.toString();
+  const QString locStr = DoubleToStringConvertor::locale().name();
+
+  if (s == locStr)
+    return QDialog::exec();
+
+  const QAbstractItemModel *model = ui->qcbox_formatting->model();
+  for (int idx = 0; idx < model->rowCount(); idx++) {
+    const QString is = model->data(model->index(idx, 0), Qt::UserRole).toString();
+
+    if (is == locStr) {
+      ui->qcbox_formatting->setCurrentIndex(idx);
+      break;
+    }
+  }
+
+  return QDialog::exec();
+}
+
 void NumberFormatDialog::onCancelClicked()
 {
   reject();
