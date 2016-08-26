@@ -253,7 +253,6 @@ bool EvaluationEngine::initDataExporter()
       }
     }
 
-    int blockCtr = topBlockCtr;
     if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::VERTICAL))) {
       /* Output value names along the other direction */
       for (const DataExporter::SelectedExportable *se : seMap)
