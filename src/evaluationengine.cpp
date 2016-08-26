@@ -739,6 +739,11 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   std::shared_ptr<PeakFinderResults> fr;
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
+  /* FIXME: Temporary workaround! Rework the mechanism for storing evaluated peaks!!! */
+  QString name = "";
+  if (m_currentPeakIdx != 0)
+    name = m_currentPeak.peakName;
+
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
@@ -787,7 +792,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit, name);
   return;
 
 err_out:
