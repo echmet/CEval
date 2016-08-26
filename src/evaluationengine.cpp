@@ -400,7 +400,7 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
 
   vP_Eff = vP - vEOF;
 
-  if (Helpers::isSensible(E))
+  if (Helpers::isSensible(std::abs(E)))
     return (vP_Eff / E) / 1.0e-9;
   else
     return std::numeric_limits<double>::infinity();
@@ -1387,7 +1387,7 @@ void EvaluationEngine::onDoHvlFit()
     return;
 
   /* Peak has no meaningful evaluation resutls,
-   * do not add it */
+   * do not process it */
   if (!m_currentPeak.finderResults->isValid())
     return;
 
