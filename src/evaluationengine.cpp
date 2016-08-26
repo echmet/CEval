@@ -1080,7 +1080,7 @@ void EvaluationEngine::onAddPeak()
 
   AddPeakDialog::Answer answer = m_addPeakDlg->answer();
 
-  if (answer.name.length() < 1) {
+  if (answer.name.trimmed().length() < 1) {
     QMessageBox::information(nullptr, tr("Invalid peak"), tr("Name of the analyte must be specified"));
     return;
   }
