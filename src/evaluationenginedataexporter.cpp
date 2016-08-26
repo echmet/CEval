@@ -258,14 +258,13 @@ bool EvaluationEngine::initDataExporter()
       /* Output value names along the other direction */
       for (const DataExporter::SelectedExportable *se : seMap)
         backend.addCell(new Cell(se->name(), "", DataExporter::AbstractExporterBackend::Cell::SINGLE | DataExporter::AbstractExporterBackend::Cell::CAPTION),
-                        blockCtr++, 0);
+                        se->position + topBlockCtr, 0);
     }
 
     /* Output the actual values */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
       const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
 
-      blockCtr = topBlockCtr;
       for (const DataExporter::SelectedExportable *se : seMap) {
         QString s;
         try {
@@ -276,7 +275,7 @@ bool EvaluationEngine::initDataExporter()
             s = se->value(exportee).toString();
         }
 
-        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, idx - shift);
+        backend.addCell(new Cell(s, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), se->position + topBlockCtr, idx - shift);
       }
     }
 
