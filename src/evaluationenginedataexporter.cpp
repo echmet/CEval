@@ -209,12 +209,12 @@ bool EvaluationEngine::initDataExporter()
 
     int blockCtr = 0;
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
-      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-      backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
+      const StoredPeak *pCtx = &exportee->m_allPeaks.at(idx);
+      backend.addCell(new Cell(pCtx->name, "", DataExporter::AbstractExporterBackend::Cell::SINGLE), blockCtr++, 0);
 
       for (const DataExporter::SelectedExportable *se : seMap) {
         try {
-          backend.addCell(new Cell(se->name(), se->value(pCtx)), blockCtr, se->position);
+          backend.addCell(new Cell(se->name(), se->value(&pCtx->peak())), blockCtr, se->position);
         } catch (DataExporter::InvalidExportableException &) {
           /* Other possibilities are either "EOF time" or "Datafile", both take EvaluationEngine as
            * the exportee */
@@ -247,8 +247,8 @@ bool EvaluationEngine::initDataExporter()
     /* Output peak names along one direction */
     if (!(exclude_header && (backend.arrangement() == DataExporter::Globals::DataArrangement::HORIZONTAL))) {
       for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
-        const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
-        backend.addCell(new Cell(pCtx->peakName, "", DataExporter::AbstractExporterBackend::Cell::SINGLE | DataExporter::AbstractExporterBackend::Cell::CAPTION),
+        const StoredPeak *pCtx = &exportee->m_allPeaks.at(idx);
+        backend.addCell(new Cell(pCtx->name, "", DataExporter::AbstractExporterBackend::Cell::SINGLE | DataExporter::AbstractExporterBackend::Cell::CAPTION),
                         0, idx - shift);
       }
     }
@@ -262,12 +262,12 @@ bool EvaluationEngine::initDataExporter()
 
     /* Output the actual values */
     for (int idx = 1; idx < exportee->m_allPeaks.size(); idx++) {
-      const PeakContext *pCtx = &exportee->m_allPeaks.at(idx);
+      const StoredPeak *pCtx = &exportee->m_allPeaks.at(idx);
 
       for (const DataExporter::SelectedExportable *se : seMap) {
         QString s;
         try {
-          s = se->value(pCtx).toString();
+          s = se->value(&pCtx->peak()).toString();
         } catch (DataExporter::InvalidExportableException &) {
           /* Other possibilities are either "EOF time" or "Datafile", both take EvaluationEngine as
            * the exportee */

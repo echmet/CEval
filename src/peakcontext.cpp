@@ -7,8 +7,7 @@ EvaluationEngine::PeakContext::PeakContext() :
   finderResults(std::make_shared<PeakFinderResults>()),
   peakIndex(-1),
   baselineSlope(0.0),
-  baselineIntercept(0.0),
-  peakName("")
+  baselineIntercept(0.0)
 {
 }
 
@@ -30,7 +29,7 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
   peakIndex(peakIndex),
   baselineSlope(baselineSlope),
   baselineIntercept(baselineIntercept),
-  hvlPlot(hvlPlot), peakName("")
+  hvlPlot(hvlPlot)
 {
 }
 
@@ -46,14 +45,8 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   peakIndex(other.peakIndex),
   baselineSlope(other.baselineSlope),
   baselineIntercept(other.baselineIntercept),
-  hvlPlot(other.hvlPlot),
-  peakName(other.peakName)
+  hvlPlot(other.hvlPlot)
 {
-}
-
-void EvaluationEngine::PeakContext::setPeakName(const QString &name)
-{
-  const_cast<QString&>(peakName) = name;
 }
 
 void EvaluationEngine::PeakContext::updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
@@ -83,7 +76,6 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<double&>(baselineSlope) = other.baselineSlope;
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
-  const_cast<QString&>(peakName) = other.peakName;
   const_cast<std::shared_ptr<PeakFinderResults>&>(finderResults) = other.finderResults;
 
   return *this;

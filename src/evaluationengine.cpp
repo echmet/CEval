@@ -104,7 +104,7 @@ EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data>
 {
 }
 
-EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex,
+EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<StoredPeak> &peaks, const int lastIndex,
                                                        const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
                                                        const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
                                                        const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) :
@@ -116,9 +116,38 @@ EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<PeakContext
 {
 }
 
+EvaluationEngine::StoredPeak::StoredPeak() :
+  name("")
+{
+}
+
+EvaluationEngine::StoredPeak::StoredPeak(const QString &name, const PeakContext &peakCtx) :
+  name(name),
+  m_peakCtx(peakCtx)
+{
+}
+
+const EvaluationEngine::PeakContext &EvaluationEngine::StoredPeak::peak() const
+{
+  return m_peakCtx;
+}
+
+void EvaluationEngine::StoredPeak::updatePeak(const EvaluationEngine::PeakContext &peakCtx)
+{
+  m_peakCtx = peakCtx;
+}
+
+EvaluationEngine::StoredPeak &EvaluationEngine::StoredPeak::operator=(const StoredPeak &other)
+{
+  const_cast<QString &>(name) = other.name;
+  m_peakCtx = other.m_peakCtx;
+
+  return *this;
+}
+
 EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operator=(const EvaluationContext &other)
 {
-  const_cast<QVector<PeakContext>&>(peaks) = other.peaks;
+  const_cast<QVector<StoredPeak>&>(peaks) = other.peaks;
   const_cast<int&>(lastIndex) = other.lastIndex;
 
   return *this;
@@ -223,7 +252,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_addPeakDlg = new AddPeakDialog();
 
   m_currentPeakIdx = 0;
-  m_allPeaks.push_back(freshPeakContext());
+  m_allPeaks.push_back(StoredPeak("", freshPeakContext()));
   m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, s_emptyCtxKey, m_commonParamsEngine->currentContext(),
                                                                       currentEvaluationContext()));
   m_currentDataContextKey = s_emptyCtxKey;
@@ -550,10 +579,10 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
 {
   /* No peak has been added but the evaluation parameters might still have changed.
    * Make sure we store them all */
-  QVector<PeakContext> allPeaks(m_allPeaks);
+  QVector<StoredPeak> allPeaks(m_allPeaks);
   if (m_currentPeakIdx == 0) {
     try {
-      allPeaks[0] = duplicatePeakContext();
+      allPeaks[0] = StoredPeak("", duplicatePeakContext());
     } catch (std::bad_alloc &) {
       QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Insufficient memory to execute EvaluationEngine::duplicatePeakContext(). Application may misbehave."));
     }
@@ -739,11 +768,6 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   std::shared_ptr<PeakFinderResults> fr;
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
-  /* FIXME: Temporary workaround! Rework the mechanism for storing evaluated peaks!!! */
-  QString name = "";
-  if (m_currentPeakIdx != 0)
-    name = m_currentPeak.peakName;
-
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
@@ -792,7 +816,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (!fr->isValid())
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit, name);
+  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
   return;
 
 err_out:
@@ -845,10 +869,10 @@ EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext(con
                                                                              const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
                                                                              const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const
 {
-  QVector<PeakContext> fresh;
+  QVector<StoredPeak> fresh;
 
   try {
-    fresh.push_back(duplicatePeakContext());
+    fresh.push_back(StoredPeak("", duplicatePeakContext()));
   } catch (std::bad_alloc &) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Insufficient memory to execute EvaluationEngine::freshEvaluationContext(). Application cannon continue."));
     Helpers::execCFIT();
@@ -917,8 +941,8 @@ QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks
   QVector<EvaluatedPeaksModel::EvaluatedPeak> peaks;
 
   for (int idx = 1; idx < m_allPeaks.length(); idx++) {
-    const PeakContext &ctx = m_allPeaks.at(idx);
-    peaks.push_back(EvaluatedPeaksModel::EvaluatedPeak(ctx.peakName,
+    const PeakContext &ctx = m_allPeaks.at(idx).peak();
+    peaks.push_back(EvaluatedPeaksModel::EvaluatedPeak(m_allPeaks.at(idx).name,
                                                        ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X),
                                                        ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA)));
   }
@@ -1089,10 +1113,9 @@ void EvaluationEngine::onAddPeak()
     QMessageBox::information(nullptr, tr("Invalid peak"), tr("Name of the analyte must be specified"));
     return;
   }
-  m_currentPeak.setPeakName(answer.name);
 
   try {
-    m_allPeaks.push_back(m_currentPeak);
+    m_allPeaks.push_back(StoredPeak(answer.name, m_currentPeak));
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add peak"));
     return;
@@ -1381,7 +1404,7 @@ void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
   m_evaluatedPeaksModel.removeEntry(m_currentPeakIdx - 1);
 
   m_currentPeakIdx--;
-  m_currentPeak = m_allPeaks.at(m_currentPeakIdx);
+  m_currentPeak = m_allPeaks.at(m_currentPeakIdx).peak();
 
   setPeakContext(m_currentPeak);
 }
@@ -1561,7 +1584,7 @@ void EvaluationEngine::onHvlParametersModelChanged(QModelIndex topLeft, QModelIn
 
   m_currentPeak.updateHvlData(m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues);
   if (m_currentPeakIdx > 0)
-    m_allPeaks[m_currentPeakIdx] = m_currentPeak;
+    m_allPeaks[m_currentPeakIdx].updatePeak(m_currentPeak);
 }
 
 void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)
@@ -1581,7 +1604,7 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
 
   m_currentPeak.updateHvlData(m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues);
   if (m_currentPeakIdx > 0)
-    m_allPeaks[m_currentPeakIdx] = m_currentPeak;
+    m_allPeaks[m_currentPeakIdx].updatePeak(m_currentPeak);
 }
 
 void EvaluationEngine::onManageExporterScheme()
@@ -1596,7 +1619,7 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
 
   if (!idx.isValid()) {
     m_currentPeakIdx = 0;
-    m_currentPeak = m_allPeaks.at(0);
+    m_currentPeak = m_allPeaks.at(0).peak();
     setPeakContext(m_currentPeak);
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
     return;
@@ -1607,7 +1630,7 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
     return;
 
   m_currentPeakIdx = row;
-  m_currentPeak = m_allPeaks.at(row);
+  m_currentPeak = m_allPeaks.at(row).peak();
   setPeakContext(m_currentPeak);
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
@@ -1824,9 +1847,7 @@ void EvaluationEngine::onUpdateCurrentPeak()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  const QString name = m_currentPeak.peakName;
-
-  processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false, name);
+  processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false);
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
@@ -1929,7 +1950,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit, const QString name)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -1970,13 +1991,11 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   if (doHvlFit)
     onDoHvlFit();
 
-  m_currentPeak.setPeakName(name);
-
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
 
   if (m_currentPeakIdx > 0 && updateCurrentPeak) {
-    m_allPeaks[m_currentPeakIdx] = m_currentPeak;
+    m_allPeaks[m_currentPeakIdx].updatePeak(m_currentPeak);
     m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }
 
@@ -2074,7 +2093,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
     return false;
   }
 
-  m_currentPeak = m_allPeaks.at(m_currentPeakIdx);
+  m_currentPeak = m_allPeaks.at(m_currentPeakIdx).peak();
 
   m_modeCtx->clearAllSerieSamples();
   setPeakContext(m_currentPeak);

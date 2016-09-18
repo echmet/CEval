@@ -130,7 +130,6 @@ private:
                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
                        const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitFixedValues);
     void updateHvlPlot(const QVector<QPointF> &plot);
-    void setPeakName(const QString &name);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
@@ -144,19 +143,34 @@ private:
     const double baselineSlope;
     const double baselineIntercept;
     const QVector<QPointF> hvlPlot;
-    const QString peakName;
 
     PeakContext &operator=(const PeakContext &other);
   };
 
+  class StoredPeak {
+  public:
+    explicit StoredPeak();
+    explicit StoredPeak(const QString &name, const PeakContext &peakCtx);
+
+    const PeakContext &peak() const;
+    void updatePeak(const PeakContext &peakCtx);
+    StoredPeak &operator=(const StoredPeak &other);
+
+    const QString name;
+
+  private:
+    PeakContext m_peakCtx;
+
+  };
+
   class EvaluationContext {
   public:
-    EvaluationContext(const QVector<PeakContext> &peaks, const int lastIndex,
+    EvaluationContext(const QVector<StoredPeak> &peaks, const int lastIndex,
                       const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
                       const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
                       const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues);
 
-    const QVector<PeakContext> peaks;
+    const QVector<StoredPeak> peaks;
     const int lastIndex;
     const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> afAutoValues;
     const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> afBoolValues;
@@ -213,7 +227,7 @@ private:
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true, const QString name = "");
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
@@ -232,7 +246,7 @@ private:
   std::shared_ptr<DataContext> m_currentDataContext;
   QString m_currentDataContextKey;
   /* Current peaks */
-  QVector<PeakContext> m_allPeaks;
+  QVector<StoredPeak> m_allPeaks;
   PeakContext m_currentPeak;
   int m_currentPeakIdx;
 
