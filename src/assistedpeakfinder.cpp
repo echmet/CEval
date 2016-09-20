@@ -365,12 +365,21 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   double ppm = C / (XMax - XMin); /* Points per minute */
 
 
+  if (p.noiseWindow <= 0.0) {
+    QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("Noise window must be positive")));
+    return r;
+  }
 
   int NoiseWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
     NoiseWindow = p.noiseWindow * ppm;
   else
     NoiseWindow = p.noiseWindow;
+
+  if (p.peakWindow <= 0.0) {
+    QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("Peak window must be positive")));
+    return r;
+  }
 
   int PeakWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
