@@ -1193,7 +1193,9 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
     return;
   else if (m_allDataContexts.size() == 1) {
     m_loadedFilesModel.deleteByIdx(idx);
-    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
+    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), freshEvaluationContext(MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(s_defaultEvaluationAutoValues),
+                                                                                                                                                    MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(s_defaultEvaluationBooleanValues),
+                                                                                                                                                    MappedVectorWrapper<double, EvaluationParametersItems::Floating>(s_defaultEvaluationFloatingValues))));
     m_currentDataContextKey = "";
   } else {
     m_loadedFilesModel.deleteByIdx(idx);

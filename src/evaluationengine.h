@@ -211,9 +211,9 @@ private:
   void findPeakAssisted();
   void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
-  EvaluationContext freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues = MappedVectorWrapper<bool, EvaluationParametersItems::Auto>(),
-                                           const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues = MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>(),
-                                           const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues = MappedVectorWrapper<double, EvaluationParametersItems::Floating>()) const;
+  EvaluationContext freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                                           const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                                           const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const;
   PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
   void initClipboardExporter();
