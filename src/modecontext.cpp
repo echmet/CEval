@@ -214,6 +214,22 @@ void ModeContext::deactivate()
   disconnect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &ModeContext::onPointHovered);
 }
 
+void ModeContext::disableAutoscale()
+{
+  m_plot->setAxisAutoScale(QwtPlot::xBottom, false);
+  m_plot->setAxisAutoScale(QwtPlot::xTop, false);
+  m_plot->setAxisAutoScale(QwtPlot::yLeft, false);
+  m_plot->setAxisAutoScale(QwtPlot::yRight, false);
+}
+
+void ModeContext::enableAutoscale()
+{
+  m_plot->setAxisAutoScale(QwtPlot::xBottom, true);
+  m_plot->setAxisAutoScale(QwtPlot::xTop, true);
+  m_plot->setAxisAutoScale(QwtPlot::yLeft, true);
+  m_plot->setAxisAutoScale(QwtPlot::yRight, true);
+}
+
 void ModeContext::hideSerie(const int id)
 {
   if (!m_plotCurves.contains(id))

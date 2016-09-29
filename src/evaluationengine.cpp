@@ -397,6 +397,7 @@ void EvaluationEngine::beginManualIntegration(const QPointF &from, const bool sn
   } else
     m_manualPeakFrom = from;
 
+  m_modeCtx->disableAutoscale();
   m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
 }
 
@@ -446,7 +447,7 @@ void EvaluationEngine::clearPeakPlots()
   m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE_FROM));
   m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
 
-  m_modeCtx->replot();
+  m_modeCtx->replot(false);
 }
 
 QAbstractItemModel *EvaluationEngine::clipboardDataArrangementModel()
@@ -768,17 +769,20 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   std::shared_ptr<PeakFinderResults> fr;
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
+  m_modeCtx->disableAutoscale();
   /* Erase the provisional baseline */
   m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
   if (!isContextValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_modeCtx->enableAutoscale();
     m_modeCtx->replot();
     return;
   }
 
   if (m_currentDataContext->data->data.length() == 0) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_modeCtx->enableAutoscale();
     m_modeCtx->replot();
     return;
   }
@@ -790,6 +794,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.fromY = Helpers::yForX(from.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr,tr("Invalid value"), tr("Invalid value of \"from X\""));
+      m_modeCtx->enableAutoscale();
       return;
     }
   } else
@@ -801,6 +806,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.toY = Helpers::yForX(to.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr, tr("Invalid value"), tr("Invalid value of \"to X\""));
+      m_modeCtx->enableAutoscale();
       return;
     }
   } else
@@ -817,10 +823,12 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     goto err_out;
 
   processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
+  m_modeCtx->enableAutoscale();
   return;
 
 err_out:
   m_userInteractionState = UserInteractionState::FINDING_PEAK;
+  m_modeCtx->enableAutoscale();
   m_modeCtx->replot();
 }
 
@@ -1072,7 +1080,8 @@ void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMen
   case ManualIntegrationMenuActions::CANCEL:
     m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_modeCtx->replot();
+    m_modeCtx->replot(false);
+    m_modeCtx->enableAutoscale();
     break;
   case ManualIntegrationMenuActions::FINISH:
     findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, false);

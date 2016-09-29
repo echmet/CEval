@@ -17,6 +17,8 @@ public:
   QFont axisFont(const SerieProperties::Axis a) const;
   void clearAllSerieSamples();
   void clearSerieSamples(const int id);
+  void disableAutoscale();
+  void enableAutoscale();
   void hideSerie(const int id);
   void removeSerie(const int id);
   QRectF range() const;

@@ -29,6 +29,8 @@ public:
   void clearAllSerieSamples();
   void clearSerieSamples(const int id);
   void deactivate();
+  void disableAutoscale();
+  void enableAutoscale();
   void hideSerie(const int id);
   void onNumberFormatChanged(const QLocale *oldLocale) override;
   void removeSerie(const int id);

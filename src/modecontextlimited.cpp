@@ -29,6 +29,15 @@ void ModeContextLimited::clearSerieSamples(const int id)
   m_modeCtx->clearSerieSamples(id);
 }
 
+void ModeContextLimited::disableAutoscale()
+{
+  m_modeCtx->disableAutoscale();
+}
+
+void ModeContextLimited::enableAutoscale()
+{
+  m_modeCtx->enableAutoscale();
+}
 
 void ModeContextLimited::hideSerie(const int id)
 {
