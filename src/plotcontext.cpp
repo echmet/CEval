@@ -1,4 +1,4 @@
-#include "modecontext.h"
+#include "plotcontext.h"
 #include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_plot_picker.h"
@@ -9,7 +9,7 @@
 #include "doubletostringconvertor.h"
 #include "ploteventfilter.h"
 
-ModeContext::ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent) :
+PlotContext::PlotContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent) :
   QObject(parent),
   m_active(false),
   m_plot(plot),
@@ -19,14 +19,14 @@ ModeContext::ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zo
 {
 }
 
-ModeContext::~ModeContext()
+PlotContext::~PlotContext()
 {
   m_plot->canvas()->removeEventFilter(m_eventFilter);
 
   delete m_eventFilter;
 }
 
-void ModeContext::activate()
+void PlotContext::activate()
 {
   for (std::shared_ptr<QwtPlotCurve> curve : m_plotCurves)
     curve->attach(m_plot);
@@ -45,13 +45,13 @@ void ModeContext::activate()
 
   m_plot->canvas()->installEventFilter(m_eventFilter);
 
-  connect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &ModeContext::onPointSelected);
-  connect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &ModeContext::onPointHovered);
+  connect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &PlotContext::onPointSelected);
+  connect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &PlotContext::onPointHovered);
 
   replot();
 }
 
-bool ModeContext::addSerie(const int id, const QString &title, SerieProperties::VisualStyle &style)
+bool PlotContext::addSerie(const int id, const QString &title, SerieProperties::VisualStyle &style)
 {
   std::shared_ptr<QwtPlotCurve> plotCurve;
 
@@ -73,7 +73,7 @@ bool ModeContext::addSerie(const int id, const QString &title, SerieProperties::
   return true;
 }
 
-void ModeContext::adjustAppearance()
+void PlotContext::adjustAppearance()
 {
   AdjustPlotVisualsDialog dlg;
   int dlgRet;
@@ -159,7 +159,7 @@ void ModeContext::adjustAppearance()
   m_plot->replot();
 }
 
-QFont ModeContext::axisFont(const SerieProperties::Axis a) const
+QFont PlotContext::axisFont(const SerieProperties::Axis a) const
 {
   switch (a) {
   case SerieProperties::Axis::X_BOTTOM:
@@ -180,13 +180,13 @@ QFont ModeContext::axisFont(const SerieProperties::Axis a) const
   }
 }
 
-void ModeContext::clearAllSerieSamples()
+void PlotContext::clearAllSerieSamples()
 {
   for (std::shared_ptr<QwtPlotCurve> curve : m_plotCurves)
     curve->setSamples(QVector<QPointF>());
 }
 
-void ModeContext::clearSerieSamples(const int id)
+void PlotContext::clearSerieSamples(const int id)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -194,7 +194,7 @@ void ModeContext::clearSerieSamples(const int id)
   m_plotCurves[id]->setSamples(QVector<QPointF>());
 }
 
-void ModeContext::deactivate()
+void PlotContext::deactivate()
 {
   for (std::shared_ptr<QwtPlotCurve> curve : m_plotCurves)
     curve->detach();
@@ -210,11 +210,11 @@ void ModeContext::deactivate()
 
   m_plot->canvas()->removeEventFilter(m_eventFilter);
 
-  disconnect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &ModeContext::onPointSelected);
-  disconnect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &ModeContext::onPointHovered);
+  disconnect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &PlotContext::onPointSelected);
+  disconnect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &PlotContext::onPointHovered);
 }
 
-void ModeContext::disableAutoscale()
+void PlotContext::disableAutoscale()
 {
   m_plot->setAxisAutoScale(QwtPlot::xBottom, false);
   m_plot->setAxisAutoScale(QwtPlot::xTop, false);
@@ -222,7 +222,7 @@ void ModeContext::disableAutoscale()
   m_plot->setAxisAutoScale(QwtPlot::yRight, false);
 }
 
-void ModeContext::enableAutoscale()
+void PlotContext::enableAutoscale()
 {
   m_plot->setAxisAutoScale(QwtPlot::xBottom, true);
   m_plot->setAxisAutoScale(QwtPlot::xTop, true);
@@ -230,7 +230,7 @@ void ModeContext::enableAutoscale()
   m_plot->setAxisAutoScale(QwtPlot::yRight, true);
 }
 
-void ModeContext::hideSerie(const int id)
+void PlotContext::hideSerie(const int id)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -238,7 +238,7 @@ void ModeContext::hideSerie(const int id)
   m_plotCurves[id]->detach();
 }
 
-Qt::PenStyle ModeContext::lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::LineStyles ls) const
+Qt::PenStyle PlotContext::lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::LineStyles ls) const
 {
   switch (ls) {
   case AdjustPlotVisualsDialog::LineStyles::DASH:
@@ -260,7 +260,7 @@ Qt::PenStyle ModeContext::lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::L
   }
 }
 
-void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
+void PlotContext::onNumberFormatChanged(const QLocale *oldLocale)
 {
   Q_UNUSED(oldLocale)
 
@@ -272,7 +272,7 @@ void ModeContext::onNumberFormatChanged(const QLocale *oldLocale)
   m_plot->setAxisScaleDraw(QwtPlot::Axis::yRight, new QwtScaleDraw);
 }
 
-void ModeContext::onPointHovered(const QPoint &pos)
+void PlotContext::onPointHovered(const QPoint &pos)
 {
   qreal x = m_plot->canvasMap(QwtPlot::Axis::xBottom).invTransform(pos.x());
   qreal y = m_plot->canvasMap(QwtPlot::Axis::yLeft).invTransform(pos.y());
@@ -282,7 +282,7 @@ void ModeContext::onPointHovered(const QPoint &pos)
   emit pointHovered(point, pos);
 }
 
-void ModeContext::onPointSelected(const QPointF &pos)
+void PlotContext::onPointSelected(const QPointF &pos)
 {
   QPoint cursor = QCursor::pos();
   m_plot->mapToGlobal(cursor);
@@ -290,7 +290,7 @@ void ModeContext::onPointSelected(const QPointF &pos)
   emit pointSelected(pos, cursor);
 }
 
-int ModeContext::pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const
+int PlotContext::pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const
 {
   switch (ps) {
   case AdjustPlotVisualsDialog::PointStyles::CROSS:
@@ -347,7 +347,7 @@ int ModeContext::pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::Point
   }
 }
 
-AdjustPlotVisualsDialog::PointStyles ModeContext::qwtSymbolStypeToPointStyle(const int qwtSymbol) const
+AdjustPlotVisualsDialog::PointStyles PlotContext::qwtSymbolStypeToPointStyle(const int qwtSymbol) const
 {
   switch (qwtSymbol) {
   case QwtSymbol::Style::NoSymbol:
@@ -403,7 +403,7 @@ AdjustPlotVisualsDialog::PointStyles ModeContext::qwtSymbolStypeToPointStyle(con
   }
 }
 
-AdjustPlotVisualsDialog::LineStyles ModeContext::qtPenStyleToLineStyle(const int qtPenStyle) const
+AdjustPlotVisualsDialog::LineStyles PlotContext::qtPenStyleToLineStyle(const int qtPenStyle) const
 {
   switch (qtPenStyle) {
   case Qt::DashLine:
@@ -425,12 +425,12 @@ AdjustPlotVisualsDialog::LineStyles ModeContext::qtPenStyleToLineStyle(const int
   }
 }
 
-QRectF ModeContext::range() const
+QRectF PlotContext::range() const
 {
   return uniteBoundingRects();
 }
 
-void ModeContext::removeSerie(const int id)
+void PlotContext::removeSerie(const int id)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -441,7 +441,7 @@ void ModeContext::removeSerie(const int id)
   m_plotCurves.remove(id);
 }
 
-void ModeContext::replot(const bool zoomOut)
+void PlotContext::replot(const bool zoomOut)
 {
   if (!m_active)
     return;
@@ -469,7 +469,7 @@ void ModeContext::replot(const bool zoomOut)
   }
 }
 
-bool ModeContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)
+bool PlotContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)
 {
   if (!m_plotCurves.contains(id))
     return false;
@@ -484,7 +484,7 @@ bool ModeContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &s
   return true;
 }
 
-void ModeContext::setAxisTitle(const SerieProperties::Axis axis, const QString &title, bool store)
+void PlotContext::setAxisTitle(const SerieProperties::Axis axis, const QString &title, bool store)
 {
   if (store)
     m_axisTitles[axis] = title;
@@ -510,7 +510,7 @@ void ModeContext::setAxisTitle(const SerieProperties::Axis axis, const QString &
   }
 }
 
-void ModeContext::setAxisFont(const SerieProperties::Axis axis, const QFont &f)
+void PlotContext::setAxisFont(const SerieProperties::Axis axis, const QFont &f)
 {
   m_axisFont[axis] = f;
 
@@ -540,7 +540,7 @@ void ModeContext::setAxisFont(const SerieProperties::Axis axis, const QFont &f)
   }
 }
 
-void ModeContext::setAxisTitleFont(const int a, const QFont &f)
+void PlotContext::setAxisTitleFont(const int a, const QFont &f)
 {
   QFont tf(f);
   tf.setBold(true);
@@ -549,7 +549,7 @@ void ModeContext::setAxisTitleFont(const int a, const QFont &f)
   m_plot->setAxisTitle(a, t);
 }
 
-void ModeContext::setSerieSamples(const int id, const QVector<QPointF> &samples)
+void PlotContext::setSerieSamples(const int id, const QVector<QPointF> &samples)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -557,7 +557,7 @@ void ModeContext::setSerieSamples(const int id, const QVector<QPointF> &samples)
   m_plotCurves[id]->setSamples(samples);
 }
 
-void ModeContext::setPlotTitle(const QString &title)
+void PlotContext::setPlotTitle(const QString &title)
 {
   m_plotTitle = title;
 
@@ -565,7 +565,7 @@ void ModeContext::setPlotTitle(const QString &title)
     m_plot->setTitle(title);
 }
 
-void ModeContext::setSerieVisualStyle(const int id, SerieProperties::VisualStyle &style)
+void PlotContext::setSerieVisualStyle(const int id, SerieProperties::VisualStyle &style)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -579,7 +579,7 @@ void ModeContext::setSerieVisualStyle(const int id, SerieProperties::VisualStyle
   plotCurve->setVisible(style.visible);
 }
 
-void ModeContext::setZoomBase(const QRectF &rect)
+void PlotContext::setZoomBase(const QRectF &rect)
 {
   if (m_boundingRect != rect) {
     m_plotZoomer->setZoomBase(rect);
@@ -587,7 +587,7 @@ void ModeContext::setZoomBase(const QRectF &rect)
   }
 }
 
-void ModeContext::showSerie(const int id)
+void PlotContext::showSerie(const int id)
 {
   if (!m_plotCurves.contains(id))
     return;
@@ -595,7 +595,7 @@ void ModeContext::showSerie(const int id)
   m_plotCurves[id]->attach(m_plot);
 }
 
-QRectF ModeContext::uniteBoundingRects() const
+QRectF PlotContext::uniteBoundingRects() const
 {
   QRectF total;
 

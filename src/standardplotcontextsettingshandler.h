@@ -1,16 +1,16 @@
-#ifndef STANDARDMODECONTEXTSETTINGSHANDLER_H
-#define STANDARDMODECONTEXTSETTINGSHANDLER_H
+#ifndef STANDARDPLOTCONTEXTSETTINGSHANDLER_H
+#define STANDARDPLOTCONTEXTSETTINGSHANDLER_H
 
 #include "custommetatypes.h"
-#include "modecontextlimited.h"
+#include "plotcontextlimited.h"
 
-class StandardModeContextSettingsHandler
+class StandardPlotContextSettingsHandler
 {
 public:
-  StandardModeContextSettingsHandler() = delete;
+  StandardPlotContextSettingsHandler() = delete;
 
-  static void loadUserSettings(const QVariant &settings, ModeContextLimited &ctx);
-  static EMT::StringVariantMap saveUserSettings(ModeContextLimited &ctx, int plotCount);
+  static void loadUserSettings(const QVariant &settings, PlotContextLimited &ctx);
+  static EMT::StringVariantMap saveUserSettings(PlotContextLimited &ctx, int plotCount);
 
 private:
   static const QString SERIE_VISIBLE_SETTINGS_TAG;
@@ -32,4 +32,4 @@ private:
   static const QString AXES_SETTINGS_TAG;
 };
 
-#endif // STANDARDMODECONTEXTSETTINGSHANDLER_H
+#endif // STANDARDPLOTCONTEXTSETTINGSHANDLER_H

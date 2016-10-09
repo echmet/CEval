@@ -16,7 +16,7 @@
 #include "dataexporter/exporter.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
-#include "modecontextlimited.h"
+#include "plotcontextlimited.h"
 #include "peakevaluator.h"
 #include "assistedpeakfinder.h"
 
@@ -76,7 +76,7 @@ public:
   ~EvaluationEngine();
   void announceDefaultState();
   AbstractMapperModel<bool, EvaluationParametersItems::Auto> *autoValuesModel();
-  void assignContext(std::shared_ptr<ModeContextLimited> ctx);
+  void assignContext(std::shared_ptr<PlotContextLimited> ctx);
   QAbstractItemModel *baselineModel();
   AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
   QAbstractItemModel *clipboardDataArrangementModel();
@@ -261,7 +261,7 @@ private:
   bool m_manualPeakSnapFrom;
 
   CommonParametersEngine *m_commonParamsEngine;
-  std::shared_ptr<ModeContextLimited> m_modeCtx;
+  std::shared_ptr<PlotContextLimited> m_plotCtx;
   MappedVectorWrapper<bool, EvaluationParametersItems::Auto> m_evaluationAutoValues;
   MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> m_evaluationBooleanValues;
   MappedVectorWrapper<double, EvaluationParametersItems::Floating> m_evaluationFloatingValues;

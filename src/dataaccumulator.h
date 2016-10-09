@@ -6,8 +6,8 @@
 #include "evaluationengine.h"
 #include "evaluationenginemsgs.h"
 #include "hyperbolefittingengine.h"
-#include "modecontext.h"
-#include "modecontexttypes.h"
+#include "plotcontext.h"
+#include "plotcontexttypes.h"
 #include "plotexporter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_picker.h"
@@ -31,8 +31,8 @@ private:
   EvaluationEngine *m_evaluationEngine;
   HyperboleFittingEngine *m_hyperboleFittingEngine;
 
-  QMap<ModeContextTypes::Types, std::shared_ptr<ModeContext>> m_modeCtxs;
-  std::shared_ptr<ModeContext> m_currentModeCtx;
+  QMap<PlotContextTypes::Types, std::shared_ptr<PlotContext>> m_plotCtxs;
+  std::shared_ptr<PlotContext> m_currentPlotCtx;
 
   QwtPlot *m_plot;
   QwtPlotPicker *m_plotPicker;

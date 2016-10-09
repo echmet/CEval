@@ -60,24 +60,24 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
 
   /* Create contexts for all modes of operation */
   try {
-    std::shared_ptr<ModeContext> evaluationContext = std::shared_ptr<ModeContext>(new ModeContext(m_plot, m_plotPicker, m_plotZoomer));
-    m_evaluationEngine->assignContext(std::shared_ptr<ModeContextLimited>(new ModeContextLimited(evaluationContext)));
-    m_modeCtxs.insert(ModeContextTypes::Types::EVALUATION, evaluationContext);
+    std::shared_ptr<PlotContext> evaluationContext = std::shared_ptr<PlotContext>(new PlotContext(m_plot, m_plotPicker, m_plotZoomer));
+    m_evaluationEngine->assignContext(std::shared_ptr<PlotContextLimited>(new PlotContextLimited(evaluationContext)));
+    m_plotCtxs.insert(PlotContextTypes::Types::EVALUATION, evaluationContext);
 
-    std::shared_ptr<ModeContext> hyperboleContext = std::shared_ptr<ModeContext>(new ModeContext(m_plot, m_plotPicker, m_plotZoomer));
-    m_hyperboleFittingEngine->assignContext(std::shared_ptr<ModeContextLimited>(new ModeContextLimited(hyperboleContext)));
-    m_modeCtxs.insert(ModeContextTypes::Types::HYPERBOLE_FIT, hyperboleContext);
+    std::shared_ptr<PlotContext> hyperboleContext = std::shared_ptr<PlotContext>(new PlotContext(m_plot, m_plotPicker, m_plotZoomer));
+    m_hyperboleFittingEngine->assignContext(std::shared_ptr<PlotContextLimited>(new PlotContextLimited(hyperboleContext)));
+    m_plotCtxs.insert(PlotContextTypes::Types::HYPERBOLE_FIT, hyperboleContext);
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to initialize mode contexts"));
     throw;
   }
 
-  for (std::shared_ptr<ModeContext> &ctx : m_modeCtxs) {
-    ModeContext *tctx = ctx.get();
+  for (std::shared_ptr<PlotContext> &ctx : m_plotCtxs) {
+    PlotContext *tctx = ctx.get();
     DoubleToStringConvertor::notifyOnFormatChanged(tctx);
   }
 
-  m_currentModeCtx = nullptr;
+  m_currentPlotCtx = nullptr;
 
   connect(m_evaluationEngine, &EvaluationEngine::registerMeasurement, m_hyperboleFittingEngine, &HyperboleFittingEngine::onRegisterMobility);
 
@@ -139,7 +139,7 @@ void DataAccumulator::loadUserSettings(const QVariant &settings)
 
 void DataAccumulator::onAdjustPlotAppearance()
 {
-  m_currentModeCtx->adjustAppearance();
+  m_currentPlotCtx->adjustAppearance();
 }
 
 void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction action)
@@ -159,20 +159,20 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
 
 void DataAccumulator::onTabSwitched(const int idx)
 {
-  ModeContextTypes::Types mid = ModeContextTypes::fromID<ModeContextTypes::Types>(idx);
+  PlotContextTypes::Types mid = PlotContextTypes::fromID<PlotContextTypes::Types>(idx);
   DataAccumulatorMsgs::ProgramMode pmode;
 
-  if (m_currentModeCtx != nullptr)
-    m_currentModeCtx->deactivate();
+  if (m_currentPlotCtx != nullptr)
+    m_currentPlotCtx->deactivate();
 
-  m_modeCtxs[mid]->activate();
-  m_currentModeCtx = m_modeCtxs[mid];
+  m_plotCtxs[mid]->activate();
+  m_currentPlotCtx = m_plotCtxs[mid];
 
   switch (mid) {
-  case ModeContextTypes::Types::EVALUATION:
+  case PlotContextTypes::Types::EVALUATION:
     pmode = DataAccumulatorMsgs::ProgramMode::EVALUATION;
     break;
-  case ModeContextTypes::Types::HYPERBOLE_FIT:
+  case PlotContextTypes::Types::HYPERBOLE_FIT:
     m_hyperboleFittingEngine->refreshModels();
     pmode = DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT;
     break;

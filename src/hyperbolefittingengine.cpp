@@ -8,7 +8,7 @@
 #include "hyperbolefititems.h"
 #include "math/regressor/profiler.h"
 #include "doubletostringconvertor.h"
-#include "standardmodecontextsettingshandler.h"
+#include "standardplotcontextsettingshandler.h"
 #include "gui/exportdatatabletocsvdialog.h"
 #include "math/regressor/regress.h"
 
@@ -320,54 +320,54 @@ QAbstractItemModel *HyperboleFittingEngine::analytesModel()
   return &m_analytesModel;
 }
 
-void HyperboleFittingEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
+void HyperboleFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
 {
-  m_modeCtx = ctx;
+  m_plotCtx = ctx;
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::POINTS_A), s_dataPointsATitle,
+  if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_A), s_dataPointsATitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
                                                       SerieProperties::SQwtSymbol(POINT_TYPE, POINT_SIZE, Qt::black),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsATitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::POINTS_B), s_dataPointsBTitle,
+  if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_B), s_dataPointsBTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
                                                       SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, POINT_SIZE, QColor(142, 87, 172)),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsBTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::POINTS_A_AVG), s_dataPointsAAvgTitle,
+  if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_A_AVG), s_dataPointsAAvgTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
                                                       SerieProperties::SQwtSymbol(CENTRAL_POINT_TYPE, CENTRAL_POINT_SIZE, Qt::red),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsAAvgTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::POINTS_B_AVG), s_dataPointsBAvgTitle,
+  if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_B_AVG), s_dataPointsBAvgTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
                                                       SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, CENTRAL_POINT_SIZE, QColor(77, 119, 183)),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsBAvgTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::FIT_A_CURVE), s_fitCurveATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_A_CURVE), s_fitCurveATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveATitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::FIT_B_CURVE), s_fitCurveBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(77, 119, 183), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_B_CURVE), s_fitCurveBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(77, 119, 183), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveBTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(130, 190, 73), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(130, 190, 73), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveStatsTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_horizontalMarkerTitle));
-  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalAMarkerTitle));
-  if (!m_modeCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalBMarkerTitle));
 
 
   /* Default axis fonts*/
-  m_modeCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
-  m_modeCtx->setAxisFont(SerieProperties::Axis::Y_LEFT, QFont());
+  m_plotCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
+  m_plotCtx->setAxisFont(SerieProperties::Axis::Y_LEFT, QFont());
 
   showDataSeries();
 }
@@ -406,16 +406,16 @@ void HyperboleFittingEngine::clearAllModels()
 
 void HyperboleFittingEngine::clearAnalyteASeries()
 {
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::POINTS_A));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::POINTS_A_AVG));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::FIT_A_CURVE));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_A));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_A_AVG));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_A_CURVE));
 }
 
 void HyperboleFittingEngine::clearAnalyteBSeries()
 {
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::POINTS_B));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::POINTS_B_AVG));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::FIT_B_CURVE));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_B));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_B_AVG));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_B_CURVE));
 }
 
 QAbstractItemModel *HyperboleFittingEngine::concentrationsModel()
@@ -905,12 +905,12 @@ QAbstractItemModel *HyperboleFittingEngine::fitModeModel()
 
 void HyperboleFittingEngine::hideDataSeries()
 {
-  m_modeCtx->hideSerie(seriesIndex(Series::FIT_A_CURVE));
-  m_modeCtx->hideSerie(seriesIndex(Series::FIT_B_CURVE));
-  m_modeCtx->hideSerie(seriesIndex(Series::POINTS_A));
-  m_modeCtx->hideSerie(seriesIndex(Series::POINTS_B));
-  m_modeCtx->hideSerie(seriesIndex(Series::POINTS_A_AVG));
-  m_modeCtx->hideSerie(seriesIndex(Series::POINTS_B_AVG));
+  m_plotCtx->hideSerie(seriesIndex(Series::FIT_A_CURVE));
+  m_plotCtx->hideSerie(seriesIndex(Series::FIT_B_CURVE));
+  m_plotCtx->hideSerie(seriesIndex(Series::POINTS_A));
+  m_plotCtx->hideSerie(seriesIndex(Series::POINTS_B));
+  m_plotCtx->hideSerie(seriesIndex(Series::POINTS_A_AVG));
+  m_plotCtx->hideSerie(seriesIndex(Series::POINTS_B_AVG));
 }
 
 void HyperboleFittingEngine::initFitModeModel()
@@ -995,7 +995,7 @@ void HyperboleFittingEngine::loadUserSettings(const QVariant &settings)
   if (!settings.canConvert<EMT::StringVariantMap>())
     return;
 
-  StandardModeContextSettingsHandler::loadUserSettings(settings, *m_modeCtx.get());
+  StandardPlotContextSettingsHandler::loadUserSettings(settings, *m_plotCtx.get());
 
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
   if (map.contains(LAST_LOADSAVE_PATH_SETTINGS_TAG)) {
@@ -1299,21 +1299,21 @@ void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEng
       m_horizontalMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
         setMarkerPosition(marker);
-        m_modeCtx->replot();
+        m_plotCtx->replot();
       }
       break;
     case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
       m_verticalAMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showVerticalAMarker) {
         setMarkerPosition(marker);
-        m_modeCtx->replot();
+        m_plotCtx->replot();
       }
       break;
     case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
       m_verticalBMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showVerticalBMarker) {
         setMarkerPosition(marker);
-        m_modeCtx->replot();
+        m_plotCtx->replot();
       }
       break;
     default:
@@ -1381,7 +1381,7 @@ void HyperboleFittingEngine::onDeserialize()
   m_lastDataTablePath = d.absolutePath();
 
   QFileInfo finfo(d.absolutePath());
-  m_modeCtx->setPlotTitle(finfo.fileName());
+  m_plotCtx->setPlotTitle(finfo.fileName());
 }
 
 void HyperboleFittingEngine::onDoEstimate()
@@ -1590,10 +1590,10 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
   hideDataSeries();
   showStatsSeries(m_currentStatUnits, m_currentStatMode);
-  m_modeCtx->setSerieSamples(seriesIndex(Series::STATS), data);
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER));
+  m_plotCtx->setSerieSamples(seriesIndex(Series::STATS), data);
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER));
 
   m_statData = data;
   if (m_statData.size() > 0) {
@@ -1616,7 +1616,7 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
     }
   }
 
-  m_modeCtx->replot();
+  m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::onEmergencySave()
@@ -1673,9 +1673,9 @@ void HyperboleFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
 
 void HyperboleFittingEngine::onRedrawDataSeries()
 {
-  m_modeCtx->hideSerie(seriesIndex(Series::STATS));
+  m_plotCtx->hideSerie(seriesIndex(Series::STATS));
   showDataSeries();
-  m_modeCtx->replot();
+  m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::onRegisterMobility(const QString &name, const double selConcentration, const double mobility)
@@ -1948,12 +1948,12 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
       setMarkerPosition(marker);
 
       if (m_viewMode == ViewMode::STATS) {
-        m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
-        m_modeCtx->replot();
+        m_plotCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+        m_plotCtx->replot();
       }
     } else {
-      m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
-      m_modeCtx->replot();
+      m_plotCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+      m_plotCtx->replot();
     }
     break;
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
@@ -1962,12 +1962,12 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
       setMarkerPosition(marker);
 
       if (m_viewMode == ViewMode::STATS) {
-        m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
-        m_modeCtx->replot();
+        m_plotCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+        m_plotCtx->replot();
       }
     } else {
-      m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
-      m_modeCtx->replot();
+      m_plotCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+      m_plotCtx->replot();
     }
     break;
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
@@ -1976,12 +1976,12 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
       setMarkerPosition(marker);
 
       if (m_viewMode == ViewMode::STATS) {
-        m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
-        m_modeCtx->replot();
+        m_plotCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+        m_plotCtx->replot();
       }
     } else {
-      m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
-      m_modeCtx->replot();
+      m_plotCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+      m_plotCtx->replot();
     }
     break;
   default:
@@ -2024,9 +2024,9 @@ void HyperboleFittingEngine::onStatUnitsChanged(const QVariant &v)
 
 void HyperboleFittingEngine::plotCurve(const Series s, const QVector<QPointF> &data)
 {
-  m_modeCtx->setSerieSamples(seriesIndex(s), data);
+  m_plotCtx->setSerieSamples(seriesIndex(s), data);
 
-  m_modeCtx->replot();
+  m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
@@ -2043,10 +2043,10 @@ void HyperboleFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
         curveB.push_back(QPointF(x, (*m_doubleFitRegressor)(mx)));
     }
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::FIT_A_CURVE), curveA);
-    m_modeCtx->setSerieSamples(seriesIndex(Series::FIT_B_CURVE), curveB);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::FIT_A_CURVE), curveA);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::FIT_B_CURVE), curveB);
 
-    m_modeCtx->replot();
+    m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::plotPoints(const Series s, std::shared_ptr<const Analyte> a)
@@ -2068,9 +2068,9 @@ void HyperboleFittingEngine::plotPoints(const Series s, std::shared_ptr<const An
     }
   }
 
-  m_modeCtx->setSerieSamples(seriesIndex(s), points);
-  m_modeCtx->setSerieSamples(seriesIndex(s) + 1, average);
-  m_modeCtx->replot();
+  m_plotCtx->setSerieSamples(seriesIndex(s), points);
+  m_plotCtx->setSerieSamples(seriesIndex(s) + 1, average);
+  m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::plotSingleCurve(const HypResults &r)
@@ -2079,8 +2079,8 @@ void HyperboleFittingEngine::plotSingleCurve(const HypResults &r)
   for (double x = 0.0; x <= r.maxX_A; x += (r.maxX_A - 0.0) / 100.0)
     curve.push_back(QPointF(x, (*m_singleFitRegressor)(x)));
 
-  m_modeCtx->setSerieSamples(seriesIndex(Series::FIT_A_CURVE), curve);
-  m_modeCtx->replot();
+  m_plotCtx->setSerieSamples(seriesIndex(Series::FIT_A_CURVE), curve);
+  m_plotCtx->replot();
 }
 
 void HyperboleFittingEngine::refreshModels()
@@ -2095,8 +2095,8 @@ void HyperboleFittingEngine::refreshModels()
 
   m_concentrationsModel.clear();
   m_mobilitiesModel.clear();
-  m_modeCtx->clearAllSerieSamples();
-  m_modeCtx->replot();
+  m_plotCtx->clearAllSerieSamples();
+  m_plotCtx->replot();
 
   m_currentAnalyte = nullptr;
   m_secondAnalyte = nullptr;
@@ -2109,7 +2109,7 @@ void HyperboleFittingEngine::refreshModels()
 
 QVariant HyperboleFittingEngine::saveUserSettings() const
 {
-  EMT::StringVariantMap map = StandardModeContextSettingsHandler::saveUserSettings(*m_modeCtx.get(), seriesIndex(Series::LAST_INDEX));
+  EMT::StringVariantMap map = StandardPlotContextSettingsHandler::saveUserSettings(*m_plotCtx.get(), seriesIndex(Series::LAST_INDEX));
 
   map[LAST_LOADSAVE_PATH_SETTINGS_TAG] = m_lastDataTablePath;
   map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG] = m_lastExportToCsvPath;
@@ -2169,7 +2169,7 @@ void HyperboleFittingEngine::setDoubleFitStats()
 
 void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs::MarkerType marker)
 {
-  const QRectF r = m_modeCtx->range();
+  const QRectF r = m_plotCtx->range();
 
   switch (marker) {
   case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
@@ -2178,7 +2178,7 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
     points.push_back(QPointF(r.topLeft().x(), m_horizontalMarkerPosition));
     points.push_back(QPointF(r.topRight().x(), m_horizontalMarkerPosition));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER), points);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER), points);
     break;
   }
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
@@ -2187,7 +2187,7 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
     points.push_back(QPointF(m_verticalAMarkerPosition, r.topLeft().y()));
     points.push_back(QPointF(m_verticalAMarkerPosition, r.bottomLeft().y()));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER), points);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER), points);
     break;
   }
   case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
@@ -2196,7 +2196,7 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
     points.push_back(QPointF(m_verticalBMarkerPosition, r.topLeft().y()));
     points.push_back(QPointF(m_verticalBMarkerPosition, r.bottomLeft().y()));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER), points);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::VERTICAL_B_MARKER), points);
     break;
   }
   default:
@@ -2235,20 +2235,20 @@ void HyperboleFittingEngine::setSingleFitStats()
 
 void HyperboleFittingEngine::showDataSeries()
 {
-  m_modeCtx->hideSerie(seriesIndex(Series::STATS));
-  m_modeCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
-  m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
-  m_modeCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+  m_plotCtx->hideSerie(seriesIndex(Series::STATS));
+  m_plotCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+  m_plotCtx->hideSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+  m_plotCtx->hideSerie(seriesIndex(Series::VERTICAL_B_MARKER));
 
-  m_modeCtx->showSerie(seriesIndex(Series::FIT_A_CURVE));
-  m_modeCtx->showSerie(seriesIndex(Series::FIT_B_CURVE));
-  m_modeCtx->showSerie(seriesIndex(Series::POINTS_A));
-  m_modeCtx->showSerie(seriesIndex(Series::POINTS_B));
-  m_modeCtx->showSerie(seriesIndex(Series::POINTS_A_AVG));
-  m_modeCtx->showSerie(seriesIndex(Series::POINTS_B_AVG));
+  m_plotCtx->showSerie(seriesIndex(Series::FIT_A_CURVE));
+  m_plotCtx->showSerie(seriesIndex(Series::FIT_B_CURVE));
+  m_plotCtx->showSerie(seriesIndex(Series::POINTS_A));
+  m_plotCtx->showSerie(seriesIndex(Series::POINTS_B));
+  m_plotCtx->showSerie(seriesIndex(Series::POINTS_A_AVG));
+  m_plotCtx->showSerie(seriesIndex(Series::POINTS_B_AVG));
 
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, tr("Mobility"));
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, tr("Selector concentration"));
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, tr("Mobility"));
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, tr("Selector concentration"));
 
   m_viewMode = ViewMode::DATA;
 }
@@ -2257,54 +2257,54 @@ void HyperboleFittingEngine::showStatsSeries(const StatUnits units, const StatMo
 {
   switch (units) {
   case StatUnits::P_VALUE:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_pValueCaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_pValueCaption);
     break;
   case StatUnits::CONFIDENCE:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_confidenceCaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_confidenceCaption);
     break;
   case StatUnits::TAU:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_tauCaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, s_tauCaption);
     break;
   default:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, tr("---"));
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, tr("---"));
     break;
   }
 
   switch (mode) {
   case StatMode::MOBILITY_A:
   case StatMode::MOBILITY_B:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uACaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uACaption);
     break;
   case StatMode::D_MOBILITY:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uACaption + tr(", difference"));
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uACaption + tr(", difference"));
     break;
   case StatMode::MOBILITY_CS_A:
   case StatMode::MOBILITY_CS_B:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uCSCaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uCSCaption);
     break;
   case StatMode::D_MOBILITY_CS:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uCSCaption + tr(", difference"));
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_uCSCaption + tr(", difference"));
     break;
   case StatMode::K_CS_A:
   case StatMode::K_CS_B:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_KCSCaption);
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_KCSCaption);
     break;
   case StatMode::D_K_CS:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_KCSCaption + tr(", difference"));
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, s_KCSCaption + tr(", difference"));
     break;
   default:
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "---");
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "---");
     break;
   }
 
-  m_modeCtx->showSerie(seriesIndex(Series::STATS));
+  m_plotCtx->showSerie(seriesIndex(Series::STATS));
 
   if (m_showHorizontalMarker)
-    m_modeCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
+    m_plotCtx->showSerie(seriesIndex(Series::HORIZONTAL_MARKER));
   if (m_showVerticalAMarker)
-    m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
+    m_plotCtx->showSerie(seriesIndex(Series::VERTICAL_A_MARKER));
   if (m_showVerticalBMarker)
-    m_modeCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
+    m_plotCtx->showSerie(seriesIndex(Series::VERTICAL_B_MARKER));
 
   m_viewMode = ViewMode::STATS;
 }

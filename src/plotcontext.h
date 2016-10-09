@@ -1,5 +1,5 @@
-#ifndef MODECONTEXT_H
-#define MODECONTEXT_H
+#ifndef PLOTCONTEXT_H
+#define PLOTCONTEXT_H
 
 #include <memory>
 #include <QMap>
@@ -16,12 +16,12 @@ class QwtPlotPicker;
 class QwtPlotZoomer;
 class QwtScaleMap;
 
-class ModeContext : public QObject, public INumberFormatChangeable {
+class PlotContext : public QObject, public INumberFormatChangeable {
   Q_OBJECT
   Q_INTERFACES(INumberFormatChangeable)
 public:
-  explicit ModeContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent = nullptr);
-  ~ModeContext();
+  explicit PlotContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zoomer, QObject *parent = nullptr);
+  ~PlotContext();
   void activate();
   bool addSerie(const int id, const QString &title, SerieProperties::VisualStyle &style);
   void adjustAppearance();
@@ -74,4 +74,4 @@ private slots:
 
 };
 
-#endif // MODECONTEXT_H
+#endif // PLOTCONTEXT_H

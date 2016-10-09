@@ -9,7 +9,7 @@
 #include "custommetatypes.h"
 #include "helpers.h"
 #include "manualpeakfinder.h"
-#include "standardmodecontextsettingshandler.h"
+#include "standardplotcontextsettingshandler.h"
 #include "witchcraft.h"
 #include "dataexporter/backends/textexporterbackend.h"
 #include "dataexporter/backends/htmlexporterbackend.h"
@@ -319,56 +319,56 @@ void EvaluationEngine::announceDefaultState()
   emit clipboardExporterDelimiterSet(m_ctcDelimiter);
 }
 
-void EvaluationEngine::assignContext(std::shared_ptr<ModeContextLimited> ctx)
+void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
 {
-  m_modeCtx = ctx;
+  m_plotCtx = ctx;
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE), s_serieBaselineTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::BASELINE), s_serieBaselineTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieBaselineTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::PEAK_HEIGHT), s_seriePeakHeightTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_HEIGHT), s_seriePeakHeightTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakHeightTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::PEAK_TIME), s_seriePeakTimeTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_TIME), s_seriePeakTimeTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakTimeTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::SIG), s_serieSignalTitle))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::SIG), s_serieSignalTitle))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieSignalTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::EOF_MARK), s_serieEofTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::gray, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::EOF_MARK), s_serieEofTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::gray, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieEofTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::FINDER_SYSTEM_A), s_serieFinderSystemATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::green, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FINDER_SYSTEM_A), s_serieFinderSystemATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::green, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieFinderSystemATitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::FINDER_SYSTEM_B), s_serieFinderSystemBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(0,255,255), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FINDER_SYSTEM_B), s_serieFinderSystemBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(0,255,255), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieFinderSystemBTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::HVL), s_serieHVLTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(37,102,222), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::HVL), s_serieHVLTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(37,102,222), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieHVLTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::PROV_PEAK), s_serieProvisionalPeakTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PROV_PEAK), s_serieProvisionalPeakTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieProvisionalPeakTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE_FROM), s_serieBaselineFromTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(132, 172, 172), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::BASELINE_FROM), s_serieBaselineFromTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(132, 172, 172), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieBaselineFromTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::BASELINE_TO), s_serieBaselineFromTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(132, 172, 172), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::BASELINE_TO), s_serieBaselineFromTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(132, 172, 172), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieBaselineToTitle));
 
-  if (!m_modeCtx->addSerie(seriesIndex(Series::PROV_BASELINE), s_serieProvisionalBaseline, SerieProperties::VisualStyle(QPen(QBrush(QColor(23, 73, 255), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PROV_BASELINE), s_serieProvisionalBaseline, SerieProperties::VisualStyle(QPen(QBrush(QColor(23, 73, 255), Qt::SolidPattern), SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieProvisionalBaseline));
 
-  connect(m_modeCtx.get(), &ModeContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
-  connect(m_modeCtx.get(), &ModeContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
+  connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
+  connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
   /* Default series titles */
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
 
   /* Default axis fonts */
-  m_modeCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
-  m_modeCtx->setAxisFont(SerieProperties::Axis::Y_LEFT, QFont());
+  m_plotCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
+  m_plotCtx->setAxisFont(SerieProperties::Axis::Y_LEFT, QFont());
 }
 
 AbstractMapperModel<bool, EvaluationParametersItems::Auto> *EvaluationEngine::autoValuesModel()
@@ -397,7 +397,7 @@ void EvaluationEngine::beginManualIntegration(const QPointF &from, const bool sn
   } else
     m_manualPeakFrom = from;
 
-  m_modeCtx->disableAutoscale();
+  m_plotCtx->disableAutoscale();
   m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
 }
 
@@ -438,16 +438,16 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
 
 void EvaluationEngine::clearPeakPlots()
 {
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::PEAK_HEIGHT));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::PEAK_TIME));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::HVL));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE_FROM));
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_HEIGHT));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_TIME));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_FROM));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
 
-  m_modeCtx->replot(false);
+  m_plotCtx->replot(false);
 }
 
 QAbstractItemModel *EvaluationEngine::clipboardDataArrangementModel()
@@ -560,18 +560,18 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
 bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name)
 {
-  m_modeCtx->setPlotTitle(name);
+  m_plotCtx->setPlotTitle(name);
 
   if (data == nullptr) {
-    m_modeCtx->clearAllSerieSamples();
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
-    m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
+    m_plotCtx->clearAllSerieSamples();
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, "");
+    m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, "");
   } else{
-    m_modeCtx->setSerieSamples(seriesIndex(Series::SIG), data->data);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::SIG), data->data);
     setAxisTitles();
   }
 
-  m_modeCtx->replot();
+  m_plotCtx->replot();
 
   return true;
 }
@@ -630,9 +630,9 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
 void EvaluationEngine::drawEofMarker()
 {
   if (!isContextValid()) {
-    m_modeCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
+    m_plotCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
 
-    m_modeCtx->replot();
+    m_plotCtx->replot();
     return;
   }
 
@@ -647,11 +647,11 @@ void EvaluationEngine::drawEofMarker()
 
       vec.push_back(QPointF(tEOF, minY));
       vec.push_back(QPointF(tEOF, maxY));
-      m_modeCtx->setSerieSamples(seriesIndex(Series::EOF_MARK), vec);
+      m_plotCtx->setSerieSamples(seriesIndex(Series::EOF_MARK), vec);
     } else
-      m_modeCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
+      m_plotCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
 
-    m_modeCtx->replot();
+    m_plotCtx->replot();
   }
 
 }
@@ -769,21 +769,21 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   std::shared_ptr<PeakFinderResults> fr;
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
-  m_modeCtx->disableAutoscale();
+  m_plotCtx->disableAutoscale();
   /* Erase the provisional baseline */
-  m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
+  m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
   if (!isContextValid()) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_modeCtx->enableAutoscale();
-    m_modeCtx->replot();
+    m_plotCtx->enableAutoscale();
+    m_plotCtx->replot();
     return;
   }
 
   if (m_currentDataContext->data->data.length() == 0) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_modeCtx->enableAutoscale();
-    m_modeCtx->replot();
+    m_plotCtx->enableAutoscale();
+    m_plotCtx->replot();
     return;
   }
 
@@ -794,7 +794,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.fromY = Helpers::yForX(from.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr,tr("Invalid value"), tr("Invalid value of \"from X\""));
-      m_modeCtx->enableAutoscale();
+      m_plotCtx->enableAutoscale();
       return;
     }
   } else
@@ -806,7 +806,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.toY = Helpers::yForX(to.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr, tr("Invalid value"), tr("Invalid value of \"to X\""));
-      m_modeCtx->enableAutoscale();
+      m_plotCtx->enableAutoscale();
       return;
     }
   } else
@@ -823,13 +823,13 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     goto err_out;
 
   processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
-  m_modeCtx->enableAutoscale();
+  m_plotCtx->enableAutoscale();
   return;
 
 err_out:
   m_userInteractionState = UserInteractionState::FINDING_PEAK;
-  m_modeCtx->enableAutoscale();
-  m_modeCtx->replot();
+  m_plotCtx->enableAutoscale();
+  m_plotCtx->replot();
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
@@ -968,7 +968,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
   if (!settings.canConvert<EMT::StringVariantMap>())
     return;
 
-  StandardModeContextSettingsHandler::loadUserSettings(settings, *m_modeCtx.get());
+  StandardPlotContextSettingsHandler::loadUserSettings(settings, *m_plotCtx.get());
 
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
 
@@ -1078,10 +1078,10 @@ void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMen
 {
   switch (action) {
   case ManualIntegrationMenuActions::CANCEL:
-    m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
+    m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_modeCtx->replot(false);
-    m_modeCtx->enableAutoscale();
+    m_plotCtx->replot(false);
+    m_plotCtx->enableAutoscale();
     break;
   case ManualIntegrationMenuActions::FINISH:
     findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, false);
@@ -1690,8 +1690,8 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
       x += step;
     }
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), line);
-    m_modeCtx->replot();
+    m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), line);
+    m_plotCtx->replot();
   }
 }
 
@@ -1752,8 +1752,8 @@ void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const 
   for (int idx = start; idx < end; idx++)
     data.push_back(m_currentDataContext->data->data.at(idx));
 
-  m_modeCtx->setSerieSamples(seriesIndex(Series::PROV_PEAK), data);
-  m_modeCtx->replot();
+  m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_PEAK), data);
+  m_plotCtx->replot();
 }
 
 void EvaluationEngine::onReadEof()
@@ -1791,9 +1791,9 @@ void EvaluationEngine::onReplotHvl()
   HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
   m_currentPeak.updateHvlPlot(vec);
 
-  m_modeCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
+  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
 
-  m_modeCtx->replot(false);
+  m_plotCtx->replot(false);
 }
 
 void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
@@ -1843,8 +1843,8 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
 
 void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
-  m_modeCtx->clearSerieSamples(seriesIndex(Series::PROV_PEAK));
-  m_modeCtx->replot();
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_PEAK));
+  m_plotCtx->replot();
 }
 
 void EvaluationEngine::onUpdateCurrentPeak()
@@ -1872,7 +1872,7 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     blVec.push_back(QPointF(fr->peakFromX, fr->peakFromY));
     blVec.push_back(QPointF(fr->peakToX, fr->peakToY));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE), blVec);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::BASELINE), blVec);
   }
 
   /* Mark the maximum of the peak */
@@ -1881,7 +1881,7 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 
     tpVec.push_back(QPointF(peakX, peakHeight - peakHeightBaseline));
     tpVec.push_back(QPointF(peakX, peakHeight));
-    m_modeCtx->setSerieSamples(seriesIndex(Series::PEAK_TIME), tpVec);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_TIME), tpVec);
   }
 
   /* Mark the height of the peak */
@@ -1891,7 +1891,7 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     hpVec.push_back(QPointF(peakX - widthHalfLeft, peakHeight));
     hpVec.push_back(QPointF(widthHalfRight + peakX, peakHeight));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::PEAK_HEIGHT), hpVec);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_HEIGHT), hpVec);
   }
 
   {
@@ -1899,14 +1899,14 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 
     if (afr != nullptr) {
       if (m_currentPeak.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
-        m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *afr->seriesA);
-        m_modeCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *afr->seriesB);
+        m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *afr->seriesA);
+        m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *afr->seriesB);
       }
     }
   }
 
   /* HVL estimate */
-  m_modeCtx->setSerieSamples(seriesIndex(Series::HVL), m_currentPeak.hvlPlot);
+  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), m_currentPeak.hvlPlot);
 
   /* Mark the beginning and the end of the peak */
   {
@@ -1919,11 +1919,11 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     blTo.push_back(QPointF(fr->peakToX, fr->peakToY));
     blTo.push_back(QPointF(fr->peakToX, m_currentDataContext->data->data.at(fr->toIndex).y()));
 
-    m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE_FROM), blFrom);
-    m_modeCtx->setSerieSamples(seriesIndex(Series::BASELINE_TO), blTo);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::BASELINE_FROM), blFrom);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::BASELINE_TO), blTo);
   }
 
-  m_modeCtx->replot(false);
+  m_plotCtx->replot(false);
 }
 
 void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)
@@ -2020,7 +2020,7 @@ AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine:
 
 QVariant EvaluationEngine::saveUserSettings() const
 {
-  EMT::StringVariantMap map = StandardModeContextSettingsHandler::saveUserSettings(*m_modeCtx.get(), seriesIndex(Series::LAST_INDEX));
+  EMT::StringVariantMap map = StandardPlotContextSettingsHandler::saveUserSettings(*m_plotCtx.get(), seriesIndex(Series::LAST_INDEX));
   map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
   map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
   map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS);
@@ -2053,8 +2053,8 @@ void EvaluationEngine::setAxisTitles()
   else
     yUnit = "";
 
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->data->xType).arg(xUnit));
-  m_modeCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->data->yType).arg(yUnit));
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::X_BOTTOM, QString("%1 %2").arg(m_currentDataContext->data->xType).arg(xUnit));
+  m_plotCtx->setAxisTitle(SerieProperties::Axis::Y_LEFT, QString("%1 %2").arg(m_currentDataContext->data->yType).arg(yUnit));
 }
 
 void EvaluationEngine::setDefaultFinderParameters()
@@ -2106,7 +2106,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
 
   m_currentPeak = m_allPeaks.at(m_currentPeakIdx).peak();
 
-  m_modeCtx->clearAllSerieSamples();
+  m_plotCtx->clearAllSerieSamples();
   setPeakContext(m_currentPeak);
 
   if (m_currentPeakIdx == 0)

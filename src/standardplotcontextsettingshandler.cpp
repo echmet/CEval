@@ -1,25 +1,25 @@
-#include "standardmodecontextsettingshandler.h"
+#include "standardplotcontextsettingshandler.h"
 
-const QString StandardModeContextSettingsHandler::SERIE_VISIBLE_SETTINGS_TAG("Serie-Visible");
-const QString StandardModeContextSettingsHandler::LINE_COLOR_SETTINGS_TAG("Line-Color");
-const QString StandardModeContextSettingsHandler::LINE_STYLE_SETTINGS_TAG("Line-Style");
-const QString StandardModeContextSettingsHandler::LINE_THICKNESS_SETTINGS_TAG("Line-Thickness");
-const QString StandardModeContextSettingsHandler::POINT_COLOR_SETTINGS_TAG("Point-Color");
-const QString StandardModeContextSettingsHandler::POINT_FILLCOLOR_SETTINGS_TAG("Point-FillColor");
-const QString StandardModeContextSettingsHandler::POINT_LINETHICKNESS_SETTINGS_TAG("Point-LineThickness");
-const QString StandardModeContextSettingsHandler::POINT_SIZE_SETTINGS_TAG("Point-Size");
-const QString StandardModeContextSettingsHandler::POINT_STYLE_SETTINGS_TAG("Point-Style");
+const QString StandardPlotContextSettingsHandler::SERIE_VISIBLE_SETTINGS_TAG("Serie-Visible");
+const QString StandardPlotContextSettingsHandler::LINE_COLOR_SETTINGS_TAG("Line-Color");
+const QString StandardPlotContextSettingsHandler::LINE_STYLE_SETTINGS_TAG("Line-Style");
+const QString StandardPlotContextSettingsHandler::LINE_THICKNESS_SETTINGS_TAG("Line-Thickness");
+const QString StandardPlotContextSettingsHandler::POINT_COLOR_SETTINGS_TAG("Point-Color");
+const QString StandardPlotContextSettingsHandler::POINT_FILLCOLOR_SETTINGS_TAG("Point-FillColor");
+const QString StandardPlotContextSettingsHandler::POINT_LINETHICKNESS_SETTINGS_TAG("Point-LineThickness");
+const QString StandardPlotContextSettingsHandler::POINT_SIZE_SETTINGS_TAG("Point-Size");
+const QString StandardPlotContextSettingsHandler::POINT_STYLE_SETTINGS_TAG("Point-Style");
 
-const QString StandardModeContextSettingsHandler::AXIS_FONT_SETTINGS_TAG("Axis-Font");
+const QString StandardPlotContextSettingsHandler::AXIS_FONT_SETTINGS_TAG("Axis-Font");
 
-const QString StandardModeContextSettingsHandler::AXIS_X_BOTTOM_SETTINGS_TAG("Axis-XBottom");
-const QString StandardModeContextSettingsHandler::AXIS_Y_LEFT_SETTINGS_TAG("Axis-YLeft");
+const QString StandardPlotContextSettingsHandler::AXIS_X_BOTTOM_SETTINGS_TAG("Axis-XBottom");
+const QString StandardPlotContextSettingsHandler::AXIS_Y_LEFT_SETTINGS_TAG("Axis-YLeft");
 
-const QString StandardModeContextSettingsHandler::SERIES_SETTINGS_TAG("Series");
-const QString StandardModeContextSettingsHandler::AXES_SETTINGS_TAG("Axes");
+const QString StandardPlotContextSettingsHandler::SERIES_SETTINGS_TAG("Series");
+const QString StandardPlotContextSettingsHandler::AXES_SETTINGS_TAG("Axes");
 
 
-void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settings, ModeContextLimited &ctx)
+void StandardPlotContextSettingsHandler::loadUserSettings(const QVariant &settings, PlotContextLimited &ctx)
 {
   EMT::StringVariantMap outerMap = settings.value<EMT::StringVariantMap>();
 
@@ -153,7 +153,7 @@ void StandardModeContextSettingsHandler::loadUserSettings(const QVariant &settin
 
 }
 
-EMT::StringVariantMap StandardModeContextSettingsHandler::saveUserSettings(ModeContextLimited &ctx, int plotCount)
+EMT::StringVariantMap StandardPlotContextSettingsHandler::saveUserSettings(PlotContextLimited &ctx, int plotCount)
 {
   EMT::StringVariantMap outerMap;
 

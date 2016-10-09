@@ -1,18 +1,18 @@
-#ifndef MODECONTEXTLIMITED_H
-#define MODECONTEXTLIMITED_H
+#ifndef PLOTCONTEXTLIMITED_H
+#define PLOTCONTEXTLIMITED_H
 
 #include <memory>
 #include <QPointF>
 #include <QVector>
 #include "serieproperties.h"
 
-class ModeContext;
+class PlotContext;
 
-class ModeContextLimited : public QObject
+class PlotContextLimited : public QObject
 {
   Q_OBJECT
 public:
-  explicit ModeContextLimited(std::shared_ptr<ModeContext> modeCtx, QObject *parent = nullptr);
+  explicit PlotContextLimited(std::shared_ptr<PlotContext> modeCtx, QObject *parent = nullptr);
   bool addSerie(const int id, const QString &title, SerieProperties::VisualStyle style = SerieProperties::VisualStyle());
   QFont axisFont(const SerieProperties::Axis a) const;
   void clearAllSerieSamples();
@@ -32,7 +32,7 @@ public:
   void showSerie(const int id);
 
 private:
-  std::shared_ptr<ModeContext> m_modeCtx;
+  std::shared_ptr<PlotContext> m_modeCtx;
 
 signals:
   void pointHovered(const QPointF &point, const QPoint &cursor);
@@ -44,4 +44,4 @@ private slots:
 
 };
 
-#endif // MODECONTEXTLIMITED_H
+#endif // PLOTCONTEXTLIMITED_H

@@ -1,7 +1,7 @@
-#ifndef MODECONTEXTTYPES
-#define MODECONTEXTTYPES
+#ifndef PLOTCONTEXTTYPES_H
+#define PLOTCONTEXTTYPES_H
 
-class ModeContextTypes {
+class PlotContextTypes {
 public:
   enum class Types {
     EVALUATION = 0,
@@ -22,5 +22,5 @@ public:
   }
 };
 
-#endif // MODECONTEXTTYPES
+#endif // PLOTCONTEXTTYPES_H
 

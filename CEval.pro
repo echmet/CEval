@@ -72,8 +72,8 @@ SOURCES += src/main.cpp \
     src/math/alglib/igammaf.cpp \
     src/math/alglib/normaldistr.cpp \
     src/math/alglib/studenttdistr.cpp \
-    src/modecontext.cpp \
-    src/modecontextlimited.cpp \
+    src/plotcontext.cpp \
+    src/plotcontextlimited.cpp \
     src/evaluatedpeaksmodel.cpp \
     src/evaluatedpeakswidgetconnector.cpp \
     src/csvfileloader.cpp \
@@ -97,7 +97,7 @@ SOURCES += src/main.cpp \
     src/gui/crashhandlerdialog.cpp \
     src/gui/adjustplotvisualsdialog.cpp \
     src/custommetatypes.cpp \
-    src/standardmodecontextsettingshandler.cpp \
+    src/standardplotcontextsettingshandler.cpp \
     src/serieproperties.cpp \
     src/gui/aboutdialog.cpp \
     src/scrollareaeventfilter.cpp \
@@ -181,8 +181,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/alglib/igammaf.h \
     src/math/alglib/normaldistr.h \
     src/math/alglib/studenttdistr.h \
-    src/modecontext.h \
-    src/modecontextlimited.h \
+    src/plotcontext.h \
+    src/plotcontextlimited.h \
     src/evaluatedpeaksmodel.h \
     src/evaluatedpeakswidgetconnector.h \
     src/math/regressor/regress.h \
@@ -259,7 +259,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/stringmappermodel.h \
     src/hyperbolefittingwidgetconnector.h \
     src/integermappermodel.h \
-    src/modecontexttypes.h \
+    src/plotcontexttypes.h \
     src/maincontrolswidgetconnector.h \
     src/hyperbolefititems.h \
     src/math/regressor/hyperbole.h \
@@ -281,7 +281,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/crashhandlerdialog.h \
     src/gui/adjustplotvisualsdialog.h \
     src/custommetatypes.h \
-    src/standardmodecontextsettingshandler.h \
+    src/standardcplotcontextsettingshandler.h \
     src/serieproperties.h \
     src/math/mystd/foostream.h \
     src/gui/aboutdialog.h \

@@ -13,7 +13,7 @@
 #include "integermappermodel.h"
 #include "inumberformatchangeable.h"
 #include "mappedvectorwrapper.h"
-#include "modecontextlimited.h"
+#include "plotcontextlimited.h"
 #include "stringmappermodel.h"
 
 #include <vector>
@@ -92,7 +92,7 @@ public:
 
   AbstractMapperModel<QString, HyperboleFitParameters::String> *analyteNamesModel();
   QAbstractItemModel *analytesModel();
-  void assignContext(std::shared_ptr<ModeContextLimited> ctx);
+  void assignContext(std::shared_ptr<PlotContextLimited> ctx);
   void checkForCrashRecovery();
   QAbstractItemModel *concentrationsModel();
   void exportToCsv();
@@ -258,7 +258,7 @@ private:
   void showDataSeries();
   void showStatsSeries(const StatUnits units, const StatMode mode);
 
-  std::shared_ptr<ModeContextLimited> m_modeCtx;
+  std::shared_ptr<PlotContextLimited> m_plotCtx;
   ViewMode m_viewMode;
 
   QMap<QString, std::shared_ptr<Analyte>> m_analytes;
