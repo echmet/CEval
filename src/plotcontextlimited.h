@@ -31,7 +31,7 @@ public:
   void showSerie(const int id);
 
 private:
-  std::shared_ptr<PlotContext> m_modeCtx;
+  std::shared_ptr<PlotContext> m_plotCtx;
 
 signals:
   void pointHovered(const QPointF &point, const QPoint &cursor);
