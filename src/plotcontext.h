@@ -29,13 +29,12 @@ public:
   void clearAllSerieSamples();
   void clearSerieSamples(const int id);
   void deactivate();
-  void disableAutoscale();
-  void enableAutoscale();
   void hideSerie(const int id);
   void onNumberFormatChanged(const QLocale *oldLocale) override;
   void removeSerie(const int id);
   QRectF range() const;
-  void replot(const bool zoomOut = true);
+  void replot();
+  void scaleToFit();
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title, bool store = true);
   void setAxisFont(const SerieProperties::Axis axis, const QFont &f);
@@ -55,7 +54,10 @@ private:
   QString m_plotTitle;
   QRectF m_boundingRect;
   PlotEventFilter *m_eventFilter;
+  QRectF m_lastZoomRect;
 
+  void disableAutoscale();
+  void enableAutoscale();
   Qt::PenStyle lineStyleToQtPenStyle(const AdjustPlotVisualsDialog::LineStyles ls) const;
   int pointStyleToQwtSymbolStyle(const AdjustPlotVisualsDialog::PointStyles ps) const;
   AdjustPlotVisualsDialog::PointStyles qwtSymbolStypeToPointStyle(const int qwtSymbol) const;

@@ -29,16 +29,6 @@ void PlotContextLimited::clearSerieSamples(const int id)
   m_modeCtx->clearSerieSamples(id);
 }
 
-void PlotContextLimited::disableAutoscale()
-{
-  m_modeCtx->disableAutoscale();
-}
-
-void PlotContextLimited::enableAutoscale()
-{
-  m_modeCtx->enableAutoscale();
-}
-
 void PlotContextLimited::hideSerie(const int id)
 {
   m_modeCtx->hideSerie(id);
@@ -64,9 +54,14 @@ QRectF PlotContextLimited::range() const
   return m_modeCtx->range();
 }
 
-void PlotContextLimited::replot(const bool zoomOut)
+void PlotContextLimited::replot()
 {
-  m_modeCtx->replot(zoomOut);
+  m_modeCtx->replot();
+}
+
+void PlotContextLimited::scaleToFit()
+{
+  m_modeCtx->scaleToFit();
 }
 
 bool PlotContextLimited::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)

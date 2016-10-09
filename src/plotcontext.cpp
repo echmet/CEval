@@ -17,6 +17,7 @@ PlotContext::PlotContext(QwtPlot *plot, QwtPlotPicker *picker, QwtPlotZoomer *zo
   m_plotZoomer(zoomer),
   m_eventFilter(new PlotEventFilter(this))
 {
+  disableAutoscale();
 }
 
 PlotContext::~PlotContext()
@@ -48,7 +49,9 @@ void PlotContext::activate()
   connect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &PlotContext::onPointSelected);
   connect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &PlotContext::onPointHovered);
 
-  replot();
+  scaleToFit();
+  if (m_lastZoomRect.isValid())
+    m_plotZoomer->zoom(m_lastZoomRect);
 }
 
 bool PlotContext::addSerie(const int id, const QString &title, SerieProperties::VisualStyle &style)
@@ -209,6 +212,7 @@ void PlotContext::deactivate()
   m_boundingRect = QRectF();
 
   m_plot->canvas()->removeEventFilter(m_eventFilter);
+  m_lastZoomRect = m_plotZoomer->zoomRect();
 
   disconnect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &PlotContext::onPointSelected);
   disconnect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &PlotContext::onPointHovered);
@@ -441,32 +445,32 @@ void PlotContext::removeSerie(const int id)
   m_plotCurves.remove(id);
 }
 
-void PlotContext::replot(const bool zoomOut)
+void PlotContext::replot()
 {
   if (!m_active)
     return;
 
   const QRectF &currentZoom = m_plotZoomer->zoomRect();
+
+  m_plot->replot();
+  m_plotZoomer->zoom(currentZoom);
+}
+
+void PlotContext::scaleToFit()
+{
   const QRectF &rect = uniteBoundingRects();
+  double wm = rect.width() * 0.02;
+  double hm = rect.height() * 0.02;
 
-  if (m_boundingRect != rect) {
-    double wm = rect.width() * 0.02;
-    double hm = rect.height() * 0.02;
+  if (wm == 0.0)
+    wm = 1.0;
+  if (hm == 0.0)
+    hm = 1.0;
 
-    if (wm == 0.0)
-      wm = 1.0;
-    if (hm == 0.0)
-      hm = 1.0;
-
-    m_plot->setAxisScale(QwtPlot::Axis::xBottom, rect.bottomLeft().x() - wm, rect.bottomRight().x() + wm);
-    m_plot->setAxisScale(QwtPlot::Axis::yLeft, rect.topLeft().y() - hm, rect.bottomLeft().y() + hm);
-  }
+  m_plot->setAxisScale(QwtPlot::Axis::xBottom, rect.bottomLeft().x() - wm, rect.bottomRight().x() + wm);
+  m_plot->setAxisScale(QwtPlot::Axis::yLeft, rect.topLeft().y() - hm, rect.bottomLeft().y() + hm);
   m_plot->replot();
   setZoomBase(rect);
-
-  if (!zoomOut) {
-    m_plotZoomer->zoom(currentZoom);
-  }
 }
 
 bool PlotContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)

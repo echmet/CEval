@@ -17,12 +17,11 @@ public:
   QFont axisFont(const SerieProperties::Axis a) const;
   void clearAllSerieSamples();
   void clearSerieSamples(const int id);
-  void disableAutoscale();
-  void enableAutoscale();
   void hideSerie(const int id);
   void removeSerie(const int id);
   QRectF range() const;
-  void replot(const bool zoomOut = true);
+  void replot();
+  void scaleToFit();
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title);
   void setAxisFont(const SerieProperties::Axis axis, const QFont &f);

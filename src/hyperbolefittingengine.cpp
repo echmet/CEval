@@ -1616,7 +1616,7 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
     }
   }
 
-  m_plotCtx->replot();
+  m_plotCtx->scaleToFit();
 }
 
 void HyperboleFittingEngine::onEmergencySave()
@@ -1675,7 +1675,7 @@ void HyperboleFittingEngine::onRedrawDataSeries()
 {
   m_plotCtx->hideSerie(seriesIndex(Series::STATS));
   showDataSeries();
-  m_plotCtx->replot();
+  m_plotCtx->scaleToFit();
 }
 
 void HyperboleFittingEngine::onRegisterMobility(const QString &name, const double selConcentration, const double mobility)
@@ -2070,7 +2070,7 @@ void HyperboleFittingEngine::plotPoints(const Series s, std::shared_ptr<const An
 
   m_plotCtx->setSerieSamples(seriesIndex(s), points);
   m_plotCtx->setSerieSamples(seriesIndex(s) + 1, average);
-  m_plotCtx->replot();
+  m_plotCtx->scaleToFit();
 }
 
 void HyperboleFittingEngine::plotSingleCurve(const HypResults &r)
@@ -2096,7 +2096,7 @@ void HyperboleFittingEngine::refreshModels()
   m_concentrationsModel.clear();
   m_mobilitiesModel.clear();
   m_plotCtx->clearAllSerieSamples();
-  m_plotCtx->replot();
+  m_plotCtx->scaleToFit();
 
   m_currentAnalyte = nullptr;
   m_secondAnalyte = nullptr;
