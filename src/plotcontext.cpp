@@ -49,7 +49,7 @@ void PlotContext::activate()
   connect(m_plotPicker, static_cast<void (QwtPlotPicker::*)(const QPointF&)>(&QwtPlotPicker::selected), this, &PlotContext::onPointSelected);
   connect(m_eventFilter, &PlotEventFilter::mouseMoved, this, &PlotContext::onPointHovered);
 
-  scaleToFit();
+  scaleToFit(false);
   if (m_lastZoomRect.isValid())
     m_plotZoomer->zoom(m_lastZoomRect);
 }
@@ -456,7 +456,7 @@ void PlotContext::replot()
   m_plotZoomer->zoom(currentZoom);
 }
 
-void PlotContext::scaleToFit()
+void PlotContext::scaleToFit(const bool invalidateZoomRect)
 {
   const QRectF &rect = uniteBoundingRects();
   double wm = rect.width() * 0.02;
@@ -471,6 +471,9 @@ void PlotContext::scaleToFit()
   m_plot->setAxisScale(QwtPlot::Axis::yLeft, rect.topLeft().y() - hm, rect.bottomLeft().y() + hm);
   m_plot->replot();
   setZoomBase(rect);
+
+  if (invalidateZoomRect)
+    m_lastZoomRect = QRectF();
 }
 
 bool PlotContext::serieVisualStyle(const int id, SerieProperties::VisualStyle &style)

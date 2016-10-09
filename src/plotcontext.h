@@ -34,7 +34,7 @@ public:
   void removeSerie(const int id);
   QRectF range() const;
   void replot();
-  void scaleToFit();
+  void scaleToFit(const bool invalidateZoomRect = true);
   bool serieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void setAxisTitle(const SerieProperties::Axis axis, const QString &title, bool store = true);
   void setAxisFont(const SerieProperties::Axis axis, const QFont &f);
