@@ -281,7 +281,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/crashhandlerdialog.h \
     src/gui/adjustplotvisualsdialog.h \
     src/custommetatypes.h \
-    src/standardcplotcontextsettingshandler.h \
+    src/standardplotcontextsettingshandler.h \
     src/serieproperties.h \
     src/math/mystd/foostream.h \
     src/gui/aboutdialog.h \
