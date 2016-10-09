@@ -494,6 +494,10 @@ void EvaluationEngine::createContextMenus() noexcept(false)
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_AXIS_TITLES));
   m_findPeakMenu->addAction(a);
 
+  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SCALE_PLOT_TO_FIT));
+  m_findPeakMenu->addAction(a);
+
   /* Create Manual integration menu */
 
   a = new QAction(tr("Peak to here"), m_manualIntegrationMenu);
@@ -554,6 +558,10 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
   a = new QAction(tr("Set axis titles"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_AXIS_TITLES));
+  m_postProcessMenu->addAction(a);
+
+  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SCALE_PLOT_TO_FIT));
   m_postProcessMenu->addAction(a);
 }
 
@@ -856,6 +864,10 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
     break;
   case FindPeakMenuActions::SET_EOF_TIME:
     setEofTime(point);
+    break;
+  case FindPeakMenuActions::SCALE_PLOT_TO_FIT:
+    m_plotCtx->scaleToFit();
+    return;
     break;
   }
 
@@ -1948,6 +1960,10 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     break;
   case PostProcessMenuActions::SET_EOF_TIME:
     setEofTime(point);
+    break;
+  case PostProcessMenuActions::SCALE_PLOT_TO_FIT:
+    m_plotCtx->scaleToFit();
+    return;
     break;
   }
 }

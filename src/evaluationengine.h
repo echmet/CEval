@@ -41,7 +41,8 @@ public:
     NOISE_REF_POINT,
     SLOPE_REF_POINT,
     SET_AXIS_TITLES,
-    SET_EOF_TIME
+    SET_EOF_TIME,
+    SCALE_PLOT_TO_FIT
   };
   Q_ENUM(FindPeakMenuActions)
 
@@ -61,7 +62,8 @@ public:
     MOVE_PEAK_TO_SIGSNAP,
     DESELECT_PEAK,
     SET_AXIS_TITLES,
-    SET_EOF_TIME
+    SET_EOF_TIME,
+    SCALE_PLOT_TO_FIT
   };
   Q_ENUM(PostProcessMenuActions)
 
