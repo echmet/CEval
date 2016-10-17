@@ -7,10 +7,12 @@
 # a directory that contains a "boost" subdirectory
 # with the boost libraries.
 HPCSPATH = $$PWD/libHPCS
+HVLPATH = $$PWD/libhvl
 BOOSTPATH = $$PWD/includes
-QWTPATH = "D:/Developer/qwtplot-bin/features/qwt.prf"
-ARMAPATH = "D:/Developer/armadillo-bin"
+QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin/features/qwt.prf"
+ARMAPATH = "/home/madcat/Devel/ECHMET/armadillo-bin"
 INCLUDEPATH += $$HPCSPATH
+INCLUDEPATH += $$HVLPATH
 INCLUDEPATH += $$ARMAPATH/include
 DEPENDPATH += $$HPCSPATH
 
@@ -18,4 +20,4 @@ DEPENDPATH += $$HPCSPATH
 include($$QWTPATH)
 
 # Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L$$HPCSPATH -lHPCS D:/Developer/lapack-3.6.0-bin/lib/liblapack.a D:/Developer/lapack-3.6.0-bin/lib/libblas.a -lgfortran -lpthread
+unix|win32: LIBS += -L$$HPCSPATH -lHPCS -L$$HVLPATH -lhvl_mt /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/liblapack.a /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/libblas.a -lgfortran -lpthread

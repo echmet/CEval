@@ -2,14 +2,14 @@
 #include "globals.h"
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
-#include "math/hvl.hpp"
+#include "hvllibwrapper.h"
 #include <QMessageBox>
 #include <QTime>
 #include <QApplication>
 
 #include <thread>
 
-#include <vector>
+//#include <vector>
 #include <armadillo>
 
 using namespace arma;
@@ -43,16 +43,17 @@ HVLCalculator::HVLInParameters::HVLInParameters()
 {
 }
 
-HVLCalculator::HVLCalculator(QObject *parent) :
+HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
   QObject(parent),
-  m_regressor(nullptr)
+  m_regressor(nullptr),
+  m_wrapper(new HVLLibWrapper(precision))
 {
-  m_hvlLib = new echmet::math::HVL_dll();
 }
 
 HVLCalculator::~HVLCalculator()
 {
-  delete m_hvlLib;
+  delete m_regressor;
+  delete m_wrapper;
 }
 
 void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const double q)
@@ -63,11 +64,6 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
 
     data[idx] = QPointF(p.x(), p.y() + y);
   }
-}
-
-bool HVLCalculator::available()
-{
-  return s_me != nullptr;
 }
 
 void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
@@ -122,16 +118,13 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations, int digits = 0, const bool showStats = false)
+    const double epsilon, const int iterations, int digits, const bool showStats = false)
 {
   Q_ASSERT(s_me != nullptr);
 
   HVLFitInProgressDialog inProgressDlg;
   HVLParameters p;
   HVLInParameters in;
-
-  if (digits > 0)
-    s_me->m_hvlLib->HVLSetPrec(digits);
 
   if (!(epsilon > 0.0)) {
     QMessageBox::warning(nullptr, tr("Invalid parameter"), tr("Value of \"epsilon\" must be positive"));
@@ -146,7 +139,13 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   }
 
   try {
-    s_me->m_regressor = new echmet::regressCore::HVLPeak<double, double>(s_me->m_hvlLib);
+    s_me->m_wrapper->setPrecision(digits);
+  } catch (HVLLibWrapper::HVLLibException &) {
+    return p;
+  }
+
+  try {
+    s_me->m_regressor = new echmet::regressCore::HVLPeak<double, double>(s_me->m_wrapper);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Insufficient memory to initialize HVL regressor"));
 
@@ -234,49 +233,31 @@ QVector<QPointF> HVLCalculator::plot(
   Q_ASSERT(s_me != nullptr);
   QVector<QPointF> vec;
 
-  if (digits > 0)
-    s_me->m_hvlLib->HVLSetPrec(digits);
+  try {
+    s_me->m_wrapper->setPrecision(digits);
+  } catch (HVLLibWrapper::HVLLibException &) {
+    return vec;
+  }
 
-  echmet::math::HVL_dll::HVLData hvlData = s_me->m_hvlLib->HVL_range(fromX, toX, step, a0, a1, a2, a3);
+  HVLLibWrapper::Result result = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::T, fromX, toX, step, a0, a1, a2, a3);
 
-  for (size_t idx = 0; idx < hvlData.count(); idx++)
-    vec.push_back(QPointF(hvlData.x(idx), hvlData.y(idx)));
+  for (int idx = 0; idx < result.count(); idx++) {
+    const HVLLibWrapper::XY &xy = result[idx];
+
+    vec.push_back(QPointF(xy.x, xy.y));
+  }
 
   return vec;
 }
 
 bool HVLCalculator::initialize()
 {
-  hvlstr_t errorMessage = nullptr;
-
-  s_me = new HVLCalculator();
-
-  if (!s_me->m_hvlLib->Open(ECHMET_MATH_HVL_DLL, &errorMessage)) {
-    QString qstrErrorMessage;
-
-    if (errorMessage != nullptr) {
-      qstrErrorMessage = Helpers::hvlstrToQString(errorMessage);
-      s_me->m_hvlLib->FreeErrorMessage(errorMessage);
-    } else
-      qstrErrorMessage = tr("Could not retrieve error message");
-    QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"), QString(QObject::tr("Unable to load hvl_mt library. HVL plotting will not be available\n"
-                                                                                        "Error returned: %1")).arg(qstrErrorMessage));
-    delete s_me;
-    s_me = nullptr;
+  try {
+    s_me = new HVLCalculator(nullptr, 30); /* Use some default precision, will be overriden by later */
+  } catch (std::bad_alloc&) {
+    QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"), QObject::tr("Unable to initialize HVL calculator"));
     return false;
   }
-
-  if (!s_me->m_hvlLib->Load()) {
-    QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"),
-                         QObject::tr("Could not resolve symbols in hvl_mt library. HVL plotting will not be available"));
-    delete s_me;
-    s_me = nullptr;
-    return false;
-  }
-
-  if (!s_me->m_hvlLib->HVLSetPrec(50))
-    QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"),
-                         QObject::tr("Could not set MPFR precision in hvl_mt library, calculation results might be incorrect"));
 
   return true;
 }

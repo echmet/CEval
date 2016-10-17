@@ -2,19 +2,7 @@
 #include <QCoreApplication>
 #include <QMessageBox>
 #include "globals.h"
-#include "math/hvl.hpp"
 #include <signal.h>
-
-QString Helpers::hvlstrToQString(void *str) {
-  const hvlstr_t _str = static_cast<const hvlstr_t>(str);
-#ifdef ECHMET_MATH_HVL_PLATFORM_WIN
-  return QString::fromWCharArray(_str);
-#elif defined ECHMET_MATH_HVL_PLATFORM_UNIX
-  return QString::fromLocal8Bit(_str);
-#else
-  #error "No platform type has been specified!"
-#endif // HVL_PLATFORM_
-}
 
 void Helpers::execCFIT()
 {

@@ -1,17 +1,12 @@
-#ifndef HVLFITTER_H
-#define HVLFITTER_H
+#ifndef HVLCALCULATOR_H
+#define HVLCALCULATOR_H
 
-#include "math/matrix/fwdcl.h"
 #include "math/regressor/hvlPeak.h"
 #include <QVector>
 #include <QPointF>
 #include <QObject>
 
-namespace echmet {
-namespace math {
-  class HVL_dll;
-}
-}
+class HVLLibWrapper;
 
 class HVLCalculator : public QObject
 {
@@ -58,7 +53,6 @@ public:
     int iterations;
   };
 
-  static bool available();
   static bool initialize();
   ~HVLCalculator();
 
@@ -81,11 +75,11 @@ public:
 
 
 private:
-  explicit HVLCalculator(QObject *parent = nullptr);
+  explicit HVLCalculator(QObject *parent, const int precision);
   void doFit(HVLParameters *out, const HVLInParameters *in);
 
-  echmet::math::HVL_dll *m_hvlLib;
   echmet::regressCore::HVLPeak<double, double> *m_regressor;
+  HVLLibWrapper *m_wrapper;
 
   static HVLCalculator *s_me;
 
@@ -97,4 +91,4 @@ private slots:
 
 };
 
-#endif // HVLFITTER_H
+#endif // HVLCALCULATOR_H

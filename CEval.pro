@@ -12,10 +12,10 @@ TEMPLATE = app
 DEFINES += _USE_MATH_DEFINES
 DEFINES += ARMA_DONT_USE_WRAPPER
 unix {
-    DEFINES += ECHMET_MATH_HVL_PLATFORM_UNIX
+    DEFINES += LIBHVL_PLATFORM_UNIX
 } win32 {
-    DEFINES += ECHMET_MATH_HVL_PLATFORM_WIN
-    DEFINES += ECHMET_MATH_HVL_MINGW32
+    DEFINES += LIBHVL_PLATFORM_WIN
+    DEFINES += LIBHVL_COMPILER_MINGW
 }
 
 CONFIG += xopenmp
@@ -81,7 +81,6 @@ SOURCES += src/main.cpp \
     src/commonparameterswidgetconnector.cpp \
     src/helpers.cpp \
     src/hvlcalculator.cpp \
-    src/math/hvl.cpp \
     src/gui/hyperbolefitwidget.cpp \
     src/hyperbolefittingengine.cpp \
     src/hyperbolefittingwidgetconnector.cpp \
@@ -136,7 +135,8 @@ SOURCES += src/main.cpp \
     src/dataexporter/schemeeditor.cpp \
     src/gui/textexporterbackendconfigurationdialog.cpp \
     src/dataexporter/backends/textstreamexporterbackend.cpp \
-    src/gui/appendoverwriteexportfilemessagebox.cpp
+    src/gui/appendoverwriteexportfilemessagebox.cpp \
+    src/hvllibwrapper.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -190,7 +190,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/matrix/core.hpp \
     src/math/matrix/gauss/gauss.h \
     src/math/matrix/gauss/gauss.hpp \
-    src/math/hvl.hpp \
     src/math/matrix/data.h \
     src/math/matrix/data.hpp \
     src/math/matrix/impl/cells_pointer.h \
@@ -249,7 +248,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/mystd/mem/copy/guard.hpp \
     src/math/mystd/mem/copy/noguard.h \
     src/math/mystd/mem/copy/noguard.hpp \
-    src/math/hvl_types.hpp \
     src/csvfileloader.h \
     src/gui/loadcsvfiledialog.h \
     src/commonparameterswidgetconnector.h \
@@ -321,7 +319,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/dataexporter/schemeeditor.h \
     src/gui/textexporterbackendconfigurationdialog.h \
     src/dataexporter/backends/textstreamexporterbackend.h \
-    src/gui/appendoverwriteexportfilemessagebox.h
+    src/gui/appendoverwriteexportfilemessagebox.h \
+    src/hvllibwrapper.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

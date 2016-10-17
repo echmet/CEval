@@ -25,7 +25,6 @@
 // INCLUDES
 
 #include "../mystd/foostream.h"
-#include "../hvl.hpp"
 
 #include <new>
 #include <fstream> // debug
@@ -171,6 +170,17 @@ public:
 protected:
 
     //---
+    // Initialized in Initialize
+    vector<XT>       m_x;   //data x                 [x, 1]
+
+    // Initialized in constructor
+    MatrixY          m_params;          //           [params, 1]
+
+    // Initialized in OnParamsChanged
+    MatrixY m_p;          //derivation matrix        [not_fixed, x]
+
+    // Non-resetable state variables
+    int  m_notFixed;
 
     virtual RegressFunction * ACreate() const = 0;
 
@@ -197,6 +207,8 @@ protected:
 
     virtual bool AAccepted (YT, MatrixY const &) const { return true; }
 
+    virtual void CalculateP ();
+
     template<typename ENUM>
     void SetParam(MatrixY & params, ENUM id, YT);
 
@@ -210,20 +222,15 @@ private:
     report_function   m_report_function;
 
     // Initialized in constructor
-    MatrixY          m_params;          //           [params, 1]
     vector<bool>     m_fixedParams;     //           [params]
     vector<msize_t>  m_pindexes;        //           [params]
 
     // Initialized in Initialize
-    vector<XT>       m_x;   //data x                 [x, 1]
     MatrixY          m_y;   //data y                 [x, 1]
     MatrixY          m_fx;  //fx calculated          [x, 1]
 
     // Initialized in CalculateRSS
     MatrixY m_error;      //                         [x, 1]
-
-    // Initialized in OnParamsChanged
-    MatrixY m_p;          //derivation matrix        [not_fixed, x]
 
     // Initialized in Regress
     MatrixY m_alpha;      //                         [not_fixed, not_fixed]
@@ -242,9 +249,7 @@ private:
     YT   m_lambdaCoeff;
 
     // Non-resetable state variables
-
     YT   m_rss;
-    int  m_notFixed;
 
     // Setup variables
     unsigned m_nmax;
@@ -258,7 +263,6 @@ private:
     void OnParamsChanged(bool regressCall = false);
 
     void CalculateFx();
-    void CalculateP ();
     void CalculateRSS();
 
 };
@@ -271,10 +275,10 @@ private:
 template <typename XT, typename YT>
 inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
 :
-    m_report_function(nullptr),
     m_params(MatrixY(params, 1)),
-    m_rss(0),
+    m_report_function(nullptr),
     m_notFixed(params),
+    m_rss(0),
     m_nmax(0),
     m_epsilon(1E-9),
     m_damping(true)
@@ -839,7 +843,7 @@ inline void RegressFunction<XT, YT>::CalculateFx () {
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline void RegressFunction<XT, YT>::CalculateP () {
+void RegressFunction<XT, YT>::CalculateP () {
 
     for (size_t i = 0; i != static_cast<size_t>(m_notFixed); ++i) {
 

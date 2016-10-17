@@ -127,7 +127,6 @@ public:
   static qreal yForX(const qreal x, const QVector<QPointF> &v);
   static void execCFIT();
   static bool exitApplicationWithWarning();
-  static QString hvlstrToQString(void *str);
 };
 
 #endif // HELPERS_H

@@ -1433,9 +1433,6 @@ void EvaluationEngine::onDoHvlFit()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  if (!HVLCalculator::available())
-    return;
-
   HVLCalculator::HVLParameters p = HVLCalculator::fit(
     m_currentDataContext->data->data,
     m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex,
@@ -1779,9 +1776,6 @@ void EvaluationEngine::onReplotHvl()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  if (!HVLCalculator::available())
-    return;
-
   QVector<QPointF> vec = HVLCalculator::plot(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
                                              m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
                                              m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
@@ -2000,10 +1994,8 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   setEvaluationResults(fr, er);
 
   QVector<QPointF> hvlPlot;
-  if (HVLCalculator::available()) {
-    hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
-    HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
-  }
+  hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
+  HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
   if (doHvlFit)
