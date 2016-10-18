@@ -21,3 +21,6 @@ include($$QWTPATH)
 
 # Adjust the path to the libHPCS library as needed.
 unix|win32: LIBS += -L$$HPCSPATH -lHPCS -L$$HVLPATH -lhvl_mt /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/liblapack.a /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/libblas.a -lgfortran -lpthread
+
+# Development version
+DEFINES += UNSTABLE_VERSION
