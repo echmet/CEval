@@ -1,10 +1,3 @@
-#ifdef Q_OS_UNIX
-#include <cstdlib>
-#elif defined Q_OS_WIN
-#include <windows.h>
-#include <tchar.h>
-#endif
-
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
 #include "crashhandler.h"
@@ -18,6 +11,13 @@
 #include <QSettings>
 #include <thread>
 #include <omp.h>
+
+#if defined(Q_OS_UNIX)
+#include <cstdlib>
+#elif defined(Q_OS_WIN)
+#include <windows.h>
+#include <tchar.h>
+#endif
 
 
 static const QString DAC_SETTINGS_TAG("DataAccumulator");
@@ -50,7 +50,7 @@ void loadUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
     updater->loadUserSettings(rootMap[SOFTWARE_UPDATER_SETTINGS_TAG]);
 }
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
 void setOpenMPThreads()
 {
   int hwThreads;
@@ -71,7 +71,7 @@ void setOpenMPThreads()
   if (hwThreads > 0)
     omp_set_num_threads(hwThreads);
 }
-#elif defined Q_OS_WIN
+#elif defined(Q_OS_WIN)
 void setOpenMPThreads()
 {
   int hwThreads;
