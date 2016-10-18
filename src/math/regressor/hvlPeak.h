@@ -220,38 +220,32 @@ void HVLPeak<XT, YT>::CalculateP()
 
     typedef typename std::underlying_type<HVLPeakParams>::type PPUT;
 
-    PPUT pa0 = static_cast<PPUT>(HVLPeakParams::a0);
-    PPUT pa1 = static_cast<PPUT>(HVLPeakParams::a1);
-    PPUT pa2 = static_cast<PPUT>(HVLPeakParams::a2);
-    PPUT pa3 = static_cast<PPUT>(HVLPeakParams::a3);
+    auto MakeParamFlags = [](const PPUT fixedIdx) {
+         typedef typename std::underlying_type<HVLLibWrapper::ParameterFlags>::type FUType;
+
+         FUType f = 0;
+
+         for (PPUT fix = 0; fix != fixedIdx; ++fix)
+             f |= HVLLibWrapper::ParameterFlags::DA0 << fix;
+
+         return static_cast<HVLLibWrapper::ParameterFlags>(f);
+    };
 
     #pragma omp parallel for
     for (msize_t k = 0; k < this->m_x.size(); ++k) {
-        HVLLibWrapper::AllParameters allParams = m_hvlLib->calculateAll(this->m_x[k],
-                                                                        this->GetParam(this->m_params, HVLPeakParams::a0),
-                                                                        this->GetParam(this->m_params, HVLPeakParams::a1),
-                                                                        this->GetParam(this->m_params, HVLPeakParams::a2),
-                                                                        this->GetParam(this->m_params, HVLPeakParams::a3));
+        const HVLLibWrapper::ParameterFlags pflags = MakeParamFlags(this->m_notFixed);
 
-        for (PPUT fix = 0; fix != static_cast<PPUT>(this->m_notFixed); ++fix) {
-            const HVLPeakParams tfix = static_cast<HVLPeakParams>(fix);
+        const HVLLibWrapper::XYPack pack = m_hvlLib->calculateMultiple(pflags,
+                                                                       this->m_x[k],
+                                                                       this->GetParam(this->m_params, HVLPeakParams::a0),
+                                                                       this->GetParam(this->m_params, HVLPeakParams::a1),
+                                                                       this->GetParam(this->m_params, HVLPeakParams::a2),
+                                                                       this->GetParam(this->m_params, HVLPeakParams::a3));
 
-            switch (tfix) {
-            case HVLPeakParams::a0:
-                (this->m_p)(pa0, k) = allParams.da0.y;
-                break;
-            case HVLPeakParams::a1:
-                (this->m_p)(pa1, k) = allParams.da1.y;
-                break;
-            case HVLPeakParams::a2:
-                (this->m_p)(pa2, k) = allParams.da2.y;
-                break;
-            case HVLPeakParams::a3:
-                (this->m_p)(pa3, k) = allParams.da3.y;
-                break;
-            }
-        }
+        for (PPUT pIdx = 0; pIdx != static_cast<PPUT>(this->m_notFixed); ++pIdx)
+            this->m_p(pIdx, k) = pack[pIdx + 2].y;
     }
+
 }
 
 //---------------------------------------------------------------------------

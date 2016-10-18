@@ -2,6 +2,7 @@
 #define HVLLIBWRAPPER_H
 
 #include <QList>
+#include <array>
 
 class HVL_Context;
 
@@ -14,17 +15,27 @@ public:
 
   };
 
-  enum class Parameter {
-    T,
-    DX,
-    DA0,
-    DA1,
-    DA2,
-    DA3
+  enum class Parameter : size_t {
+    T = 0,
+    DX = 1,
+    DA0 = 2,
+    DA1 = 3,
+    DA2 = 4,
+    DA3 = 5
+  };
+
+  enum ParameterFlags : int {
+    T = 0x1,
+    DX = 0x2,
+    DA0 = 0x4,
+    DA1 = 0x8,
+    DA2 = 0x10,
+    DA3 = 0x20
   };
 
   class XY {
   public:
+    explicit XY();
     explicit XY(const double X, const double Y);
 
     const double x;
@@ -33,14 +44,18 @@ public:
     XY & operator=(const XY &other);
   };
 
-  class AllParameters {
+  class XYPack {
   public:
-    explicit AllParameters(const XY &da0, const XY &da1, const XY &da2, const XY &da3);
+    void setData(const Parameter p, const XY &data);
+    const XY & operator[](const Parameter p) const;
+    const XY & operator[](const size_t paramIdx) const;
 
-    const XY da0;
-    const XY da1;
-    const XY da2;
-    const XY da3;
+  private:
+    typedef typename std::underlying_type<HVLLibWrapper::Parameter>::type PUType;
+    PUType parameterToIndex(const Parameter p) const;
+
+    std::array<XY, 6> m_data;
+
   };
 
   class Result {
@@ -60,7 +75,7 @@ public:
   XY calculate(const Parameter p,
                const double x,
                const double a0, const double a1, const double a2, const double a3) const;
-  AllParameters calculateAll(const double x, const double a0, const double a1, const double a2, const double a3) const;
+  const XYPack calculateMultiple(const ParameterFlags params, const double x, const double a0, const double a1, const double a2, const double a3) const;
   Result calculateRange(const Parameter p,
                         const double from, const double to, const double step,
                         const double a0, const double a1, const double a2, const double a3) const;
