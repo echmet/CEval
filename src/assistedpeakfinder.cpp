@@ -579,7 +579,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       }
       /* Only one peak has been found, select it right away */
       else if (maxima.size() == 1)
-        tPi = maxima.at(0);
+        tPiList.push_back(maxima.at(0));
       /* More than one peak have been found */
       else {
         QVector<FoundPeaksModel::Peak> modelData;
