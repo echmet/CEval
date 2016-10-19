@@ -268,7 +268,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/regressor/profiler.h \
     src/doubletostringconvertor.h \
     src/gui/numberformatdialog.h \
-    src/setup.h \
     src/math/regressor/hvlPeak.h \
     src/gui/hvlfitinprogressdialog.h \
     src/witchcraft.h \

@@ -1,5 +1,3 @@
-#include "setup.h"
-
 #include "hyperbolefittingengine.h"
 #include <QFileDialog>
 #include <QMessageBox>
@@ -11,6 +9,9 @@
 #include "standardplotcontextsettingshandler.h"
 #include "gui/exportdatatabletocsvdialog.h"
 #include "math/regressor/regress.h"
+
+#define TAU_MAX      5.0
+#define TAU_MAXCOUNT 600
 
 using namespace echmet;
 using namespace regressCore;
@@ -326,42 +327,42 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> c
 
   if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_A), s_dataPointsATitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
-                                                      SerieProperties::SQwtSymbol(POINT_TYPE, POINT_SIZE, Qt::black),
+                                                      SerieProperties::SQwtSymbol(PlotContextLimited::DEFAULT_POINT_TYPE, PlotContextLimited::DEFAULT_POINT_SIZE, Qt::black),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsATitle));
 
   if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_B), s_dataPointsBTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
-                                                      SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, POINT_SIZE, QColor(142, 87, 172)),
+                                                      SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, PlotContextLimited::DEFAULT_POINT_SIZE, QColor(142, 87, 172)),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsBTitle));
 
   if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_A_AVG), s_dataPointsAAvgTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
-                                                      SerieProperties::SQwtSymbol(CENTRAL_POINT_TYPE, CENTRAL_POINT_SIZE, Qt::red),
+                                                      SerieProperties::SQwtSymbol(PlotContextLimited::DEFAULT_CENTRAL_POINT_TYPE, PlotContextLimited::DEFAULT_CENTRAL_POINT_SIZE, Qt::red),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsAAvgTitle));
 
   if (!m_plotCtx->addSerie(seriesIndex(Series::POINTS_B_AVG), s_dataPointsBAvgTitle,
                            SerieProperties::VisualStyle(QPen(Qt::black),
-                                                      SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, CENTRAL_POINT_SIZE, QColor(77, 119, 183)),
+                                                      SerieProperties::SQwtSymbol(QwtSymbol::Style::XCross, PlotContextLimited::DEFAULT_CENTRAL_POINT_SIZE, QColor(77, 119, 183)),
                                                       QwtPlotCurve::CurveStyle::NoCurve)))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_dataPointsBAvgTitle));
 
-  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_A_CURVE), s_fitCurveATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_A_CURVE), s_fitCurveATitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveATitle));
 
-  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_B_CURVE), s_fitCurveBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(77, 119, 183), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::FIT_B_CURVE), s_fitCurveBTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(77, 119, 183), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveBTitle));
 
-  if (!m_plotCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(130, 190, 73), Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::STATS), s_fitCurveStatsTitle, SerieProperties::VisualStyle(QPen(QBrush(QColor(130, 190, 73), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_fitCurveStatsTitle));
 
-  if (!m_plotCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::HORIZONTAL_MARKER), s_horizontalMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_horizontalMarkerTitle));
-  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_A_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalAMarkerTitle));
-  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), SERIES_WIDTH))))
+  if (!m_plotCtx->addSerie(seriesIndex(Series::VERTICAL_B_MARKER), s_verticalAMarkerTitle, SerieProperties::VisualStyle(QPen(QBrush(Qt::black, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_verticalBMarkerTitle));
 
 

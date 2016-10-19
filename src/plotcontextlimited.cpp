@@ -1,6 +1,12 @@
 #include "plotcontextlimited.h"
 #include "plotcontext.h"
 
+const int PlotContextLimited::DEFAULT_CENTRAL_POINT_SIZE(20);
+const QwtSymbol::Style PlotContextLimited::DEFAULT_CENTRAL_POINT_TYPE(QwtSymbol::Style::Cross);
+const int PlotContextLimited::DEFAULT_POINT_SIZE(10);
+const QwtSymbol::Style PlotContextLimited::DEFAULT_POINT_TYPE(QwtSymbol::Style::Cross);
+const double PlotContextLimited::DEFAULT_SERIES_WIDTH(1.0);
+
 PlotContextLimited::PlotContextLimited(std::shared_ptr<PlotContext> modeCtx, QObject *parent) :
   QObject(parent),
   m_plotCtx(modeCtx)

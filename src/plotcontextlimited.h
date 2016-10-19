@@ -30,6 +30,12 @@ public:
   void setSerieVisualStyle(const int id, SerieProperties::VisualStyle &style);
   void showSerie(const int id);
 
+  static const int DEFAULT_CENTRAL_POINT_SIZE;
+  static const QwtSymbol::Style DEFAULT_CENTRAL_POINT_TYPE;
+  static const int DEFAULT_POINT_SIZE;
+  static const QwtSymbol::Style DEFAULT_POINT_TYPE;
+  static const double DEFAULT_SERIES_WIDTH;
+
 private:
   std::shared_ptr<PlotContext> m_plotCtx;
 
