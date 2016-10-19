@@ -8,12 +8,11 @@ SelectPeakDialog::SelectPeakDialog(QWidget *parent) :
   ui->setupUi(this);
 
   m_selectionMode = SelectionMode::INVALID;
-  m_selectedPeakNumber = -1;
+  m_selectedPeakNumbers = QVector<int>();
 
   connect(ui->qpb_select, &QPushButton::clicked, this, &SelectPeakDialog::onSelectClicked);
   connect(ui->qpb_selectAll, &QPushButton::clicked, this, &SelectPeakDialog::onSelectAllClicked);
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SelectPeakDialog::onCancelClicked);
-  connect(ui->qtbv_listOfPeaks, &QTableView::clicked, this, &SelectPeakDialog::onListClicked);
   connect(ui->qtbv_listOfPeaks, &QTableView::doubleClicked, this, &SelectPeakDialog::onListDoubleClicked);
 }
 
@@ -39,33 +38,26 @@ void SelectPeakDialog::onCancelClicked()
   reject();
 }
 
-void SelectPeakDialog::onListClicked(const QModelIndex &index)
-{
-  if (!index.isValid()) {
-    m_selectedPeakNumber = -1;
-    return;
-  }
-
-  m_selectedPeakNumber = index.row();
-
-  emit listClicked(index, ui->qtbv_listOfPeaks->model(), m_peakWindow);
-}
-
 void SelectPeakDialog::onListDoubleClicked(const QModelIndex &index)
 {
   if (index.isValid()) {
-    m_selectionMode = SelectionMode::ONE_PEAK;
-    m_selectedPeakNumber = index.row();
+    m_selectionMode = SelectionMode::MULTIPLE_PEAK;
+    m_selectedPeakNumbers = { index.row() };
     accept();
   }
 }
 
 void SelectPeakDialog::onSelectClicked()
 {
-  if (m_selectedPeakNumber >= 0 && m_selectedPeakNumber < ui->qtbv_listOfPeaks->model()->rowCount()) {
-    m_selectionMode = SelectionMode::ONE_PEAK;
-    accept();
-  }
+  QModelIndexList list = ui->qtbv_listOfPeaks->selectionModel()->selectedIndexes();
+  QVector<int> selected;
+
+  for (const QModelIndex &midx : list)
+    selected.push_back(midx.row());
+
+  m_selectedPeakNumbers = selected;
+  m_selectionMode = SelectionMode::MULTIPLE_PEAK;
+  accept();
 }
 
 void SelectPeakDialog::onSelectAllClicked()
@@ -79,9 +71,9 @@ SelectPeakDialog::SelectionMode SelectPeakDialog::selectionMode() const
   return m_selectionMode;
 }
 
-int SelectPeakDialog::selectedPeak() const
+QVector<int> SelectPeakDialog::selectedPeaks() const
 {
-  return m_selectedPeakNumber;
+  return m_selectedPeakNumbers;
 }
 
 void SelectPeakDialog::setPeakWindow(const long peakWindow)

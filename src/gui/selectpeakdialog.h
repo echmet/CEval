@@ -15,14 +15,14 @@ class SelectPeakDialog : public QDialog
 public:
   enum class SelectionMode {
     INVALID,
-    ONE_PEAK,
+    MULTIPLE_PEAK,
     ALL_PEAKS
   };
 
   explicit SelectPeakDialog(QWidget *parent = nullptr);
   ~SelectPeakDialog();
   void bindModel(QAbstractItemModel *model);
-  int selectedPeak() const;
+  QVector<int> selectedPeaks() const;
   SelectionMode selectionMode() const;
   void setPeakWindow(const long peakWindow);
 
@@ -32,7 +32,7 @@ private:
   Ui::SelectPeakDialog *ui;
   long m_peakWindow;
   SelectionMode m_selectionMode;
-  int m_selectedPeakNumber;
+  QVector<int> m_selectedPeakNumbers;
 
 signals:
   void closedSignal();
@@ -40,7 +40,6 @@ signals:
 
 private slots:
   void onCancelClicked();
-  void onListClicked(const QModelIndex &index);
   void onListDoubleClicked(const QModelIndex &index);
   void onSelectClicked();
   void onSelectAllClicked();

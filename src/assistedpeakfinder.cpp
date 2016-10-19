@@ -256,6 +256,12 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
 
 std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const AbstractParameters &ap) noexcept(false)
 {
+  /* Dear whoever you are who is reading this:
+   * Be advised that the last person that had to deal with this code
+   * has solemnly sworn in the name of Alissa White-Gluz to never ever
+   * touch a single line of this part of CEval ever again!
+   * You are about to find out why...
+   */
   const Parameters &p = dynamic_cast<const Parameters&>(ap);
   double MaxValue, MinValue, SummValue;
   double SummX, SummXX, SummY, SummXY;
@@ -611,12 +617,20 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
         };
 
         switch (p.selPeakDialog->selectionMode()) {
-        case SelectPeakDialog::SelectionMode::ONE_PEAK:
+        case SelectPeakDialog::SelectionMode::MULTIPLE_PEAK:
           {
-            int _tPi = parsePeakNumber(p.selPeakDialog->selectedPeak());
-            if (_tPi < 0)
+            QVector<int> peakNumbers = p.selPeakDialog->selectedPeaks();
+            if (peakNumbers.size() < 1)
               return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
-            tPiList.push_back(_tPi);
+
+            for (const int peakNum : peakNumbers) {
+              const int _tPi = parsePeakNumber(peakNum);
+
+              if (_tPi < 0)
+                continue;
+
+              tPiList.push_back(_tPi);
+            }
             break;
           }
         case SelectPeakDialog::SelectionMode::ALL_PEAKS:
@@ -672,6 +686,10 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
                                                                                                const double _BSLSlope, const double _BSLIntercept,
                                                                                                const double tnrp, const double tsrp)
 {
+  /*
+   * ...It was hate at first sight for us darling,
+   *    The Lady and the Tramp, rabid and snarling...
+   */
   const int C = Data.size();
   int tPi = _tPi;
   int tAi = _tAi;

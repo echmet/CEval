@@ -27,7 +27,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableView" name="qtbv_listOfPeaks"/>
+    <widget class="QTableView" name="qtbv_listOfPeaks">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::MultiSelection</enum>
+     </property>
+    </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
