@@ -662,7 +662,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
                                                                   SlopeSensitivity, SlopeThreshold,
                                                                   NoiseWindow, Noise,
                                                                   PeakWindow,
-                                                                  BSLSlope, BSLIntercept,
                                                                   tnrp, tsrp);
 
     if (rTwo->isValid())
@@ -683,7 +682,6 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
                                                                                                const double SlopeSensitivity, const double SlopeThreshold,
                                                                                                const double NoiseWindow, const double Noise,
                                                                                                const double PeakWindow,
-                                                                                               const double _BSLSlope, const double _BSLIntercept,
                                                                                                const double tnrp, const double tsrp)
 {
   /*
@@ -698,12 +696,11 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
   double tA, tB, tP;
   double twPLeft, twPRight;
   double HP, HP_, HA, HB;
-  double BSLSlope = _BSLSlope;
-  double BSLIntercept = _BSLIntercept;
   /* These appear both in findInternal() and here.
    * If there is any dependence on the values computed in findInternal()
    * and their use here, things will hit the fan in a spectacular manner... */
   int diL = -1, diR = -1;
+  double BSLSlope, BSLIntercept;
   double MaxValue, MinValue, SummValue;
   double SlopeWindow;
   double SummX, SummXX, SummY, SummXY;

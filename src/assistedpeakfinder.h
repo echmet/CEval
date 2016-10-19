@@ -94,7 +94,6 @@ private:
                                                          const double SlopeSensitivity, const double SlopeThreshold,
                                                          const double NoiseWindow, const double Noise,
                                                          const double PeakWindow,
-                                                         const double _BSLSlope, const double _BSLIntercept,
                                                          const double tnrp, const double tsrp);
 
   class TSearchHandler : public TExtremeSearcher::TDataHandler {
