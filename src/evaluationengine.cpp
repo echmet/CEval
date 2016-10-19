@@ -2009,7 +2009,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   setEvaluationResults(fr, er);
 
   QVector<QPointF> hvlPlot;
-  hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), 50);
+  hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
