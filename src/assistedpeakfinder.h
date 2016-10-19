@@ -53,21 +53,27 @@ public:
     long inTPiCoarse;
   };
 
-  class AssistedPeakFinderResults : public PeakFinderResults {
+  class AssistedPeakFinderResult : public PeakFinderResults::Result {
   public:
-    explicit AssistedPeakFinderResults();
-    AssistedPeakFinderResults(const AssistedPeakFinderResults &other);
-    AssistedPeakFinderResults &operator=(const AssistedPeakFinderResults &other);
-    virtual AssistedPeakFinderResults *copy() const override;
+    explicit AssistedPeakFinderResult();
+    explicit AssistedPeakFinderResult(const PeakFinderResults::Result &r,
+                                      const double noiseRefPoint, const double slopeRefPoint,
+                                      const double noise,
+                                      const double slopeThreshold, const double slopeWindow,
+                                      const std::shared_ptr<QVector<QPointF>> &seriesA,
+                                      const std::shared_ptr<QVector<QPointF>> &seriesB);
+    AssistedPeakFinderResult(const AssistedPeakFinderResult &other);
+    virtual ~AssistedPeakFinderResult();
 
-    double noiseRefPoint;
-    double slopeRefPoint;
-    double noise;
-    double slopeThreshold;
-    double slopeWindow;
+    const double noiseRefPoint;
+    const double slopeRefPoint;
+    const double noise;
+    const double slopeThreshold;
+    const double slopeWindow;
 
-    std::shared_ptr<QVector<QPointF>> seriesA;
-    std::shared_ptr<QVector<QPointF>> seriesB;
+    std::shared_ptr<const QVector<QPointF>> seriesA;
+    std::shared_ptr<const QVector<QPointF>> seriesB;
+
   };
 
 protected:
@@ -77,6 +83,19 @@ private:
   enum EState {stTop = 0, stBeforeInflex = 1, stAfterInflex = 2, stBottom = 3};
 
   static bool checkBounds(const int i, const QVector<QPointF> &data);
+  std::shared_ptr<AssistedPeakFinderResult> findStageTwo(const Parameters &p,
+                                                         const QVector<QPointF> &Data,
+                                                         const int _tPi,
+                                                         std::shared_ptr<QVector<QPointF>> &seriesA, std::shared_ptr<QVector<QPointF>> &seriesB,
+                                                         const int _tAi,
+                                                         const int tBEGi, const int tENDi,
+                                                         const double XMin,
+                                                         const double Noise_2, const double ppm,
+                                                         const double SlopeSensitivity, const double SlopeThreshold,
+                                                         const double NoiseWindow, const double Noise,
+                                                         const double PeakWindow,
+                                                         const double _BSLSlope, const double _BSLIntercept,
+                                                         const double tnrp, const double tsrp);
 
   class TSearchHandler : public TExtremeSearcher::TDataHandler {
   public:

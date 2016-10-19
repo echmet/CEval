@@ -19,58 +19,49 @@ AssistedPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
 {
 }
 
-AssistedPeakFinder::AssistedPeakFinderResults::AssistedPeakFinderResults() :
-  PeakFinderResults(),
+AssistedPeakFinder::AssistedPeakFinderResult::AssistedPeakFinderResult() :
+  PeakFinderResults::Result(),
+  noiseRefPoint(0.0),
+  slopeRefPoint(0.0),
+  noise(0.0),
+  slopeThreshold(0.0),
+  slopeWindow(0.0),
   seriesA(nullptr),
   seriesB(nullptr)
 {
 }
 
-AssistedPeakFinder::AssistedPeakFinderResults::AssistedPeakFinderResults(const AssistedPeakFinderResults &other) :
-  PeakFinderResults(other),
+AssistedPeakFinder::AssistedPeakFinderResult::AssistedPeakFinderResult(const PeakFinderResults::Result &r,
+                                                                       const double noiseRefPoint, const double slopeRefPoint,
+                                                                       const double noise,
+                                                                       const double slopeThreshold, const double slopeWindow,
+                                                                       const std::shared_ptr<QVector<QPointF> > &seriesA,
+                                                                       const std::shared_ptr<QVector<QPointF> > &seriesB) :
+  PeakFinderResults::Result(r),
+  noiseRefPoint(noiseRefPoint),
+  slopeRefPoint(slopeRefPoint),
+  noise(noise),
+  slopeThreshold(slopeThreshold),
+  slopeWindow(slopeWindow),
+  seriesA(seriesA),
+  seriesB(seriesB)
+{
+}
+
+AssistedPeakFinder::AssistedPeakFinderResult::AssistedPeakFinderResult(const AssistedPeakFinderResult &other) :
+  PeakFinderResults::Result(other),
   noiseRefPoint(other.noiseRefPoint),
   slopeRefPoint(other.slopeRefPoint),
   noise(other.noise),
   slopeThreshold(other.slopeThreshold),
-  slopeWindow(other.slopeWindow)
+  slopeWindow(other.slopeWindow),
+  seriesA(other.seriesA == nullptr ? nullptr : std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesA))),
+  seriesB(other.seriesB == nullptr ? nullptr : std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesB)))
 {
-  if (other.seriesA == nullptr)
-    seriesA = nullptr;
-  else
-    seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesA));
-
-  if (other.seriesB == nullptr)
-    seriesB = nullptr;
-  else
-    seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesB));
 }
 
-AssistedPeakFinder::AssistedPeakFinderResults &AssistedPeakFinder::AssistedPeakFinderResults::operator=(const AssistedPeakFinder::AssistedPeakFinderResults &other)
+AssistedPeakFinder::AssistedPeakFinderResult::~AssistedPeakFinderResult()
 {
-  PeakFinderResults::operator=(other);
-
-  noiseRefPoint = other.noiseRefPoint;
-  slopeRefPoint = other.slopeRefPoint;
-  noise = other.noise;
-  slopeThreshold = other.slopeThreshold;
-  slopeWindow = other.slopeWindow;
-
-  if (other.seriesA == nullptr)
-    seriesA = nullptr;
-  else
-    seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesA));
-
-  if (other.seriesB == nullptr)
-    seriesB = nullptr;
-  else
-    seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>(*other.seriesB));
-
-  return *this;
-}
-
-AssistedPeakFinder::AssistedPeakFinderResults *AssistedPeakFinder::AssistedPeakFinderResults::copy() const
-{
-  return new AssistedPeakFinderResults(*this);
 }
 
 AssistedPeakFinder::TSearchHandler::TSearchHandler(const QVector<QPointF> &Data, int Begin, int End) :
@@ -269,33 +260,27 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   double MaxValue, MinValue, SummValue;
   double SummX, SummXX, SummY, SummXY;
   int diL = -1, diR = -1;
-  int tBEGi, tENDi, tnrpi, tsrpi, tAi, tBi, tPi;
-  double tEND, tnrp, tsrp, tA, tB, tP;
-  int twPLefti, twPRighti;
-  double twPLeft, twPRight;
-  double HP, HP_, HA, HB;
+  int tBEGi, tENDi, tnrpi, tsrpi, tAi, tPi;
+  double tEND, tnrp, tsrp;
   double BSLSlope, BSLIntercept;
   std::shared_ptr<QVector<QPointF>> seriesA;
   std::shared_ptr<QVector<QPointF>> seriesB;
-  std::shared_ptr<AssistedPeakFinderResults> r;
-
-  r = std::make_shared<AssistedPeakFinderResults>();
+  QVector<std::shared_ptr<PeakFinderResults::Result>> results;
 
   try {
-    seriesA = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>());
-    seriesB = std::shared_ptr<QVector<QPointF>>(new QVector<QPointF>());
-  } catch (std::bad_alloc&) {
-    QMessageBox::warning(nullptr, QObject::tr("Insufficient memory"), QObject::tr("Cannot find peak"));
-    return r;
+    seriesA = std::make_shared<QVector<QPointF>>(QVector<QPointF>());
+    seriesB = std::make_shared<QVector<QPointF>>(QVector<QPointF>());
+  } catch (std::bad_alloc &) {
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   const QVector<QPointF> &Data = p.data;
   const int C = Data.size();
 
   if (C == 0)
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
- double SlopeThreshold, SlopeSensitivity; /* Declare here and use as synonyme for noise calculations*/
+  double SlopeThreshold, SlopeSensitivity; /* Declare here and use as synonyme for noise calculations*/
 
   /* Initialize settings */
   if (p.autoFrom)
@@ -311,7 +296,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     //SEARCH_I(BEG)
 
     if (!checkBounds(tBEGi, Data))
-        return r;
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   if (p.autoTo) {
@@ -321,7 +306,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     tEND = p.to;
     if (tEND <= p.from) {
       QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("\"To\" value (%1) is less or equal to \"From\" value (%2)")).arg(tEND).arg(p.from));
-      return r;
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
     }
     int idx = Data.size() - 1;
     while (Data.at(idx).x() > tEND)
@@ -332,7 +317,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     //++tENDi;
 
     if (!checkBounds(tENDi, Data))
-        return r;
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   if (p.disturbanceDetection) {
@@ -360,14 +345,14 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   double XMax = tEND;
 
   if (XMax <= XMin)
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
   double ppm = C / (XMax - XMin); /* Points per minute */
 
 
   if (p.noiseWindow <= 0.0) {
     QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("Noise window must be positive")));
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   int NoiseWindow;
@@ -378,7 +363,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   if (p.peakWindow <= 0.0) {
     QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("Peak window must be positive")));
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   int PeakWindow;
@@ -386,8 +371,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     PeakWindow = p.peakWindow * ppm;
   else
     PeakWindow = p.peakWindow;
-
-  int SlopeWindow; /* Calculated later, see below */
 
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
@@ -407,7 +390,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   SEARCH_I(nrp)
   if (!checkBounds(tnrpi, Data))
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
   /* Noise */
   double Noise;
@@ -515,7 +498,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     SEARCH_I(srp)
 
     if (!checkBounds(tsrpi, Data))
-      return r;
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
   }
 
   /* SlopeThreshold, SlopeSensitivity */
@@ -571,6 +554,8 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   #undef _X
   #undef _Y
 
+  QVector<int> tPiList;
+
   /* Time of peak */
   {
     TSearchHandler Handler(Data, tPi);
@@ -584,7 +569,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       /* No peak has been found */
       if (maxima.size() < 1) {
         QMessageBox::information(nullptr, QObject::tr("No peak"), QObject::tr("No peaks were found for the given parameters."));
-        return r;
+        return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
       }
       /* Only one peak has been found, select it right away */
       else if (maxima.size() == 1)
@@ -593,8 +578,6 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
       else {
         QVector<FoundPeaksModel::Peak> modelData;
         int dlgRet;
-        int peakNumber;
-        bool ok;
 
         for (const int idx : maxima)
           modelData.push_back(FoundPeaksModel::Peak(Data.at(idx).x(), idx));
@@ -605,26 +588,107 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
         dlgRet = p.selPeakDialog->exec();
         emit p.selPeakDialog->closedSignal();
         if (dlgRet != QDialog::Accepted)
-          return r;
+          return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
-        peakNumber = p.selPeakDialog->selectedPeak();
-        if (peakNumber < 0 || peakNumber >= modelData.length()) {
-          QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid index for selected peak."));
-          return r;
+        auto parsePeakNumber = [&model, &modelData, &Data](const int peakNumber) {
+          if (peakNumber < 0 || peakNumber >= modelData.length()) {
+            QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid index for selected peak."));
+            return -1;
+          }
+
+          bool ok;
+          const int _tPi = model.data(model.index(peakNumber, 0), Qt::UserRole + 1).toInt(&ok);
+          if (!ok) {
+            QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid data for selected peak"));
+            return -1;
+          }
+          if (_tPi < 0 || _tPi >= Data.length()) {
+            QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QString(QObject::tr("Peak's tPi (%1) is out of bounds <0; %2>")).arg(_tPi).arg(Data.length()));
+            return  -1;
+          }
+
+          return _tPi;
+        };
+
+        switch (p.selPeakDialog->selectionMode()) {
+        case SelectPeakDialog::SelectionMode::ONE_PEAK:
+          {
+            int _tPi = parsePeakNumber(p.selPeakDialog->selectedPeak());
+            if (_tPi < 0)
+              return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
+            tPiList.push_back(_tPi);
+            break;
+          }
+        case SelectPeakDialog::SelectionMode::ALL_PEAKS:
+          {
+            for (int idx = 0; idx < model.rowCount(); idx++) {
+              const int _tPi = parsePeakNumber(idx);
+
+              if (_tPi < 0)
+                continue;
+
+              tPiList.push_back(_tPi);
+            }
+            break;
+          }
+        default:
+          return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
         }
 
-        tPi = model.data(model.index(peakNumber, 0), Qt::UserRole + 1).toInt(&ok);
-        if (!ok) {
-          QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QObject::tr("Invalid data for selected peak"));
-          return r;
-        }
-        if (tPi < 0 || tPi >= Data.length()) {
-          QMessageBox::warning(nullptr, QObject::tr("Runtime error"), QString(QObject::tr("Peak's tPi (%1) is out of bounds <0; %2>")).arg(tPi).arg(Data.length()));
-          return r;
-        }
       }
     }
   } // Time::ReadOnly
+
+  for (const int _tPi : tPiList) {
+    std::shared_ptr<AssistedPeakFinderResult> rTwo = findStageTwo(p, Data, _tPi, seriesA, seriesB,
+                                                                  tAi,
+                                                                  tBEGi, tENDi,
+                                                                  XMin,
+                                                                  Noise_2, ppm,
+                                                                  SlopeSensitivity, SlopeThreshold,
+                                                                  NoiseWindow, Noise,
+                                                                  PeakWindow,
+                                                                  BSLSlope, BSLIntercept,
+                                                                  tnrp, tsrp);
+
+    if (rTwo->isValid())
+      results.push_back(rTwo);
+  }
+
+  return std::shared_ptr<PeakFinderResults>(new PeakFinderResults(results));
+ }
+
+std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder::findStageTwo(const AssistedPeakFinder::Parameters &p,
+                                                                                               const QVector<QPointF> &Data,
+                                                                                               const int _tPi,
+                                                                                               std::shared_ptr<QVector<QPointF>> &seriesA, std::shared_ptr<QVector<QPointF>> &seriesB,
+                                                                                               const int _tAi,
+                                                                                               const int tBEGi, const int tENDi,
+                                                                                               const double XMin,
+                                                                                               const double Noise_2, const double ppm,
+                                                                                               const double SlopeSensitivity, const double SlopeThreshold,
+                                                                                               const double NoiseWindow, const double Noise,
+                                                                                               const double PeakWindow,
+                                                                                               const double _BSLSlope, const double _BSLIntercept,
+                                                                                               const double tnrp, const double tsrp)
+{
+  const int C = Data.size();
+  int tPi = _tPi;
+  int tAi = _tAi;
+  int tBi;
+  int twPLefti, twPRighti;
+  double tA, tB, tP;
+  double twPLeft, twPRight;
+  double HP, HP_, HA, HB;
+  double BSLSlope = _BSLSlope;
+  double BSLIntercept = _BSLIntercept;
+  /* These appear both in findInternal() and here.
+   * If there is any dependence on the values computed in findInternal()
+   * and their use here, things will hit the fan in a spectacular manner... */
+  int diL = -1, diR = -1;
+  double MaxValue, MinValue, SummValue;
+  double SlopeWindow;
+  double SummX, SummXX, SummY, SummXY;
 
   /* * SlopeWindow (Peak top) , H, zpresneni TP* */
 
@@ -701,7 +765,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   if (diL < 0 || diR < 0) {
     QMessageBox::information(nullptr, QObject::tr("Runtime error"),QString(QObject::tr("Values of \"diL\" or \"diR\" were not set properly by peak finder\n"
                                                                                         "Please consider reporting a bug to %1 developers.")).arg(Globals::SOFTWARE_NAME));
-    return r;
+    return std::shared_ptr<AssistedPeakFinderResult>(new AssistedPeakFinderResult());
   }
   HP = SummValue / (diR - diL);
 
@@ -711,7 +775,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   SEARCH_I(P);
 
   if (!checkBounds(tPi, Data))
-    return r;
+    return std::shared_ptr<AssistedPeakFinderResult>(new AssistedPeakFinderResult());
 
     #ifdef DISABLED
       // Algiritmus > smernice == 0
@@ -1197,24 +1261,13 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
     #undef SEARCH_I
   } //Kresleni SystemWindows::Derivatives
 
-  r->fromIndex = tAi;
-  r->toIndex = tBi;
-  r->peakFromX = tA;
-  r->peakFromY = HA;
-  r->peakToX = tB;
-  r->peakToY = HB;
-  r->noise = Noise;
-  r->noiseRefPoint = tnrp;
-  r->slopeRefPoint = tsrp;
-  r->slopeThreshold = SlopeThreshold;
-  r->slopeWindow = SlopeWindow;
-  r->seriesA = seriesA;
-  r->seriesB = seriesB;
-
+  double _slopeWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
-    r->slopeWindow /= ppm;
+    _slopeWindow = SlopeWindow / ppm;
+  else
+    _slopeWindow = SlopeWindow;
 
-  r->validate();
-
-  return r;
+  return std::shared_ptr<AssistedPeakFinderResult>(new AssistedPeakFinderResult(PeakFinderResults::Result(tAi, tBi, tA, HA, tB, HB),
+                                                                                tnrp, tsrp, Noise, SlopeThreshold, _slopeWindow,
+                                                                                seriesA, seriesB));
 }

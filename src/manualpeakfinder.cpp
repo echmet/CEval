@@ -15,12 +15,10 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
   double fromY;
   double toX;
   double toY;
-  std::shared_ptr<PeakFinderResults> r;
-
-  r = std::make_shared<PeakFinderResults>();
+  QVector<std::shared_ptr<PeakFinderResults::Result>> results;
 
   if (length < 1)
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
   /* Convert time values to indices */
   {
@@ -35,7 +33,7 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
       ctr++;
     }
     if (ctr >= length)
-      return r;
+      return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
     if (p.toX < p.fromX)
       ctr = 0;
@@ -58,15 +56,12 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
   }
 
   if (toIndex < fromIndex) {
-    r->fromIndex = toIndex;
-    r->toIndex = fromIndex;
+    std::swap(fromIndex, toIndex);
     fromX = p.toX;
     fromY = p.toY;
     toX = p.fromX;
     toY = p.fromY;
   } else {
-    r->fromIndex = fromIndex;
-    r->toIndex = toIndex;
     fromX = p.fromX;
     fromY = p.fromY;
     toX = p.toX;
@@ -74,13 +69,11 @@ std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const Abstract
   }
 
   if (p.data.first().x() > fromX || p.data.last().x() < toX)
-    return r;
+    return std::shared_ptr<PeakFinderResults>(new PeakFinderResults());
 
-  r->peakFromX = fromX;
-  r->peakFromY = fromY;
-  r->peakToX = toX;
-  r->peakToY = toY;
-  r->validate();
+  results.push_back(std::shared_ptr<PeakFinderResults::Result>(new PeakFinderResults::Result(fromIndex, toIndex,
+                                                                                             fromX, fromY,
+                                                                                             toX, toY)));
 
-  return r;
+  return std::shared_ptr<PeakFinderResults>(new PeakFinderResults(results));
 }

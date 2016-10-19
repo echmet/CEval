@@ -7,23 +7,37 @@
 
 class PeakFinderResults {
 public:
+  class Result {
+  public:
+    explicit Result();
+    explicit Result(const int fromIndex, const int toIndex,
+                    const double peakFromX, const double peakFromY,
+                    const double peakToX, const double peakToY);
+    Result(const Result &other);
+    virtual ~Result();
+    bool isValid() const;
+
+    const int fromIndex;
+    const int toIndex;
+
+    const double peakFromX;
+    const double peakFromY;
+    const double peakToX;
+    const double peakToY;
+
+  private:
+    const bool m_valid;
+
+  };
+
   explicit PeakFinderResults();
+  explicit PeakFinderResults(const QVector<std::shared_ptr<Result>> &results);
   PeakFinderResults(const PeakFinderResults &other);
   virtual ~PeakFinderResults();
-  virtual PeakFinderResults *copy() const;
-  bool isValid() const;
-  void validate();
+  PeakFinderResults * copy() const; /* TODO: Fix derived classes */
+  PeakFinderResults & operator=(const PeakFinderResults &other); /* TODO: Same here */
 
-  int fromIndex;
-  int toIndex;
-
-  double peakFromX;
-  double peakFromY;
-  double peakToX;
-  double peakToY;
-
-private:
-  bool m_valid;
+  const QVector<std::shared_ptr<Result>> results;
 
 };
 

@@ -124,7 +124,7 @@ private:
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
                          const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
                          const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                         const std::shared_ptr<PeakFinderResults> &finderResults,
+                         const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const int peakIndex, const double baselineSlope, const double baselineIntercept,
                          const QVector<QPointF> &hvlPlot);
     PeakContext(const PeakContext &other);
@@ -140,7 +140,7 @@ private:
     const EvaluationParametersItems::ComboWindowUnits windowUnit;
     const EvaluationParametersItems::ComboShowWindow showWindow;
     const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
-    const std::shared_ptr<PeakFinderResults> finderResults;
+    const std::shared_ptr<PeakFinderResults::Result> finderResults;
     const int peakIndex;
     const double baselineSlope;
     const double baselineIntercept;
@@ -202,10 +202,10 @@ private:
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
-  PeakContext currentPeakContext(const std::shared_ptr<PeakFinderResults> &finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
+  PeakContext currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
-  void displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> &fr);
+  void displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> &r);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;
@@ -222,20 +222,20 @@ private:
   bool initDataExporter();
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
-  PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr);
+  PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr);
   AssistedPeakFinder::Parameters makeFinderParameters();
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
-  void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
+  void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
   void setEofTime(const QPointF& point);
   bool setEvaluationContext(const EvaluationContext &ctx);
-  void setEvaluationResults(const std::shared_ptr<PeakFinderResults> &fr, const PeakEvaluator::Results &er);
+  void setEvaluationResults(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er);
   bool setPeakContext(const PeakContext &ctx);
   void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();

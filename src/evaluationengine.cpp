@@ -602,7 +602,7 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
                            m_evaluationFloatingValues);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const std::shared_ptr<PeakFinderResults> &finderResults,
+EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                                                                    const int peakIndex, const double baselineSlope, const double baselineIntercept,
                                                                    const QVector<QPointF> &hvlPlot) const
 {
@@ -672,16 +672,16 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      m_hvlFitIntValues,
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     std::make_shared<PeakFinderResults>(),
+                     std::make_shared<PeakFinderResults::Result>(),
                      -1, 0.0, 0.0, QVector<QPointF>());
 }
 
-void EvaluationEngine::displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> &fr)
+void EvaluationEngine::displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> &r)
 {
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = fr->noise;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = fr->slopeWindow;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = fr->slopeThreshold;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = fr->slopeRefPoint;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = r->noise;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = r->slopeWindow;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = r->slopeThreshold;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = r->slopeRefPoint;
 
   m_evaluationFloatingModel.notifyAllDataChanged({ Qt::EditRole });
 }
@@ -728,7 +728,7 @@ QAbstractItemModel *EvaluationEngine::exporterSchemesModel()
 void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
-  std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> fr;
+  std::shared_ptr<PeakFinderResults> fr;
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   if (!isContextValid())
@@ -754,21 +754,22 @@ void EvaluationEngine::findPeakAssisted()
   connect(&dialog, &SelectPeakDialog::closedSignal, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
 
   try {
-    fr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResults>(AssistedPeakFinder::find(fp));
+    fr = AssistedPeakFinder::find(fp);
   } catch (std::bad_alloc &) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Not enough memory to find peaks"));
     return;
   }
 
-  if (!fr->isValid()) {
+  if (fr->results.size() == 0) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
     clearPeakPlots();
-    return;
+  } else if (fr->results.size() == 1) {
+    std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(fr->results.at(0));
+    displayAutomatedResults(afr);
+    processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
+  } else {
+    /* TODO */
   }
-
-  displayAutomatedResults(fr);
-
-  processFoundPeak(m_currentDataContext->data->data, fr, false, !disableAutoFit);
 }
 
 void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
@@ -821,10 +822,10 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     goto err_out;
   }
 
-  if (!fr->isValid())
+  if (fr->results.size() == 0)
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr, (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
+  processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
   return;
 
 err_out:
@@ -901,7 +902,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
                      MappedVectorWrapper<int, HVLFitParametersItems::Int>(defaultHvlIntValues()),
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
                      m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     std::make_shared<PeakFinderResults>(),
+                     std::make_shared<PeakFinderResults::Result>(),
                      -1, 0.0, 0.0, QVector<QPointF>());
 }
 
@@ -1026,7 +1027,7 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
   }
 }
 
-PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr)
+PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr)
 {
   PeakEvaluator::Parameters p(data);
 
@@ -1428,7 +1429,7 @@ void EvaluationEngine::onDoHvlFit()
   if (!isContextValid())
     return;
 
-  /* Peak has no meaningful evaluation resutls,
+  /* Peak has no meaningful evaluation results,
    * do not process it */
   if (!m_currentPeak.finderResults->isValid())
     return;
@@ -1858,7 +1859,7 @@ void EvaluationEngine::onUpdateCurrentPeak()
   processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, true, false);
 }
 
-void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults> fr, const double peakX,
+void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                                          const double widthHalfLeft, const double widthHalfRight,
                                          const double peakHeight, const double peakHeightBaseline)
 {
@@ -1892,12 +1893,14 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
   }
 
   {
-    const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResults> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResults>(fr);
+    const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(fr);
 
     if (afr != nullptr) {
       if (m_currentPeak.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
-        m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *afr->seriesA);
-        m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *afr->seriesB);
+        if (afr->seriesA != nullptr)
+          m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *(afr->seriesA));
+        if (afr->seriesB != nullptr)
+          m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_B), *(afr->seriesB));
       }
     }
   }
@@ -1962,7 +1965,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults> &fr, const bool updateCurrentPeak, const bool doHvlFit)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak, const bool doHvlFit)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
@@ -2124,7 +2127,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
 }
 
-void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResults> &fr, const PeakEvaluator::Results &er)
+void EvaluationEngine::setEvaluationResults(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er)
 {
   /* Results from peak evaluator */
   m_resultsNumericValues[EvaluationResultsItems::Floating::N_FULL] = er.nFull;

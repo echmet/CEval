@@ -13,10 +13,17 @@ class SelectPeakDialog : public QDialog
   Q_OBJECT
 
 public:
+  enum class SelectionMode {
+    INVALID,
+    ONE_PEAK,
+    ALL_PEAKS
+  };
+
   explicit SelectPeakDialog(QWidget *parent = nullptr);
   ~SelectPeakDialog();
   void bindModel(QAbstractItemModel *model);
   int selectedPeak() const;
+  SelectionMode selectionMode() const;
   void setPeakWindow(const long peakWindow);
 
 private:
@@ -24,6 +31,7 @@ private:
 
   Ui::SelectPeakDialog *ui;
   long m_peakWindow;
+  SelectionMode m_selectionMode;
   int m_selectedPeakNumber;
 
 signals:
@@ -35,6 +43,7 @@ private slots:
   void onListClicked(const QModelIndex &index);
   void onListDoubleClicked(const QModelIndex &index);
   void onSelectClicked();
+  void onSelectAllClicked();
 };
 
 #endif // SELECTPEAKDIALOG_H
