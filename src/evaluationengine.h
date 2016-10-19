@@ -391,7 +391,7 @@ private slots:
   void onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName);
   void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
-  void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const long peakWindow);
+  void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow);
   void onUnhighlightProvisionalPeak();
 
 };

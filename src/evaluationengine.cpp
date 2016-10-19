@@ -1739,7 +1739,7 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
   }
 }
 
-void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const long peakWindow)
+void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow)
 {
   bool ok;
 
@@ -1752,7 +1752,11 @@ void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const 
   if (model == nullptr)
     return;
 
-  int idx = model->data(model->index(index.row(), 0), Qt::UserRole + 1).toInt(&ok);
+  const int row = index.row();
+  if (row < 0 || row >= model->rowCount())
+    return;
+
+  int idx = model->data(model->index(row, 0), Qt::UserRole + 1).toInt(&ok);
   if (!ok)
     return;
 

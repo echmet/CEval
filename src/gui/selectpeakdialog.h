@@ -24,22 +24,23 @@ public:
   void bindModel(QAbstractItemModel *model);
   QVector<int> selectedPeaks() const;
   SelectionMode selectionMode() const;
-  void setPeakWindow(const long peakWindow);
+  void setPeakWindow(const int peakWindow);
 
 private:
   void closeEvent(QCloseEvent *ev);
 
   Ui::SelectPeakDialog *ui;
-  long m_peakWindow;
+  int m_peakWindow;
   SelectionMode m_selectionMode;
   QVector<int> m_selectedPeakNumbers;
 
 signals:
   void closedSignal();
-  void listClicked(const QModelIndex &index, const QAbstractItemModel *model, const long peakWindow);
+  void listClicked(const QModelIndex &index, const QAbstractItemModel *model, const int peakWindow);
 
 private slots:
   void onCancelClicked();
+  void onListClicked(const QModelIndex &index);
   void onListDoubleClicked(const QModelIndex &index);
   void onSelectClicked();
   void onSelectAllClicked();

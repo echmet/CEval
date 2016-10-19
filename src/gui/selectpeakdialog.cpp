@@ -13,6 +13,7 @@ SelectPeakDialog::SelectPeakDialog(QWidget *parent) :
   connect(ui->qpb_select, &QPushButton::clicked, this, &SelectPeakDialog::onSelectClicked);
   connect(ui->qpb_selectAll, &QPushButton::clicked, this, &SelectPeakDialog::onSelectAllClicked);
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SelectPeakDialog::onCancelClicked);
+  connect(ui->qtbv_listOfPeaks, &QTableView::clicked, this, &SelectPeakDialog::onListClicked);
   connect(ui->qtbv_listOfPeaks, &QTableView::doubleClicked, this, &SelectPeakDialog::onListDoubleClicked);
 }
 
@@ -36,6 +37,16 @@ void SelectPeakDialog::closeEvent(QCloseEvent *ev)
 void SelectPeakDialog::onCancelClicked()
 {
   reject();
+}
+
+void SelectPeakDialog::onListClicked(const QModelIndex &index)
+{
+  if (!index.isValid())
+    return;
+
+  const QAbstractItemModel *model = ui->qtbv_listOfPeaks->model();
+
+  emit listClicked(index, model, m_peakWindow);
 }
 
 void SelectPeakDialog::onListDoubleClicked(const QModelIndex &index)
@@ -76,7 +87,7 @@ QVector<int> SelectPeakDialog::selectedPeaks() const
   return m_selectedPeakNumbers;
 }
 
-void SelectPeakDialog::setPeakWindow(const long peakWindow)
+void SelectPeakDialog::setPeakWindow(const int peakWindow)
 {
   m_peakWindow = peakWindow;
 }
