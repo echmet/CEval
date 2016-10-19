@@ -121,12 +121,12 @@ AbstractExporterBackend::OutputMatrix AbstractExporterBackend::makeOutputMatrix(
 
       switch (m_arrangement) {
       case Globals::DataArrangement::HORIZONTAL:
-        m[blockCtr][jdx] = Output(k, is_caption ? OO_CAPTION : 0);
+        m[blockCtr][jdx] = Output(k, is_caption ? static_cast<std::underlying_type<OutputOptions>::type>(OO_CAPTION) : 0);
         if (has_value)
           m[blockCtr + 1][jdx] = Output(v);
         break;
       case Globals::DataArrangement::VERTICAL:
-        m[jdx][blockCtr] = Output(k, is_caption ? OO_CAPTION : 0);
+        m[jdx][blockCtr] = Output(k, is_caption ? static_cast<std::underlying_type<OutputOptions>::type>(OO_CAPTION) : 0);
         if (has_value)
           m[jdx][blockCtr + 1] = Output(v);
         break;
