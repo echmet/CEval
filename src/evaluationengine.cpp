@@ -2,7 +2,6 @@
 
 #include "evaluationengine.h"
 #include "doubletostringconvertor.h"
-#include "gui/addpeakdialog.h"
 #include "gui/appendoverwriteexportfilemessagebox.h"
 #include "gui/setaxistitlesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
@@ -296,6 +295,57 @@ void EvaluationEngine::activateCurrentDataContext()
   }
 
   drawEofMarker();
+}
+
+void EvaluationEngine::addPeakToList(const QString &name, const bool registerInHF, const AddPeakDialog::MobilityFrom mobilityFrom)
+{
+  /* Peak has no meaningful evaluation resutls,
+   * do not add it */
+  if (!m_currentPeak.finderResults->isValid()) {
+    QMessageBox::information(nullptr, tr("Invalid peak"), tr("Peak has no meaningful evaluation results and will not be added"));
+    return;
+  }
+
+  if (name.trimmed().length() < 1) {
+    QMessageBox::information(nullptr, tr("Invalid peak"), tr("Name of the analyte must be specified"));
+    return;
+  }
+
+  try {
+    m_allPeaks.push_back(StoredPeak(name, m_currentPeak));
+  } catch (std::bad_alloc&) {
+    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add peak"));
+    return;
+  }
+
+  const EvaluatedPeaksModel::EvaluatedPeak evpeak(name,
+                                                  m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X),
+                                                  m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
+  if (!m_evaluatedPeaksModel.appendEntry(evpeak)) {
+    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add peak to GUI list"));
+    return;
+  }
+
+  if (registerInHF) {
+    double mobility;
+
+    switch (mobilityFrom) {
+    case AddPeakDialog::MobilityFrom::HVL_A1:
+      mobility = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
+      break;
+    case AddPeakDialog::MobilityFrom::PEAK_MAXIMUM:
+      mobility = m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
+      break;
+    default:
+      mobility = std::numeric_limits<double>::infinity();
+      break;
+    }
+
+    emit registerMeasurement(name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+                             mobility);
+  }
+
+  m_currentPeakIdx = m_allPeaks.length() - 1;
 }
 
 void EvaluationEngine::announceDefaultState()
@@ -634,6 +684,50 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   return def;
 }
 
+bool EvaluationEngine::doHvlFit(const bool updateCurrentPeak)
+{
+  if (!isContextValid())
+    return false;
+
+  /* Peak has no meaningful evaluation results,
+   * do not process it */
+  if (!m_currentPeak.finderResults->isValid())
+    return false;
+
+  HVLCalculator::HVLParameters p = HVLCalculator::fit(
+    m_currentDataContext->data->data,
+    m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex,
+    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
+    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
+    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
+    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3),
+    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A0),
+    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A1),
+    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A2),
+    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A3),
+    m_currentPeak.baselineIntercept,
+    m_currentPeak.baselineSlope,
+    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
+    m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
+    m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
+    m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)
+  );
+
+  if (!p.isValid())
+    return false;
+
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = p.a1;
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = p.a2;
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = p.a3;
+  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_S] = p.s;
+
+  if (updateCurrentPeak)
+    m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_A0, HVLFitResultsItems::Floating::HVL_S);
+
+  return true;
+}
+
 void EvaluationEngine::drawEofMarker()
 {
   if (!isContextValid()) {
@@ -768,7 +862,14 @@ void EvaluationEngine::findPeakAssisted()
     displayAutomatedResults(afr);
     processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
   } else {
-    /* TODO */
+    int ctr = 1;
+    for (const std::shared_ptr<PeakFinderResults::Result> &r : fr->results) {
+      std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
+
+      processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
+      addPeakToList(QString::number(ctr), false, AddPeakDialog::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
+      ctr++;
+    }
   }
 }
 
@@ -1106,13 +1207,6 @@ void EvaluationEngine::onAddPeak()
   if (!isContextValid())
     return;
 
-  /* Peak has no meaningful evaluation resutls,
-   * do not add it */
-  if (!m_currentPeak.finderResults->isValid()) {
-    QMessageBox::information(nullptr, tr("Invalid peak"), tr("Peak has no meaningful evaluation results and will not be added"));
-    return;
-  }
-
   m_addPeakDlg->setInformation(m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
                                m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
@@ -1122,46 +1216,7 @@ void EvaluationEngine::onAddPeak()
 
   AddPeakDialog::Answer answer = m_addPeakDlg->answer();
 
-  if (answer.name.trimmed().length() < 1) {
-    QMessageBox::information(nullptr, tr("Invalid peak"), tr("Name of the analyte must be specified"));
-    return;
-  }
-
-  try {
-    m_allPeaks.push_back(StoredPeak(answer.name, m_currentPeak));
-  } catch (std::bad_alloc&) {
-    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add peak"));
-    return;
-  }
-
-  const EvaluatedPeaksModel::EvaluatedPeak evpeak(answer.name,
-                                                  m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X),
-                                                  m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
-  if (!m_evaluatedPeaksModel.appendEntry(evpeak)) {
-    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to add peak to GUI list"));
-    return;
-  }
-
-  if (answer.registerInHF) {
-    double mobility;
-
-    switch (answer.mobilityFrom) {
-    case AddPeakDialog::MobilityFrom::HVL_A1:
-      mobility = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
-      break;
-    case AddPeakDialog::MobilityFrom::PEAK_MAXIMUM:
-      mobility = m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
-      break;
-    default:
-      mobility = std::numeric_limits<double>::infinity();
-      break;
-    }
-
-    emit registerMeasurement(answer.name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
-                             mobility);
-  }
-
-  m_currentPeakIdx = m_allPeaks.length() - 1;
+  addPeakToList(answer.name, answer.registerInHF, answer.mobilityFrom);
 }
 
 void EvaluationEngine::onCancelEvaluatedPeakSelection()
@@ -1426,52 +1481,8 @@ void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
 
 void EvaluationEngine::onDoHvlFit()
 {
-  if (!isContextValid())
-    return;
-
-  /* Peak has no meaningful evaluation results,
-   * do not process it */
-  if (!m_currentPeak.finderResults->isValid())
-    return;
-
-  HVLCalculator::HVLParameters p = HVLCalculator::fit(
-    m_currentDataContext->data->data,
-    m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex,
-    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
-    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
-    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
-    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3),
-    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A0),
-    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A1),
-    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A2),
-    m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A3),
-    m_currentPeak.baselineIntercept,
-    m_currentPeak.baselineSlope,
-    m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
-    m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
-    m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
-    m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS)
-  );
-
-  if (!p.isValid())
-    return;
-
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A1] = p.a1;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A2] = p.a2;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_A3] = p.a3;
-  m_hvlFitValues[HVLFitResultsItems::Floating::HVL_S] = p.s;
-
-  m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_A0, HVLFitResultsItems::Floating::HVL_S);
-
-  /*
-  emit m_hvlFitModel.dataChanged(
-    m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A0)),
-    m_hvlFitModel.index(0, m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_S))
-   );
-  */
-
-  onReplotHvl();
+  if (doHvlFit(true))
+    onReplotHvl();
 }
 
 void EvaluationEngine::onEvaluationFileSwitched(const int idx)
@@ -1965,10 +1976,11 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak, const bool doHvlFit)
+void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak, const bool doHvlFitRq)
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
+  const bool _updateCurrentPeak = m_currentPeakIdx > 0 && updateCurrentPeak;
   double HVL_a0;
   double HVL_a1;
   double HVL_a2;
@@ -1980,7 +1992,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
     return;
   }
 
-  if (!doHvlFit && updateCurrentPeak) {
+  if (!doHvlFitRq && updateCurrentPeak) {
     HVL_a0 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A0);
     HVL_a1 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
     HVL_a2 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A2);
@@ -2001,13 +2013,13 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
-  if (doHvlFit)
-    onDoHvlFit();
+  if (doHvlFitRq)
+    doHvlFit(_updateCurrentPeak);
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
 
-  if (m_currentPeakIdx > 0 && updateCurrentPeak) {
+  if (_updateCurrentPeak) {
     m_allPeaks[m_currentPeakIdx].updatePeak(m_currentPeak);
     m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }

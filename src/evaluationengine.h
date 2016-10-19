@@ -19,6 +19,7 @@
 #include "plotcontextlimited.h"
 #include "peakevaluator.h"
 #include "assistedpeakfinder.h"
+#include "gui/addpeakdialog.h"
 
 class AddPeakDialog;
 class QFileDialog;
@@ -195,6 +196,7 @@ private:
   };
 
   void activateCurrentDataContext();
+  void addPeakToList(const QString &name, const bool registerInHF, const AddPeakDialog::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
@@ -206,6 +208,7 @@ private:
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> &r);
+  bool doHvlFit(const bool updateCurrentPeak);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;
@@ -229,7 +232,7 @@ private:
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak = false, const bool doHvlFit = true);
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak = false, const bool doHvlFitRq = true);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
