@@ -86,7 +86,7 @@ const QString EvaluationEngine::s_emptyCtxKey = "";
 
 const double EvaluationEngine::s_defaultHvlEpsilon = 1.0e-9;
 const int EvaluationEngine::s_defaultHvlDigits = 50;
-const int EvaluationEngine::s_defaultHvlIterations = 10;
+const int EvaluationEngine::s_defaultHvlIterations = 30;
 
 const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
 const QString EvaluationEngine::HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG("HVLFitOptions-DisableAutoFit");
