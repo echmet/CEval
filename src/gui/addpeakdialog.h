@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QStandardItemModel>
+#include "registerinhyperbolefitwidget.h"
 
 namespace Ui {
 class AddPeakDialog;
@@ -12,19 +13,14 @@ class AddPeakDialog : public QDialog
 {
   Q_OBJECT
 public:
-  enum class MobilityFrom {
-    HVL_A1,
-    PEAK_MAXIMUM
-  };
-  Q_ENUM(MobilityFrom)
 
   class Answer {
   public:
-    Answer(const bool registerInHF, const QString &name, const MobilityFrom mobilityFrom);
+    Answer(const bool registerInHF, const QString &name, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
 
     const bool registerInHF;
     const QString name;
-    const MobilityFrom mobilityFrom;
+    const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom;
   };
 
   explicit AddPeakDialog(QWidget *parent = nullptr);
@@ -36,17 +32,12 @@ public:
 private:
   Ui::AddPeakDialog *ui;
 
+  RegisterInHyperboleFitWidget *m_registerInHFWidget;
   QStandardItemModel m_analytesModel;
-
-  void setMobilityText(const MobilityFrom m);
-
-  double m_hvlMobility;
-  double m_peakMaxMobility;
 
 private slots:
   void onAnalyteTextChanged(const QString &s);
   void onCancelClicked();
-  void onMobilityFromActivated(const int idx);
   void onOkClicked();
   void onRegisterClicked();
 

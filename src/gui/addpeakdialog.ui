@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>245</width>
-    <height>241</height>
+    <width>268</width>
+    <height>243</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -53,71 +53,6 @@
          <string>Register this peak in the hyperbole fit</string>
         </property>
        </widget>
-      </item>
-      <item>
-       <layout class="QFormLayout" name="formLayout_2">
-        <item row="1" column="0">
-         <widget class="QLabel" name="ql_hfAnalyte">
-          <property name="text">
-           <string>Analyte</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="ql_hfAnalyteRes">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="ql_hfSelConc">
-          <property name="text">
-           <string>Selector concentration</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="ql_hfSelConcRes">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QLabel" name="ql_hfMobility">
-          <property name="text">
-           <string>Observed mobility</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="1">
-         <widget class="QLabel" name="ql_hfMobilityRes">
-          <property name="text">
-           <string/>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="ql_mobilityFrom">
-          <property name="text">
-           <string>Mobility from</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="qcbox_mobilityFrom"/>
-        </item>
-       </layout>
       </item>
      </layout>
     </widget>

@@ -196,7 +196,7 @@ private:
   };
 
   void activateCurrentDataContext();
-  void addPeakToList(const QString &name, const bool registerInHF, const AddPeakDialog::MobilityFrom mobilityFrom);
+  void addPeakToList(const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();

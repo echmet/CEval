@@ -295,7 +295,7 @@ void EvaluationEngine::activateCurrentDataContext()
   drawEofMarker();
 }
 
-void EvaluationEngine::addPeakToList(const QString &name, const bool registerInHF, const AddPeakDialog::MobilityFrom mobilityFrom)
+void EvaluationEngine::addPeakToList(const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom)
 {
   /* Peak has no meaningful evaluation resutls,
    * do not add it */
@@ -328,10 +328,10 @@ void EvaluationEngine::addPeakToList(const QString &name, const bool registerInH
     double mobility;
 
     switch (mobilityFrom) {
-    case AddPeakDialog::MobilityFrom::HVL_A1:
+    case RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1:
       mobility = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
       break;
-    case AddPeakDialog::MobilityFrom::PEAK_MAXIMUM:
+    case RegisterInHyperboleFitWidget::MobilityFrom::PEAK_MAXIMUM:
       mobility = m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
       break;
     default:
@@ -865,7 +865,7 @@ void EvaluationEngine::findPeakAssisted()
       std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
 
       processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
-      addPeakToList(QString::number(ctr), false, AddPeakDialog::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
+      addPeakToList(QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
       ctr++;
     }
   }
