@@ -1982,7 +1982,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
 {
   PeakEvaluator::Parameters ep = makeEvaluatorParameters(data, fr);
   PeakEvaluator::Results er = PeakEvaluator::evaluate(ep);
-  const bool _updateCurrentPeak = m_currentPeakIdx > 0 && updateCurrentPeak;
+  const bool updateStoredPeak = m_currentPeakIdx > 0 && updateCurrentPeak;
   double HVL_a0;
   double HVL_a1;
   double HVL_a2;
@@ -2016,17 +2016,20 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
 
   m_currentPeak = currentPeakContext(fr, er.peakIndex, er.baselineSlope, er.baselineIntercept, hvlPlot);
   if (doHvlFitRq)
-    doHvlFit(_updateCurrentPeak);
+    doHvlFit(updateStoredPeak || m_currentPeakIdx == 0);
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
 
-  if (_updateCurrentPeak) {
+  if (updateStoredPeak) {
     m_allPeaks[m_currentPeakIdx].updatePeak(m_currentPeak);
     m_evaluatedPeaksModel.updateEntry(m_currentPeakIdx - 1, er.peakX, er.peakArea);
   }
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
+
+  if (updateStoredPeak || m_currentPeakIdx == 0)
+    onReplotHvl();
 }
 
 AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine::resultsValuesModel()
