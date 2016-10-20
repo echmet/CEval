@@ -31,6 +31,7 @@ public:
   void setEntries(const QVector<EvaluatedPeak> &entries);
   void updateEntry(const int idx, const EvaluatedPeak &peak);
   void updateEntry(const int idx, const double time, const double area);
+  void updateName(const int idx, const QString &name);
 
 private:
   QVector<EvaluatedPeak> m_data;

@@ -137,7 +137,8 @@ SOURCES += src/main.cpp \
     src/dataexporter/backends/textstreamexporterbackend.cpp \
     src/gui/appendoverwriteexportfilemessagebox.cpp \
     src/hvllibwrapper.cpp \
-    src/gui/registerinhyperbolefitwidget.cpp
+    src/gui/registerinhyperbolefitwidget.cpp \
+    src/gui/registerinhyperbolefitdialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -321,7 +322,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/dataexporter/backends/textstreamexporterbackend.h \
     src/gui/appendoverwriteexportfilemessagebox.h \
     src/hvllibwrapper.h \
-    src/gui/registerinhyperbolefitwidget.h
+    src/gui/registerinhyperbolefitwidget.h \
+    src/gui/registerinhyperbolefitdialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -348,7 +350,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/dataexporter/schemesmanagerwidget.ui \
     src/dataexporter/schemeeditor.ui \
     src/gui/textexporterbackendconfigurationdialog.ui \
-    src/gui/registerinhyperbolefitwidget.ui
+    src/gui/registerinhyperbolefitwidget.ui \
+    src/gui/registerinhyperbolefitdialog.ui
 
 unix {
     LIBS += -ldl

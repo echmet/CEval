@@ -17,4 +17,6 @@ void EvaluatedPeaksWidgetConnector::connectAll(QObject *anonWidget, QObject *ano
   QObject::connect(widget, &EvaluatedPeaksWidget::cancelSelection, e, &EvaluationEngine::onCancelEvaluatedPeakSelection);
   QObject::connect(widget, &EvaluatedPeaksWidget::deletePeakClicked, e, &EvaluationEngine::onDeletePeak);
   QObject::connect(widget, &EvaluatedPeaksWidget::peakSwitched, e, &EvaluationEngine::onPeakSwitched);
+  QObject::connect(widget, &EvaluatedPeaksWidget::registerInHyperboleFit, e, &EvaluationEngine::onRegisterPeakInHyperboleFit);
+  QObject::connect(widget, &EvaluatedPeaksWidget::rename, e, &EvaluationEngine::onRenamePeak);
 }

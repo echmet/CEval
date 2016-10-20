@@ -28,12 +28,16 @@ signals:
   void cancelSelection();
   void deletePeakClicked(const QModelIndex &idx);
   void peakSwitched(const QModelIndex &idx);
+  void registerInHyperboleFit(const QModelIndex &idx);
+  void rename(const QModelIndex &idx);
 
 private slots:
   void onAddPeakClicked();
   void onCancelSelectionClicked();
   void onDeletePeakClicked();
   void onListClicked();
+  void onRegisterInHFClicked();
+  void onRenameClicked();
 
 };
 

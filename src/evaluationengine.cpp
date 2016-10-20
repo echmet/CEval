@@ -1,6 +1,7 @@
 #include "evaluationengine.h"
 #include "doubletostringconvertor.h"
 #include "gui/appendoverwriteexportfilemessagebox.h"
+#include "gui/registerinhyperbolefitdialog.h"
 #include "gui/setaxistitlesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
@@ -14,6 +15,7 @@
 #include <QApplication>
 #include <QClipboard>
 #include <QFileDialog>
+#include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextStream>
@@ -316,7 +318,7 @@ void EvaluationEngine::addPeakToList(const QString &name, const bool registerInH
     return;
   }
 
-  const EvaluatedPeaksModel::EvaluatedPeak evpeak(name,
+  const EvaluatedPeaksModel::EvaluatedPeak evpeak(name.trimmed(),
                                                   m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X),
                                                   m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
   if (!m_evaluatedPeaksModel.appendEntry(evpeak)) {
@@ -1780,6 +1782,72 @@ void EvaluationEngine::onReadEof()
 
   double tEOF = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X);
   emit updateTEof(tEOF);
+}
+
+void EvaluationEngine::onRegisterPeakInHyperboleFit(const QModelIndex &idx)
+{
+  if (!isContextValid())
+    return;
+
+  if (!idx.isValid())
+    return;
+
+  if (!m_currentPeak.finderResults->isValid())
+    return;
+
+  int row = idx.row() + 1;
+  if (row < 1 || row >= m_allPeaks.size())
+    return;
+
+  StoredPeak &p = m_allPeaks[row];
+  RegisterInHyperboleFitDialog regWidget;
+  regWidget.setInformation(p.name,
+                           m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+                           p.peak().hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
+                           p.peak().resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
+
+  if (regWidget.exec() != QDialog::Accepted)
+    return;
+
+  double mobility;
+
+  switch (regWidget.mobilityFrom()) {
+  case RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1:
+    mobility = p.peak().hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
+    break;
+  case RegisterInHyperboleFitWidget::MobilityFrom::PEAK_MAXIMUM:
+    mobility = p.peak().resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
+    break;
+  default:
+    mobility = std::numeric_limits<double>::infinity();
+    break;
+  }
+
+  emit registerMeasurement(p.name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+                           mobility);
+}
+
+void EvaluationEngine::onRenamePeak(const QModelIndex &idx)
+{
+  if (!isContextValid())
+    return;
+
+  if (!idx.isValid())
+    return;
+
+  const int row = idx.row() + 1;
+
+  if (row >= m_allPeaks.size())
+    return;
+
+  QInputDialog dlg;
+  if (dlg.exec() != QDialog::Accepted)
+    return;
+
+  const QString name = dlg.textValue().trimmed();
+
+  m_allPeaks[row].name = name;
+  m_evaluatedPeaksModel.updateName(row - 1, name);
 }
 
 void EvaluationEngine::onReplotHvl()

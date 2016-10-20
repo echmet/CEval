@@ -78,9 +78,23 @@
       <item>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
+         <widget class="QPushButton" name="qpb_rename">
+          <property name="text">
+           <string>Rename</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="qpb_registerInHF">
+          <property name="text">
+           <string>Register in HF</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QPushButton" name="qpb_cancelSelection">
           <property name="text">
-           <string>Deselect peak</string>
+           <string>Deselect</string>
           </property>
          </widget>
         </item>

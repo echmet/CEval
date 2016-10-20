@@ -169,6 +169,7 @@ void EvaluatedPeaksModel::updateEntry(const int idx, const EvaluatedPeak &peak)
   m_data[idx] = peak;
   emit dataChanged(createIndex(idx, 0), createIndex(idx, 2), { Qt::DisplayRole });
 }
+
 void EvaluatedPeaksModel::updateEntry(const int idx, const double time, const double area)
 {
   if (idx < 0 || idx >= m_data.length())
@@ -178,3 +179,11 @@ void EvaluatedPeaksModel::updateEntry(const int idx, const double time, const do
   updateEntry(idx, evp);
 }
 
+void EvaluatedPeaksModel::updateName(const int idx, const QString &name)
+{
+  if (idx < 0 || idx >= m_data.length())
+    return;
+
+  EvaluatedPeak evp(name, m_data.at(idx).time, m_data.at(idx).area);
+  updateEntry(idx, evp);
+}

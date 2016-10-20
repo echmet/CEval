@@ -14,6 +14,8 @@ EvaluatedPeaksWidget::EvaluatedPeaksWidget(QWidget *parent) :
   connect(ui->qpb_cancelSelection, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onCancelSelectionClicked);
   connect(ui->qpb_deletePeak, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onDeletePeakClicked);
   connect(ui->qtbv_evaluatedPeaks, &QTableView::clicked, this, &EvaluatedPeaksWidget::onListClicked);
+  connect(ui->qpb_registerInHF, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onRegisterInHFClicked);
+  connect(ui->qpb_rename, &QPushButton::clicked, this, &EvaluatedPeaksWidget::onRenameClicked);
 
   {
     QWidget *me = this;
@@ -66,6 +68,16 @@ void EvaluatedPeaksWidget::onDeletePeakClicked()
 void EvaluatedPeaksWidget::onListClicked()
 {
   emit peakSwitched(ui->qtbv_evaluatedPeaks->currentIndex());
+}
+
+void EvaluatedPeaksWidget::onRegisterInHFClicked()
+{
+  emit registerInHyperboleFit(ui->qtbv_evaluatedPeaks->currentIndex());
+}
+
+void EvaluatedPeaksWidget::onRenameClicked()
+{
+  emit rename(ui->qtbv_evaluatedPeaks->currentIndex());
 }
 
 void EvaluatedPeaksWidget::setModel(QAbstractItemModel *model)

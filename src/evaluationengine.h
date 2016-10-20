@@ -159,7 +159,7 @@ private:
     void updatePeak(const PeakContext &peakCtx);
     StoredPeak &operator=(const StoredPeak &other);
 
-    const QString name;
+    QString name;
 
   private:
     PeakContext m_peakCtx;
@@ -382,6 +382,8 @@ public slots:
   void onPlotPointHovered(const QPointF &point, const QPoint &cursor);
   void onPlotPointSelected(const QPointF &point, const QPoint &cursor);
   void onReadEof();
+  void onRegisterPeakInHyperboleFit(const QModelIndex &idx);
+  void onRenamePeak(const QModelIndex &idx);
   void onReplotHvl();
   void onSetDefault(EvaluationEngineMsgs::Default msg);
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
