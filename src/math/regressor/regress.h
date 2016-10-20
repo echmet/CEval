@@ -467,6 +467,7 @@ RESTART:;
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
             m_accepted = false;
+            m_iterationCounter++;
             goto FINALIZE;
 
         } catch (std::logic_error &) {
