@@ -172,6 +172,7 @@ protected:
     //---
     // Initialized in Initialize
     vector<XT>       m_x;   //data x                 [x, 1]
+    MatrixY          m_fx;  //fx calculated          [x, 1]
 
     // Initialized in constructor
     MatrixY          m_params;          //           [params, 1]
@@ -227,7 +228,6 @@ private:
 
     // Initialized in Initialize
     MatrixY          m_y;   //data y                 [x, 1]
-    MatrixY          m_fx;  //fx calculated          [x, 1]
 
     // Initialized in CalculateRSS
     MatrixY m_error;      //                         [x, 1]
@@ -261,6 +261,7 @@ private:
     void Reset();
 
     void OnParamsChanged(bool regressCall = false);
+    virtual void OnParamsChangedInternal();
 
     void CalculateFx();
     void CalculateRSS();
@@ -807,8 +808,7 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
 
 #endif
 
-    CalculateFx();
-    CalculateP();
+    OnParamsChangedInternal();
     CalculateRSS();
 
 #if ECHMET_REGRESS_DEBUG
@@ -831,6 +831,13 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
 
     if (!regressCall) Report();
 
+}
+
+template <typename XT, typename YT>
+void RegressFunction<XT, YT>::OnParamsChangedInternal()
+{
+    CalculateFx();
+    CalculateP();
 }
 
 //---------------------------------------------------------------------------

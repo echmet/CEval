@@ -69,6 +69,7 @@ protected:
     virtual bool AAccepted (YT, MatrixY const & params) const override;
 
     virtual void CalculateP () override;
+    virtual void OnParamsChangedInternal () override;
 
 private:
 
@@ -214,6 +215,12 @@ const {
 }
 
 template <typename XT, typename YT>
+void HVLPeak<XT, YT>::OnParamsChangedInternal()
+{
+  CalculateP(); /* Our CalculateP calculates Fx as well */
+}
+
+template <typename XT, typename YT>
 void HVLPeak<XT, YT>::CalculateP()
 {
     /* I must have done something really terrible in my previous life... */
@@ -223,7 +230,7 @@ void HVLPeak<XT, YT>::CalculateP()
     auto MakeParamFlags = [](const PPUT fixedIdx) {
          typedef typename std::underlying_type<HVLLibWrapper::ParameterFlags>::type FUType;
 
-         FUType f = 0;
+         FUType f = HVLLibWrapper::ParameterFlags::T ;
 
          for (PPUT fix = 0; fix != fixedIdx; ++fix)
              f |= HVLLibWrapper::ParameterFlags::DA0 << fix;
@@ -241,6 +248,9 @@ void HVLPeak<XT, YT>::CalculateP()
                                                                        this->GetParam(this->m_params, HVLPeakParams::a1),
                                                                        this->GetParam(this->m_params, HVLPeakParams::a2),
                                                                        this->GetParam(this->m_params, HVLPeakParams::a3));
+
+        const double t = pack[0].y; /* Zero corresponds to Parameter::T in HVLLibWrapper */
+        this->m_fx(k, 0) = t + (this->m_x[k] * m_bslSlope) + m_bsl;
 
         for (PPUT pIdx = 0; pIdx != static_cast<PPUT>(this->m_notFixed); ++pIdx)
             this->m_p(pIdx, k) = pack[pIdx + 2].y;
