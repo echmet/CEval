@@ -11,9 +11,12 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Register in hyperbole fit</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QWidget" name="qw_container" native="true"/>
+   </item>
    <item>
     <spacer name="verticalSpacer">
      <property name="orientation">

@@ -9,7 +9,8 @@ RegisterInHyperboleFitDialog::RegisterInHyperboleFitDialog(QWidget *parent) :
 
   m_registerInHFWidget = new RegisterInHyperboleFitWidget(this);
 
-  this->layout()->addWidget(m_registerInHFWidget);
+  ui->qw_container->setLayout(new QVBoxLayout());
+  ui->qw_container->layout()->addWidget(m_registerInHFWidget);
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &RegisterInHyperboleFitDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &RegisterInHyperboleFitDialog::onOkClicked);
