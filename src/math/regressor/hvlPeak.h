@@ -238,10 +238,10 @@ void HVLPeak<XT, YT>::CalculateP()
          return static_cast<HVLLibWrapper::ParameterFlags>(f);
     };
 
+    const HVLLibWrapper::ParameterFlags pflags = MakeParamFlags(this->m_notFixed);
+
     #pragma omp parallel for
     for (msize_t k = 0; k < this->m_x.size(); ++k) {
-        const HVLLibWrapper::ParameterFlags pflags = MakeParamFlags(this->m_notFixed);
-
         const HVLLibWrapper::XYPack pack = m_hvlLib->calculateMultiple(pflags,
                                                                        this->m_x[k],
                                                                        this->GetParam(this->m_params, HVLPeakParams::a0),
