@@ -1,12 +1,16 @@
 #ifndef HVLCALCULATOR_H
 #define HVLCALCULATOR_H
 
-#include "math/regressor/hvlPeak.h"
 #include <QVector>
 #include <QPointF>
 #include <QObject>
 
 class HVLLibWrapper;
+namespace echmet {
+  namespace regressCore {
+    template<typename XT, typename YT> class HVLPeak;
+  }
+}
 
 class HVLCalculator : public QObject
 {

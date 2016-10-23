@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
 #include "hvllibwrapper.h"
+#include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
 #include <QTime>
 #include <QApplication>
