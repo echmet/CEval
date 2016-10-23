@@ -8,13 +8,16 @@
 #include "doubletostringconvertor.h"
 #include "standardplotcontextsettingshandler.h"
 #include "gui/exportdatatabletocsvdialog.h"
-#include "math/regressor/regress.h"
+#include "math/regressor/hyperbole.h"
+#include "math/regressor/hyperbole2.h"
 
 #define TAU_MAX      5.0
 #define TAU_MAXCOUNT 600
 
 using namespace echmet;
 using namespace regressCore;
+
+typedef RectangularHyperbole2<double, double>::x_type hyp2x_type;
 
 const QString HyperboleFittingEngine::s_dataPointsATitle = tr("Points A");
 const QString HyperboleFittingEngine::s_dataPointsBTitle = tr("Points B");

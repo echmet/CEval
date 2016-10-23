@@ -16,12 +16,13 @@
 #include "plotcontextlimited.h"
 #include "stringmappermodel.h"
 
-#include <vector>
-
-#include "math/regressor/hyperbole.h"
-#include "math/regressor/hyperbole2.h"
-
 class ExportDatatableToCsvDialog;
+namespace echmet {
+  namespace regressCore {
+    template <typename XT, typename YT> class RectangularHyperbole;
+    template <typename XT, typename YT> class RectangularHyperbole2;
+  }
+}
 
 class HyperboleFittingEngine : public QObject, public INumberFormatChangeable
 {
@@ -113,8 +114,6 @@ public:
   static const QString EMERG_SAVE_FILE;
 
 private:
-  typedef echmet::regressCore::RectangularHyperbole2<double, double>::x_type hyp2x_type;
-
   enum class Series : int {
     POINTS_A,
     POINTS_A_AVG,
