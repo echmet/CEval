@@ -3,6 +3,7 @@
 #include "gui/appendoverwriteexportfilemessagebox.h"
 #include "gui/registerinhyperbolefitdialog.h"
 #include "gui/setaxistitlesdialog.h"
+#include "gui/specifypeakboundariesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
 #include "helpers.h"
@@ -197,6 +198,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
     m_dataExporterFileDlg->setOption(QFileDialog::DontConfirmOverwrite);
     m_dataExporterFileDlg->setWindowTitle(tr("Export data to file"));
 
+    m_specifyPeakBoundsDlg = new SpecifyPeakBoundariesDialog();
     m_textDataExporterDelimiter = QChar(';');
     m_textDataExporterCfgDlg = new TextExporterBackendConfigurationDialog();
 
@@ -268,6 +270,7 @@ EvaluationEngine::~EvaluationEngine()
   delete m_postProcessMenu;
   delete m_dataExporterBackendsModel;
   delete m_dataExporterFileDlg;
+  delete m_specifyPeakBoundsDlg;
   delete m_textDataExporterCfgDlg;
   delete m_ctcEofScheme;
   delete m_ctcHvlScheme;
@@ -524,6 +527,12 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
   m_findPeakMenu->addSeparator();
 
+  a = new QAction(tr("Specify precise peak boundaries"), m_findPeakMenu);
+  a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SPECIFY_PEAK_BOUNDARIES));
+  m_findPeakMenu->addAction(a);
+
+  m_findPeakMenu->addSeparator();
+
   a = new QAction(tr("Set noise reference point"), m_findPeakMenu);
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::NOISE_REF_POINT));
   m_findPeakMenu->addAction(a);
@@ -572,6 +581,12 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 
   a = new QAction(tr("New peak from here (snap to signal)"), m_postProcessMenu);
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::NEW_PEAK_FROM_SIGSNAP));
+  m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
+  a = new QAction(tr("New peak with specific boundaries"), m_postProcessMenu);
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SPECIFY_PEAK_BOUNDARIES));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
@@ -948,6 +963,9 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
   case FindPeakMenuActions::PEAK_FROM_HERE_SIGSNAP:
     beginManualIntegration(point, true);
     break;
+  case FindPeakMenuActions::SPECIFY_PEAK_BOUNDARIES:
+    findPeakPreciseBoundaries();
+    break;
   case FindPeakMenuActions::NOISE_REF_POINT:
     m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_REF_POINT] = point.x();
     valueFrom = m_evaluationFloatingModel.index(0, m_evaluationFloatingModel.indexFromItem(EvaluationParametersItems::Floating::NOISE_REF_POINT));
@@ -977,6 +995,59 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
     emit m_evaluationAutoModel.dataChanged(autoFrom, autoTo, { Qt::EditRole });
   if (valueFrom.isValid())
     emit m_evaluationFloatingModel.dataChanged(valueFrom, valueTo, { Qt::EditRole });
+}
+
+void EvaluationEngine::findPeakPreciseBoundaries()
+{
+  std::shared_ptr<PeakFinderResults> fr;
+  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
+
+  if (!isContextValid())
+    return;
+
+  if (m_currentDataContext->data->data.length() == 0)
+    return;
+
+  while (m_specifyPeakBoundsDlg->exec() != QDialog::Rejected) {
+    SpecifyPeakBoundariesDialog::Answer answer = m_specifyPeakBoundsDlg->answer();
+
+    if (answer.fromX < 0.0 || answer.fromX > m_currentDataContext->data->data.back().x()) {
+      QMessageBox::warning(nullptr, tr("Invalid input"), tr("Value of \"Peak from X\" is out of bounds"));
+      continue;
+    }
+    if (answer.toX < 0.0 || answer.toX > m_currentDataContext->data->data.back().x()) {
+      QMessageBox::warning(nullptr, tr("Invalid input"), tr("Value of \"Peak to X\" is out of bounds"));
+      continue;
+    }
+
+    ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
+
+    if (answer.snapFrom)
+      p.fromY = Helpers::yForX(answer.fromX, m_currentDataContext->data->data);
+    else
+      p.fromY = answer.fromY;
+
+    if (answer.snapTo)
+      p.toY = Helpers::yForX(answer.toX, m_currentDataContext->data->data);
+    else
+      p.toY = answer.toY;
+
+    p.fromX = answer.fromX;
+    p.toX = answer.toX;
+
+    try {
+      fr = ManualPeakFinder::find(p);
+    } catch (std::bad_alloc &) {
+      QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to find peak"));
+      return;
+    }
+
+    if (fr->results.size() == 0)
+      return;
+
+    processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), false, !disableAutoFit);
+    return;
+  }
 }
 
 EvaluationEngine::EvaluationContext EvaluationEngine::freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
@@ -2017,6 +2088,10 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   case PostProcessMenuActions::NEW_PEAK_FROM_SIGSNAP:
     onCancelEvaluatedPeakSelection();
     beginManualIntegration(point, true);
+    break;
+  case PostProcessMenuActions::SPECIFY_PEAK_BOUNDARIES:
+    onCancelEvaluatedPeakSelection();
+    findPeakPreciseBoundaries();
     break;
   case PostProcessMenuActions::MOVE_PEAK_FROM:
     findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false);

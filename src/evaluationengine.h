@@ -24,6 +24,7 @@
 class AddPeakDialog;
 class QFileDialog;
 class QMenu;
+class SpecifyPeakBoundariesDialog;
 class TextExporterBackendConfigurationDialog;
 
 class EvaluationEngine : public QObject, public DataExporter::IExportable
@@ -39,6 +40,7 @@ public:
   enum class FindPeakMenuActions {
     PEAK_FROM_HERE,
     PEAK_FROM_HERE_SIGSNAP,
+    SPECIFY_PEAK_BOUNDARIES,
     NOISE_REF_POINT,
     SLOPE_REF_POINT,
     SET_AXIS_TITLES,
@@ -59,6 +61,7 @@ public:
     NEW_PEAK_FROM_SIGSNAP,
     MOVE_PEAK_FROM,
     MOVE_PEAK_FROM_SIGSNAP,
+    SPECIFY_PEAK_BOUNDARIES,
     MOVE_PEAK_TO,
     MOVE_PEAK_TO_SIGSNAP,
     DESELECT_PEAK,
@@ -216,6 +219,7 @@ private:
   void findPeakAssisted();
   void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
+  void findPeakPreciseBoundaries();
   EvaluationContext freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
                                            const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
                                            const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const;
@@ -334,6 +338,7 @@ private:
   QString m_currentDataExporterSchemeId;
   DataExporterBackends m_currentDataExporterBackend;
   QFileDialog *m_dataExporterFileDlg;
+  SpecifyPeakBoundariesDialog *m_specifyPeakBoundsDlg;
   TextExporterBackendConfigurationDialog *m_textDataExporterCfgDlg;
   QChar m_textDataExporterDelimiter;
   bool m_exportOnFileLeftEnabled;

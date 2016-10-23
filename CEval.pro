@@ -138,7 +138,8 @@ SOURCES += src/main.cpp \
     src/gui/appendoverwriteexportfilemessagebox.cpp \
     src/hvllibwrapper.cpp \
     src/gui/registerinhyperbolefitwidget.cpp \
-    src/gui/registerinhyperbolefitdialog.cpp
+    src/gui/registerinhyperbolefitdialog.cpp \
+    src/gui/specifypeakboundariesdialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -323,7 +324,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/appendoverwriteexportfilemessagebox.h \
     src/hvllibwrapper.h \
     src/gui/registerinhyperbolefitwidget.h \
-    src/gui/registerinhyperbolefitdialog.h
+    src/gui/registerinhyperbolefitdialog.h \
+    src/gui/specifypeakboundariesdialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -351,7 +353,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/dataexporter/schemeeditor.ui \
     src/gui/textexporterbackendconfigurationdialog.ui \
     src/gui/registerinhyperbolefitwidget.ui \
-    src/gui/registerinhyperbolefitdialog.ui
+    src/gui/registerinhyperbolefitdialog.ui \
+    src/gui/specifypeakboundariesdialog.ui
 
 unix {
     LIBS += -ldl
