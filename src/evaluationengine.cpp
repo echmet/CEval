@@ -7,6 +7,7 @@
 #include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
 #include "helpers.h"
+#include "hvlcalculator.h"
 #include "manualpeakfinder.h"
 #include "standardplotcontextsettingshandler.h"
 #include "witchcraft.h"
@@ -785,12 +786,16 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      -1, 0.0, 0.0, QVector<QPointF>());
 }
 
-void EvaluationEngine::displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> &r)
+void EvaluationEngine::displayAutomatedResults(const std::shared_ptr<PeakFinderResults::Result> &r)
 {
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = r->noise;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = r->slopeWindow;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = r->slopeThreshold;
-  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = r->slopeRefPoint;
+  std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
+  if (afr == nullptr)
+    return;
+
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE] = afr->noise;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = afr->slopeWindow;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_THRESHOLD] = afr->slopeThreshold;
+  m_evaluationFloatingValues[EvaluationParametersItems::Floating::SLOPE_REF_POINT] = afr->slopeRefPoint;
 
   m_evaluationFloatingModel.notifyAllDataChanged({ Qt::EditRole });
 }
@@ -838,7 +843,6 @@ void EvaluationEngine::findPeakAssisted()
 {
   SelectPeakDialog dialog;
   std::shared_ptr<PeakFinderResults> fr;
-  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   if (!isContextValid())
     return;
@@ -869,29 +873,12 @@ void EvaluationEngine::findPeakAssisted()
     return;
   }
 
-  if (fr->results.size() == 0) {
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    clearPeakPlots();
-  } else if (fr->results.size() == 1) {
-    std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(fr->results.at(0));
-    displayAutomatedResults(afr);
-    processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
-  } else {
-    int ctr = 1;
-    for (const std::shared_ptr<PeakFinderResults::Result> &r : fr->results) {
-      std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::static_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
-
-      processFoundPeak(m_currentDataContext->data->data, afr, false, !disableAutoFit);
-      addPeakToList(QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
-      ctr++;
-    }
-  }
+  walkFoundPeaks(fr->results);
 }
 
 void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
 {
   std::shared_ptr<PeakFinderResults> fr;
-  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   /* Erase the provisional baseline */
   m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
@@ -941,7 +928,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (fr->results.size() == 0)
     goto err_out;
 
-  processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), (m_userInteractionState == UserInteractionState::PEAK_POSTPROCESSING ? true : false), !disableAutoFit);
+  walkFoundPeaks(fr->results);
   return;
 
 err_out:
@@ -1121,20 +1108,6 @@ bool EvaluationEngine::isContextValid() const
   return (m_currentDataContextKey.compare(s_emptyCtxKey) == 0) ? false : true;
 }
 
-QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks()
-{
-  QVector<EvaluatedPeaksModel::EvaluatedPeak> peaks;
-
-  for (int idx = 1; idx < m_allPeaks.length(); idx++) {
-    const PeakContext &ctx = m_allPeaks.at(idx).peak();
-    peaks.push_back(EvaluatedPeaksModel::EvaluatedPeak(m_allPeaks.at(idx).name,
-                                                       ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X),
-                                                       ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA)));
-  }
-
-  return peaks;
-}
-
 QAbstractItemModel *EvaluationEngine::loadedFilesModel()
 {
   return &m_loadedFilesModel;
@@ -1197,6 +1170,20 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
     m_ctcDelimiter = v.toString();
     emit clipboardExporterDelimiterSet(m_ctcDelimiter);
   }
+}
+
+QVector<EvaluatedPeaksModel::EvaluatedPeak> EvaluationEngine::makeEvaluatedPeaks()
+{
+  QVector<EvaluatedPeaksModel::EvaluatedPeak> peaks;
+
+  for (int idx = 1; idx < m_allPeaks.length(); idx++) {
+    const PeakContext &ctx = m_allPeaks.at(idx).peak();
+    peaks.push_back(EvaluatedPeaksModel::EvaluatedPeak(m_allPeaks.at(idx).name,
+                                                       ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X),
+                                                       ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA)));
+  }
+
+  return peaks;
 }
 
 PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr)
@@ -2507,6 +2494,27 @@ double EvaluationEngine::timeStep()
   double dt = m_currentDataContext->data->data.at(1).x() - m_currentDataContext->data->data.at(0).x();
 
   return dt;
+}
+
+void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results)
+{
+  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
+
+  if (results.size() == 0) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    clearPeakPlots();
+  } else if (results.size() == 1) {
+    const std::shared_ptr<PeakFinderResults::Result> &r = results.at(0);
+    displayAutomatedResults(r);
+    processFoundPeak(m_currentDataContext->data->data, r, false, !disableAutoFit);
+  } else {
+    int ctr = 1;
+    for (const std::shared_ptr<PeakFinderResults::Result> &r : results) {
+      processFoundPeak(m_currentDataContext->data->data, r, false, !disableAutoFit);
+      addPeakToList(QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
+      ctr++;
+    }
+  }
 }
 
 QAbstractItemModel *EvaluationEngine::windowUnitsModel()

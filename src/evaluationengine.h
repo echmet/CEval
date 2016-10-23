@@ -2,6 +2,7 @@
 #define EVALUATIONENGINE_H
 
 #include <QObject>
+#include "assistedpeakfinder.h"
 #include "booleanmappermodel.h"
 #include "comboboxmodel.h"
 #include "commonparametersengine.h"
@@ -12,13 +13,11 @@
 #include "evaluationresultsitems.h"
 #include "evaluationenginemsgs.h"
 #include "floatingmappermodel.h"
-#include "hvlcalculator.h"
 #include "dataexporter/exporter.h"
 #include "integermappermodel.h"
 #include "mappedvectorwrapper.h"
 #include "plotcontextlimited.h"
 #include "peakevaluator.h"
-#include "assistedpeakfinder.h"
 #include "gui/addpeakdialog.h"
 
 class AddPeakDialog;
@@ -210,7 +209,7 @@ private:
   PeakContext currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
-  void displayAutomatedResults(const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> &r);
+  void displayAutomatedResults(const std::shared_ptr<PeakFinderResults::Result> &r);
   bool doHvlFit(const bool updateCurrentPeak);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
@@ -249,6 +248,7 @@ private:
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
   double timeStep();
+  void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results);
 
   /* All data contexts */
   QMap<QString, std::shared_ptr<DataContext>> m_allDataContexts;
