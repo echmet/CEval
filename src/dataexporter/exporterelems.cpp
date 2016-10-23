@@ -72,6 +72,21 @@ SchemeBaseRoot::~SchemeBaseRoot()
     delete e;
 }
 
+/*
+const SchemeBase::Executor SchemeBase::DEFAULT_EXECUTOR = [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend, const uint32_t opts) {
+    for (const SelectedExportable *se : seMap) {
+      (void)opts;
+      try {
+        backend.addCell(new AbstractExporterBackend::Cell(se->displayName, se->value(exportee)), 0, se->position);
+      } catch (std::bad_alloc &) {
+        return false;
+      }
+    }
+
+    return backend.exportData();
+  };
+  */
+
 Scheme::Scheme(const QString &name, const SelectedExportablesMap &seMap, const SchemeBaseRoot *base, const Globals::DataArrangement arrangement) :
   name(name),
   selectedExportables(seMap),

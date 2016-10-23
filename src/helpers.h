@@ -5,6 +5,7 @@
 #include <QPointF>
 #include <QVector>
 #include <QWidget>
+#include <stdexcept>
 
 class Helpers
 {

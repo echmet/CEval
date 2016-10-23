@@ -14,6 +14,7 @@
 
 #if defined(Q_OS_UNIX)
 #include <cstdlib>
+#include <stdexcept>
 #elif defined(Q_OS_WIN)
 #include <windows.h>
 #include <tchar.h>

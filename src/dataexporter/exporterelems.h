@@ -119,18 +119,7 @@ public:
 
   explicit SchemeBase(const QString &name, const QString &description,
                       const ExportablesMap &exportables,
-                      Executor executor = [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend, const uint32_t opts) {
-                        for (const SelectedExportable *se : seMap) {
-                          (void)opts;
-                          try {
-                            backend.addCell(new AbstractExporterBackend::Cell(se->displayName, se->value(exportee)), 0, se->position);
-                          } catch (std::bad_alloc &) {
-                            return false;
-                          }
-                        }
-
-                        return backend.exportData();
-                      }, const bool dontFree = false) :
+                      Executor executor = DEFAULT_EXECUTOR, const bool dontFree = false) :
     SchemeBaseRoot(name, description, exportables, dontFree),
     m_executor(executor)
   {
@@ -144,10 +133,27 @@ public:
     return m_executor(_exportee, seMap, backend, opts);
   }
 
+  static const Executor DEFAULT_EXECUTOR;
+
 private:
   Executor m_executor;
 
 };
+
+template<typename T>
+const typename SchemeBase<T>::Executor SchemeBase<T>::DEFAULT_EXECUTOR =
+  [](const T *exportee, const SelectedExportablesMap &seMap, AbstractExporterBackend &backend, const uint32_t opts) {
+    for (const SelectedExportable *se : seMap) {
+      (void)opts;
+      try {
+        backend.addCell(new AbstractExporterBackend::Cell(se->displayName, se->value(exportee)), 0, se->position);
+      } catch (std::bad_alloc &) {
+        return false;
+      }
+    }
+
+    return backend.exportData();
+  };
 
 class Scheme {
 public:
