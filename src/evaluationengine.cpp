@@ -126,7 +126,7 @@ EvaluationEngine::StoredPeak::StoredPeak(const QString &name, const PeakContext 
 {
 }
 
-EvaluationEngine::AssistedFinderSettings::AssistedFinderSettings() :
+EvaluationEngine::AssistedFinderContext::AssistedFinderContext() :
   afAutoValues(s_defaultEvaluationAutoValues),
   afBoolValues(s_defaultEvaluationBooleanValues),
   afFloatingValues(s_defaultEvaluationFloatingValues),
@@ -136,12 +136,12 @@ EvaluationEngine::AssistedFinderSettings::AssistedFinderSettings() :
 {
 }
 
-EvaluationEngine::AssistedFinderSettings::AssistedFinderSettings(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
-                                                                 const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
-                                                                 const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues,
-                                                                 const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
-                                                                 const EvaluationParametersItems::ComboShowWindow showWindow,
-                                                                 const EvaluationParametersItems::ComboWindowUnits windowUnits) :
+EvaluationEngine::AssistedFinderContext::AssistedFinderContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                                                               const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                                                               const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues,
+                                                               const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
+                                                               const EvaluationParametersItems::ComboShowWindow showWindow,
+                                                               const EvaluationParametersItems::ComboWindowUnits windowUnits) :
   afAutoValues(afAutoValues),
   afBoolValues(afBoolValues),
   afFloatingValues(afFloatingValues),
@@ -151,7 +151,7 @@ EvaluationEngine::AssistedFinderSettings::AssistedFinderSettings(const MappedVec
 {
 }
 
-void EvaluationEngine::AssistedFinderSettings::setProcessingData(const double noise,
+void EvaluationEngine::AssistedFinderContext::setProcessingData(const double noise,
                                                                  const double noiseRefPoint, const double slopeRefPoint,
                                                                  const double slopeThreshold, const double slopeWindow)
 {
@@ -162,7 +162,7 @@ void EvaluationEngine::AssistedFinderSettings::setProcessingData(const double no
   afFloatingValues[EvaluationParametersItems::Floating::SLOPE_WINDOW] = slopeWindow;
 }
 
-EvaluationEngine::AssistedFinderSettings & EvaluationEngine::AssistedFinderSettings::operator=(const AssistedFinderSettings &other)
+EvaluationEngine::AssistedFinderContext & EvaluationEngine::AssistedFinderContext::operator=(const AssistedFinderContext &other)
 {
   const_cast<MappedVectorWrapper<bool, EvaluationParametersItems::Auto>&>(afAutoValues) = other.afAutoValues;
   const_cast<MappedVectorWrapper<bool, EvaluationParametersItems::Boolean>&>(afBoolValues) = other.afBoolValues;
@@ -845,7 +845,7 @@ void EvaluationEngine::displayCurrentPeak()
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
   setEvaluationResults(m_currentPeak);
-  displayAssistedFinderData(m_currentPeak.afSettings);
+  displayAssistedFinderData(m_currentPeak.afContext);
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noexcept(false)
@@ -856,19 +856,19 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_hvlFitIntValues,
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
-                     m_currentPeak.afSettings,
+                     m_currentPeak.afContext,
                      std::make_shared<PeakFinderResults::Result>(),
                      0.0, 0.0, QVector<QPointF>());
 }
 
-void EvaluationEngine::displayAssistedFinderData(const AssistedFinderSettings &afSettings)
+void EvaluationEngine::displayAssistedFinderData(const AssistedFinderContext &afContext)
 {
-  m_evaluationAutoValues = afSettings.afAutoValues;
-  m_evaluationBooleanValues = afSettings.afBoolValues;
-  m_evaluationFloatingValues = afSettings.afFloatingValues;
-  m_baselineAlgorithm = afSettings.baselineAlgorithm;
-  m_showWindow = afSettings.showWindow;
-  m_windowUnit = afSettings.windowUnits;
+  m_evaluationAutoValues = afContext.afAutoValues;
+  m_evaluationBooleanValues = afContext.afBoolValues;
+  m_evaluationFloatingValues = afContext.afFloatingValues;
+  m_baselineAlgorithm = afContext.baselineAlgorithm;
+  m_showWindow = afContext.showWindow;
+  m_windowUnit = afContext.windowUnits;
 
   m_evaluationAutoModel.notifyAllDataChanged();
   m_evaluationBooleanModel.notifyAllDataChanged();
@@ -948,8 +948,8 @@ void EvaluationEngine::findPeakAssisted()
     return;
   }
 
-  walkFoundPeaks(fr->results, AssistedFinderSettings(m_evaluationAutoValues, m_evaluationBooleanValues, m_evaluationFloatingValues,
-                                                     m_baselineAlgorithm, m_showWindow, m_windowUnit));
+  walkFoundPeaks(fr->results, AssistedFinderContext(m_evaluationAutoValues, m_evaluationBooleanValues, m_evaluationFloatingValues,
+                                                    m_baselineAlgorithm, m_showWindow, m_windowUnit));
   displayCurrentPeak();
 }
 
@@ -1005,7 +1005,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (fr->results.size() == 0)
     goto err_out;
 
-  walkFoundPeaks(fr->results, AssistedFinderSettings(), updatePeak);
+  walkFoundPeaks(fr->results, AssistedFinderContext(), updatePeak);
   displayCurrentPeak();
   return;
 
@@ -1110,7 +1110,7 @@ void EvaluationEngine::findPeakPreciseBoundaries()
     if (fr->results.size() == 0)
       return;
 
-    processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), AssistedFinderSettings(), false, !disableAutoFit, m_currentPeak);
+    processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), AssistedFinderContext(), false, !disableAutoFit, m_currentPeak);
     return;
   }
 }
@@ -1135,7 +1135,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      MappedVectorWrapper<int, HVLFitParametersItems::Int>(defaultHvlIntValues()),
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
-                     AssistedFinderSettings(),
+                     AssistedFinderContext(),
                      std::make_shared<PeakFinderResults::Result>(),
                      0.0, 0.0, QVector<QPointF>());
 }
@@ -1314,14 +1314,14 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContextModels &models,
-                                                                const AssistedFinderSettings &afSettings,
+                                                                const AssistedFinderContext &afContext,
                                                                 const std::shared_ptr<PeakFinderResults::Result> &fr,
                                                                 const PeakEvaluator::Results &er,
                                                                 const QVector<QPointF> &hvlPlot) const
 {
   return PeakContext(models.resultsValues,
                      models.hvlValues, models.hvlFitIntValues, models.hvlFitFixedValues,
-                     afSettings,
+                     afContext,
                      fr,
                      er.baselineSlope, er.baselineIntercept,
                      hvlPlot);
@@ -1334,7 +1334,7 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const MappedVect
                                                                 const PeakContext &oldPeak) const
 {
   return PeakContext(resultsValues, hvlValues, hvlFitIntValues, hvlFitFixedValues,
-                     oldPeak.afSettings,
+                     oldPeak.afContext,
                      oldPeak.finderResults,
                      oldPeak.baselineSlope, oldPeak.baselineIntercept,
                      oldPeak.hvlPlot);
@@ -1519,7 +1519,7 @@ void EvaluationEngine::onCommonParametersChanged()
   /* Update all stored peaks */
   for (int idx = 1; idx < m_allPeaks.size(); idx++) {
     const PeakContext &ctx = m_allPeaks.at(idx).peak();
-    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afSettings, true, false, ctx);
+    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afContext, true, false, ctx);
 
       m_allPeaks[idx].updatePeak(newCtx);
       m_evaluatedPeaksModel.updateEntry(idx - 1,
@@ -1528,7 +1528,7 @@ void EvaluationEngine::onCommonParametersChanged()
   }
 
   if (m_currentPeak.finderResults->isValid()) {
-    m_currentPeak = processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, m_currentPeak.afSettings, true, false, m_currentPeak);
+    m_currentPeak = processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, m_currentPeak.afContext, true, false, m_currentPeak);
     m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_currentPeak.hvlValues, m_commonParamsEngine->currentContext().data);
 
     m_resultsNumericValues = m_currentPeak.resultsValues;
@@ -2212,7 +2212,7 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(fr);
 
     if (afr != nullptr) {
-      if (m_currentPeak.afSettings.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
+      if (m_currentPeak.afContext.showWindow != EvaluationParametersItems::ComboShowWindow::NONE) {
         if (afr->seriesA != nullptr)
           m_plotCtx->setSerieSamples(seriesIndex(Series::FINDER_SYSTEM_A), *(afr->seriesA));
         if (afr->seriesB != nullptr)
@@ -2285,7 +2285,7 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   }
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const AssistedFinderSettings &afSettings,
+EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const AssistedFinderContext &afContext,
                                                                  const bool updateCurrentPeak, const bool doHvlFitRq,
                                                                  const PeakContext &srcCtx)
 {
@@ -2352,7 +2352,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   const PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
                                                         hvlResults,
                                                         srcCtx.hvlFitIntValues, srcCtx.hvlFitFixedValues),
-                                          afSettings, fr, er, hvlPlot);
+                                          afContext, fr, er, hvlPlot);
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
@@ -2483,13 +2483,13 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
   m_hvlFitFixedValues = ctx.hvlFitFixedValues;
   m_hvlFitIntValues = ctx.hvlFitIntValues;
 
-  m_evaluationAutoValues = ctx.afSettings.afAutoValues;
-  m_evaluationBooleanValues = ctx.afSettings.afBoolValues;
-  m_evaluationFloatingValues = ctx.afSettings.afFloatingValues;
+  m_evaluationAutoValues = ctx.afContext.afAutoValues;
+  m_evaluationBooleanValues = ctx.afContext.afBoolValues;
+  m_evaluationFloatingValues = ctx.afContext.afFloatingValues;
 
-  m_windowUnit = ctx.afSettings.windowUnits;
-  m_showWindow = ctx.afSettings.showWindow;
-  m_baselineAlgorithm = ctx.afSettings.baselineAlgorithm;
+  m_windowUnit = ctx.afContext.windowUnits;
+  m_showWindow = ctx.afContext.showWindow;
+  m_baselineAlgorithm = ctx.afContext.baselineAlgorithm;
 
   clearPeakPlots();
   fullViewUpdate();
@@ -2655,7 +2655,7 @@ double EvaluationEngine::timeStep()
   return dt;
 }
 
-void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings,
+void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderContext &afContext,
                                       const bool updatePeak)
 {
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
@@ -2666,16 +2666,16 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
   } else if (results.size() == 1) {
     const std::shared_ptr<PeakFinderResults::Result> &r = results.at(0);
 
-    AssistedFinderSettings afsInner(afSettings);
+    AssistedFinderContext afcInner(afContext);
 
     const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
     if (afr != nullptr) {
-      afsInner.setProcessingData(afr->noise,
+      afcInner.setProcessingData(afr->noise,
                                  afr->noiseRefPoint, afr->slopeRefPoint,
                                  afr->slopeThreshold, afr->slopeWindow);
     }
 
-    const PeakContext ctx = processFoundPeak(m_currentDataContext->data->data, r, afsInner, updatePeak, !disableAutoFit, m_currentPeak);
+    const PeakContext ctx = processFoundPeak(m_currentDataContext->data->data, r, afcInner, updatePeak, !disableAutoFit, m_currentPeak);
     m_currentPeak = ctx;
 
     if (updatePeak && m_currentPeakIdx > 0) {
@@ -2688,16 +2688,16 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
     int ctr = 1;
     for (const std::shared_ptr<PeakFinderResults::Result> &r : results) {
 
-      AssistedFinderSettings afsInner(afSettings);
+      AssistedFinderContext afcInner(afContext);
 
       const std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> afr = std::dynamic_pointer_cast<AssistedPeakFinder::AssistedPeakFinderResult>(r);
       if (afr != nullptr) {
-        afsInner.setProcessingData(afr->noise,
+        afcInner.setProcessingData(afr->noise,
                                    afr->noiseRefPoint, afr->slopeRefPoint,
                                    afr->slopeThreshold, afr->slopeWindow);
       }
 
-      const PeakContext ctx = processFoundPeak(m_currentDataContext->data->data, r, afsInner, false, !disableAutoFit, m_currentPeak);
+      const PeakContext ctx = processFoundPeak(m_currentDataContext->data->data, r, afcInner, false, !disableAutoFit, m_currentPeak);
       addPeakToList(ctx, QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
       ctr++;
     }

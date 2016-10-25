@@ -1,7 +1,7 @@
 #include "evaluationengine.h"
 
 EvaluationEngine::PeakContext::PeakContext() :
-  afSettings(AssistedFinderSettings()),
+  afContext(AssistedFinderContext()),
   finderResults(std::make_shared<PeakFinderResults::Result>()),
   baselineSlope(0.0),
   baselineIntercept(0.0)
@@ -12,14 +12,14 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
-                                           const AssistedFinderSettings &afSettings,
+                                           const AssistedFinderContext &afContext,
                                            const std::shared_ptr<PeakFinderResults::Result> &finderResults, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot) :
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
   hvlFitFixedValues(hvlFitFixedValues),
-  afSettings(afSettings),
+  afContext(afContext),
   finderResults(finderResults),
   baselineSlope(baselineSlope),
   baselineIntercept(baselineIntercept),
@@ -31,7 +31,7 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   resultsValues(other.resultsValues),
   hvlValues(other.hvlValues),
   hvlFitIntValues(other.hvlFitIntValues),
-  afSettings(other.afSettings),
+  afContext(other.afContext),
   finderResults(other.finderResults),
   baselineSlope(other.baselineSlope),
   baselineIntercept(other.baselineIntercept),
@@ -63,7 +63,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
   const_cast<std::shared_ptr<PeakFinderResults::Result>&>(finderResults) = other.finderResults;
-  const_cast<AssistedFinderSettings&>(afSettings) = other.afSettings;
+  const_cast<AssistedFinderContext&>(afContext) = other.afContext;
 
   return *this;
 }
