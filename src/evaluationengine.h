@@ -236,13 +236,13 @@ private:
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAssistedFinderData(const AssistedFinderSettings &afSettings);
-  bool doHvlFit(const bool updateCurrentPeak);
+  bool doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const bool updateCurrentPeak);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
-  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
+  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak = false);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   void findPeakPreciseBoundaries();
   EvaluationContext freshEvaluationContext() const;
@@ -281,7 +281,7 @@ private:
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
   double timeStep();
-  void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings);
+  void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings, const bool updatePeak = false);
 
   /* All data contexts */
   QMap<QString, std::shared_ptr<DataContext>> m_allDataContexts;

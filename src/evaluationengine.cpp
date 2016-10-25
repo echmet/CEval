@@ -744,19 +744,19 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   return def;
 }
 
-bool EvaluationEngine::doHvlFit(const bool updateCurrentPeak)
+bool EvaluationEngine::doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const bool updateCurrentPeak)
 {
   if (!isContextValid())
     return false;
 
   /* Peak has no meaningful evaluation results,
    * do not process it */
-  if (!m_currentPeak.finderResults->isValid())
+  if (!finderResults->isValid())
     return false;
 
   HVLCalculator::HVLParameters p = HVLCalculator::fit(
     m_currentDataContext->data->data,
-    m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex,
+    finderResults->fromIndex, finderResults->toIndex,
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
     m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
@@ -921,7 +921,7 @@ void EvaluationEngine::findPeakAssisted()
                                                      m_baselineAlgorithm, m_showWindow, m_windowUnit));
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo)
+void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak)
 {
   std::shared_ptr<PeakFinderResults> fr;
 
@@ -973,7 +973,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   if (fr->results.size() == 0)
     goto err_out;
 
-  walkFoundPeaks(fr->results, AssistedFinderSettings());
+  walkFoundPeaks(fr->results, AssistedFinderSettings(), updatePeak);
   return;
 
 err_out:
@@ -1645,7 +1645,10 @@ void EvaluationEngine::onDeletePeak(const QModelIndex &idx)
 
 void EvaluationEngine::onDoHvlFit()
 {
-  if (doHvlFit(true))
+  if (!isContextValid())
+    return;
+
+  if (doHvlFit(m_currentPeak.finderResults, true))
     onReplotHvl();
 }
 
@@ -2187,16 +2190,16 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     findPeakPreciseBoundaries();
     break;
   case PostProcessMenuActions::MOVE_PEAK_FROM:
-    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false);
+    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP:
-    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), true, false);
+    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), true, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_TO:
-    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, false);
+    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_TO_SIGSNAP:
-    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, true);
+    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, true, true);
     break;
   case PostProcessMenuActions::DESELECT_PEAK:
     onCancelEvaluatedPeakSelection();
@@ -2252,7 +2255,7 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
     m_currentPeakIdx = 0; /* Reset peak index since we created a new peak */
 
   if (doHvlFitRq)
-    doHvlFit(updateStoredPeak || m_currentPeakIdx == 0);
+    doHvlFit(fr, updateStoredPeak || m_currentPeakIdx == 0);
 
   m_currentPeak = makePeakContext(makePeakContextModels(fr, er,
                                                         m_hvlFitIntValues, m_hvlFitFixedValues,
@@ -2568,7 +2571,8 @@ double EvaluationEngine::timeStep()
   return dt;
 }
 
-void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings)
+void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings,
+                                      const bool updatePeak)
 {
   const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
@@ -2587,7 +2591,7 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
                                  afr->slopeThreshold, afr->slopeWindow);
     }
 
-    processFoundPeak(m_currentDataContext->data->data, r, afsInner, false, !disableAutoFit);
+    processFoundPeak(m_currentDataContext->data->data, r, afsInner, updatePeak, !disableAutoFit);
   } else {
     int ctr = 1;
     for (const std::shared_ptr<PeakFinderResults::Result> &r : results) {
@@ -2601,7 +2605,7 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
                                    afr->slopeThreshold, afr->slopeWindow);
       }
 
-      processFoundPeak(m_currentDataContext->data->data, r, afsInner, false, !disableAutoFit);
+      processFoundPeak(m_currentDataContext->data->data, r, afsInner, updatePeak, !disableAutoFit);
       addPeakToList(QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
       ctr++;
     }
