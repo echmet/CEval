@@ -2397,6 +2397,7 @@ void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
   m_resultsNumericValues = ctx.resultsValues;
   m_hvlFitValues = ctx.hvlValues;
 
+  m_resultsFloatingModel.notifyAllDataChanged();
   m_hvlFitModel.notifyAllDataChanged();
 }
 
