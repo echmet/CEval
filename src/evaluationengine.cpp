@@ -356,6 +356,7 @@ void EvaluationEngine::activateCurrentDataContext()
   }
 
   drawEofMarker();
+  m_plotCtx->scaleToFit();
 }
 
 void EvaluationEngine::addPeakToList(const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom)
