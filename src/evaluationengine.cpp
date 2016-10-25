@@ -317,7 +317,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_currentDataContextKey = s_emptyCtxKey;
 
   connect(this, &EvaluationEngine::updateTEof, m_commonParamsEngine, &CommonParametersEngine::onUpdateTEof);
-  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onCommonParametersChanged);
 }
 
 EvaluationEngine::~EvaluationEngine()
@@ -343,12 +343,12 @@ EvaluationEngine::~EvaluationEngine()
 
 void EvaluationEngine::activateCurrentDataContext()
 {
-  disconnect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  disconnect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onCommonParametersChanged);
   m_commonParamsEngine->setContext(m_currentDataContext->commonContext);
   setEvaluationContext(m_currentDataContext->evaluationContext);
   m_evaluatedPeaksModel.setEntries(makeEvaluatedPeaks());
   m_commonParamsEngine->revalidate();
-  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onUpdateCurrentPeak);
+  connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onCommonParametersChanged);
 
   if (m_currentDataContext->data != nullptr) {
     if (m_currentDataContext->data->data.length() > 0)
@@ -1503,6 +1503,41 @@ void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier 
   }
 }
 
+void EvaluationEngine::onCommonParametersChanged()
+{
+  if (!isContextValid())
+    return;
+
+  drawEofMarker();
+
+  if (m_commonParamsEngine->value(CommonParametersItems::Floating::CAPILLARY) <= 0.0 ||
+      m_commonParamsEngine->value(CommonParametersItems::Floating::DETECTOR) <= 0.0 ||
+      m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE) == 0.0 ||
+      m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF) <= 0.0)
+    return;
+
+  /* Update all stored peaks */
+  for (int idx = 1; idx < m_allPeaks.size(); idx++) {
+    const PeakContext &ctx = m_allPeaks.at(idx).peak();
+    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afSettings, true, false, ctx);
+
+      m_allPeaks[idx].updatePeak(newCtx);
+      m_evaluatedPeaksModel.updateEntry(idx - 1,
+                                        newCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X),
+                                        newCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
+  }
+
+  if (m_currentPeak.finderResults->isValid()) {
+    m_currentPeak = processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, m_currentPeak.afSettings, true, false, m_currentPeak);
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_currentPeak.hvlValues, m_commonParamsEngine->currentContext().data);
+
+    m_resultsNumericValues = m_currentPeak.resultsValues;
+    m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_U_EFF_A1,
+                                    HVLFitResultsItems::Floating::HVL_U_EFF_A1);
+    m_resultsFloatingModel.notifyAllDataChanged();
+  }
+}
+
 void EvaluationEngine::onConfigureExporterBackend()
 {
   switch (m_currentDataExporterBackend) {
@@ -2138,41 +2173,6 @@ void EvaluationEngine::onUnhighlightProvisionalPeak()
 {
   m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_PEAK));
   m_plotCtx->replot();
-}
-
-void EvaluationEngine::onUpdateCurrentPeak()
-{
-  if (!isContextValid())
-    return;
-
-  drawEofMarker();
-
-  if (m_commonParamsEngine->value(CommonParametersItems::Floating::CAPILLARY) <= 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::DETECTOR) <= 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE) == 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF) <= 0.0)
-    return;
-
-  /* Update all stored peaks */
-  for (int idx = 1; idx < m_allPeaks.size(); idx++) {
-    const PeakContext &ctx = m_allPeaks.at(idx).peak();
-    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afSettings, true, false, ctx);
-
-      m_allPeaks[idx].updatePeak(newCtx);
-      m_evaluatedPeaksModel.updateEntry(idx - 1,
-                                        newCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X),
-                                        newCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
-  }
-
-  if (m_currentPeak.finderResults->isValid()) {
-    m_currentPeak = processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, m_currentPeak.afSettings, true, false, m_currentPeak);
-    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_currentPeak.hvlValues, m_commonParamsEngine->currentContext().data);
-
-    m_resultsNumericValues = m_currentPeak.resultsValues;
-    m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_U_EFF_A1,
-                                    HVLFitResultsItems::Floating::HVL_U_EFF_A1);
-    m_resultsFloatingModel.notifyAllDataChanged();
-  }
 }
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,

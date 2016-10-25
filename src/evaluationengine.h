@@ -418,6 +418,7 @@ public slots:
   void onClipboardExporterDelimiterChanged(const QString &delimiter);
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
+  void onCommonParametersChanged();
   void onConfigureExporterBackend();
   void onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipboard ctc);
   void onDeletePeak(const QModelIndex &idx);
@@ -438,7 +439,6 @@ public slots:
   void onReplotHvl();
   void onSetDefault(EvaluationEngineMsgs::Default msg);
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
-  void onUpdateCurrentPeak();
 
 private slots:
   void onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName);
