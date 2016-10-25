@@ -164,7 +164,7 @@ private:
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
                          const AssistedFinderSettings &afSettings,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
-                         const int peakIndex, const double baselineSlope, const double baselineIntercept,
+                         const double baselineSlope, const double baselineIntercept,
                          const QVector<QPointF> &hvlPlot);
     PeakContext(const PeakContext &other);
     void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
@@ -178,7 +178,7 @@ private:
     const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
     const AssistedFinderSettings afSettings;
     const std::shared_ptr<PeakFinderResults::Result> finderResults;
-    const int peakIndex;
+    //const int peakIndex;
     const double baselineSlope;
     const double baselineIntercept;
     const QVector<QPointF> hvlPlot;
@@ -233,7 +233,6 @@ private:
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
-  PeakContext currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAssistedFinderData(const AssistedFinderSettings &afSettings);

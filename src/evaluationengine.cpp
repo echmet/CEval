@@ -722,18 +722,6 @@ EvaluationEngine::EvaluationContext EvaluationEngine::currentEvaluationContext()
   return EvaluationContext(allPeaks, m_currentPeakIdx);
 }
 
-/*
-EvaluationEngine::PeakContext EvaluationEngine::currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
-                                                                   const int peakIndex, const double baselineSlope, const double baselineIntercept,
-                                                                   const QVector<QPointF> &hvlPlot) const
-{
-  return PeakContext(m_resultsNumericValues,
-                     m_hvlFitValues, m_hvlFitIntValues, m_hvlFitFixedValues,
-                     m_windowUnit, m_showWindow, m_baselineAlgorithm,
-                     finderResults, peakIndex, baselineSlope, baselineIntercept, hvlPlot);
-}
-*/
-
 QVector<bool> EvaluationEngine::defaultHvlFixedValues() const
 {
   QVector<bool> def;
@@ -839,7 +827,7 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
                      m_currentPeak.afSettings,
                      std::make_shared<PeakFinderResults::Result>(),
-                     -1, 0.0, 0.0, QVector<QPointF>());
+                     0.0, 0.0, QVector<QPointF>());
 }
 
 void EvaluationEngine::displayAssistedFinderData(const AssistedFinderSettings &afSettings)
@@ -1116,7 +1104,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
                      AssistedFinderSettings(),
                      std::make_shared<PeakFinderResults::Result>(),
-                     -1, 0.0, 0.0, QVector<QPointF>());
+                     0.0, 0.0, QVector<QPointF>());
 }
 
 void EvaluationEngine::fullViewUpdate()
@@ -1302,7 +1290,7 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
                      models.hvlValues, models.hvlFitIntValues, models.hvlFitFixedValues,
                      afSettings,
                      fr,
-                     er.peakIndex, er.baselineSlope, er.baselineIntercept,
+                     er.baselineSlope, er.baselineIntercept,
                      hvlPlot);
 }
 
