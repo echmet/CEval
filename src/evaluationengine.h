@@ -118,6 +118,43 @@ private:
     LAST_INDEX
   };
 
+  class AssistedFinderSettings {
+  public:
+    explicit AssistedFinderSettings();
+    AssistedFinderSettings(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
+                           const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
+                           const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues,
+                           const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
+                           const EvaluationParametersItems::ComboShowWindow showWindow,
+                           const EvaluationParametersItems::ComboWindowUnits windowUnits);
+    AssistedFinderSettings & operator=(const AssistedFinderSettings &other);
+    void setProcessingData(const double noise,
+                           const double noiseRefPoint, const double slopeRefPoint,
+                           const double slopeThreshold, const double slopeWindow);
+
+    const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> afAutoValues;
+    const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> afBoolValues;
+    MappedVectorWrapper<double, EvaluationParametersItems::Floating> afFloatingValues; /* This may need to be edited */
+    const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
+    const EvaluationParametersItems::ComboShowWindow showWindow;
+    const EvaluationParametersItems::ComboWindowUnits windowUnits;
+
+  };
+
+  class PeakContextModels {
+  public:
+    explicit PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+                               const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                               const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues);
+
+    const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
+    const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
+    const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
+    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
+
+  };
+
   class PeakContext : public DataExporter::IExportable {
   public:
     explicit PeakContext();
@@ -125,8 +162,7 @@ private:
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
-                         const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
-                         const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
+                         const AssistedFinderSettings &afSettings,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const int peakIndex, const double baselineSlope, const double baselineIntercept,
                          const QVector<QPointF> &hvlPlot);
@@ -140,9 +176,7 @@ private:
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
     const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
     const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
-    const EvaluationParametersItems::ComboWindowUnits windowUnit;
-    const EvaluationParametersItems::ComboShowWindow showWindow;
-    const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
+    const AssistedFinderSettings afSettings;
     const std::shared_ptr<PeakFinderResults::Result> finderResults;
     const int peakIndex;
     const double baselineSlope;
@@ -170,17 +204,10 @@ private:
 
   class EvaluationContext {
   public:
-    EvaluationContext(const QVector<StoredPeak> &peaks, const int lastIndex,
-                      const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
-                      const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
-                      const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues);
+    EvaluationContext(const QVector<StoredPeak> &peaks, const int lastIndex);
 
     const QVector<StoredPeak> peaks;
     const int lastIndex;
-    const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> afAutoValues;
-    const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> afBoolValues;
-    const MappedVectorWrapper<double, EvaluationParametersItems::Floating> afFloatingValues;
-
 
     EvaluationContext &operator=(const EvaluationContext &other);
 
@@ -209,7 +236,7 @@ private:
   PeakContext currentPeakContext(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const int peakIndex, const double baselineSlope, const double baselineIntercept, const QVector<QPointF> &hvlPlot) const;
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
-  void displayAutomatedResults(const std::shared_ptr<PeakFinderResults::Result> &r);
+  void displayAssistedFinderData(const AssistedFinderSettings &afSettings);
   bool doHvlFit(const bool updateCurrentPeak);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
@@ -219,9 +246,7 @@ private:
   void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   void findPeakPreciseBoundaries();
-  EvaluationContext freshEvaluationContext(const MappedVectorWrapper<bool, EvaluationParametersItems::Auto> &afAutoValues,
-                                           const MappedVectorWrapper<bool, EvaluationParametersItems::Boolean> &afBoolValues,
-                                           const MappedVectorWrapper<double, EvaluationParametersItems::Floating> &afFloatingValues) const;
+  EvaluationContext freshEvaluationContext() const;
   PeakContext freshPeakContext() const noexcept(false);
   void fullViewUpdate();
   void initClipboardExporter();
@@ -230,25 +255,33 @@ private:
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr);
   AssistedPeakFinder::Parameters makeFinderParameters();
+  PeakContext makePeakContext(const PeakContextModels &models,
+                              const AssistedFinderSettings &afSettings,
+                              const std::shared_ptr<PeakFinderResults::Result>  &fr,
+                              const PeakEvaluator::Results &er,
+                              const QVector<QPointF> &hvlPlot) const;
+  PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
+                                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues) const;
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const bool updateCurrentPeak = false, const bool doHvlFitRq = true);
+  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const AssistedFinderSettings &afSettings, const bool updateCurrentPeak = false, const bool doHvlFitRq = true);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
   void setEofTime(const QPointF& point);
   bool setEvaluationContext(const EvaluationContext &ctx);
-  void setEvaluationResults(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er);
+  void setEvaluationResults(const PeakContext &ctx);
   bool setPeakContext(const PeakContext &ctx);
   void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
   double timeStep();
-  void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results);
+  void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderSettings &afSettings);
 
   /* All data contexts */
   QMap<QString, std::shared_ptr<DataContext>> m_allDataContexts;
@@ -304,6 +337,10 @@ private:
   static const QVector<bool> s_defaultEvaluationAutoValues;
   static const QVector<bool> s_defaultEvaluationBooleanValues;
   static const QVector<double> s_defaultEvaluationFloatingValues;
+
+  static const EvaluationParametersItems::ComboBaselineAlgorithm s_defaultBaselineAlgorithm;
+  static const EvaluationParametersItems::ComboShowWindow s_defaultShowWindow;
+  static const EvaluationParametersItems::ComboWindowUnits s_defaultWindowUnits;
 
   static const QString s_serieBaselineTitle;
   static const QString s_serieEofTitle;

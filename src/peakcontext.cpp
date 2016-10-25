@@ -1,9 +1,7 @@
 #include "evaluationengine.h"
 
 EvaluationEngine::PeakContext::PeakContext() :
-  windowUnit(EvaluationParametersItems::ComboWindowUnits::LAST_INDEX),
-  showWindow(EvaluationParametersItems::ComboShowWindow::LAST_INDEX),
-  baselineAlgorithm(EvaluationParametersItems::ComboBaselineAlgorithm::LAST_INDEX),
+  afSettings(AssistedFinderSettings()),
   finderResults(std::make_shared<PeakFinderResults::Result>()),
   peakIndex(-1),
   baselineSlope(0.0),
@@ -15,8 +13,7 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
-                                           const EvaluationParametersItems::ComboWindowUnits windowUnit, const EvaluationParametersItems::ComboShowWindow showWindow,
-                                           const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
+                                           const AssistedFinderSettings &afSettings,
                                            const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                                            const int peakIndex, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot) :
@@ -24,7 +21,7 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
   hvlFitFixedValues(hvlFitFixedValues),
-  windowUnit(windowUnit), showWindow(showWindow), baselineAlgorithm(baselineAlgorithm),
+  afSettings(afSettings),
   finderResults(finderResults),
   peakIndex(peakIndex),
   baselineSlope(baselineSlope),
@@ -37,10 +34,7 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   resultsValues(other.resultsValues),
   hvlValues(other.hvlValues),
   hvlFitIntValues(other.hvlFitIntValues),
-  hvlFitFixedValues(other.hvlFitFixedValues),
-  windowUnit(other.windowUnit),
-  showWindow(other.showWindow),
-  baselineAlgorithm(other.baselineAlgorithm),
+  afSettings(other.afSettings),
   finderResults(other.finderResults),
   peakIndex(other.peakIndex),
   baselineSlope(other.baselineSlope),
@@ -69,14 +63,12 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues) = other.hvlValues;
   const_cast<MappedVectorWrapper<int, HVLFitParametersItems::Int>&>(hvlFitIntValues) = other.hvlFitIntValues;
   const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitFixedValues) = other.hvlFitFixedValues;
-  const_cast<EvaluationParametersItems::ComboWindowUnits&>(windowUnit) = other.windowUnit;
-  const_cast<EvaluationParametersItems::ComboShowWindow&>(showWindow) = other.showWindow;
-  const_cast<EvaluationParametersItems::ComboBaselineAlgorithm&>(baselineAlgorithm) = other.baselineAlgorithm;
   const_cast<int&>(peakIndex) = other.peakIndex;
   const_cast<double&>(baselineSlope) = other.baselineSlope;
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;
   const_cast<std::shared_ptr<PeakFinderResults::Result>&>(finderResults) = other.finderResults;
+  const_cast<AssistedFinderSettings&>(afSettings) = other.afSettings;
 
   return *this;
 }
