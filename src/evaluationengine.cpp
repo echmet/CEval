@@ -1308,7 +1308,8 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
 
 EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
                                                                             const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues) const
+                                                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
+                                                                            const double hvlEpsilon, const double hvlS) const
 {
   MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
@@ -1352,6 +1353,8 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
     hvlValues[HVLFitResultsItems::Floating::HVL_A2] = er.HVL_a2;
     hvlValues[HVLFitResultsItems::Floating::HVL_A3] = er.HVL_a3;
     hvlValues[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
+    hvlValues[HVLFitResultsItems::Floating::HVL_EPSILON] = hvlEpsilon;
+    hvlValues[HVLFitResultsItems::Floating::HVL_S] = hvlS;
   }
 
   return PeakContextModels(resultsValues, hvlValues, hvlFitIntValues, hvlFitFixedValues);
@@ -2257,14 +2260,16 @@ void EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std:
   hvlPlot = HVLCalculator::plot(HVL_a0, HVL_a1, HVL_a2, HVL_a3, fr->peakFromX, fr->peakToX, timeStep(), m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
-  m_currentPeak = makePeakContext(makePeakContextModels(fr, er,
-                                                        m_hvlFitIntValues, m_hvlFitFixedValues),
-                                  afSettings, fr, er, hvlPlot);
   if (!updateStoredPeak)
     m_currentPeakIdx = 0; /* Reset peak index since we created a new peak */
 
   if (doHvlFitRq)
     doHvlFit(updateStoredPeak || m_currentPeakIdx == 0);
+
+  m_currentPeak = makePeakContext(makePeakContextModels(fr, er,
+                                                        m_hvlFitIntValues, m_hvlFitFixedValues,
+                                                        m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EPSILON], m_hvlFitValues[HVLFitResultsItems::Floating::HVL_S]),
+                                  afSettings, fr, er, hvlPlot);
 
   clearPeakPlots();
   plotEvaluatedPeak(fr, er.peakX, er.widthHalfLeft, er.widthHalfRight, er.peakHeight, er.peakHeightBaseline);
@@ -2391,6 +2396,8 @@ void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
 {
   m_resultsNumericValues = ctx.resultsValues;
   m_hvlFitValues = ctx.hvlValues;
+
+  m_hvlFitModel.notifyAllDataChanged();
 }
 
 bool EvaluationEngine::setPeakContext(const PeakContext &ctx)

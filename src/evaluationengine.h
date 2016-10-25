@@ -262,7 +262,8 @@ private:
                               const QVector<QPointF> &hvlPlot) const;
   PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
                                           const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues) const;
+                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
+                                          const double hvlEpsilon, const double hvlS) const;
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
