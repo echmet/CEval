@@ -178,7 +178,6 @@ private:
     const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
     const AssistedFinderSettings afSettings;
     const std::shared_ptr<PeakFinderResults::Result> finderResults;
-    //const int peakIndex;
     const double baselineSlope;
     const double baselineIntercept;
     const QVector<QPointF> hvlPlot;
@@ -225,7 +224,7 @@ private:
   };
 
   void activateCurrentDataContext();
-  void addPeakToList(const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
+  void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
@@ -236,7 +235,11 @@ private:
   QVector<bool> defaultHvlFixedValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAssistedFinderData(const AssistedFinderSettings &afSettings);
-  bool doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults, const bool updateCurrentPeak);
+  void displayCurrentPeak();
+  MappedVectorWrapper<double, HVLFitResultsItems::Floating> doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
+                                                                     const double estA0, const double estA1, const double estA2, const double estA3,
+                                                                     const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
+                                                                     bool *ok);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;
@@ -259,16 +262,22 @@ private:
                               const std::shared_ptr<PeakFinderResults::Result>  &fr,
                               const PeakEvaluator::Results &er,
                               const QVector<QPointF> &hvlPlot) const;
-  PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
+  PeakContext makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
+                              const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues,
+                              const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues,
+                              const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues,
+                              const PeakContext &oldPeak) const;
+  PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er, const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlResults,
                                           const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
-                                          const double hvlEpsilon, const double hvlS) const;
+                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues) const;
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
-  void processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const AssistedFinderSettings &afSettings, const bool updateCurrentPeak = false, const bool doHvlFitRq = true);
+  PeakContext processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr,
+                               const AssistedFinderSettings &afSettings, const bool updateCurrentPeak, const bool doHvlFitRq,
+                               const PeakContext &srcCtx);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();
