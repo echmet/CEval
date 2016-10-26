@@ -52,7 +52,8 @@ void CommonParametersEngine::onModelDataChanged(QModelIndex topLeft, QModelIndex
   if (!roles.contains(Qt::EditRole))
     return;
 
-  bool recalcd = false;
+  bool emitParams = false;
+
   for (int idx = topLeft.column(); idx <= bottomRight.column(); idx++) {
 
     CommonParametersItems::Floating sval = m_model.itemFromIndex(idx);
@@ -61,21 +62,21 @@ void CommonParametersEngine::onModelDataChanged(QModelIndex topLeft, QModelIndex
     switch (sval) {
     case CommonParametersItems::Floating::CAPILLARY:
     case CommonParametersItems::Floating::VOLTAGE:
-      if (!recalcd) {
-        recalculate();
-        recalcd = true;
-        checkValidity();
-      }
+      emitParams = recalculate();
+      checkValidity();
       break;
     case CommonParametersItems::Floating::DETECTOR:
     case CommonParametersItems::Floating::T_EOF:
       checkValidity();
-      emit parametersUpdated();
+      emitParams = true;
       break;
     default:
       break;
     }
   }
+
+  if (emitParams)
+    emit parametersUpdated();
 }
 
 void CommonParametersEngine::onUpdateTEof(const double t)
@@ -85,7 +86,7 @@ void CommonParametersEngine::onUpdateTEof(const double t)
   m_model.notifyDataChanged(CommonParametersItems::Floating::T_EOF, CommonParametersItems::Floating::T_EOF, { Qt::EditRole });
 }
 
-void CommonParametersEngine::recalculate()
+bool CommonParametersEngine::recalculate()
 {
   const double lengthDetectorMeters = m_data.at(CommonParametersItems::Floating::DETECTOR) / 100;
   const double lengthMeters = m_data.at(CommonParametersItems::Floating::CAPILLARY) / 100.0;
@@ -97,9 +98,11 @@ void CommonParametersEngine::recalculate()
 
     if (fieldStrength != m_data.at(CommonParametersItems::Floating::FIELD)) {
       m_model.setData(m_model.index(0, m_model.indexFromItem(CommonParametersItems::Floating::FIELD)), fieldStrength, Qt::EditRole);
-      emit parametersUpdated();
+      return true;
     }
   }
+
+  return false;
 }
 
 void CommonParametersEngine::revalidate() const

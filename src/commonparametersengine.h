@@ -36,7 +36,7 @@ private:
   //QVector<double> m_data;
 
   void checkValidity() const;
-  void recalculate();
+  bool recalculate();
 
 signals:
   void parametersUpdated();
