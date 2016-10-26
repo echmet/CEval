@@ -177,7 +177,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
   connect(&worker, &HVLCalculatorWorker::finished, &thread, &QThread::quit);
   connect(&worker, &HVLCalculatorWorker::finished, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
-  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort);
+  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort, Qt::DirectConnection);
 
   QTime stopwatch;
   stopwatch.start();
