@@ -1427,6 +1427,15 @@ void EvaluationEngine::onAddPeak()
 
 void EvaluationEngine::onCancelEvaluatedPeakSelection()
 {
+  /* Store current peak */
+  if (m_currentPeakIdx > 0) {
+    m_allPeaks[m_currentPeakIdx].updatePeak(makePeakContext(m_resultsNumericValues,
+                                                            m_hvlFitValues,
+                                                            m_hvlFitIntValues,
+                                                            m_hvlFitFixedValues,
+                                                            m_currentPeak));
+  }
+
   try {
     m_currentPeak = duplicatePeakContext();
   } catch (std::bad_alloc &) {
