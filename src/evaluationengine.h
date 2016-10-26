@@ -239,6 +239,8 @@ private:
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                                                                      const double estA0, const double estA1, const double estA2, const double estA3,
                                                                      const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
+                                                                     const double epsilon,
+                                                                     const int iterations, const int digits,
                                                                      bool *ok);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
