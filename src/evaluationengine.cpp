@@ -1532,7 +1532,7 @@ void EvaluationEngine::onCommonParametersChanged()
   /* Update all stored peaks */
   for (int idx = 1; idx < m_allPeaks.size(); idx++) {
     const PeakContext &ctx = m_allPeaks.at(idx).peak();
-    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afContext, true, false, ctx);
+    PeakContext newCtx = processFoundPeak(m_currentDataContext->data->data, ctx.finderResults, ctx.afContext, true, true /*false */, ctx);
 
       m_allPeaks[idx].updatePeak(newCtx);
       m_evaluatedPeaksModel.updateEntry(idx - 1,

@@ -40,7 +40,6 @@ public:
     explicit HVLInParameters();
 
     const QVector<QPointF> *data;
-    echmet::regressCore::HVLPeak<double, double> *regressor;
     int fromIdx;
     int toIdx;
     double a0;
@@ -82,17 +81,31 @@ private:
   explicit HVLCalculator(QObject *parent, const int precision);
   void doFit(HVLParameters *out, const HVLInParameters *in);
 
-  echmet::regressCore::HVLPeak<double, double> *m_regressor;
   HVLLibWrapper *m_wrapper;
 
   static HVLCalculator *s_me;
 
+};
+
+class HVLCalculatorWorker : public QObject {
+  Q_OBJECT
+public:
+  explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper);
+  ~HVLCalculatorWorker();
+  const HVLCalculator::HVLParameters & results() const;
+
 signals:
-  void hvlFitDone();
+  void finished();
 
-private slots:
-  void onAbortFit();
+public slots:
+  void abort();
+  void process();
 
+private:
+  echmet::regressCore::HVLPeak<double, double> *m_regressor;
+  HVLCalculator::HVLParameters m_outParams;
+
+  const HVLCalculator::HVLInParameters m_params;
 };
 
 #endif // HVLCALCULATOR_H

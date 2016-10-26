@@ -13,10 +13,13 @@ class HVLFitInProgressDialog : public QDialog
 public:
   explicit HVLFitInProgressDialog(QWidget *parent = nullptr);
   ~HVLFitInProgressDialog();
+  int exec() override;
   void reject() override;
 
 private:
   Ui::HVLFitInProgressDialog *ui;
+
+  bool m_execable;
 
 signals:
   void abortFit();

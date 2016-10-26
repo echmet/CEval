@@ -3,7 +3,8 @@
 
 HVLFitInProgressDialog::HVLFitInProgressDialog(QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::HVLFitInProgressDialog)
+  ui(new Ui::HVLFitInProgressDialog),
+  m_execable(true)
 {
   ui->setupUi(this);
 
@@ -15,6 +16,14 @@ HVLFitInProgressDialog::~HVLFitInProgressDialog()
   delete ui;
 }
 
+int HVLFitInProgressDialog::exec()
+{
+  if (m_execable)
+    return QDialog::exec();
+
+  return QDialog::Accepted;
+}
+
 void HVLFitInProgressDialog::onAbortClicked()
 {
   emit abortFit();
@@ -22,6 +31,7 @@ void HVLFitInProgressDialog::onAbortClicked()
 
 void HVLFitInProgressDialog::onHvlFitDone()
 {
+  m_execable = false;
   accept();
 }
 

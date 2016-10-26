@@ -7,10 +7,7 @@
 #include <QMessageBox>
 #include <QTime>
 #include <QApplication>
-
-#include <thread>
-
-//#include <vector>
+#include <QThread>
 #include <armadillo>
 
 using namespace arma;
@@ -46,14 +43,82 @@ HVLCalculator::HVLInParameters::HVLInParameters()
 
 HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
   QObject(parent),
-  m_regressor(nullptr),
   m_wrapper(new HVLLibWrapper(precision))
 {
 }
 
-HVLCalculator::~HVLCalculator()
+HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper) :
+  m_regressor(new echmet::regressCore::HVLPeak<double, double>(wrapper)),
+  m_params(params)
+{
+}
+
+HVLCalculatorWorker::~HVLCalculatorWorker()
 {
   delete m_regressor;
+}
+
+void HVLCalculatorWorker::abort()
+{
+  m_regressor->Abort();
+}
+
+const HVLCalculator::HVLParameters & HVLCalculatorWorker::results() const
+{
+  return m_outParams;
+}
+
+void HVLCalculatorWorker::process()
+{
+  int size = m_params.toIdx - m_params.fromIdx;
+  if (size < 1)
+    return;
+
+  vector<double> x(size, 1);
+  Mat<double>    y(size, 1);
+
+#pragma omp parallel for
+  for (int j = 0; j < size; ++j) {
+    x[j]   = m_params.data->at(m_params.fromIdx + j).x();
+    y(j,0) = m_params.data->at(m_params.fromIdx + j).y();
+  }
+
+  m_regressor->Initialize(x, y, m_params.epsilon, m_params.iterations, true,
+                          echmet::HVLCore::Coefficients(m_params.a0, m_params.a1, m_params.a2, m_params.a3),
+                          m_params.bsl, m_params.bslSlope);
+
+  if (m_params.a0fixed)
+    m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a0, m_params.a0);
+  if (m_params.a1fixed)
+    m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a1, m_params.a1);
+  if (m_params.a2fixed)
+    m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a2, m_params.a2);
+  if (m_params.a3fixed)
+    m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a3, m_params.a3);
+
+  double s0 = m_regressor->GetS();
+
+  bool ok = m_regressor->Regress();
+
+  if (!ok) {
+    emit finished();
+    return;
+  }
+
+  m_outParams.a0 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a0);
+  m_outParams.a1 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a1);
+  m_outParams.a2 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
+  m_outParams.a3 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a3);
+  m_outParams.s = m_regressor->GetS();
+  m_outParams.s0 = s0;
+  m_outParams.iterations = m_regressor->GetIterationCounter();
+  m_outParams.validate();
+
+  emit finished();
+}
+
+HVLCalculator::~HVLCalculator()
+{
   delete m_wrapper;
 }
 
@@ -65,59 +130,6 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
 
     data[idx] = QPointF(p.x(), p.y() + y);
   }
-}
-
-void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
-{
-  int size = in->toIdx - in->fromIdx;
-  if (size < 1)
-    return;
-
-  vector<double> x(size, 1);
-  Mat<double>    y(size, 1);
-
-#pragma omp parallel for
-  for (int j = 0; j < size; ++j) {
-
-          x[j]   = in->data->at(in->fromIdx + j).x();
-          y(j,0) = in->data->at(in->fromIdx + j).y();
-
-  }
-
-  in->regressor->Initialize(
-      x, y, in->epsilon, in->iterations, true,
-      echmet::HVLCore::Coefficients(in->a0, in->a1, in->a2, in->a3),
-      in->bsl, in->bslSlope
-  );
-  if (in->a0fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a0, in->a0);
-  if (in->a1fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a1, in->a1);
-  if (in->a2fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
-  if (in->a3fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
-
-  /* There are "s0" and "s" variable which seem to be set to the same thing.
-   * Since I have no idea what on God's green Earth was this supposed to mean
-   * I am leaving it here for the next "untouchable" unfortunate enough
-   * to be assigned to this.
-   */
-  double s0 = in->regressor->GetS();
-
-  bool ok = in->regressor->Regress();
-
-  if (!ok) {
-    emit hvlFitDone();
-    return;
-  }
-
-  out->a0 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a0);
-  out->a1 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a1);
-  out->a2 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
-  out->a3 = in->regressor->GetParameter(echmet::regressCore::HVLPeakParams::a3);
-  out->s = in->regressor->GetS();
-  out->s0 = s0;
-  out->iterations = in->regressor->GetIterationCounter();
-  out->validate();
-
-  emit hvlFitDone();
 }
 
 HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const int fromIdx, const int toIdx,
@@ -137,28 +149,12 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     return p;
   }
 
-  if (s_me->m_regressor != nullptr) {
-    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Previous instance of HVL regressor was not cleaned up correctly, attempting to continue\n\n"
-                                                                  "Please report this as a bug to %1 developers").arg(Globals::SOFTWARE_NAME)));
-
-    delete s_me->m_regressor;
-  }
-
   try {
     s_me->m_wrapper->setPrecision(digits);
   } catch (HVLLibWrapper::HVLLibException &) {
     return p;
   }
 
-  try {
-    s_me->m_regressor = new echmet::regressCore::HVLPeak<double, double>(s_me->m_wrapper);
-  } catch (std::bad_alloc &) {
-    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Insufficient memory to initialize HVL regressor"));
-
-    return p;
-  }
-
-  in.regressor = s_me->m_regressor;
   in.a0 = a0;
   in.a0fixed = a0fixed;
   in.a1 = a1;
@@ -175,24 +171,24 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   in.iterations = iterations;
   in.toIdx = toIdx;
 
-  connect(s_me, &HVLCalculator::hvlFitDone, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
-  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, s_me, &HVLCalculator::onAbortFit);
+  HVLCalculatorWorker worker(in, s_me->m_wrapper);
+  QThread thread;
+  worker.moveToThread(&thread);
+  connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
+  connect(&worker, &HVLCalculatorWorker::finished, &thread, &QThread::quit);
+  connect(&worker, &HVLCalculatorWorker::finished, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
+  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort);
 
   QTime stopwatch;
   stopwatch.start();
 
-  std::thread fitThr(&HVLCalculator::doFit, s_me, &p, &in);
-
+  thread.start();
   inProgressDlg.exec();
-  fitThr.join();
 
   if (!p.isValid()) {
     QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
                                                            "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
                                                            "of iterations will not have any effect.").arg(in.iterations));
-
-    delete s_me->m_regressor;
-    s_me->m_regressor = nullptr;
 
     return p;
   }
@@ -216,18 +212,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     );
   }
 
-  delete s_me->m_regressor;
-  s_me->m_regressor = nullptr;
-
   return p;
-}
-
-void HVLCalculator::onAbortFit()
-{
-  if (s_me->m_regressor == nullptr)
-    return;
-
-  s_me->m_regressor->Abort();
 }
 
 QVector<QPointF> HVLCalculator::plot(
