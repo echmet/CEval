@@ -36,6 +36,7 @@ xsimd {
 
 CONFIG(release, debug|release) {
     DEFINES += USE_CRASHHANDLER
+    DEFINES += ARMA_NO_DEBUG
 }
 CONFIG(debug, debug|release) {
     # Configuration specific for "debug" build
