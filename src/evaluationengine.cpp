@@ -856,7 +856,8 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_hvlFitIntValues,
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlFixedValues()),
-                     m_currentPeak.afContext,
+                     AssistedFinderContext(m_evaluationAutoValues, m_evaluationBooleanValues, m_evaluationFloatingValues,
+                                           m_baselineAlgorithm, m_showWindow, m_windowUnit),
                      std::make_shared<PeakFinderResults::Result>(),
                      0.0, 0.0, QVector<QPointF>());
 }
