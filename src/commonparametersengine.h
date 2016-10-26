@@ -17,7 +17,6 @@ public:
     bool isValid() const;
 
     const MappedVectorWrapper<double, CommonParametersItems::Floating> data;
-    //const QVector<double> data;
 
   private:
     bool m_valid;
@@ -33,7 +32,6 @@ public:
 private:
   FloatingMapperModel<CommonParametersItems::Floating> m_model;
   MappedVectorWrapper<double, CommonParametersItems::Floating> m_data;
-  //QVector<double> m_data;
 
   void checkValidity() const;
   bool recalculate();

@@ -23,12 +23,18 @@ public:
     if (this->m_data == nullptr)
       return false;
 
+    const int rawIdx = index.column();
+
     dv = value.toDouble(&ok);
     if (!ok)
       return false;
 
-    (*(this->m_data))[index.column()] = dv;
-    emit this->dataChanged(this->createIndex(0, index.column()), this->createIndex(0, index.column()), { role });
+    const double &current = (*(this->m_data)).at(rawIdx);
+    if (current == dv)
+      return true;
+
+    (*(this->m_data))[rawIdx] = dv;
+    emit this->dataChanged(this->createIndex(0, rawIdx), this->createIndex(0, rawIdx), { role });
     return true;
   }
 
