@@ -1069,13 +1069,15 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
 void EvaluationEngine::findPeakPreciseBoundaries()
 {
   std::shared_ptr<PeakFinderResults> fr;
-  const bool disableAutoFit = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
 
   if (!isContextValid())
     return;
 
   if (m_currentDataContext->data->data.length() == 0)
     return;
+
+  if (m_userInteractionState != UserInteractionState::FINDING_PEAK)
+    onCancelEvaluatedPeakSelection();
 
   while (m_specifyPeakBoundsDlg->exec() != QDialog::Rejected) {
     SpecifyPeakBoundariesDialog::Answer answer = m_specifyPeakBoundsDlg->answer();
@@ -1114,7 +1116,8 @@ void EvaluationEngine::findPeakPreciseBoundaries()
     if (fr->results.size() == 0)
       return;
 
-    processFoundPeak(m_currentDataContext->data->data, fr->results.at(0), AssistedFinderContext(), false, !disableAutoFit, m_currentPeak);
+    walkFoundPeaks(fr->results, AssistedFinderContext(), false);
+    displayCurrentPeak();
     return;
   }
 }
