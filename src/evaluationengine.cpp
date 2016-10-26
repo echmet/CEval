@@ -750,6 +750,7 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
                                                                                      const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
                                                                                      const double epsilon,
                                                                                      const int iterations, const int digits,
+                                                                                     const double tUsp,
                                                                                      bool *ok)
 {
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> results;
@@ -798,8 +799,8 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
   results[HVLFitResultsItems::Floating::HVL_A2] = p.a2;
   results[HVLFitResultsItems::Floating::HVL_A3] = p.a3;
   results[HVLFitResultsItems::Floating::HVL_S] = p.s;
-  results[HVLFitResultsItems::Floating::HVL_EPSILON] = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
-  results[HVLFitResultsItems::Floating::HVL_TUSP] = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP);
+  results[HVLFitResultsItems::Floating::HVL_EPSILON] = epsilon;
+  results[HVLFitResultsItems::Floating::HVL_TUSP] = tUsp;
   results[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(results, m_commonParamsEngine->currentContext().data);
 
 
@@ -1744,6 +1745,7 @@ void EvaluationEngine::onDoHvlFit()
                                                                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
+                                                                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP),
                                                                                &ok);
   if (ok) {
     m_hvlFitValues = results;
@@ -2314,6 +2316,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   double hvlEpsilon;
   int hvlIterations;
   int hvlDigits;
+  double hvlTUsp;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlResults;
 
   if (!er.isValid()) {
@@ -2331,6 +2334,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     hvlEpsilon = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
     hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
+    hvlTUsp = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP);
   } else {
     er = PeakEvaluator::estimateHvl(er, ep);
     HVL_a0 = er.peakArea;
@@ -2340,6 +2344,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     hvlEpsilon = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
     hvlDigits =  m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
+    hvlTUsp = er.HVL_tUSP;
   }
 
   if (doHvlFitRq) {
@@ -2352,7 +2357,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                           srcCtx.hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A1),
                           srcCtx.hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A2),
                           srcCtx.hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A3),
-                          hvlEpsilon, hvlIterations, hvlDigits,
+                          hvlEpsilon, hvlIterations, hvlDigits, hvlTUsp,
                           &hvlOk);
     hvlResults[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
 

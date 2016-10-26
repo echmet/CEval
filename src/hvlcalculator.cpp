@@ -94,6 +94,11 @@ void HVLCalculator::doFit(HVLParameters *out, const HVLInParameters *in)
   if (in->a2fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a2, in->a2);
   if (in->a3fixed) in->regressor->FixParameter(echmet::regressCore::HVLPeakParams::a3, in->a3);
 
+  /* There are "s0" and "s" variable which seem to be set to the same thing.
+   * Since I have no idea what on God's green Earth was this supposed to mean
+   * I am leaving it here for the next "untouchable" unfortunate enough
+   * to be assigned to this.
+   */
   double s0 = in->regressor->GetS();
 
   bool ok = in->regressor->Regress();
