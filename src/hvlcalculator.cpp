@@ -100,13 +100,8 @@ void HVLCalculatorWorker::process()
 
   bool ok = m_regressor->Regress();
 
-  if (!ok) {
-    emit finished();
-    return;
-  }
-
-  m_outParams.aborted = m_regressor->GetAborted();
-  if (m_outParams.aborted) {
+  m_outParams.aborted = m_regressor->IsAborted();
+  if (m_outParams.aborted || !ok) {
     emit finished();
     return;
   }
