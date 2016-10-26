@@ -1737,7 +1737,7 @@ void EvaluationEngine::onDoHvlFit()
                                                                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
                                                                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
                                                                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
-                                                                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
+                                                                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3),
                                                                                m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A0),
                                                                                m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A1),
                                                                                m_hvlFitFixedValues.at(HVLFitParametersItems::Boolean::HVL_A2),
