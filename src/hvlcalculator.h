@@ -30,6 +30,7 @@ public:
     double s;
     double s0;
     int iterations;
+    bool aborted;
 
   private:
     bool m_valid;

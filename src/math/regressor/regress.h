@@ -125,6 +125,7 @@ public:
 
     // Getters
 
+    bool GetAborted() const { return m_aborted; }
     report_function GetReportFunction() const { return m_report_function; }
 
     MatrixY const & GetParameters()       const { return m_params; }

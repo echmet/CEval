@@ -105,6 +105,12 @@ void HVLCalculatorWorker::process()
     return;
   }
 
+  m_outParams.aborted = m_regressor->GetAborted();
+  if (m_outParams.aborted) {
+    emit finished();
+    return;
+  }
+
   m_outParams.a0 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a0);
   m_outParams.a1 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a1);
   m_outParams.a2 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
@@ -186,6 +192,9 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   inProgressDlg.exec();
 
   p = worker.results();
+
+  if (p.aborted)
+    return p;
 
   if (!p.isValid()) {
     QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
