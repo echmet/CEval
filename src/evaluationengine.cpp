@@ -1745,7 +1745,7 @@ void EvaluationEngine::onDoHvlFit()
                                                                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
-                                                                               m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP),
+                                                                               m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP),
                                                                                &ok);
   if (ok) {
     m_hvlFitValues = results;
