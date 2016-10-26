@@ -2366,9 +2366,19 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
       hvlResults[HVLFitResultsItems::Floating::HVL_A1] = HVL_a1;
       hvlResults[HVLFitResultsItems::Floating::HVL_A2] = HVL_a2;
       hvlResults[HVLFitResultsItems::Floating::HVL_A3] = HVL_a3;
+      hvlResults[HVLFitResultsItems::Floating::HVL_EPSILON] = hvlEpsilon;
     }
-  } else
-    hvlResults = srcCtx.hvlValues;
+  } else {
+    if (updateCurrentPeak)
+      hvlResults = srcCtx.hvlValues;
+    else {
+      hvlResults[HVLFitResultsItems::Floating::HVL_A0] = HVL_a0;
+      hvlResults[HVLFitResultsItems::Floating::HVL_A1] = HVL_a1;
+      hvlResults[HVLFitResultsItems::Floating::HVL_A2] = HVL_a2;
+      hvlResults[HVLFitResultsItems::Floating::HVL_A3] = HVL_a3;
+      hvlResults[HVLFitResultsItems::Floating::HVL_EPSILON] = hvlEpsilon;
+    }
+  }
 
   QVector<QPointF> hvlPlot;
   hvlPlot = HVLCalculator::plot(hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
