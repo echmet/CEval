@@ -185,6 +185,8 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   thread.start();
   inProgressDlg.exec();
 
+  p = worker.results();
+
   if (!p.isValid()) {
     QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
                                                            "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
