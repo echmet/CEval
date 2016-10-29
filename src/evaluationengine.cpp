@@ -1432,13 +1432,8 @@ void EvaluationEngine::onAddPeak()
 void EvaluationEngine::onCancelEvaluatedPeakSelection()
 {
   /* Store current peak */
-  if (m_currentPeakIdx > 0) {
-    m_allPeaks[m_currentPeakIdx].updatePeak(makePeakContext(m_resultsNumericValues,
-                                                            m_hvlFitValues,
-                                                            m_hvlFitIntValues,
-                                                            m_hvlFitFixedValues,
-                                                            m_currentPeak));
-  }
+  if (m_currentPeakIdx > 0)
+    storeCurrentPeak();
 
   try {
     m_currentPeak = duplicatePeakContext();
@@ -1915,12 +1910,8 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
     return;
   }
 
-  /* Store current peak */
-  m_allPeaks[m_currentPeakIdx].updatePeak(makePeakContext(m_resultsNumericValues,
-                                                          m_hvlFitValues,
-                                                          m_hvlFitIntValues,
-                                                          m_hvlFitFixedValues,
-                                                          m_currentPeak));
+  storeCurrentPeak();
+
   row = idx.row() + 1;
   if (row < 1 || row >= m_allPeaks.length())
     return;
@@ -2594,6 +2585,8 @@ bool EvaluationEngine::storeCurrentContext()
 {
   /* Do not store the default empty context */
   if (isContextValid()) {
+    storeCurrentPeak();
+
     try {
       std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name,
                                                                                          m_commonParamsEngine->currentContext(), currentEvaluationContext()));
@@ -2605,6 +2598,18 @@ bool EvaluationEngine::storeCurrentContext()
     return true;
   }
   return true;
+}
+
+void EvaluationEngine::storeCurrentPeak()
+{
+  if (m_currentPeakIdx == 0)
+    return;
+
+  m_allPeaks[m_currentPeakIdx].updatePeak(makePeakContext(m_resultsNumericValues,
+                                                          m_hvlFitValues,
+                                                          m_hvlFitIntValues,
+                                                          m_hvlFitFixedValues,
+                                                          m_currentPeak));
 }
 
 void EvaluationEngine::switchEvaluationContext(const QString &key)

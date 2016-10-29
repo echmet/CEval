@@ -289,6 +289,7 @@ private:
   bool setPeakContext(const PeakContext &ctx);
   void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();
+  void storeCurrentPeak();
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
   double timeStep();
