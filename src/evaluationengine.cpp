@@ -1807,6 +1807,8 @@ void EvaluationEngine::onExportScheme()
   if (m_dataExporterFileDlg->exec() != QDialog::Accepted)
     return;
 
+  storeCurrentPeak();
+
   QString path = m_dataExporterFileDlg->selectedFiles().at(0);
 
   try {
