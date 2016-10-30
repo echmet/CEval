@@ -2103,6 +2103,8 @@ void EvaluationEngine::onRenamePeak(const QModelIndex &idx)
     return;
 
   QInputDialog dlg;
+  dlg.setTextValue(m_allPeaks[row].name);
+
   if (dlg.exec() != QDialog::Accepted)
     return;
 
