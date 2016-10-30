@@ -2027,8 +2027,8 @@ void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const 
   int halfPWin = peakWindow / 2;
   int start = (idx - halfPWin) >= 0 ? idx - halfPWin : 0;
   int end = (idx + halfPWin) >= (signalData.length() - 1) ? signalData.length() - 1 : idx + halfPWin;
-  for (int idx = start; idx < end; idx++)
-    data.push_back(m_currentDataContext->data->data.at(idx));
+  for (int iidx = start; iidx < end; iidx++)
+    data.push_back(m_currentDataContext->data->data.at(iidx));
 
   m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_PEAK), data);
   m_plotCtx->replot();
