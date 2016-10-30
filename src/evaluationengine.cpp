@@ -1686,7 +1686,6 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
 
   storeCurrentContext();
 
-  const EvaluationContext &curEvaluationCtx = currentEvaluationContext();
   std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, m_commonParamsEngine->currentContext(),
                                                                                   freshEvaluationContext()));
 
