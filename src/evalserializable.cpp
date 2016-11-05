@@ -185,7 +185,10 @@ EvalSerializable::RetCode EvalSerializable::WriteHeader(ByteStream& Stream) cons
 
 EvalSerializable::RetCode EvalSerializable::_AddData(const std::string& Data, ByteStream& Stream, Identity<std::string>)
 {
-  const uint32_t S = Data.length();
+  if (Data.length() > std::numeric_limits<uint32_t>::max())
+    return ERR_OUTOFRANGE;
+
+  const uint32_t S = static_cast<uint32_t>(Data.length());
   const char *PLength = reinterpret_cast<const char*>(&S);
   const char *PData = Data.c_str();
 
@@ -204,7 +207,10 @@ EvalSerializable::RetCode EvalSerializable::_AddData(const std::string& Data, By
 
 EvalSerializable::RetCode EvalSerializable::_AddData(const std::wstring& Data, ByteStream& Stream, Identity<std::wstring>)
 {
-  const uint32_t S = Data.length() * sizeof(wchar_t);
+  if (Data.length() * sizeof(wchar_t) > std::numeric_limits<uint32_t>::max())
+    return ERR_OUTOFRANGE;
+
+  const uint32_t S = static_cast<uint32_t>(Data.length() * sizeof(wchar_t));
   const char *PLength = reinterpret_cast<const char*>(&S);
   const char *PData = reinterpret_cast<const char*>(Data.c_str());
 
