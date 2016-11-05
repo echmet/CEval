@@ -213,11 +213,11 @@ bool RectangularHyperbole2<XT, YT>::AInitialize(
 
     // Init
 
-    const long count = x.size();
+    const size_t count = x.size();
 
     YT   u0[2] = {YT(0)};
     bool found[2] = {false};
-    for (long i = 0; i != count; ++i)
+    for (size_t i = 0; i != count; ++i)
         if ( x[i].value == XT(0.)) {
             found[x[i].index] = true;
             u0[ x[i].index ] = y(i,0);

@@ -55,7 +55,7 @@ public:
 private:
   static Data readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
                          const int xColumn, const int yColumn,
-                         const bool hasHeader, const quint32 linesToSkip);
+                         const bool hasHeader, const int linesToSkip);
   static void warnPossiblyIncorrectSettings();
 
 };

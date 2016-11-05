@@ -20,7 +20,7 @@ namespace regressCore {
 // dcl
 
 //---------------------------------------------------------------------------
-enum class HVLPeakParams { a0, a1, a2, a3 };
+enum class HVLPeakParams : msize_t { a0, a1, a2, a3 };
 
 //---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double> class HVLPeak

@@ -161,7 +161,7 @@ bool Profiler<XT, YT>::profile(
     double pOld      = 0.5;
     double p;
 
-    int    df        = f.GetDF();
+    msize_t    df        = f.GetDF();
 
     m_reg->Assign(f);
     m_reg->FixParameter(param_id, param);
@@ -366,7 +366,7 @@ inline typename Profiler<XT, YT>::y_type Profiler<XT, YT>::tau_to_confidenceT(
 )
 {
 
-    return std::fabs(
+    return std::abs(
         p - AlgLib::studenttdistribution(original.GetDF(), -1 * tau)
     );
 

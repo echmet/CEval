@@ -181,7 +181,7 @@ protected:
     MatrixY m_p;          //derivation matrix        [not_fixed, x]
 
     // Non-resetable state variables
-    int  m_notFixed;
+    msize_t  m_notFixed;
 
     virtual RegressFunction * ACreate() const = 0;
 

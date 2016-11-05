@@ -131,7 +131,7 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
 
     // Init
 
-    const long count = x.size();
+    const size_t count = x.size();
 
     YT   u0 = 0.;
     bool found = false;

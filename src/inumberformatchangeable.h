@@ -5,8 +5,8 @@ class QLocale;
 
 class INumberFormatChangeable {
 public:
+  virtual ~INumberFormatChangeable() {}
   virtual void onNumberFormatChanged(const QLocale *oldLocale) = 0;
-  //virtual ~INumberFormatChangeable();
 
 };
 
