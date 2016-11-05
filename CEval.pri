@@ -9,7 +9,7 @@
 HPCSPATH = $$PWD/libHPCS
 HVLPATH = $$PWD/libhvl
 BOOSTPATH = $$PWD/includes
-QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin/features/qwt.prf"
+QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin"
 ARMAPATH = "/home/madcat/Devel/ECHMET/armadillo-bin"
 INCLUDEPATH += $$HPCSPATH
 INCLUDEPATH += $$HVLPATH
@@ -17,7 +17,7 @@ INCLUDEPATH += $$ARMAPATH/include
 DEPENDPATH += $$HPCSPATH
 
 # Adjust the paths to Qwt library as needed.
-include($$QWTPATH)
+include("$$QWTPATH/features/qwt.prf")
 
 # Adjust the path to the libHPCS library as needed.
 unix|win32: LIBS += -L$$HPCSPATH -lHPCS -L$$HVLPATH -lhvl_mt /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/liblapack.a /home/madcat/Devel/ECHMET/ref-LAPACK-bin/lib64/libblas.a -lgfortran -lpthread

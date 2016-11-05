@@ -13,13 +13,13 @@ double TExtremeSearcher::CalcNoise()
 {
   double result = 0.;
 
-  long diL = _I_ - QCount;      if (diL < 0)     diL = 0;
-  long diR = diL + ChainPoints; if (diR > Count) diR = Count;
+  int diL = _I_ - QCount;      if (diL < 0)     diL = 0;
+  int diR = diL + ChainPoints; if (diR > Count) diR = Count;
 
   double X, Y /*, slope */;
 
   double SummX = 0., SummXX = 0., SummY = 0., SummXY = 0.;
-  for (long i = diL; i < diR; ++i) {
+  for (int i = diL; i < diR; ++i) {
         X = Data->GetX(i); Y = Data->GetY(i);
         SummX += X; SummXX += X*X; SummY += Y; SummXY += X*Y;
   }
@@ -33,7 +33,7 @@ double TExtremeSearcher::CalcNoise()
   else
     Y = 0.0;
 
-  for (long i = diL; i < diR; ++i) {
+  for (int i = diL; i < diR; ++i) {
     double d = fabs(Data->GetY(i) - X * Data->GetX(i) - Y);
     if (d > result)
       result = d;
@@ -45,11 +45,11 @@ double TExtremeSearcher::CalcNoise()
 //-----------------------------------------------------------------------------
 int TExtremeSearcher::CheckForCentralExtreme()
 {
-    long diL = _I_ - QCount;      if (diL < 0)     diL = 0;
-    long diR = diL + ChainPoints; if (diR > Count) diR = Count;
+    int diL = _I_ - QCount;      if (diL < 0)     diL = 0;
+    int diR = diL + ChainPoints; if (diR > Count) diR = Count;
 
     debug << "\n ------------------ \n" << std::endl;
-    for (long i = diL; i != diR; ++i) {
+    for (int i = diL; i != diR; ++i) {
         debug << "_I_ " << _I_
               << " IMax " << IMax << " YMax " << YMax
               << " IMin " << IMin << " YMin " << YMin

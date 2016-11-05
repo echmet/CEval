@@ -13,11 +13,11 @@ class LoadCsvFileDialog : public QDialog
   Q_OBJECT
 public:
   enum class HeaderHandling {
-    NO_HEADER,             /*<! CSV file has no header */
-    HEADER_WITH_UNITS,     /*<! CSV file header contains the unit of the scale */
-    HEADER_WITHOUT_UNITS   /*<! CSV file header does not contain the unit of the scale */
+    NO_HEADER,             /*!< CSV file has no header */
+    HEADER_WITH_UNITS,     /*!< CSV file header contains the unit of the scale */
+    HEADER_WITHOUT_UNITS   /*!< CSV file header does not contain the unit of the scale */
   };
-  Q_ENUM(HeaderHandling);
+  Q_ENUM(HeaderHandling)
 
   class Parameters {
   public:

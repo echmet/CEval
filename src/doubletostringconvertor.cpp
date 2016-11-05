@@ -16,6 +16,10 @@ DoubleToStringConvertor::DoubleToStringConvertor() :
 {
 }
 
+DoubleToStringConvertor::~DoubleToStringConvertor()
+{
+}
+
 double DoubleToStringConvertor::back(const QString &value, bool *ok)
 {
   return s_me->m_locale.toDouble(value, ok);

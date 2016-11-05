@@ -14,6 +14,7 @@ public:
   public:
     explicit Parameters() = delete;
     Parameters(const QVector<QPointF> &data);
+    ~Parameters() override;
 
     const QVector<QPointF> &data;
     /* Autos */
@@ -92,8 +93,8 @@ private:
                                                          const double XMin,
                                                          const double Noise_2, const double ppm,
                                                          const double SlopeSensitivity, const double SlopeThreshold,
-                                                         const double NoiseWindow, const double Noise,
-                                                         const double PeakWindow,
+                                                         const int NoiseWindow, const double Noise,
+                                                         const int PeakWindow,
                                                          const double tnrp, const double tsrp);
 
   class TSearchHandler : public TExtremeSearcher::TDataHandler {

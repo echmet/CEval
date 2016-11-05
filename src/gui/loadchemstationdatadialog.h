@@ -25,7 +25,7 @@ public:
     WHOLE_DIRECTORY,
     MULTIPLE_DIRECTORIES
   };
-  Q_ENUM(LoadingMode);
+  Q_ENUM(LoadingMode)
 
   class LoadInfo {
   public:

@@ -58,7 +58,7 @@ void setOpenMPThreads()
   const char *ompThreads = getenv("OMP_NUM_THREADS");
 
   if (ompThreads == nullptr)
-    hwThreads = std::thread::hardware_concurrency();
+    hwThreads = static_cast<int>(std::thread::hardware_concurrency());
   else {
     try {
       hwThreads = std::stoi(ompThreads);
@@ -84,7 +84,7 @@ void setOpenMPThreads()
 
   ret = GetEnvironmentVariable(TEXT("OMP_NUM_THREADS"), ompThreads, 32767);
   if (ret <= 0)
-    hwThreads = std::thread::hardware_concurrency();
+    hwThreads = static_cast<int>(std::thread::hardware_concurrency());
   else {
   #if defined UNICODE || defined _UNICODE
     hwThreads = wcstol(ompThreads, nullptr, 10);

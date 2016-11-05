@@ -4,7 +4,7 @@
 
 class PeakDimsTuple {
 public:
-  explicit PeakDimsTuple() : left(0.0), right(0.0), full(0.0) {};
+  explicit PeakDimsTuple() : left(0.0), right(0.0), full(0.0) {}
   PeakDimsTuple(const double left, const double right, const double full) :
     left(left), right(right), full(full) {}
 

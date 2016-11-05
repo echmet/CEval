@@ -4,7 +4,7 @@
 #include <QList>
 #include <array>
 
-class HVL_Context;
+struct HVL_Context;
 
 class HVLLibWrapper {
 public:

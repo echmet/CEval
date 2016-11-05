@@ -24,16 +24,14 @@ public:
     E_INVALID_FILE_STRUCTURE,
     E_MALFORMED_XML,
     E_NO_MEM,
-    E_NOT_CONNECTED,
+    E_NOT_CONNECTED
   };
   Q_ENUM(RetCode)
 
   class DuplicitInformationException : public std::exception {
   public:
-    const char * what() const noexcept
-    {
-      return "Software information list contains multiple information for one software";
-    }
+    const char * what() const noexcept;
+
   };
 
   class InvalidDocumentStructureException : public std::exception {

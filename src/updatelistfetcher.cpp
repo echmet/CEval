@@ -5,6 +5,11 @@
 #include <QUrl>
 #include <QXmlStreamReader>
 
+const char * UpdateListFetcher::DuplicitInformationException::what() const noexcept
+{
+  return "Software information list contains multiple information for one software";
+}
+
 UpdateListFetcher::InvalidDocumentStructureException::InvalidDocumentStructureException(const qint64 line) :
   line(line)
 {

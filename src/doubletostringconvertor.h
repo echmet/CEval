@@ -9,6 +9,7 @@ class INumberFormatChangeable;
 class DoubleToStringConvertor : public QObject
 {
 public:
+  virtual ~DoubleToStringConvertor();
   static double back(const QString &value, bool *ok);
   static QString convert(const double d);
   static int digits();

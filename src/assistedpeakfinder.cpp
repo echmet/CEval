@@ -5,17 +5,21 @@
 #include <QMessageBox>
 
 #define SEARCH_I(PARAM){\
-  t##PARAM##i = (t##PARAM - XMin) * ppm;\
+  t##PARAM##i = static_cast<int>(floor(((t##PARAM - XMin) * ppm) + 0.5));\
   if (t##PARAM##i < 0) t##PARAM##i = 0;\
   if (t##PARAM##i >= C) t##PARAM##i = C - 1;\
   if (Data.at(t##PARAM##i).x() < t##PARAM)\
     for (int CC = C-1;t##A##i < CC && Data.at(t##PARAM##i).x() < t##PARAM; ++t##PARAM##i);\
- else\
+  else\
     while (t##PARAM##i > 0 && Data.at(t##PARAM##i).x() >= t##PARAM) --t##PARAM##i;\
 }
 
 AssistedPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
   data(data)
+{
+}
+
+AssistedPeakFinder::Parameters::~Parameters()
 {
 }
 
@@ -363,9 +367,9 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   int NoiseWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
-    NoiseWindow = p.noiseWindow * ppm;
+    NoiseWindow = static_cast<int>(floor((p.noiseWindow * ppm) + 0.5));
   else
-    NoiseWindow = p.noiseWindow;
+    NoiseWindow = static_cast<int>(p.noiseWindow);
 
   if (p.peakWindow <= 0.0) {
     QMessageBox::information(nullptr, QObject::tr("Incorrect parameters"), QString(QObject::tr("Peak window must be positive")));
@@ -374,9 +378,9 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
   int PeakWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
-    PeakWindow = p.peakWindow * ppm;
+    PeakWindow = static_cast<int>(floor((p.peakWindow * ppm) + 0.5));
   else
-    PeakWindow = p.peakWindow;
+    PeakWindow = static_cast<int>(p.peakWindow);
 
    /* * Inicialiace::Peaks & BSL * */
   /* Initialize peaks and baseline */
@@ -680,8 +684,8 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
                                                                                                const double XMin,
                                                                                                const double Noise_2, const double ppm,
                                                                                                const double SlopeSensitivity, const double SlopeThreshold,
-                                                                                               const double NoiseWindow, const double Noise,
-                                                                                               const double PeakWindow,
+                                                                                               const int NoiseWindow, const double Noise,
+                                                                                               const int PeakWindow,
                                                                                                const double tnrp, const double tsrp)
 {
   /*
@@ -702,7 +706,7 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
   int diL = -1, diR = -1;
   double BSLSlope, BSLIntercept;
   double MaxValue, MinValue, SummValue;
-  double SlopeWindow;
+  int SlopeWindow;
   double SummX, SummXX, SummY, SummXY;
 
   /* * SlopeWindow (Peak top) , H, zpresneni TP* */
@@ -768,12 +772,12 @@ std::shared_ptr<AssistedPeakFinder::AssistedPeakFinderResult> AssistedPeakFinder
 
   /* * (SlopeWindow || HP || TP)::SlopeWindow * */
   if (p.autoSlopeWindow)
-    SlopeWindow = (diR - diL) * 2.;
+    SlopeWindow = (diR - diL) * 2;
   else {
     if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
-      SlopeWindow = p.slopeWindow * ppm;
+      SlopeWindow = static_cast<int>(floor((p.slopeWindow * ppm) + 0.5));
     else
-      SlopeWindow = p.slopeWindow;
+      SlopeWindow = static_cast<int>(p.slopeWindow);
   }
 
   /* * (SlopeWindow || HP || TP)::HP * */

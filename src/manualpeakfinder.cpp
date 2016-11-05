@@ -5,6 +5,10 @@ ManualPeakFinder::Parameters::Parameters(const QVector<QPointF> &data) :
 {
 }
 
+ManualPeakFinder::Parameters::~Parameters()
+{
+}
+
 std::shared_ptr<PeakFinderResults> ManualPeakFinder::findInternal(const AbstractParameters &ap) noexcept(false)
 {
   const Parameters &p = dynamic_cast<const Parameters&>(ap);

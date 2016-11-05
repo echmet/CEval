@@ -97,7 +97,7 @@ public:
         }
         *this = result;
         return *this;
-    };
+    }
 
     double x, y;
 };
@@ -139,16 +139,16 @@ class const_raw_vector
 {
 public:
     const_raw_vector(const T *Data, int Length, int Step):
-        pData(const_cast<T*>(Data)),iLength(Length),iStep(Step){};
+        pData(const_cast<T*>(Data)),iLength(Length),iStep(Step){}
 
     const T* GetData() const
-    { return pData; };
+    { return pData; }
 
     int GetLength() const
-    { return iLength; };
+    { return iLength; }
 
     int GetStep() const
-    { return iStep; };
+    { return iStep; }
 protected:
     T       *pData;
     int     iLength, iStep;
@@ -662,13 +662,13 @@ public:
     {
         m_Vec=0;
         m_iVecSize = 0;
-    };
+    }
 
     ~template_1d_array()
     {
         if(m_Vec)
             delete[] m_Vec;
-    };
+    }
 
     template_1d_array(const template_1d_array &rhs)
     {
@@ -687,7 +687,7 @@ public:
         }
         else
             m_Vec=0;
-    };
+    }
 
 
     const template_1d_array& operator=(const template_1d_array &rhs)
@@ -713,7 +713,7 @@ public:
         else
             m_Vec=0;
         return *this;
-    };
+    }
 
 
     const T& operator()(int i) const
@@ -722,7 +722,7 @@ public:
         ap_error::make_assertion(i>=m_iLow && i<=m_iHigh);
         #endif
         return m_Vec[ i-m_iLow ];
-    };
+    }
 
 
     T& operator()(int i)
@@ -731,7 +731,7 @@ public:
         ap_error::make_assertion(i>=m_iLow && i<=m_iHigh);
         #endif
         return m_Vec[ i-m_iLow ];
-    };
+    }
 
 
     void setbounds( int iLow, int iHigh )
@@ -742,7 +742,7 @@ public:
         m_iHigh = iHigh;
         m_iVecSize = iHigh-iLow+1;
         m_Vec = new T[m_iVecSize];
-    };
+    }
 
 
     void setcontent( int iLow, int iHigh, const T *pContent )
@@ -750,18 +750,18 @@ public:
         setbounds(iLow, iHigh);
         for(int i=iLow; i<=iHigh; i++)
             (*this)(i) = pContent[i-iLow];
-    };
+    }
 
 
     T* getcontent()
     {
         return m_Vec;
-    };
+    }
 
     const T* getcontent() const
     {
         return m_Vec;
-    };
+    }
 
 
     int getlowbound(int iBoundNum = 0) const
@@ -769,7 +769,7 @@ public:
         (void)(iBoundNum);
 
         return m_iLow;
-    };
+    }
 
 
     int gethighbound(int iBoundNum = 0) const
@@ -777,7 +777,7 @@ public:
         (void)(iBoundNum);
 
         return m_iHigh;
-    };
+    }
 
     raw_vector<T> getvector(int iStart, int iEnd)
     {
@@ -785,7 +785,7 @@ public:
             return raw_vector<T>(0, 0, 1);
         else
             return raw_vector<T>(m_Vec+iStart-m_iLow, iEnd-iStart+1, 1);
-    };
+    }
 
 
     const_raw_vector<T> getvector(int iStart, int iEnd) const
@@ -794,9 +794,9 @@ public:
             return const_raw_vector<T>(0, 0, 1);
         else
             return const_raw_vector<T>(m_Vec+iStart-m_iLow, iEnd-iStart+1, 1);
-    };
+    }
 private:
-    bool wrongIdx(int i) const { return i<m_iLow || i>m_iHigh; };
+    bool wrongIdx(int i) const { return i<m_iLow || i>m_iHigh; }
 
     T         *m_Vec;
     long      m_iVecSize;
@@ -816,13 +816,13 @@ public:
     {
         m_Vec=0;
         m_iVecSize=0;
-    };
+    }
 
     ~template_2d_array()
     {
         if(m_Vec)
             delete[] m_Vec;
-    };
+    }
 
     template_2d_array(const template_2d_array &rhs)
     {
@@ -845,7 +845,7 @@ public:
         }
         else
             m_Vec=0;
-    };
+    }
     const template_2d_array& operator=(const template_2d_array &rhs)
     {
         if( this==&rhs )
@@ -873,7 +873,7 @@ public:
         else
             m_Vec=0;
         return *this;
-    };
+    }
 
     const T& operator()(int i1, int i2) const
     {
@@ -882,7 +882,7 @@ public:
         ap_error::make_assertion(i2>=m_iLow2 && i2<=m_iHigh2);
         #endif
         return m_Vec[ m_iConstOffset + i2 +i1*m_iLinearMember];
-    };
+    }
 
     T& operator()(int i1, int i2)
     {
@@ -891,7 +891,7 @@ public:
         ap_error::make_assertion(i2>=m_iLow2 && i2<=m_iHigh2);
         #endif
         return m_Vec[ m_iConstOffset + i2 +i1*m_iLinearMember];
-    };
+    }
 
     void setbounds( int iLow1, int iHigh1, int iLow2, int iHigh2 )
     {
@@ -905,34 +905,34 @@ public:
         m_iHigh2 = iHigh2;
         m_iConstOffset = -m_iLow2-m_iLow1*(m_iHigh2-m_iLow2+1);
         m_iLinearMember = (m_iHigh2-m_iLow2+1);
-    };
+    }
 
     void setcontent( int iLow1, int iHigh1, int iLow2, int iHigh2, const T *pContent )
     {
         setbounds(iLow1, iHigh1, iLow2, iHigh2);
         for(int i=0; i<m_iVecSize; i++)
             m_Vec[i]=pContent[i];
-    };
+    }
 
     T* getcontent()
     {
         return m_Vec;
-    };
+    }
 
     const T* getcontent() const
     {
         return m_Vec;
-    };
+    }
 
     int getlowbound(int iBoundNum) const
     {
         return iBoundNum==1 ? m_iLow1 : m_iLow2;
-    };
+    }
 
     int gethighbound(int iBoundNum) const
     {
         return iBoundNum==1 ? m_iHigh1 : m_iHigh2;
-    };
+    }
 
     raw_vector<T> getcolumn(int iColumn, int iRowStart, int iRowEnd)
     {
@@ -940,7 +940,7 @@ public:
             return raw_vector<T>(0, 0, 1);
         else
             return raw_vector<T>(&((*this)(iRowStart, iColumn)), iRowEnd-iRowStart+1, m_iLinearMember);
-    };
+    }
 
     raw_vector<T> getrow(int iRow, int iColumnStart, int iColumnEnd)
     {
@@ -948,7 +948,7 @@ public:
             return raw_vector<T>(0, 0, 1);
         else
             return raw_vector<T>(&((*this)(iRow, iColumnStart)), iColumnEnd-iColumnStart+1, 1);
-    };
+    }
 
     const_raw_vector<T> getcolumn(int iColumn, int iRowStart, int iRowEnd) const
     {
@@ -956,7 +956,7 @@ public:
             return const_raw_vector<T>(0, 0, 1);
         else
             return const_raw_vector<T>(&((*this)(iRowStart, iColumn)), iRowEnd-iRowStart+1, m_iLinearMember);
-    };
+    }
 
     const_raw_vector<T> getrow(int iRow, int iColumnStart, int iColumnEnd) const
     {
@@ -964,7 +964,7 @@ public:
             return const_raw_vector<T>(0, 0, 1);
         else
             return const_raw_vector<T>(&((*this)(iRow, iColumnStart)), iColumnEnd-iColumnStart+1, 1);
-    };
+    }
 private:
     bool wrongRow(int i) const { return i<m_iLow1 || i>m_iHigh1; }
     bool wrongColumn(int j) const { return j<m_iLow2 || j>m_iHigh2; }

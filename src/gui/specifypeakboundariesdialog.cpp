@@ -15,7 +15,7 @@ SpecifyPeakBoundariesDialog::Answer::Answer() :
 }
 
 SpecifyPeakBoundariesDialog::Answer::Answer(const double fromX, const double fromY, const double toX, const double toY,
-                                            const bool snapFrom, const double snapTo) :
+                                            const bool snapFrom, const bool snapTo) :
   fromX(fromX),
   fromY(fromY),
   toX(toX),

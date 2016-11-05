@@ -76,13 +76,7 @@ public:
       free(m_what);
     }
 
-    virtual const char *what() const noexcept
-    {
-      if (m_what != nullptr)
-        return m_what;
-
-      return "Unable to initialize regressor";
-    }
+    virtual const char *what() const noexcept;
 
   private:
     char *m_what;

@@ -29,10 +29,10 @@ CollapseExpandButton::~CollapseExpandButton()
 
 void CollapseExpandButton::buildPainterPaths(const QSize &size)
 {
-  const int marginLR = floor((size.width() * 0.3) + 0.5);
-  const int marginUD = floor((size.height() * 0.3) + 0.5);
-  const int middleColl = floor((size.height() / 2.0) + 0.5);
-  const int middleExpd = floor((size.width() / 2.0) + 0.5);
+  const int marginLR = static_cast<int>(floor((size.width() * 0.3) + 0.5));
+  const int marginUD = static_cast<int>(floor((size.height() * 0.3) + 0.5));
+  const int middleColl = static_cast<int>(floor((size.height() / 2.0) + 0.5));
+  const int middleExpd = static_cast<int>(floor((size.width() / 2.0) + 0.5));
 
   m_collapsedPath = QPainterPath(QPointF(size.width() - marginLR, marginUD));
   m_collapsedPath.lineTo(marginLR, middleColl);

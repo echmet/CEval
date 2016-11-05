@@ -104,7 +104,7 @@ public:
 
 protected:
   explicit EvalSerializable();
-  ~EvalSerializable();
+  virtual ~EvalSerializable();
 
   RetCode CheckHeader(const char*& Ptr, const char * const End) const;
 

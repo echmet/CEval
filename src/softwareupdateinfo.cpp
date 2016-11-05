@@ -1,5 +1,11 @@
 #include "softwareupdateinfo.h"
 
+const char * SoftwareUpdateInfo::Version::InvalidRevisionStringException::what() const noexcept
+{
+  return "Revision string may contain only letters";
+}
+
+
 SoftwareUpdateInfo::Version::Version(const int major, const int minor, const QString &revision) :
   major(major),
   minor(minor),

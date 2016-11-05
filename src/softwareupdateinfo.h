@@ -14,10 +14,7 @@ public:
   public:
     class InvalidRevisionStringException : public std::exception {
     public:
-      const char * what() const noexcept
-      {
-        return "Revision string may contain only letters";
-      }
+      const char * what() const noexcept override;
     };
 
     Version(const int major, const int minor, const QString &revision);

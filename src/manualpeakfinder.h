@@ -10,6 +10,7 @@ public:
   public:
     explicit Parameters() = delete;
     Parameters(const QVector<QPointF> &data);
+    ~Parameters() override;
 
     const QVector<QPointF> &data;
     double fromX;

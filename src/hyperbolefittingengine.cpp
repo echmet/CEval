@@ -51,6 +51,14 @@ const QString HyperboleFittingEngine::INVAL_ANALYTE_KEY("");
 const QString HyperboleFittingEngine::LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG("LastExportToCsvPath");
 const QString HyperboleFittingEngine::LAST_LOADSAVE_PATH_SETTINGS_TAG("LastLoadSavePath");
 
+const char * HyperboleFittingEngine::regressor_initialization_error::what() const noexcept
+{
+  if (m_what != nullptr)
+    return m_what;
+
+  return "Unable to initialize regressor";
+}
+
 HyperboleFittingEngine::Analyte::Analyte(const QString &name) :
   name(name)
 {
