@@ -365,5 +365,5 @@ unix {
 
 include($$PWD/CEval.pri)
 
-QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
+QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -Wconversion -Wsign-conversion -Wweak-vtables -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
 

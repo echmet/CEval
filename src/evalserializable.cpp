@@ -79,6 +79,7 @@ EvalSerializable::RetCode EvalSerializable::Serialize(ByteStream& Stream)
 EvalSerializable::RetCode EvalSerializable::ReadFromFile(const char *FileName, EvalSerializable& Object)
 {
   FILE *Fh;
+  long LFSize;
   size_t FSize;
   ByteStream Stream;
   RetCode Ret;
@@ -88,12 +89,19 @@ EvalSerializable::RetCode EvalSerializable::ReadFromFile(const char *FileName, E
     return ERR_CANTOPEN;
 
   fseek(Fh, 0, SEEK_END);
-  FSize = ftell(Fh);
+  LFSize = ftell(Fh);
+  if (LFSize < 1) {
+    fclose(Fh);
+    return ERR_CANTREAD;
+  }
   fseek(Fh, 0, SEEK_SET);
+  FSize = static_cast<size_t>(LFSize);
 
   Stream.resize(FSize);
-  if (fread(&Stream[0], FSize, 1, Fh) != 1)
+  if (fread(&Stream[0], FSize, 1, Fh) != 1) {
+    fclose(Fh);
     return ERR_CANTREAD;
+  }
 
   fclose(Fh);
 
