@@ -5,6 +5,7 @@
 #include <cstring>
 #include <exception>
 #include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 #include <type_traits>
@@ -164,7 +165,10 @@ private:
   template<typename T>
   static RetCode _AddData_Vector(const std::vector<T>& Data, ByteStream& Stream, bool_<false>)
   {
-    const uint32_t Size = Data.size();
+    if (Data.size() > std::numeric_limits<uint32_t>::max())
+      return ERR_OUTOFRANGE;
+
+    const uint32_t Size = static_cast<uint32_t>(Data.size());
     const char *PSize = reinterpret_cast<const char*>(&Size);
 
     try {
@@ -186,7 +190,10 @@ private:
   template<typename T>
   static RetCode _AddData_Vector(const std::vector<T>& Data, ByteStream& Stream, bool_<true>)
   {
-    const uint32_t Size = Data.size();
+    if (Data.size() > std::numeric_limits<uint32_t>::max())
+      return ERR_OUTOFRANGE;
+
+    const uint32_t Size = static_cast<uint32_t>(Data.size());
     const char *PSize = reinterpret_cast<const char*>(&Size);
 
     try {
