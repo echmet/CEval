@@ -25,7 +25,7 @@ LoadCsvFileDialog::Parameters::Parameters() :
 LoadCsvFileDialog::Parameters::Parameters(const QString &delimiter, const QChar &decimalSeparator,
                                           const int xColumn, const int yColumn,
                                           const QString &xType, const QString &yType, const QString &xUnit, const QString &yUnit,
-                                          const HeaderHandling header, const quint32 linesToSkip,
+                                          const HeaderHandling header, const int linesToSkip,
                                           const bool readBom, const QString &encodingId) :
   delimiter(delimiter),
   decimalSeparator(decimalSeparator),
@@ -53,7 +53,7 @@ LoadCsvFileDialog::Parameters &LoadCsvFileDialog::Parameters::operator=(const Pa
   const_cast<QString&>(xUnit) = other.xUnit;
   const_cast<QString&>(yUnit) = other.yUnit;
   const_cast<HeaderHandling&>(header) = other.header;
-  const_cast<quint32&>(linesToSkip) = other.linesToSkip;
+  const_cast<int&>(linesToSkip) = other.linesToSkip;
   const_cast<bool&>(readBom) = other.readBom;
   const_cast<QString&>(encodingId) = other.encodingId;
 
@@ -159,7 +159,7 @@ void LoadCsvFileDialog::onHeaderHandlingChanged(const int idx)
 
 void LoadCsvFileDialog::onLoadClicked()
 {
-  quint32 linesToSkip;
+  int linesToSkip;
   QStandardItem *item = m_encodingsModel.item(ui->qcbox_encoding->currentIndex());
   if (item == nullptr) {
     reject();

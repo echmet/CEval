@@ -241,7 +241,7 @@ bool RectangularHyperbole2<XT, YT>::AInitialize(
 
     // Doit
 
-    for (long i = 0; i != count; ++i) {
+    for (size_t i = 0; i != count; ++i) {
 
         // reading x and y
         _X = x[i]; _Y = y(i,0);

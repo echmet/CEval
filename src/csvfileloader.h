@@ -43,11 +43,11 @@ public:
 
   static Data readClipboard(const QChar &delimiter, const QChar &decimalSeparator,
                             const int xColumn, const int yColumn,
-                            const bool hasHeader, const quint32 linesToSkip,
+                            const bool hasHeader, const int linesToSkip,
                             const QString &encodingId);
   static Data readFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
                        const int xColumn, const int yColumn,
-                       const bool hasHeader, const quint32 linesToSkip,
+                       const bool hasHeader, const int linesToSkip,
                        const QString &encodingId, const QByteArray &bom);
 
   static const QMap<QString, Encoding> SUPPORTED_ENCODINGS;

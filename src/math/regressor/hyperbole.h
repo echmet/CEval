@@ -135,7 +135,7 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
 
     YT   u0 = 0.;
     bool found = false;
-    for (long i = 0; !found && i != count; ++i)
+    for (size_t i = 0; !found && i != count; ++i)
         if ( x[i] == 0.) {
             found = true;
             u0 = y(i, 0);
