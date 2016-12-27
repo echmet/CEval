@@ -140,7 +140,8 @@ SOURCES += src/main.cpp \
     src/gui/hyperbolafitwidget.cpp \
     src/gui/registerinhyperbolafitdialog.cpp \
     src/gui/registerinhyperbolafitwidget.cpp \
-    src/hyperbolafittingwidgetconnector.cpp
+    src/hyperbolafittingwidgetconnector.cpp \
+    src/customlocalesortproxymodel.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -326,7 +327,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/regressor/hyperbola.h \
     src/math/regressor/hyperbola2.h \
     src/gui/registerinhyperbolafitdialog.h \
-    src/gui/registerinhyperbolafitwidget.h
+    src/gui/registerinhyperbolafitwidget.h \
+    src/customlocalesortproxymodel.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

@@ -4,7 +4,7 @@
 #include <QWidget>
 #include <QAbstractItemModel>
 #include <QDataWidgetMapper>
-#include <QSortFilterProxyModel>
+#include "../customlocalesortproxymodel.h"
 #include "../abstractmappermodel.h"
 #include "../floatingvaluedelegate.h"
 #include "../hyperbolafititems.h"
@@ -46,9 +46,9 @@ private:
   QDataWidgetMapper m_fitResultsMapper;
   QDataWidgetMapper m_analyteNamesMapper;
 
-  QSortFilterProxyModel m_analytesSortProxy;
-  QSortFilterProxyModel m_concentrationsSortProxy;
-  QSortFilterProxyModel m_mobilitiesSortProxy;
+  CustomLocaleSortProxyModel m_analytesSortProxy;
+  CustomLocaleSortProxyModel m_concentrationsSortProxy;
+  CustomLocaleSortProxyModel m_mobilitiesSortProxy;
 
   FloatingValueDelegate m_floatingDelegate;
 

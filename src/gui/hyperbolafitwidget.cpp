@@ -350,6 +350,10 @@ void HyperbolaFitWidget::onNumberFormatChanged(const QLocale *oldLocale)
   ui->qlv_analytes->setLocale(DoubleToStringConvertor::locale());
   ui->qlv_concentrations->setLocale(DoubleToStringConvertor::locale());
   ui->qlv_mobilities->setLocale(DoubleToStringConvertor::locale());
+
+  m_analytesSortProxy.setCurrentLocale(DoubleToStringConvertor::locale());
+  m_concentrationsSortProxy.setCurrentLocale(DoubleToStringConvertor::locale());
+  m_mobilitiesSortProxy.setCurrentLocale(DoubleToStringConvertor::locale());
 }
 
 void HyperbolaFitWidget::onRedrawClicked()
@@ -493,6 +497,8 @@ void HyperbolaFitWidget::setAnalytesModel(QAbstractItemModel *model)
   ui->qlv_analytes->setModel(&m_analytesSortProxy);
 
   m_analytesSortProxy.setSortRole(Qt::UserRole + 1);
+  m_analytesSortProxy.setSortCaseSensitivity(Qt::CaseSensitive);
+  m_analytesSortProxy.setSortLocaleAware(false);
 }
 
 void HyperbolaFitWidget::setConcentrationsModel(QAbstractItemModel *model)
@@ -501,6 +507,7 @@ void HyperbolaFitWidget::setConcentrationsModel(QAbstractItemModel *model)
   ui->qlv_concentrations->setModel(&m_concentrationsSortProxy);
 
   m_concentrationsSortProxy.setSortRole(Qt::UserRole + 1);
+  m_concentrationsSortProxy.setSortLocaleAware(false);
 }
 
 void HyperbolaFitWidget::setFitFixedModel(AbstractMapperModel<bool, HyperbolaFitParameters::Boolean> *model)
@@ -561,6 +568,7 @@ void HyperbolaFitWidget::setMobilitiesModel(QAbstractItemModel *model)
   ui->qlv_mobilities->setModel(&m_mobilitiesSortProxy);
 
   m_mobilitiesSortProxy.setSortRole(Qt::UserRole + 1);
+  m_mobilitiesSortProxy.setSortLocaleAware(false);
 }
 
 void HyperbolaFitWidget::setStatModeModel(QAbstractItemModel *model)
