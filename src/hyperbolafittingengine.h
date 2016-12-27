@@ -352,9 +352,9 @@ signals:
   void sortLists();
 
 public slots:
-  void onAddAnalyte(const QString &name);
-  void onAddConcentration(const double num);
-  void onAddMobility(const double u);
+  void onAddAnalyte(const QString &name, QModelIndex &idx);
+  void onAddConcentration(const double num, QModelIndex &idx);
+  void onAddMobility(const double u, QModelIndex &idx);
   void onAnalyteSwitched(const QModelIndexList &inList);
   void onChartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void onChartVerticalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);

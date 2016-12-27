@@ -88,6 +88,7 @@ void HyperbolaFitWidget::onAddAnalyteClicked()
 {
   QInputDialog dlg(this);
   int ret;
+  QModelIndex idx;
 
   dlg.setLabelText(tr("Input name of the analyte"));
 
@@ -97,8 +98,13 @@ void HyperbolaFitWidget::onAddAnalyteClicked()
     if (ret == QDialog::Accepted) {
       QString name = dlg.textValue();
       if (name.length() > 0) {
-        emit addAnalyte(name);
-        m_analytesSortProxy.sort(0);
+        emit addAnalyte(name, idx);
+
+        if (idx.isValid()) {
+          m_analytesSortProxy.sort(0);
+          const QModelIndex proxyIdx = m_analytesSortProxy.mapFromSource(idx);
+          ui->qlv_analytes->setCurrentIndex(proxyIdx);
+        }
         return;
       }
     } else
@@ -109,6 +115,7 @@ void HyperbolaFitWidget::onAddAnalyteClicked()
 void HyperbolaFitWidget::onAddConcentrationClicked()
 {
   QInputDialog dlg(this);
+  QModelIndex idx;
 
   dlg.setLabelText(tr("Enter concentration"));
   dlg.setInputMode(QInputDialog::TextInput);
@@ -120,8 +127,13 @@ void HyperbolaFitWidget::onAddConcentrationClicked()
       QMessageBox::warning(this, tr("Invalid input"), tr("Non-numeric value"));
       continue;
     }
-    emit addConcentration(d);
-    m_concentrationsSortProxy.sort(0);
+    emit addConcentration(d, idx);
+
+    if (idx.isValid()) {
+      m_concentrationsSortProxy.sort(0);
+      const QModelIndex proxyIdx = m_concentrationsSortProxy.mapFromSource(idx);
+      ui->qlv_concentrations->setCurrentIndex(proxyIdx);
+    }
     break;
   }
 
@@ -131,6 +143,7 @@ void HyperbolaFitWidget::onAddConcentrationClicked()
 void HyperbolaFitWidget::onAddMobilityClicked()
 {
   QInputDialog dlg(this);
+  QModelIndex idx;
 
   dlg.setLabelText(tr("Enter mobility of the analyte"));
   dlg.setInputMode(QInputDialog::TextInput);
@@ -142,8 +155,13 @@ void HyperbolaFitWidget::onAddMobilityClicked()
       QMessageBox::warning(nullptr, tr("Invalid input"), tr("Non-numeric value"));
       continue;
     }
-    emit addMobility(d);
-    m_mobilitiesSortProxy.sort(0);
+    emit addMobility(d, idx);
+
+    if (idx.isValid()) {
+      m_mobilitiesSortProxy.sort(0);
+      const QModelIndex proxyIdx = m_mobilitiesSortProxy.mapFromSource(idx);
+      ui->qlv_mobilities->setCurrentIndex(proxyIdx);
+    }
     break;
   }
 

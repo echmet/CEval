@@ -55,9 +55,9 @@ private:
   ScrollAreaEventFilter *m_saEvFilter;
 
 signals:
-  void addAnalyte(const QString &name);
-  void addConcentration(const double num);
-  void addMobility(const double num);
+  void addAnalyte(const QString &name, QModelIndex &idx);
+  void addConcentration(const double num, QModelIndex &idx);
+  void addMobility(const double num, QModelIndex &idx);
   void analyteSwitched(const QModelIndexList &list);
   void chartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void chartMarkerValueChanged(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);

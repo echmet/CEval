@@ -1074,7 +1074,7 @@ QAbstractItemModel *HyperbolaFittingEngine::mobilitiesModel()
   return &m_mobilitiesModel;
 }
 
-void HyperbolaFittingEngine::onAddAnalyte(const QString &name)
+void HyperbolaFittingEngine::onAddAnalyte(const QString &name, QModelIndex &idx)
 {
   QStandardItem *item;
   std::shared_ptr<Analyte> analyte;
@@ -1102,6 +1102,8 @@ void HyperbolaFittingEngine::onAddAnalyte(const QString &name)
 
   m_analytesModel.appendRow(item);
 
+  idx = m_analytesModel.index(m_analytesModel.rowCount() - 1, 0);
+
   m_currentAnalyte = analyte;
   m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = name;
   m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_A);
@@ -1111,7 +1113,7 @@ void HyperbolaFittingEngine::onAddAnalyte(const QString &name)
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
-void HyperbolaFittingEngine::onAddConcentration(const double num)
+void HyperbolaFittingEngine::onAddConcentration(const double num, QModelIndex &idx)
 {
   QStandardItem* item;
   std::shared_ptr<Concentration> c;
@@ -1150,9 +1152,10 @@ void HyperbolaFittingEngine::onAddConcentration(const double num)
   m_concentrationsModel.appendRow(item);
   m_currentConcentration = c;
   m_currentConcentrationKey = num;
+  idx = m_concentrationsModel.index(m_concentrationsModel.rowCount() - 1, 0);
 }
 
-void HyperbolaFittingEngine::onAddMobility(const double u)
+void HyperbolaFittingEngine::onAddMobility(const double u, QModelIndex &idx)
 {
   QStandardItem* item;
 
@@ -1177,6 +1180,7 @@ void HyperbolaFittingEngine::onAddMobility(const double u)
   item->setData(u, Qt::UserRole + 1);
 
   m_mobilitiesModel.appendRow(item);
+  idx = m_mobilitiesModel.index(m_mobilitiesModel.rowCount() - 1, 0);
 
   showDataSeries();
   plotPoints(Series::POINTS_A, m_currentAnalyte);
