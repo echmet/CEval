@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>HyperboleFitWidget</class>
- <widget class="QWidget" name="HyperboleFitWidget">
+ <class>HyperbolaFitWidget</class>
+ <widget class="QWidget" name="HyperbolaFitWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -180,7 +180,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>613</width>
+        <width>569</width>
         <height>614</height>
        </rect>
       </property>

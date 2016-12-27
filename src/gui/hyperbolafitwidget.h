@@ -1,5 +1,5 @@
-#ifndef HYPERBOLEFITWIDGET_H
-#define HYPERBOLEFITWIDGET_H
+#ifndef HYPERBOLAFITWIDGET_H
+#define HYPERBOLAFITWIDGET_H
 
 #include <QWidget>
 #include <QAbstractItemModel>
@@ -7,38 +7,38 @@
 #include <QSortFilterProxyModel>
 #include "../abstractmappermodel.h"
 #include "../floatingvaluedelegate.h"
-#include "../hyperbolefititems.h"
-#include "../hyperbolefittingenginemsgs.h"
+#include "../hyperbolafititems.h"
+#include "../hyperbolafittingenginemsgs.h"
 #include "../inumberformatchangeable.h"
 #include "../scrollareaeventfilter.h"
 
 namespace Ui {
-class HyperboleFitWidget;
+class HyperbolaFitWidget;
 }
 
-class HyperboleFitWidget : public QWidget, public INumberFormatChangeable
+class HyperbolaFitWidget : public QWidget, public INumberFormatChangeable
 {
   Q_OBJECT
   Q_INTERFACES(INumberFormatChangeable)
 public:
-  explicit HyperboleFitWidget(QWidget *parent = nullptr);
-  ~HyperboleFitWidget();
+  explicit HyperbolaFitWidget(QWidget *parent = nullptr);
+  ~HyperbolaFitWidget();
   void connectToAccumulator(QObject *dac);
   void onNumberFormatChanged(const QLocale *oldLocale) override;
   void setAnalytesModel(QAbstractItemModel *model);
-  void setAnalyteNamesModel(AbstractMapperModel<QString, HyperboleFitParameters::String> *model);
+  void setAnalyteNamesModel(AbstractMapperModel<QString, HyperbolaFitParameters::String> *model);
   void setConcentrationsModel(QAbstractItemModel *model);
-  void setFitFixedModel(AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *model);
-  void setFitFloatModel(AbstractMapperModel<double, HyperboleFitParameters::Floating> *model);
-  void setFitIntModel(AbstractMapperModel<int, HyperboleFitParameters::Int> *model);
-  void setFitResultsModel(AbstractMapperModel<double, HyperboleFitResults::Floating> *model);
+  void setFitFixedModel(AbstractMapperModel<bool, HyperbolaFitParameters::Boolean> *model);
+  void setFitFloatModel(AbstractMapperModel<double, HyperbolaFitParameters::Floating> *model);
+  void setFitIntModel(AbstractMapperModel<int, HyperbolaFitParameters::Int> *model);
+  void setFitResultsModel(AbstractMapperModel<double, HyperbolaFitResults::Floating> *model);
   void setFitModeModel(QAbstractItemModel *model);
   void setMobilitiesModel(QAbstractItemModel *model);
   void setStatModeModel(QAbstractItemModel *model);
   void setStatUnitsModel(QAbstractItemModel *model);
 
 private:
-  Ui::HyperboleFitWidget *ui;
+  Ui::HyperbolaFitWidget *ui;
 
   QDataWidgetMapper m_fitFixedMapper;
   QDataWidgetMapper m_fitFloatMapper;
@@ -59,21 +59,21 @@ signals:
   void addConcentration(const double num);
   void addMobility(const double num);
   void analyteSwitched(const QModelIndexList &list);
-  void chartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
-  void chartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
-  void chartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
+  void chartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
+  void chartMarkerValueChanged(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);
+  void chartVerticalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void concentrationSwitched(const QModelIndex &idx);
-  void statsForAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
+  void statsForAnalyteChanged(const HyperbolaFittingEngineMsgs::AnalyteId aId);
   void doEstimate();
   void doFit();
-  void doStats(const HyperboleStats::Intervals intr);
+  void doStats(const HyperbolaStats::Intervals intr);
   void fitModeChanged(const QVariant &v);
   void redrawDataSeries();
   void removeAnalyte(const QModelIndex &idx);
   void removeConcentration(const QModelIndex &idx);
   void removeMobility(const QModelIndex &idx);
   void renameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
-  void showChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
+  void showChartMarker(const HyperbolaFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void statModeChanged(const QVariant &v);
   void statUnitsChanged(const QVariant &v);
 
@@ -111,9 +111,9 @@ private slots:
 public slots:
   void onEnableDoubleFit(const bool enable);
   void onChartHorizontalMarkerIntersectionSet(const double d);
-  void onChartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
+  void onChartVerticalMarkerIntersectionSet(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);
   void onSortLists();
 
 };
 
-#endif // HYPERBOLEFITWIDGET_H
+#endif // HYPERBOLAFITWIDGET_H

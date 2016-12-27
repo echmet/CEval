@@ -5,7 +5,7 @@ class PlotContextTypes {
 public:
   enum class Types {
     EVALUATION = 0,
-    HYPERBOLE_FIT = 1,
+    HYPERBOLA_FIT = 1,
     LAST_INDEX = 2
   };
 

@@ -1,5 +1,5 @@
-#ifndef ECHMET_REGRESS_HYPERBOLE_H
-#define ECHMET_REGRESS_HYPERBOLE_H
+#ifndef ECHMET_REGRESS_HYPERBOLA_H
+#define ECHMET_REGRESS_HYPERBOLA_H
 
 //===========================================================================
 // INCLUDES
@@ -17,10 +17,10 @@ namespace regressCore {
 // dcl
 
 //---------------------------------------------------------------------------
-enum class RectangularHyperboleParams { u0, uS, KS };
+enum class RectangularHyperbolaParams { u0, uS, KS };
 
 //---------------------------------------------------------------------------
-template<typename XT = double, typename YT = double> class RectangularHyperbole
+template<typename XT = double, typename YT = double> class RectangularHyperbola
 : public RegressFunction<XT, YT> {
 public:
 
@@ -28,9 +28,9 @@ public:
 
     typedef size_t msize_t;
 
- RectangularHyperbole ();
+ RectangularHyperbola ();
 
- ~RectangularHyperbole ();
+ ~RectangularHyperbola ();
 
  bool Initialize (
      vector<XT> const & x,
@@ -42,7 +42,7 @@ public:
 
 protected:
 
- virtual RectangularHyperbole * ACreate() const override;
+ virtual RectangularHyperbola * ACreate() const override;
 
  virtual bool AInitialize(
      MatrixY       & params,
@@ -79,7 +79,7 @@ private:
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline RectangularHyperbole<XT, YT>::RectangularHyperbole()
+inline RectangularHyperbola<XT, YT>::RectangularHyperbola()
 :
     RegressFunction<XT, YT>(3),
     m_u0Setting(0.)
@@ -87,12 +87,12 @@ inline RectangularHyperbole<XT, YT>::RectangularHyperbole()
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-RectangularHyperbole<XT, YT>::~RectangularHyperbole ()
+RectangularHyperbola<XT, YT>::~RectangularHyperbola ()
 {}
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline bool RectangularHyperbole<XT, YT>::Initialize(
+inline bool RectangularHyperbola<XT, YT>::Initialize(
     vector<XT> const & x,
     MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
@@ -113,16 +113,16 @@ inline bool RectangularHyperbole<XT, YT>::Initialize(
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline RectangularHyperbole<XT, YT> * RectangularHyperbole<XT, YT>::ACreate() const
+inline RectangularHyperbola<XT, YT> * RectangularHyperbola<XT, YT>::ACreate() const
 {
 
-    return new RectangularHyperbole();
+    return new RectangularHyperbola();
 
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool RectangularHyperbole<XT, YT>::AInitialize(
+bool RectangularHyperbola<XT, YT>::AInitialize(
     MatrixY       & params,
     vector<XT> const & x,
     MatrixY const & y
@@ -143,9 +143,9 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
 
     if (!found) u0 = m_u0Setting;
 
-    this->SetParam(params, RectangularHyperboleParams::u0, u0);
-    this->SetParam(params, RectangularHyperboleParams::uS, YT(0));
-    this->SetParam(params, RectangularHyperboleParams::KS, YT(0));
+    this->SetParam(params, RectangularHyperbolaParams::u0, u0);
+    this->SetParam(params, RectangularHyperbolaParams::uS, YT(0));
+    this->SetParam(params, RectangularHyperbolaParams::KS, YT(0));
 
     long       ndata = 0;
     XT _X = XT(0);
@@ -154,14 +154,14 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
 
     // Doit
 
-    for (long i = 0; i != count; ++i) {
+    for (size_t i = 0; i != count; ++i) {
 
         // reading x and y
         _X = x[i]; _Y = y(i, 0);
 
         if (_X == YT(0) || _Y == YT(0)) continue;
 
-        // hyperbole linearization
+        // hyperbola linearization
         _X = 1./_X;	_Y = 1./(_Y - u0);
 
         // linregresion sums
@@ -186,13 +186,13 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
     double SLOPE     = _X;
     double INTERCEPT = _Y;
 
-    // hyperbole "delinearization"
+    // hyperbola "delinearization"
 
     if (INTERCEPT)
-        this->SetParam(params, RectangularHyperboleParams::uS, YT(1) /INTERCEPT + u0);
+        this->SetParam(params, RectangularHyperbolaParams::uS, YT(1) /INTERCEPT + u0);
 
     if (SLOPE )
-        this->SetParam(params, RectangularHyperboleParams::KS, INTERCEPT / SLOPE);
+        this->SetParam(params, RectangularHyperbolaParams::KS, INTERCEPT / SLOPE);
 
     // Check and Return
 
@@ -202,11 +202,11 @@ bool RectangularHyperbole<XT, YT>::AInitialize(
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-void RectangularHyperbole<XT, YT>::AAssign(RegressFunction<XT, YT> const & other)
+void RectangularHyperbola<XT, YT>::AAssign(RegressFunction<XT, YT> const & other)
 {
 
-    RectangularHyperbole const & mother =
-            dynamic_cast<RectangularHyperbole const &>(other);
+    RectangularHyperbola const & mother =
+            dynamic_cast<RectangularHyperbola const &>(other);
 
     m_u0Setting = mother.m_u0Setting;
     m_viscoeff  = mother.m_viscoeff;
@@ -215,15 +215,15 @@ void RectangularHyperbole<XT, YT>::AAssign(RegressFunction<XT, YT> const & other
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-YT RectangularHyperbole<XT, YT>::ACalculateFx (
+YT RectangularHyperbola<XT, YT>::ACalculateFx (
         XT x,
         MatrixY const & params,
         msize_t
 ) const {
 
-    YT u0 = this->GetParam(params, RectangularHyperboleParams::u0);
-    YT uS = this->GetParam(params, RectangularHyperboleParams::uS);
-    YT KS = this->GetParam(params, RectangularHyperboleParams::KS);
+    YT u0 = this->GetParam(params, RectangularHyperbolaParams::u0);
+    YT uS = this->GetParam(params, RectangularHyperbolaParams::uS);
+    YT KS = this->GetParam(params, RectangularHyperbolaParams::KS);
 
     uS  /= YT(1) + m_viscoeff * x;
 
@@ -233,26 +233,26 @@ YT RectangularHyperbole<XT, YT>::ACalculateFx (
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-YT RectangularHyperbole<XT, YT>::ACalculateDerivative (
+YT RectangularHyperbola<XT, YT>::ACalculateDerivative (
     XT                      x,
     MatrixY const &         params,
     msize_t param_idx,
     msize_t
 ) const {
 
-    YT u0 = this->GetParam(params, RectangularHyperboleParams::u0);
-    YT uS = this->GetParam(params, RectangularHyperboleParams::uS);
-    YT KS = this->GetParam(params, RectangularHyperboleParams::KS);
+    YT u0 = this->GetParam(params, RectangularHyperbolaParams::u0);
+    YT uS = this->GetParam(params, RectangularHyperbolaParams::uS);
+    YT KS = this->GetParam(params, RectangularHyperbolaParams::KS);
 
     uS  /= YT(1) + m_viscoeff * x;
 
     double helper = YT(1) + (KS * x);
 
-    switch(static_cast<RectangularHyperboleParams>(param_idx))
+    switch(static_cast<RectangularHyperbolaParams>(param_idx))
     {
-    case RectangularHyperboleParams::u0 : return YT(1) / helper;
-    case RectangularHyperboleParams::uS : return KS * x / (YT(1) + m_viscoeff * x) / helper;
-    case RectangularHyperboleParams::KS : return (uS - u0) * x / (helper * helper);
+    case RectangularHyperbolaParams::u0 : return YT(1) / helper;
+    case RectangularHyperbolaParams::uS : return KS * x / (YT(1) + m_viscoeff * x) / helper;
+    case RectangularHyperbolaParams::KS : return (uS - u0) * x / (helper * helper);
     }
 
     return YT(); // warning off
@@ -261,15 +261,15 @@ YT RectangularHyperbole<XT, YT>::ACalculateDerivative (
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool RectangularHyperbole<XT, YT>::AAccepted (YT, MatrixY const & params)
+bool RectangularHyperbola<XT, YT>::AAccepted (YT, MatrixY const & params)
 const {
 
 #if 0
 
     return
-        fabs(this->GetParam(params, RectangularHyperboleParams::u0)) < 1000 &&
-        fabs(this->GetParam(params, RectangularHyperboleParams::uS)) < 1000 &&
-        this->GetParam(params, RectangularHyperboleParams::KS)      > 0
+        fabs(this->GetParam(params, RectangularHyperbolaParams::u0)) < 1000 &&
+        fabs(this->GetParam(params, RectangularHyperbolaParams::uS)) < 1000 &&
+        this->GetParam(params, RectangularHyperbolaParams::KS)      > 0
     ;
 #else
 
@@ -283,7 +283,7 @@ const {
 //---------------------------------------------------------------------------
 #if ECHMET_REGRESS_DEBUG == 1
 
-template class RectangularHyperbole<double, double>;
+template class RectangularHyperbola<double, double>;
 
 #endif
 
@@ -293,5 +293,5 @@ template class RectangularHyperbole<double, double>;
 }  //namespace echmet
 
 //---------------------------------------------------------------------------
-#endif // ECHMET_REGRESS_HYPERBOLE_H
+#endif // ECHMET_REGRESS_HYPERBOLA_H
 

@@ -28,7 +28,7 @@ signals:
   void cancelSelection();
   void deletePeakClicked(const QModelIndex &idx);
   void peakSwitched(const QModelIndex &idx);
-  void registerInHyperboleFit(const QModelIndex &idx);
+  void registerInHyperbolaFit(const QModelIndex &idx);
   void rename(const QModelIndex &idx);
 
 private slots:

@@ -1,5 +1,5 @@
-#ifndef HYPERBOLEFITTINGENGINE_H
-#define HYPERBOLEFITTINGENGINE_H
+#ifndef HYPERBOLAFITTINGENGINE_H
+#define HYPERBOLAFITTINGENGINE_H
 
 #include <QObject>
 #include <QMap>
@@ -8,8 +8,8 @@
 #include "booleanmappermodel.h"
 #include "evalserializable.h"
 #include "floatingmappermodel.h"
-#include "hyperbolefititems.h"
-#include "hyperbolefittingenginemsgs.h"
+#include "hyperbolafititems.h"
+#include "hyperbolafittingenginemsgs.h"
 #include "integermappermodel.h"
 #include "inumberformatchangeable.h"
 #include "mappedvectorwrapper.h"
@@ -19,12 +19,12 @@
 class ExportDatatableToCsvDialog;
 namespace echmet {
   namespace regressCore {
-    template <typename XT, typename YT> class RectangularHyperbole;
-    template <typename XT, typename YT> class RectangularHyperbole2;
+    template <typename XT, typename YT> class RectangularHyperbola;
+    template <typename XT, typename YT> class RectangularHyperbola2;
   }
 }
 
-class HyperboleFittingEngine : public QObject, public INumberFormatChangeable
+class HyperbolaFittingEngine : public QObject, public INumberFormatChangeable
 {
   Q_OBJECT
   Q_INTERFACES(INumberFormatChangeable)
@@ -82,20 +82,20 @@ public:
     char *m_what;
   };
 
-  explicit HyperboleFittingEngine(QObject *parent = nullptr);
-  ~HyperboleFittingEngine();
+  explicit HyperbolaFittingEngine(QObject *parent = nullptr);
+  ~HyperbolaFittingEngine();
 
-  AbstractMapperModel<QString, HyperboleFitParameters::String> *analyteNamesModel();
+  AbstractMapperModel<QString, HyperbolaFitParameters::String> *analyteNamesModel();
   QAbstractItemModel *analytesModel();
   void assignContext(std::shared_ptr<PlotContextLimited> ctx);
   void checkForCrashRecovery();
   QAbstractItemModel *concentrationsModel();
   void exportToCsv();
   bool exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision);
-  AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *fitFixedModel();
-  AbstractMapperModel<double, HyperboleFitResults::Floating> *fitResultsModel();
-  AbstractMapperModel<double, HyperboleFitParameters::Floating> *fitFloatModel();
-  AbstractMapperModel<int, HyperboleFitParameters::Int> *fitIntModel();
+  AbstractMapperModel<bool, HyperbolaFitParameters::Boolean> *fitFixedModel();
+  AbstractMapperModel<double, HyperbolaFitResults::Floating> *fitResultsModel();
+  AbstractMapperModel<double, HyperbolaFitParameters::Floating> *fitFloatModel();
+  AbstractMapperModel<int, HyperbolaFitParameters::Int> *fitIntModel();
   QAbstractItemModel *fitModeModel();
   void loadUserSettings(const QVariant &settings);
   QAbstractItemModel *mobilitiesModel();
@@ -245,7 +245,7 @@ private:
   void plotSingleCurve(const HypResults &r);
   void setConcentrationsList(const QList<QStandardItem *> &list);
   void setDoubleFitStats();
-  void setMarkerPosition(const HyperboleFittingEngineMsgs::MarkerType marker);
+  void setMarkerPosition(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void setMobilitiesList(const QList<QStandardItem *> &list);
   void setSingleFitStats();
   void showDataSeries();
@@ -274,11 +274,11 @@ private:
   double m_verticalBMarkerPosition;
   QVector<QPointF> m_statData;
 
-  MappedVectorWrapper<bool, HyperboleFitParameters::Boolean> m_fitFixedValues;
-  MappedVectorWrapper<double, HyperboleFitResults::Floating> m_fitResultsValues;
-  MappedVectorWrapper<double, HyperboleFitParameters::Floating> m_fitFloatValues;
-  MappedVectorWrapper<int, HyperboleFitParameters::Int> m_fitIntValues;
-  MappedVectorWrapper<QString, HyperboleFitParameters::String> m_analyteNamesValues;
+  MappedVectorWrapper<bool, HyperbolaFitParameters::Boolean> m_fitFixedValues;
+  MappedVectorWrapper<double, HyperbolaFitResults::Floating> m_fitResultsValues;
+  MappedVectorWrapper<double, HyperbolaFitParameters::Floating> m_fitFloatValues;
+  MappedVectorWrapper<int, HyperbolaFitParameters::Int> m_fitIntValues;
+  MappedVectorWrapper<QString, HyperbolaFitParameters::String> m_analyteNamesValues;
 
   /* Data exposed to GUI */
   QStandardItemModel m_analytesModel;
@@ -287,14 +287,14 @@ private:
   QStandardItemModel m_fitModeModel;
   QStandardItemModel m_statModeModel;
   QStandardItemModel m_statUnitsModel;
-  BooleanMapperModel<HyperboleFitParameters::Boolean> m_fitFixedModel;
-  FloatingMapperModel<HyperboleFitResults::Floating> m_fitResultsModel;
-  FloatingMapperModel<HyperboleFitParameters::Floating> m_fitFloatModel;
-  IntegerMapperModel<HyperboleFitParameters::Int> m_fitIntModel;
-  StringMapperModel<HyperboleFitParameters::String> m_analyteNamesModel;
+  BooleanMapperModel<HyperbolaFitParameters::Boolean> m_fitFixedModel;
+  FloatingMapperModel<HyperbolaFitResults::Floating> m_fitResultsModel;
+  FloatingMapperModel<HyperbolaFitParameters::Floating> m_fitFloatModel;
+  IntegerMapperModel<HyperbolaFitParameters::Int> m_fitIntModel;
+  StringMapperModel<HyperbolaFitParameters::String> m_analyteNamesModel;
 
-  echmet::regressCore::RectangularHyperbole<double, double> *m_singleFitRegressor;
-  echmet::regressCore::RectangularHyperbole2<double, double> *m_doubleFitRegressor;
+  echmet::regressCore::RectangularHyperbola<double, double> *m_singleFitRegressor;
+  echmet::regressCore::RectangularHyperbola2<double, double> *m_doubleFitRegressor;
 
   QString m_lastDataTablePath;
   QString m_lastExportToCsvPath;
@@ -339,7 +339,7 @@ private:
 signals:
   void enableDoubleFit(const bool enable);
   void chartHorizontalMarkerIntersectionSet(const double d);
-  void chartVerticalMarkerIntersectionSet(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
+  void chartVerticalMarkerIntersectionSet(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);
   void sortLists();
 
 public slots:
@@ -347,14 +347,14 @@ public slots:
   void onAddConcentration(const double num);
   void onAddMobility(const double u);
   void onAnalyteSwitched(const QModelIndexList &inList);
-  void onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
-  void onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker);
-  void onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d);
+  void onChartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
+  void onChartVerticalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
+  void onChartMarkerValueChanged(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();
   void onDoEstimate();
   void onDoFit();
-  void onDoStats(const HyperboleStats::Intervals intr);
+  void onDoStats(const HyperbolaStats::Intervals intr);
   void onEmergencySave();
   void onFitModeChanged(const QVariant &v);
   void onRedrawDataSeries();
@@ -365,10 +365,10 @@ public slots:
   void onRenameAnalyte(const QVariant &internalId, const QString &newName, const int idx);
   void onSecondAnalyteSameChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles);
   void onSerialize();
-  void onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
+  void onShowChartMarker(const HyperbolaFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value);
   void onStatModeChanged(const QVariant &v);
-  void onStatsForAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId);
+  void onStatsForAnalyteChanged(const HyperbolaFittingEngineMsgs::AnalyteId aId);
   void onStatUnitsChanged(const QVariant &v);
 };
 
-#endif // HYPERBOLEFITTINGENGINE_H
+#endif // HYPERBOLAFITTINGENGINE_H

@@ -72,7 +72,7 @@ void EvaluatedPeaksWidget::onListClicked()
 
 void EvaluatedPeaksWidget::onRegisterInHFClicked()
 {
-  emit registerInHyperboleFit(ui->qtbv_evaluatedPeaks->currentIndex());
+  emit registerInHyperbolaFit(ui->qtbv_evaluatedPeaks->currentIndex());
 }
 
 void EvaluatedPeaksWidget::onRenameClicked()

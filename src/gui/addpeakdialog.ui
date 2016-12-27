@@ -56,7 +56,7 @@
       <item>
        <widget class="QCheckBox" name="qcb_register">
         <property name="text">
-         <string>Register this peak in the hyperbole fit</string>
+         <string>Register this peak in the hyperbola fit</string>
         </property>
        </widget>
       </item>

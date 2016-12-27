@@ -17,7 +17,7 @@ public:
 
   enum class ProgramMode {
     EVALUATION,
-    HYPERBOLE_FIT
+    HYPERBOLA_FIT
   };
 
   Q_ENUM(ProgramMode)

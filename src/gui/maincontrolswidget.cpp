@@ -7,11 +7,11 @@ MainControlsWidget::MainControlsWidget(QWidget *parent) :
   ui(new Ui::MainControlsWidget)
 {
   m_evaluationUpperWidget = new EvaluationUpperWidget(this);
-  m_hyperboleFittingWidget = new HyperboleFitWidget(this);
+  m_hyperbolaFittingWidget = new HyperbolaFitWidget(this);
 
   ui->setupUi(this);
   ui->qtab_evaluation->layout()->addWidget(m_evaluationUpperWidget);
-  ui->qtab_hypfit->layout()->addWidget(m_hyperboleFittingWidget);
+  ui->qtab_hypfit->layout()->addWidget(m_hyperbolaFittingWidget);
 
   connect(ui->qtabw_tabs, &QTabWidget::currentChanged, this, &MainControlsWidget::onTabSwitched);
 
@@ -27,7 +27,7 @@ void MainControlsWidget::connectToAccumulator(QObject *dac)
 {
   MainControlsWidgetConnector::connectAll(this, dac);
   m_evaluationUpperWidget->connectToAccumulator(dac);
-  m_hyperboleFittingWidget->connectToAccumulator(dac);
+  m_hyperbolaFittingWidget->connectToAccumulator(dac);
 }
 
 void MainControlsWidget::onTabSwitched(const int idx)

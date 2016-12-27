@@ -1,11 +1,11 @@
-#ifndef HYPERBOLEFITITEMS_H
-#define HYPERBOLEFITITEMS_H
+#ifndef HYPERBOLAFITITEMS_H
+#define HYPERBOLAFITITEMS_H
 
 #include <QObject>
 
-class HyperboleFitResults {
+class HyperbolaFitResults {
 public:
-  HyperboleFitResults() = delete;
+  HyperbolaFitResults() = delete;
 
   enum class Floating : int {
     SIGMA,
@@ -21,9 +21,9 @@ public:
 
 };
 
-class HyperboleFitParameters {
+class HyperbolaFitParameters {
 public:
-  HyperboleFitParameters() = delete;
+  HyperbolaFitParameters() = delete;
 
   enum class Boolean : int {
     FIXED_MOBILITY_A,
@@ -54,11 +54,11 @@ public:
 
 };
 
-class HyperboleStats : public QObject {
+class HyperbolaStats : public QObject {
   Q_OBJECT
 public:
-  HyperboleStats() = delete;
-  HyperboleStats(QObject *parent) = delete;
+  HyperbolaStats() = delete;
+  HyperbolaStats(QObject *parent) = delete;
 
   enum class Intervals {
     LEFT,
@@ -69,5 +69,5 @@ public:
   Q_ENUM(Intervals)
 };
 
-#endif // HYPERBOLEFITITEMS_H
+#endif // HYPERBOLAFITITEMS_H
 

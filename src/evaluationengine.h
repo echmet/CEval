@@ -224,7 +224,7 @@ private:
   };
 
   void activateCurrentDataContext();
-  void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
+  void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
   void clearPeakPlots();
@@ -437,7 +437,7 @@ public slots:
   void onPlotPointHovered(const QPointF &point, const QPoint &cursor);
   void onPlotPointSelected(const QPointF &point, const QPoint &cursor);
   void onReadEof();
-  void onRegisterPeakInHyperboleFit(const QModelIndex &idx);
+  void onRegisterPeakInHyperbolaFit(const QModelIndex &idx);
   void onRenamePeak(const QModelIndex &idx);
   void onReplotHvl();
   void onSetDefault(EvaluationEngineMsgs::Default msg);

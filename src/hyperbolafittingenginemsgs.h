@@ -1,13 +1,13 @@
-#ifndef HYPERBOLEFITTINGENGINEMSGS
-#define HYPERBOLEFITTINGENGINEMSGS
+#ifndef HYPERBOLAFITTINGENGINEMSGS
+#define HYPERBOLAFITTINGENGINEMSGS
 
 #include <QObject>
 
-class HyperboleFittingEngineMsgs : public QObject
+class HyperbolaFittingEngineMsgs : public QObject
 {
   Q_OBJECT
 public:
-  explicit HyperboleFittingEngineMsgs() = delete;
+  explicit HyperbolaFittingEngineMsgs() = delete;
 
   enum class MarkerType {
     HORIZONTAL_MARKER,
@@ -24,5 +24,5 @@ public:
 
 };
 
-#endif // HYPERBOLEFITTINGENGINEMSGS
+#endif // HYPERBOLAFITTINGENGINEMSGS
 

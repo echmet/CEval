@@ -1,15 +1,15 @@
-#include "hyperbolefittingengine.h"
+#include "hyperbolafittingengine.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include "custommetatypes.h"
 #include "globals.h"
-#include "hyperbolefititems.h"
+#include "hyperbolafititems.h"
 #include "math/regressor/profiler.h"
 #include "doubletostringconvertor.h"
 #include "standardplotcontextsettingshandler.h"
 #include "gui/exportdatatabletocsvdialog.h"
-#include "math/regressor/hyperbole.h"
-#include "math/regressor/hyperbole2.h"
+#include "math/regressor/hyperbola.h"
+#include "math/regressor/hyperbola2.h"
 
 #define TAU_MAX      5.0
 #define TAU_MAXCOUNT 600
@@ -17,41 +17,41 @@
 using namespace echmet;
 using namespace regressCore;
 
-typedef RectangularHyperbole2<double, double>::x_type hyp2x_type;
+typedef RectangularHyperbola2<double, double>::x_type hyp2x_type;
 
-const QString HyperboleFittingEngine::s_dataPointsATitle = tr("Points A");
-const QString HyperboleFittingEngine::s_dataPointsBTitle = tr("Points B");
-const QString HyperboleFittingEngine::s_dataPointsAAvgTitle = tr("Average of points A");
-const QString HyperboleFittingEngine::s_dataPointsBAvgTitle = tr("Average of points B");
-const QString HyperboleFittingEngine::s_fitCurveATitle = tr("Fit A");
-const QString HyperboleFittingEngine::s_fitCurveBTitle = tr("Fit B");
-const QString HyperboleFittingEngine::s_fitCurveStatsTitle = tr("Statistics");
-const QString HyperboleFittingEngine::s_horizontalMarkerTitle = tr("Horizontal marker");
-const QString HyperboleFittingEngine::s_verticalAMarkerTitle = tr("Vertical A marker");
-const QString HyperboleFittingEngine::s_verticalBMarkerTitle = tr("Vertical B marker");
+const QString HyperbolaFittingEngine::s_dataPointsATitle = tr("Points A");
+const QString HyperbolaFittingEngine::s_dataPointsBTitle = tr("Points B");
+const QString HyperbolaFittingEngine::s_dataPointsAAvgTitle = tr("Average of points A");
+const QString HyperbolaFittingEngine::s_dataPointsBAvgTitle = tr("Average of points B");
+const QString HyperbolaFittingEngine::s_fitCurveATitle = tr("Fit A");
+const QString HyperbolaFittingEngine::s_fitCurveBTitle = tr("Fit B");
+const QString HyperbolaFittingEngine::s_fitCurveStatsTitle = tr("Statistics");
+const QString HyperbolaFittingEngine::s_horizontalMarkerTitle = tr("Horizontal marker");
+const QString HyperbolaFittingEngine::s_verticalAMarkerTitle = tr("Vertical A marker");
+const QString HyperbolaFittingEngine::s_verticalBMarkerTitle = tr("Vertical B marker");
 
-const QString HyperboleFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
-const QString HyperboleFittingEngine::s_uCSCaption = tr("Mobility of complex (\u03BC (AS))");
-const QString HyperboleFittingEngine::s_KCSCaption = tr("Complexation constant (K (AS))");
-const QString HyperboleFittingEngine::s_tauCaption = tr("Tau (\u03C4)");
-const QString HyperboleFittingEngine::s_confidenceCaption = tr("Confidence");
-const QString HyperboleFittingEngine::s_pValueCaption = tr("P-value");
+const QString HyperbolaFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
+const QString HyperbolaFittingEngine::s_uCSCaption = tr("Mobility of complex (\u03BC (AS))");
+const QString HyperbolaFittingEngine::s_KCSCaption = tr("Complexation constant (K (AS))");
+const QString HyperbolaFittingEngine::s_tauCaption = tr("Tau (\u03C4)");
+const QString HyperbolaFittingEngine::s_confidenceCaption = tr("Confidence");
+const QString HyperbolaFittingEngine::s_pValueCaption = tr("P-value");
 
 
-const double HyperboleFittingEngine::s_defaultViscositySlope = 0.0;
-const double HyperboleFittingEngine::s_defaultEpsilon = 1.0e-9;
-const int HyperboleFittingEngine::s_defaultMaxIterations = 50;
+const double HyperbolaFittingEngine::s_defaultViscositySlope = 0.0;
+const double HyperbolaFittingEngine::s_defaultEpsilon = 1.0e-9;
+const int HyperbolaFittingEngine::s_defaultMaxIterations = 50;
 
-const QString HyperboleFittingEngine::CSV_FILE_SUFFIX("csv");
-const QString HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX("evd");
-const QString HyperboleFittingEngine::EMERG_SAVE_FILE("recovery." + DATA_TABLE_FILE_SUFFIX);
-const double HyperboleFittingEngine::INVAL_CONC_KEY(-1.0);
-const QString HyperboleFittingEngine::INVAL_ANALYTE_KEY("");
+const QString HyperbolaFittingEngine::CSV_FILE_SUFFIX("csv");
+const QString HyperbolaFittingEngine::DATA_TABLE_FILE_SUFFIX("evd");
+const QString HyperbolaFittingEngine::EMERG_SAVE_FILE("recovery." + DATA_TABLE_FILE_SUFFIX);
+const double HyperbolaFittingEngine::INVAL_CONC_KEY(-1.0);
+const QString HyperbolaFittingEngine::INVAL_ANALYTE_KEY("");
 
-const QString HyperboleFittingEngine::LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG("LastExportToCsvPath");
-const QString HyperboleFittingEngine::LAST_LOADSAVE_PATH_SETTINGS_TAG("LastLoadSavePath");
+const QString HyperbolaFittingEngine::LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG("LastExportToCsvPath");
+const QString HyperbolaFittingEngine::LAST_LOADSAVE_PATH_SETTINGS_TAG("LastLoadSavePath");
 
-const char * HyperboleFittingEngine::regressor_initialization_error::what() const noexcept
+const char * HyperbolaFittingEngine::regressor_initialization_error::what() const noexcept
 {
   if (m_what != nullptr)
     return m_what;
@@ -59,18 +59,18 @@ const char * HyperboleFittingEngine::regressor_initialization_error::what() cons
   return "Unable to initialize regressor";
 }
 
-HyperboleFittingEngine::Analyte::Analyte(const QString &name) :
+HyperbolaFittingEngine::Analyte::Analyte(const QString &name) :
   name(name)
 {
 }
 
-HyperboleFittingEngine::Analyte::Analyte(const QString &name, std::shared_ptr<const Analyte> other) :
+HyperbolaFittingEngine::Analyte::Analyte(const QString &name, std::shared_ptr<const Analyte> other) :
   concentrations(other->concentrations),
   name(name)
 {
 }
 
-EvalSerializable::RetCode HyperboleFittingEngine::SerializableConcentration::Operate(DataManipulator &Manipulator)
+EvalSerializable::RetCode HyperbolaFittingEngine::SerializableConcentration::Operate(DataManipulator &Manipulator)
 {
   EvalSerializable::RetCode ret;
 
@@ -82,12 +82,12 @@ EvalSerializable::RetCode HyperboleFittingEngine::SerializableConcentration::Ope
   return Manipulator.Operate(mobilities);
 }
 
-std::string HyperboleFittingEngine::SerializableConcentration::TypeName() const
+std::string HyperbolaFittingEngine::SerializableConcentration::TypeName() const
 {
   return "SerializableConcentration";
 }
 
-EvalSerializable::RetCode HyperboleFittingEngine::SerializableAnalyte::Operate(DataManipulator &Manipulator)
+EvalSerializable::RetCode HyperbolaFittingEngine::SerializableAnalyte::Operate(DataManipulator &Manipulator)
 {
   EvalSerializable::RetCode ret;
 
@@ -99,12 +99,12 @@ EvalSerializable::RetCode HyperboleFittingEngine::SerializableAnalyte::Operate(D
   return Manipulator.Operate(concentrations);
 }
 
-std::string HyperboleFittingEngine::SerializableAnalyte::TypeName() const
+std::string HyperbolaFittingEngine::SerializableAnalyte::TypeName() const
 {
   return "SerializableAnalyte";
 }
 
-EvalSerializable::RetCode HyperboleFittingEngine::SerializableDataTable::Operate(DataManipulator &Manipulator)
+EvalSerializable::RetCode HyperbolaFittingEngine::SerializableDataTable::Operate(DataManipulator &Manipulator)
 {
   EvalSerializable::RetCode ret;
 
@@ -117,35 +117,35 @@ EvalSerializable::RetCode HyperboleFittingEngine::SerializableDataTable::Operate
   return Manipulator.Operate(analytes);
 }
 
-std::string HyperboleFittingEngine::SerializableDataTable::TypeName() const
+std::string HyperbolaFittingEngine::SerializableDataTable::TypeName() const
 {
   return "SerializableDataTable";
 }
 
-HyperboleFittingEngine::Concentration::Concentration(const double concentration) :
+HyperbolaFittingEngine::Concentration::Concentration(const double concentration) :
   concentration(concentration),
   m_avgMobility(0.0)
 {
 }
 
-void HyperboleFittingEngine::Concentration::addMobility(const double mobility)
+void HyperbolaFittingEngine::Concentration::addMobility(const double mobility)
 {
   m_mobilities.push_back(mobility);
 
   recalculateAverage();
 }
 
-double HyperboleFittingEngine::Concentration::avgMobility() const
+double HyperbolaFittingEngine::Concentration::avgMobility() const
 {
   return m_avgMobility;
 }
 
-const HyperboleFittingEngine::Concentration::Mobilities &HyperboleFittingEngine::Concentration::mobilities() const
+const HyperbolaFittingEngine::Concentration::Mobilities &HyperbolaFittingEngine::Concentration::mobilities() const
 {
   return m_mobilities;
 }
 
-void HyperboleFittingEngine::Concentration::removeMobility(const int idx)
+void HyperbolaFittingEngine::Concentration::removeMobility(const int idx)
 {
   if (idx < 0 || idx >= m_mobilities.length())
     return;
@@ -155,7 +155,7 @@ void HyperboleFittingEngine::Concentration::removeMobility(const int idx)
   recalculateAverage();
 }
 
-void HyperboleFittingEngine::Concentration::recalculateAverage()
+void HyperbolaFittingEngine::Concentration::recalculateAverage()
 {
   double sd = 0.0;
 
@@ -168,25 +168,25 @@ void HyperboleFittingEngine::Concentration::recalculateAverage()
   m_avgMobility = sd / m_mobilities.length();
 }
 
-HyperboleFittingEngine::HypResults::HypResults(const double u0, const double uCS, const double KCS, const double maxX, const double sigma, const int iterations) :
+HyperbolaFittingEngine::HypResults::HypResults(const double u0, const double uCS, const double KCS, const double maxX, const double sigma, const int iterations) :
   u0_A(u0), uCS_A(uCS), KCS_A(KCS), maxX_A(maxX),
   sigma(sigma), iterations(iterations),
   m_valid(true)
 {
 }
 
-HyperboleFittingEngine::HypResults::HypResults() :
+HyperbolaFittingEngine::HypResults::HypResults() :
   u0_A(0.0), uCS_A(0.0), KCS_A(0.0), maxX_A(0.0), sigma(0.0), iterations(0),
   m_valid(false)
 {
 }
 
-bool HyperboleFittingEngine::HypResults::isValid() const
+bool HyperbolaFittingEngine::HypResults::isValid() const
 {
   return m_valid;
 }
 
-HyperboleFittingEngine::HypResults &HyperboleFittingEngine::HypResults::operator=(const HypResults &other)
+HyperbolaFittingEngine::HypResults &HyperbolaFittingEngine::HypResults::operator=(const HypResults &other)
 {
   const_cast<double&>(u0_A) = other.u0_A;
   const_cast<double&>(uCS_A) = other.uCS_A;
@@ -199,7 +199,7 @@ HyperboleFittingEngine::HypResults &HyperboleFittingEngine::HypResults::operator
   return *this;
 }
 
-HyperboleFittingEngine::DoubleHypResults::DoubleHypResults(const double u0_A, const double uCS_A, const double KCS_A, const double maxX_A,
+HyperbolaFittingEngine::DoubleHypResults::DoubleHypResults(const double u0_A, const double uCS_A, const double KCS_A, const double maxX_A,
                                                            const double sigma, const int iterations,
                                                            const double u0_B, const double uCS_B, const double KCS_B) :
   HypResults(u0_A, uCS_A, KCS_A, maxX_A, sigma, iterations),
@@ -207,13 +207,13 @@ HyperboleFittingEngine::DoubleHypResults::DoubleHypResults(const double u0_A, co
 {
 }
 
-HyperboleFittingEngine::DoubleHypResults::DoubleHypResults() :
+HyperbolaFittingEngine::DoubleHypResults::DoubleHypResults() :
   HypResults(),
   u0_B(0.0), uCS_B(0.0), KCS_B(0.0)
 {
 }
 
-HyperboleFittingEngine::DoubleHypResults &HyperboleFittingEngine::DoubleHypResults::operator=(const DoubleHypResults &other)
+HyperbolaFittingEngine::DoubleHypResults &HyperbolaFittingEngine::DoubleHypResults::operator=(const DoubleHypResults &other)
 {
   const_cast<double&>(u0_A) = other.u0_A;
   const_cast<double&>(uCS_A) = other.uCS_A;
@@ -230,7 +230,7 @@ HyperboleFittingEngine::DoubleHypResults &HyperboleFittingEngine::DoubleHypResul
   return *this;
 }
 
-HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
+HyperbolaFittingEngine::HyperbolaFittingEngine(QObject *parent) :
   QObject(parent),
   m_currentAnalyte(nullptr),
   m_secondAnalyte(nullptr),
@@ -245,8 +245,8 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_verticalBMarkerPosition(0.0),
   m_lastDataTablePath(QDir::homePath()),
   m_lastExportToCsvPath(QDir::homePath()),
-  m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperboleFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)"),
-  m_exportToCsvNameFilter(QStringList() << "Comma separated values (*." + HyperboleFittingEngine::CSV_FILE_SUFFIX + ")")
+  m_dataTablesNameFilter(QStringList() << Globals::SOFTWARE_NAME + " Data table (*." + HyperbolaFittingEngine::DATA_TABLE_FILE_SUFFIX + ")" << "Any file (*.*)"),
+  m_exportToCsvNameFilter(QStringList() << "Comma separated values (*." + HyperbolaFittingEngine::CSV_FILE_SUFFIX + ")")
 {
   initFitModeModel();
   m_currentFitMode = FitMode::SINGLE;
@@ -256,9 +256,9 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   setSingleFitStats();
   m_currentStatMode = StatMode::MOBILITY_A;
 
-  m_fitFloatValues[HyperboleFitParameters::Floating::VISCOSITY_SLOPE] = s_defaultViscositySlope;
-  m_fitFloatValues[HyperboleFitParameters::Floating::EPSILON] = s_defaultEpsilon;
-  m_fitIntValues[HyperboleFitParameters::Int::MAX_ITERATIONS] = s_defaultMaxIterations;
+  m_fitFloatValues[HyperbolaFitParameters::Floating::VISCOSITY_SLOPE] = s_defaultViscositySlope;
+  m_fitFloatValues[HyperbolaFitParameters::Floating::EPSILON] = s_defaultEpsilon;
+  m_fitIntValues[HyperbolaFitParameters::Int::MAX_ITERATIONS] = s_defaultMaxIterations;
 
   m_fitFixedModel.setUnderlyingData(m_fitFixedValues.pointer());
   m_fitFloatModel.setUnderlyingData(m_fitFloatValues.pointer());
@@ -266,14 +266,14 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   m_fitResultsModel.setUnderlyingData(m_fitResultsValues.pointer());
   m_analyteNamesModel.setUnderlyingData(m_analyteNamesValues.pointer());
 
-  m_singleFitRegressor = new echmet::regressCore::RectangularHyperbole<double, double>();
-  m_doubleFitRegressor = new echmet::regressCore::RectangularHyperbole2<double, double>();
+  m_singleFitRegressor = new echmet::regressCore::RectangularHyperbola<double, double>();
+  m_doubleFitRegressor = new echmet::regressCore::RectangularHyperbola2<double, double>();
 
   m_exportDTToCsvDlg = new ExportDatatableToCsvDialog(m_exportToCsvNameFilter, m_lastExportToCsvPath);
   if (m_exportDTToCsvDlg == nullptr)
     throw std::bad_alloc();
 
-  connect(&m_fitFixedModel, &BooleanMapperModel<HyperboleFitParameters::Boolean>::dataChanged, this, &HyperboleFittingEngine::onSecondAnalyteSameChanged);
+  connect(&m_fitFixedModel, &BooleanMapperModel<HyperbolaFitParameters::Boolean>::dataChanged, this, &HyperbolaFittingEngine::onSecondAnalyteSameChanged);
 
   typedef Mat<double> MatrixD;
 
@@ -287,10 +287,10 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
     mat_y(0,0) = 0;
 
     ret = m_singleFitRegressor->Initialize(mat_x, mat_y,
-                                           m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
-                                           m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                                           m_fitFloatValues.at(HyperbolaFitParameters::Floating::EPSILON),
+                                           m_fitIntValues.at(HyperbolaFitParameters::Int::MAX_ITERATIONS),
                                            true, 0.0,
-                                           m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+                                           m_fitFloatValues.at(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE));
     if (!ret)
         throw regressor_initialization_error("Failed to preinitialize single fit regressor");
   }
@@ -303,10 +303,10 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
     mat_y(0,0) = 0;
 
     ret = m_doubleFitRegressor->Initialize(mat_x, mat_y,
-                                           m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
-                                           m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                                           m_fitFloatValues.at(HyperbolaFitParameters::Floating::EPSILON),
+                                           m_fitIntValues.at(HyperbolaFitParameters::Int::MAX_ITERATIONS),
                                            true, 0.0, 0.0,
-                                           m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+                                           m_fitFloatValues.at(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE));
 
     if (!ret)
       throw regressor_initialization_error("Failed to preinitialize double fit regressor");
@@ -315,24 +315,24 @@ HyperboleFittingEngine::HyperboleFittingEngine(QObject *parent) :
   DoubleToStringConvertor::notifyOnFormatChanged(this);
 }
 
-HyperboleFittingEngine::~HyperboleFittingEngine()
+HyperbolaFittingEngine::~HyperbolaFittingEngine()
 {
   delete m_singleFitRegressor;
   delete m_doubleFitRegressor;
   delete m_exportDTToCsvDlg;
 }
 
-AbstractMapperModel<QString, HyperboleFitParameters::String> *HyperboleFittingEngine::analyteNamesModel()
+AbstractMapperModel<QString, HyperbolaFitParameters::String> *HyperbolaFittingEngine::analyteNamesModel()
 {
   return &m_analyteNamesModel;
 }
 
-QAbstractItemModel *HyperboleFittingEngine::analytesModel()
+QAbstractItemModel *HyperbolaFittingEngine::analytesModel()
 {
   return &m_analytesModel;
 }
 
-void HyperboleFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
+void HyperbolaFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
 {
   m_plotCtx = ctx;
 
@@ -384,7 +384,7 @@ void HyperboleFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> c
   showDataSeries();
 }
 
-void HyperboleFittingEngine::checkForCrashRecovery()
+void HyperbolaFittingEngine::checkForCrashRecovery()
 {
   QString path = QDir::currentPath() + "/" + EMERG_SAVE_FILE;
   QFile recovery(path);
@@ -410,32 +410,32 @@ void HyperboleFittingEngine::checkForCrashRecovery()
   }
 }
 
-void HyperboleFittingEngine::clearAllModels()
+void HyperbolaFittingEngine::clearAllModels()
 {
   m_mobilitiesModel.clear();
   m_concentrationsModel.clear();
 }
 
-void HyperboleFittingEngine::clearAnalyteASeries()
+void HyperbolaFittingEngine::clearAnalyteASeries()
 {
   m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_A));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_A_AVG));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_A_CURVE));
 }
 
-void HyperboleFittingEngine::clearAnalyteBSeries()
+void HyperbolaFittingEngine::clearAnalyteBSeries()
 {
   m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_B));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::POINTS_B_AVG));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_B_CURVE));
 }
 
-QAbstractItemModel *HyperboleFittingEngine::concentrationsModel()
+QAbstractItemModel *HyperbolaFittingEngine::concentrationsModel()
 {
   return &m_concentrationsModel;
 }
 
-bool HyperboleFittingEngine::doDeserialize(const QString &path)
+bool HyperbolaFittingEngine::doDeserialize(const QString &path)
 {
   SerializableDataTable table;
 
@@ -470,26 +470,26 @@ bool HyperboleFittingEngine::doDeserialize(const QString &path)
     return false;
   }
 
-  m_fitFloatValues[HyperboleFitParameters::Floating::VISCOSITY_SLOPE] = table.viscositySlope;
-  m_fitFloatModel.notifyDataChanged(HyperboleFitParameters::Floating::VISCOSITY_SLOPE, HyperboleFitParameters::Floating::VISCOSITY_SLOPE, { Qt::EditRole });
+  m_fitFloatValues[HyperbolaFitParameters::Floating::VISCOSITY_SLOPE] = table.viscositySlope;
+  m_fitFloatModel.notifyDataChanged(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE, HyperbolaFitParameters::Floating::VISCOSITY_SLOPE, { Qt::EditRole });
 
   refreshModels();
   return true;
 }
 
-void HyperboleFittingEngine::displayHypResults(const HypResults *r)
+void HyperbolaFittingEngine::displayHypResults(const HypResults *r)
 {
   if (!r->isValid())
     return;
 
-  m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_A] = r->u0_A;
-  m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_A] = r->uCS_A;
-  m_fitResultsValues[HyperboleFitResults::Floating::K_CS_A] = r->KCS_A;
-  m_fitResultsValues[HyperboleFitResults::Floating::SIGMA] = r->sigma;
-  m_fitResultsValues[HyperboleFitResults::Floating::ITERATIONS] = r->iterations;
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_A] = r->u0_A;
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_A] = r->uCS_A;
+  m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_A] = r->KCS_A;
+  m_fitResultsValues[HyperbolaFitResults::Floating::SIGMA] = r->sigma;
+  m_fitResultsValues[HyperbolaFitResults::Floating::ITERATIONS] = r->iterations;
 
-  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::SIGMA, HyperboleFitResults::Floating::K_CS_A, { Qt::EditRole });
-  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::ITERATIONS, HyperboleFitResults::Floating::ITERATIONS, { Qt::EditRole });
+  m_fitResultsModel.notifyDataChanged(HyperbolaFitResults::Floating::SIGMA, HyperbolaFitResults::Floating::K_CS_A, { Qt::EditRole });
+  m_fitResultsModel.notifyDataChanged(HyperbolaFitResults::Floating::ITERATIONS, HyperbolaFitResults::Floating::ITERATIONS, { Qt::EditRole });
 
   showDataSeries();
 
@@ -501,22 +501,22 @@ void HyperboleFittingEngine::displayHypResults(const HypResults *r)
   {
     const DoubleHypResults *dr = static_cast<const DoubleHypResults *>(r);
 
-    m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_B] = dr->u0_B;
-    m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_B] = dr->uCS_B;
-    m_fitResultsValues[HyperboleFitResults::Floating::K_CS_B] = dr->KCS_B;
+    m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_B] = dr->u0_B;
+    m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_B] = dr->uCS_B;
+    m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_B] = dr->KCS_B;
 
-    m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::MOBILITY_B, HyperboleFitResults::Floating::K_CS_B, { Qt::EditRole });
+    m_fitResultsModel.notifyDataChanged(HyperbolaFitResults::Floating::MOBILITY_B, HyperbolaFitResults::Floating::K_CS_B, { Qt::EditRole });
 
     plotDoubleCurve(*dr);
   }
   }
 }
 
-HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimate(const bool usedForStats = false)
+HyperbolaFittingEngine::DoubleHypResults HyperbolaFittingEngine::doDoubleEstimate(const bool usedForStats = false)
 {
   double maxX = std::numeric_limits<double>::min();
   /* Prevent any ptr vs. var mishaps */
-  echmet::regressCore::RectangularHyperbole2<double, double> &dfrRef = *m_doubleFitRegressor;
+  echmet::regressCore::RectangularHyperbola2<double, double> &dfrRef = *m_doubleFitRegressor;
 
   typedef Mat<double> MatrixD;
 
@@ -531,7 +531,7 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
     return DoubleHypResults();
 
   if (!m_currentAnalyte->concentrations.contains(0.0)) {
-    double u0 = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
+    double u0 = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
     int ret = QMessageBox::question(nullptr, tr("No zero concentration"), QString(tr("List of entered concentrations does not contain any data for zero concentration of the selector.\n"
                                                                                      "Do you want to use the current value of \u03BC0 = %1 as the estimate?")).arg(u0),
                                     QMessageBox::Yes | QMessageBox::No);
@@ -581,91 +581,91 @@ HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleEstimat
     ++idx;
   }
 
-  double u0A =  m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
-  double uCSA = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_CS_A);
-  double KCSA = m_fitResultsValues.at(HyperboleFitResults::Floating::K_CS_A);
-  double u0B =  m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_B);
+  double u0A =  m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
+  double uCSA = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_CS_A);
+  double KCSA = m_fitResultsValues.at(HyperbolaFitResults::Floating::K_CS_A);
+  double u0B =  m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_B);
   double uCSB;
   double KCSB;
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A))
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::u0, u0A);
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_A))
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::u0, u0A);
   else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::u0);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::u0);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_A))
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::uS, uCSA);
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_CS_A))
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::uS, uCSA);
   else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::uS);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::uS);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_A))
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::KS, KCSA);
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_K_CS_A))
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::KS, KCSA);
   else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::KS);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::KS);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_B)) {
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_B)) {
     u0B = u0A;
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::du0, u0B - u0A);
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::du0, u0B - u0A);
   } else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::du0);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::du0);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_B)) {
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_CS_B)) {
     uCSB = uCSA;
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::duS, uCSB - uCSA);
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::duS, uCSB - uCSA);
   } else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::duS);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::duS);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_B)) {
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_K_CS_B)) {
     KCSB = KCSA;
-    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbole2Params::dKS, KCSB - KCSA);
+    dfrRef.FixParameter(echmet::regressCore::RectangularHyperbola2Params::dKS, KCSB - KCSA);
   } else
-    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbole2Params::dKS);
+    dfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbola2Params::dKS);
 
 
   bool ret = dfrRef.Initialize(mat_x, mat_y,
-                               m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
-                               m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                               m_fitFloatValues.at(HyperbolaFitParameters::Floating::EPSILON),
+                               m_fitIntValues.at(HyperbolaFitParameters::Int::MAX_ITERATIONS),
                                true, u0A, u0B,
-                               m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+                               m_fitFloatValues.at(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE));
 
   if (!ret) {
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Double estimation failed."));
     return DoubleHypResults();
   }
 
-  u0A  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::u0);
-  uCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::uS);
-  KCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::KS);
-  u0B  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::du0);
-  uCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::duS);
-  KCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::dKS);
+  u0A  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::u0);
+  uCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::uS);
+  KCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::KS);
+  u0B  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::du0);
+  uCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::duS);
+  KCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::dKS);
   double sigma = dfrRef.GetS();
 
   return DoubleHypResults(u0A, uCSA, KCSA, maxX, sigma, 0, u0A + u0B, uCSA + uCSB, KCSA + KCSB);
 }
 
-HyperboleFittingEngine::DoubleHypResults HyperboleFittingEngine::doDoubleFit(const DoubleHypResults &dr)
+HyperbolaFittingEngine::DoubleHypResults HyperbolaFittingEngine::doDoubleFit(const DoubleHypResults &dr)
 {
-  echmet::regressCore::RectangularHyperbole2<double, double> &dfrRef = *m_doubleFitRegressor;
+  echmet::regressCore::RectangularHyperbola2<double, double> &dfrRef = *m_doubleFitRegressor;
   if (!dfrRef.Regress())
     return DoubleHypResults();
 
-  double u0A = dfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::u0);
-  double uCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::uS);
-  double KCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::KS);
-  double u0B  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::du0);
-  double uCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::duS);
-  double KCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbole2Params::dKS);
+  double u0A = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::u0);
+  double uCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::uS);
+  double KCSA = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::KS);
+  double u0B  = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::du0);
+  double uCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::duS);
+  double KCSB = dfrRef.GetParameter(echmet::regressCore::RectangularHyperbola2Params::dKS);
   int iters = dfrRef.GetIterationCounter();
   double sigma = dfrRef.GetS();
 
   return DoubleHypResults(u0A, uCSA, KCSA, dr.maxX_A, sigma, iters, u0A + u0B, uCSA + uCSB, KCSA + KCSB);
 }
 
-void HyperboleFittingEngine::doSerialize(const QString &path)
+void HyperbolaFittingEngine::doSerialize(const QString &path)
 {
   SerializableDataTable table;
-  table.viscositySlope = m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE);
+  table.viscositySlope = m_fitFloatValues.at(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE);
 
   try {
     for (std::shared_ptr<const Analyte> a : m_analytes) {
@@ -698,11 +698,11 @@ void HyperboleFittingEngine::doSerialize(const QString &path)
   }
 }
 
-HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
+HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleEstimate()
 {
   double maxX = std::numeric_limits<double>::min();
   /* Prevent any ptr vs. var mishaps */
-  echmet::regressCore::RectangularHyperbole<double, double> &sfrRef = *m_singleFitRegressor;
+  echmet::regressCore::RectangularHyperbola<double, double> &sfrRef = *m_singleFitRegressor;
 
   typedef Mat<double> MatrixD;
 
@@ -716,7 +716,7 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
     return HypResults();
 
   if (!m_currentAnalyte->concentrations.contains(0.0)) {
-    double u0 = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
+    double u0 = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
     int ret = QMessageBox::question(nullptr, tr("No zero concentration"), QString(tr("List of entered concentrations does not contain any data for zero concentration of the selector.\n"
                                                                                      "Do you want to use the current value of \u03BC0 = %1 as the estimate?")).arg(u0),
                                     QMessageBox::Yes | QMessageBox::No);
@@ -744,62 +744,62 @@ HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleEstimate()
     ++idx;
   }
 
-  double u0 = m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A);
+  double u0 = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_A))
-    sfrRef.FixParameter(echmet::regressCore::RectangularHyperboleParams::u0,
-        m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_A)
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_A))
+    sfrRef.FixParameter(echmet::regressCore::RectangularHyperbolaParams::u0,
+        m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A)
     );
   else
-    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperboleParams::u0);
+    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbolaParams::u0);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_A))
-    sfrRef.FixParameter(echmet::regressCore::RectangularHyperboleParams::uS,
-        m_fitResultsValues.at(HyperboleFitResults::Floating::MOBILITY_CS_A)
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_MOBILITY_CS_A))
+    sfrRef.FixParameter(echmet::regressCore::RectangularHyperbolaParams::uS,
+        m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_CS_A)
     );
   else
-    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperboleParams::uS);
+    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbolaParams::uS);
 
-  if (m_fitFixedValues.at(HyperboleFitParameters::Boolean::FIXED_K_CS_A))
-    sfrRef.FixParameter(echmet::regressCore::RectangularHyperboleParams::KS,
-        m_fitResultsValues.at(HyperboleFitResults::Floating::K_CS_A)
+  if (m_fitFixedValues.at(HyperbolaFitParameters::Boolean::FIXED_K_CS_A))
+    sfrRef.FixParameter(echmet::regressCore::RectangularHyperbolaParams::KS,
+        m_fitResultsValues.at(HyperbolaFitResults::Floating::K_CS_A)
     );
   else
-    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperboleParams::KS);
+    sfrRef.ReleaseParameter(echmet::regressCore::RectangularHyperbolaParams::KS);
 
   bool ret = sfrRef.Initialize(mat_x, mat_y,
-                               m_fitFloatValues.at(HyperboleFitParameters::Floating::EPSILON),
-                               m_fitIntValues.at(HyperboleFitParameters::Int::MAX_ITERATIONS),
+                               m_fitFloatValues.at(HyperbolaFitParameters::Floating::EPSILON),
+                               m_fitIntValues.at(HyperbolaFitParameters::Int::MAX_ITERATIONS),
                                true, u0,
-                               m_fitFloatValues.at(HyperboleFitParameters::Floating::VISCOSITY_SLOPE));
+                               m_fitFloatValues.at(HyperbolaFitParameters::Floating::VISCOSITY_SLOPE));
 
   if (!ret) {
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Single estimation failed."));
     return HypResults();
   }
 
-  u0 = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::u0);
-  double uCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::uS);
-  double KCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::KS);
+  u0 = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::u0);
+  double uCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::uS);
+  double KCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::KS);
   double sigma = sfrRef.GetS();
 
   return HypResults(u0, uCS, KCS, maxX, sigma, 0);
 }
 
-HyperboleFittingEngine::HypResults HyperboleFittingEngine::doSingleFit(const HypResults &r)
+HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleFit(const HypResults &r)
 {
-  echmet::regressCore::RectangularHyperbole<double, double> &sfrRef = *m_singleFitRegressor;
+  echmet::regressCore::RectangularHyperbola<double, double> &sfrRef = *m_singleFitRegressor;
   sfrRef.Regress();
 
-  double u0 = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::u0);
-  double uCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::uS);
-  double KCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperboleParams::KS);
+  double u0 = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::u0);
+  double uCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::uS);
+  double KCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::KS);
   double sigma = sfrRef.GetS();
 
   return HypResults(u0, uCS, KCS, r.maxX_A, sigma, sfrRef.GetIterationCounter());
 }
 
-void HyperboleFittingEngine::exportToCsv()
+void HyperbolaFittingEngine::exportToCsv()
 {
   if (m_analytes.size() < 1) {
     QMessageBox::information(nullptr, QObject::tr("Nothing to export"), QObject::tr("The data table is empty"));
@@ -846,7 +846,7 @@ void HyperboleFittingEngine::exportToCsv()
   }
 }
 
-bool HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision)
+bool HyperbolaFittingEngine::exportToCsvSingleFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator, const int precision)
 {
   QFile file(path);
   QTextStream stream(&file);
@@ -890,32 +890,32 @@ bool HyperboleFittingEngine::exportToCsvSingleFile(const QString &path, const QC
   return true;
 }
 
-AbstractMapperModel<bool, HyperboleFitParameters::Boolean> *HyperboleFittingEngine::fitFixedModel()
+AbstractMapperModel<bool, HyperbolaFitParameters::Boolean> *HyperbolaFittingEngine::fitFixedModel()
 {
   return &m_fitFixedModel;
 }
 
-AbstractMapperModel<double, HyperboleFitParameters::Floating> *HyperboleFittingEngine::fitFloatModel()
+AbstractMapperModel<double, HyperbolaFitParameters::Floating> *HyperbolaFittingEngine::fitFloatModel()
 {
   return &m_fitFloatModel;
 }
 
-AbstractMapperModel<int, HyperboleFitParameters::Int> *HyperboleFittingEngine::fitIntModel()
+AbstractMapperModel<int, HyperbolaFitParameters::Int> *HyperbolaFittingEngine::fitIntModel()
 {
   return &m_fitIntModel;
 }
 
-AbstractMapperModel<double, HyperboleFitResults::Floating> *HyperboleFittingEngine::fitResultsModel()
+AbstractMapperModel<double, HyperbolaFitResults::Floating> *HyperbolaFittingEngine::fitResultsModel()
 {
   return &m_fitResultsModel;
 }
 
-QAbstractItemModel *HyperboleFittingEngine::fitModeModel()
+QAbstractItemModel *HyperbolaFittingEngine::fitModeModel()
 {
   return &m_fitModeModel;
 }
 
-void HyperboleFittingEngine::hideDataSeries()
+void HyperbolaFittingEngine::hideDataSeries()
 {
   m_plotCtx->hideSerie(seriesIndex(Series::FIT_A_CURVE));
   m_plotCtx->hideSerie(seriesIndex(Series::FIT_B_CURVE));
@@ -925,7 +925,7 @@ void HyperboleFittingEngine::hideDataSeries()
   m_plotCtx->hideSerie(seriesIndex(Series::POINTS_B_AVG));
 }
 
-void HyperboleFittingEngine::initFitModeModel()
+void HyperbolaFittingEngine::initFitModeModel()
 {
   try {
     QStandardItem *singleFit = new QStandardItem(tr("Single fit"));
@@ -941,7 +941,7 @@ void HyperboleFittingEngine::initFitModeModel()
   }
 }
 
-void HyperboleFittingEngine::initStatUnitsModel()
+void HyperbolaFittingEngine::initStatUnitsModel()
 {
   try {
     QStandardItem *tau = new QStandardItem(s_tauCaption);
@@ -961,39 +961,39 @@ void HyperboleFittingEngine::initStatUnitsModel()
   }
 }
 
-void HyperboleFittingEngine::invalidateAll()
+void HyperbolaFittingEngine::invalidateAll()
 {
   invalidateCurrentConcentration();
   m_currentAnalyte = nullptr;
 }
 
-double HyperboleFittingEngine::interpolateVerticalMarkerPosition(const QPointF &a, const QPointF &b, const double y) const
+double HyperbolaFittingEngine::interpolateVerticalMarkerPosition(const QPointF &a, const QPointF &b, const double y) const
 {
   const double k = (b.y() - a.y()) / (b.x() - a.x());
 
   return ((y - a.y()) / k) + a.x();
 }
 
-void HyperboleFittingEngine::invalidateAnalyteB()
+void HyperbolaFittingEngine::invalidateAnalyteB()
 {
   m_secondAnalyte = nullptr;
 
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = "";
-  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_B, HyperboleFitParameters::String::ANALYTE_B);
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_B] = "";
+  m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_B, HyperbolaFitParameters::String::ANALYTE_B);
 
-  m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_B] = 0.0;
-  m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_B] = 0.0;
-  m_fitResultsValues[HyperboleFitResults::Floating::K_CS_B] = 0.0;
-  m_fitResultsModel.notifyDataChanged(HyperboleFitResults::Floating::MOBILITY_B, HyperboleFitResults::Floating::K_CS_B, { Qt::EditRole });
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_B] = 0.0;
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_B] = 0.0;
+  m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_B] = 0.0;
+  m_fitResultsModel.notifyDataChanged(HyperbolaFitResults::Floating::MOBILITY_B, HyperbolaFitResults::Floating::K_CS_B, { Qt::EditRole });
 }
 
-void HyperboleFittingEngine::invalidateCurrentConcentration()
+void HyperbolaFittingEngine::invalidateCurrentConcentration()
 {
   m_currentConcentration = nullptr;
   m_currentConcentrationKey = INVAL_CONC_KEY;
 }
 
-bool HyperboleFittingEngine::isEditable() const
+bool HyperbolaFittingEngine::isEditable() const
 {
   if (m_currentFitMode == FitMode::SINGLE)
     return true;
@@ -1002,7 +1002,7 @@ bool HyperboleFittingEngine::isEditable() const
   return false;
 }
 
-void HyperboleFittingEngine::loadUserSettings(const QVariant &settings)
+void HyperbolaFittingEngine::loadUserSettings(const QVariant &settings)
 {
   if (!settings.canConvert<EMT::StringVariantMap>())
     return;
@@ -1024,7 +1024,7 @@ void HyperboleFittingEngine::loadUserSettings(const QVariant &settings)
   }
 }
 
-QList<QStandardItem *> HyperboleFittingEngine::makeConcentrationsList(const Analyte::ConcentrationMap &data)
+QList<QStandardItem *> HyperbolaFittingEngine::makeConcentrationsList(const Analyte::ConcentrationMap &data)
 {
   QList<QStandardItem *> list;
 
@@ -1038,7 +1038,7 @@ QList<QStandardItem *> HyperboleFittingEngine::makeConcentrationsList(const Anal
   return list;
 }
 
-QList<QStandardItem *> HyperboleFittingEngine::makeMobilitiesList(const Concentration::Mobilities &data)
+QList<QStandardItem *> HyperbolaFittingEngine::makeMobilitiesList(const Concentration::Mobilities &data)
 {
   QList<QStandardItem *> list;
 
@@ -1052,12 +1052,12 @@ QList<QStandardItem *> HyperboleFittingEngine::makeMobilitiesList(const Concentr
   return list;
 }
 
-QAbstractItemModel *HyperboleFittingEngine::mobilitiesModel()
+QAbstractItemModel *HyperbolaFittingEngine::mobilitiesModel()
 {
   return &m_mobilitiesModel;
 }
 
-void HyperboleFittingEngine::onAddAnalyte(const QString &name)
+void HyperbolaFittingEngine::onAddAnalyte(const QString &name)
 {
   QStandardItem *item;
   std::shared_ptr<Analyte> analyte;
@@ -1086,15 +1086,15 @@ void HyperboleFittingEngine::onAddAnalyte(const QString &name)
   m_analytesModel.appendRow(item);
 
   m_currentAnalyte = analyte;
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = name;
-  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = name;
+  m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_A);
 
   clearAnalyteASeries();
 
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
-void HyperboleFittingEngine::onAddConcentration(const double num)
+void HyperbolaFittingEngine::onAddConcentration(const double num)
 {
   QStandardItem* item;
   std::shared_ptr<Concentration> c;
@@ -1135,7 +1135,7 @@ void HyperboleFittingEngine::onAddConcentration(const double num)
   m_currentConcentrationKey = num;
 }
 
-void HyperboleFittingEngine::onAddMobility(const double u)
+void HyperbolaFittingEngine::onAddMobility(const double u)
 {
   QStandardItem* item;
 
@@ -1165,7 +1165,7 @@ void HyperboleFittingEngine::onAddMobility(const double u)
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
-void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
+void HyperbolaFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
 {
   QStandardItem *item;
   QString name;
@@ -1203,18 +1203,18 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
         }
 
         m_secondAnalyte = m_analytes[name2];
-        m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = name2;
+        m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_B] = name2;
         plotPoints(Series::POINTS_B, m_secondAnalyte);
 
-        m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_B, HyperboleFitParameters::String::ANALYTE_B);
+        m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_B, HyperbolaFitParameters::String::ANALYTE_B);
       }
     } else if (list.size() > 2) {
         QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("No more that two analytes can be selected at once.")).arg(name));
         return;
     }
   }
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = name;
-  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = name;
+  m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_A);
 
   clearAnalyteASeries();
 
@@ -1230,7 +1230,7 @@ void HyperboleFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
   emit sortLists();
 }
 
-void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
+void HyperbolaFittingEngine::onChartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker)
 {
   auto intersection = [](const QPointF &a, const QPointF &b, const double x) {
     const double k = (b.y() - a.y()) / (b.x() - a.x());
@@ -1239,7 +1239,7 @@ void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const Hyperbole
   };
 
   switch (marker) {
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
     for (int idx = 1; idx < m_statData.size(); idx++) {
       if (m_statData.at(idx).x() >= m_verticalAMarkerPosition) {
         m_horizontalMarkerPosition = intersection(m_statData.at(idx - 1), m_statData.at(idx), m_verticalAMarkerPosition);
@@ -1247,7 +1247,7 @@ void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const Hyperbole
       }
     }
     break;
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
     for (int idx = m_statData.size() - 2; idx >= 0; idx--) {
       if (m_statData.at(idx).x() <= m_verticalBMarkerPosition) {
         m_horizontalMarkerPosition = intersection(m_statData.at(idx), m_statData.at(idx + 1), m_verticalBMarkerPosition);
@@ -1259,11 +1259,11 @@ void HyperboleFittingEngine::onChartHorizontalMarkerIntersection(const Hyperbole
     return;
   }
 
-  setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
+  setMarkerPosition(HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
   emit chartHorizontalMarkerIntersectionSet(m_horizontalMarkerPosition);
 }
 
-void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFittingEngineMsgs::MarkerType marker)
+void HyperbolaFittingEngine::onChartVerticalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker)
 {
   std::function<bool (const double, const double)> comparator;
   if (m_currentStatUnits == StatUnits::P_VALUE) {
@@ -1277,7 +1277,7 @@ void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFi
   }
 
   switch (marker) {
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
     for (int idx = 1; idx < m_statData.size(); idx++) {
       if (comparator(m_statData.at(idx).y(), m_horizontalMarkerPosition)) {
         m_verticalAMarkerPosition = interpolateVerticalMarkerPosition(m_statData.at(idx - 1), m_statData.at(idx), m_horizontalMarkerPosition);
@@ -1288,7 +1288,7 @@ void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFi
       }
     }
     break;
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
     for (int idx = m_statData.size() - 2; idx >= 0; idx--) {
       if (comparator(m_statData.at(idx).y(), m_horizontalMarkerPosition)) {
         m_verticalBMarkerPosition = interpolateVerticalMarkerPosition(m_statData.at(idx + 1), m_statData.at(idx), m_horizontalMarkerPosition);
@@ -1304,24 +1304,24 @@ void HyperboleFittingEngine::onChartVerticalMarkerIntersection(const HyperboleFi
   }
 }
 
-void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEngineMsgs::MarkerType marker, const double d)
+void HyperbolaFittingEngine::onChartMarkerValueChanged(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d)
 {
   switch (marker) {
-    case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
       m_horizontalMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showHorizontalMarker) {
         setMarkerPosition(marker);
         m_plotCtx->replot();
       }
       break;
-    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
       m_verticalAMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showVerticalAMarker) {
         setMarkerPosition(marker);
         m_plotCtx->replot();
       }
       break;
-    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
       m_verticalBMarkerPosition = d;
       if ((m_viewMode == ViewMode::STATS) && m_showVerticalBMarker) {
         setMarkerPosition(marker);
@@ -1333,7 +1333,7 @@ void HyperboleFittingEngine::onChartMarkerValueChanged(const HyperboleFittingEng
   }
 }
 
-void HyperboleFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
+void HyperbolaFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
 {
   QStandardItem *item;
   double num;
@@ -1371,7 +1371,7 @@ void HyperboleFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
   setMobilitiesList(makeMobilitiesList(m_currentConcentration->mobilities()));
 }
 
-void HyperboleFittingEngine::onDeserialize()
+void HyperbolaFittingEngine::onDeserialize()
 {
   QFileDialog openDlg(nullptr, tr("Pick a data table to load"), m_lastDataTablePath);
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
@@ -1396,7 +1396,7 @@ void HyperboleFittingEngine::onDeserialize()
   m_plotCtx->setPlotTitle(finfo.fileName());
 }
 
-void HyperboleFittingEngine::onDoEstimate()
+void HyperbolaFittingEngine::onDoEstimate()
 {
 
   switch (m_currentFitMode) {
@@ -1421,7 +1421,7 @@ void HyperboleFittingEngine::onDoEstimate()
 
 }
 
-void HyperboleFittingEngine::onDoFit()
+void HyperbolaFittingEngine::onDoFit()
 {
   switch (m_currentFitMode) {
   case FitMode::SINGLE:
@@ -1457,7 +1457,7 @@ void HyperboleFittingEngine::onDoFit()
   }
 }
 
-void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
+void HyperbolaFittingEngine::onDoStats(const HyperbolaStats::Intervals intr)
 {
   QVector<QPointF> data;
   std::vector<std::pair<double, double> > out;
@@ -1465,12 +1465,12 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
   double twoSided = false;
 
   switch (intr) {
-  case HyperboleStats::Intervals::LEFT:
+  case HyperbolaStats::Intervals::LEFT:
     tau = -TAU_MAX;
     break;
-  case HyperboleStats::Intervals::BOTH:
+  case HyperbolaStats::Intervals::BOTH:
     twoSided = true;
-  case HyperboleStats::Intervals::RIGHT:
+  case HyperbolaStats::Intervals::RIGHT:
     tau = TAU_MAX;
     break;
   default:
@@ -1504,13 +1504,13 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
     switch (m_currentStatMode) {
     case StatMode::MOBILITY_A:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::u0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbolaParams::u0);
       break;
     case StatMode::MOBILITY_CS_A:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::uS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbolaParams::uS);
       break;
     case StatMode::K_CS_A:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperboleParams::KS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbolaParams::KS);
       break;
     default:
       return;
@@ -1530,7 +1530,7 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
   case FitMode::DOUBLE:
   {
-    echmet::regressCore::Profiler<echmet::regressCore::RectangularHyperbole2XType<double>, double> MProfiler;
+    echmet::regressCore::Profiler<echmet::regressCore::RectangularHyperbola2XType<double>, double> MProfiler;
 
     MProfiler.nmax = TAU_MAXCOUNT;
     MProfiler.toTau = tau;
@@ -1554,22 +1554,22 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
     switch (m_currentStatMode) {
     case StatMode::MOBILITY_B:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::u0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::u0);
       break;
     case StatMode::MOBILITY_CS_B:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::uS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::uS);
       break;
     case StatMode::K_CS_B:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::KS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::KS);
       break;
     case StatMode::D_MOBILITY:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::du0);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::du0);
       break;
     case StatMode::D_MOBILITY_CS:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::duS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::duS);
       break;
     case StatMode::D_K_CS:
-      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbole2Params::dKS);
+      paramId = static_cast<msize_t>(echmet::regressCore::RectangularHyperbola2Params::dKS);
       break;
     default:
       return;
@@ -1613,25 +1613,25 @@ void HyperboleFittingEngine::onDoStats(const HyperboleStats::Intervals intr)
 
     if (m_showHorizontalMarker) {
       m_horizontalMarkerPosition = m_statData.at(halfSize).y();
-      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
+      setMarkerPosition(HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER);
       emit chartHorizontalMarkerIntersectionSet(m_horizontalMarkerPosition);
     }
     if (m_showVerticalAMarker) {
       m_verticalAMarkerPosition = m_statData.at(halfSize).x();
-      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
-      emit chartVerticalMarkerIntersectionSet(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, m_verticalAMarkerPosition);
+      setMarkerPosition(HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER);
+      emit chartVerticalMarkerIntersectionSet(HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER, m_verticalAMarkerPosition);
     }
     if (m_showVerticalBMarker) {
       m_verticalBMarkerPosition = m_statData.at(halfSize).x();
-      setMarkerPosition(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
-      emit chartVerticalMarkerIntersectionSet(HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, m_verticalBMarkerPosition);
+      setMarkerPosition(HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER);
+      emit chartVerticalMarkerIntersectionSet(HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, m_verticalBMarkerPosition);
     }
   }
 
   m_plotCtx->scaleToFit();
 }
 
-void HyperboleFittingEngine::onEmergencySave()
+void HyperbolaFittingEngine::onEmergencySave()
 {
   QString path = QDir::currentPath();
 
@@ -1639,7 +1639,7 @@ void HyperboleFittingEngine::onEmergencySave()
     doSerialize(path + "/" + EMERG_SAVE_FILE);
 }
 
-void HyperboleFittingEngine::onFitModeChanged(const QVariant &v)
+void HyperbolaFittingEngine::onFitModeChanged(const QVariant &v)
 {
   if (!v.canConvert<FitMode>())
     return;
@@ -1664,7 +1664,7 @@ void HyperboleFittingEngine::onFitModeChanged(const QVariant &v)
   }
 }
 
-void HyperboleFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
+void HyperbolaFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
 {
   Q_UNUSED(oldLocale);
 
@@ -1683,14 +1683,14 @@ void HyperboleFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
   setMobilitiesList(makeMobilitiesList(m_currentConcentration->mobilities()));
 }
 
-void HyperboleFittingEngine::onRedrawDataSeries()
+void HyperbolaFittingEngine::onRedrawDataSeries()
 {
   m_plotCtx->hideSerie(seriesIndex(Series::STATS));
   showDataSeries();
   m_plotCtx->scaleToFit();
 }
 
-void HyperboleFittingEngine::onRegisterMobility(const QString &name, const double selConcentration, const double mobility)
+void HyperbolaFittingEngine::onRegisterMobility(const QString &name, const double selConcentration, const double mobility)
 {
   std::shared_ptr<Analyte> analyte;
   std::shared_ptr<Concentration> c;
@@ -1742,7 +1742,7 @@ void HyperboleFittingEngine::onRegisterMobility(const QString &name, const doubl
   return;
 }
 
-void HyperboleFittingEngine::onRemoveAnalyte(const QModelIndex &idx)
+void HyperbolaFittingEngine::onRemoveAnalyte(const QModelIndex &idx)
 {
   QStandardItem *item;
   QString name;
@@ -1773,7 +1773,7 @@ void HyperboleFittingEngine::onRemoveAnalyte(const QModelIndex &idx)
   clearAnalyteASeries();
 }
 
-void HyperboleFittingEngine::onRemoveConcentration(const QModelIndex &idx)
+void HyperbolaFittingEngine::onRemoveConcentration(const QModelIndex &idx)
 {
   QStandardItem *item;
   double num;
@@ -1813,7 +1813,7 @@ void HyperboleFittingEngine::onRemoveConcentration(const QModelIndex &idx)
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
-void HyperboleFittingEngine::onRemoveMobility(const QModelIndex &idx)
+void HyperbolaFittingEngine::onRemoveMobility(const QModelIndex &idx)
 {
   if (!isEditable())
     return;
@@ -1831,7 +1831,7 @@ void HyperboleFittingEngine::onRemoveMobility(const QModelIndex &idx)
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
-void HyperboleFittingEngine::onRenameAnalyte(const QVariant &internalId, const QString &newName, const int idx)
+void HyperbolaFittingEngine::onRenameAnalyte(const QVariant &internalId, const QString &newName, const int idx)
 {
   if (!isEditable())
     return;
@@ -1866,34 +1866,34 @@ void HyperboleFittingEngine::onRenameAnalyte(const QVariant &internalId, const Q
   m_analytesModel.insertRow(idx, item);
 
   m_currentAnalyte = newA;
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = newName;
-  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_A);
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = newName;
+  m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_A);
 }
 
-void HyperboleFittingEngine::onSecondAnalyteSameChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
+void HyperbolaFittingEngine::onSecondAnalyteSameChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles)
 {
   if (!roles.contains(Qt::EditRole))
     return;
 
   for (int idx = topLeft.column(); idx <= bottomRight.column(); idx++) {
-    HyperboleFitParameters::Boolean i = m_fitFixedModel.itemFromIndex(idx);
-    HyperboleFitResults::Floating fi = HyperboleFitResults::Floating::LAST_INDEX;
+    HyperbolaFitParameters::Boolean i = m_fitFixedModel.itemFromIndex(idx);
+    HyperbolaFitResults::Floating fi = HyperbolaFitResults::Floating::LAST_INDEX;
 
     bool same = m_fitFixedValues.at(i);
 
     if (same) {
       switch (i) {
-      case HyperboleFitParameters::Boolean::FIXED_K_CS_B:
-        m_fitResultsValues[HyperboleFitResults::Floating::K_CS_B] = m_fitResultsValues[HyperboleFitResults::Floating::K_CS_A];
-        fi = HyperboleFitResults::Floating::K_CS_B;
+      case HyperbolaFitParameters::Boolean::FIXED_K_CS_B:
+        m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_B] = m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_A];
+        fi = HyperbolaFitResults::Floating::K_CS_B;
         break;
-      case HyperboleFitParameters::Boolean::FIXED_MOBILITY_B:
-        m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_B] =  m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_A];
-        fi = HyperboleFitResults::Floating::MOBILITY_B;
+      case HyperbolaFitParameters::Boolean::FIXED_MOBILITY_B:
+        m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_B] =  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_A];
+        fi = HyperbolaFitResults::Floating::MOBILITY_B;
         break;
-      case HyperboleFitParameters::Boolean::FIXED_MOBILITY_CS_B:
-        m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_B] = m_fitResultsValues[HyperboleFitResults::Floating::MOBILITY_CS_A];
-        fi = HyperboleFitResults::Floating::MOBILITY_CS_B;
+      case HyperbolaFitParameters::Boolean::FIXED_MOBILITY_CS_B:
+        m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_B] = m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_A];
+        fi = HyperbolaFitResults::Floating::MOBILITY_CS_B;
         break;
       default:
         return;
@@ -1907,7 +1907,7 @@ void HyperboleFittingEngine::onSecondAnalyteSameChanged(const QModelIndex &topLe
   }
 }
 
-void HyperboleFittingEngine::onSerialize()
+void HyperbolaFittingEngine::onSerialize()
 {
   QFileDialog saveDlg(nullptr, tr("Pick a data table to save"), m_lastDataTablePath);
   saveDlg.setAcceptMode(QFileDialog::AcceptSave);
@@ -1930,7 +1930,7 @@ void HyperboleFittingEngine::onSerialize()
   m_lastDataTablePath = d.absolutePath();
 }
 
-void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value)
+void HyperbolaFittingEngine::onShowChartMarker(const HyperbolaFittingEngineMsgs::MarkerType marker, const bool visible, const QString &value)
 {
   bool ok;
 
@@ -1939,13 +1939,13 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
     const double d = value.toDouble();
 
     switch (marker) {
-    case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
       m_horizontalMarkerPosition = d;
       break;
-    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
       m_verticalAMarkerPosition = d;
       break;
-    case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+    case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
       m_verticalBMarkerPosition = d;
       break;
     default:
@@ -1954,7 +1954,7 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
   }
 
   switch (marker) {
-  case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
     m_showHorizontalMarker = visible;
     if (m_showHorizontalMarker) {
       setMarkerPosition(marker);
@@ -1968,7 +1968,7 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
       m_plotCtx->replot();
     }
     break;
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
     m_showVerticalAMarker = visible;
     if (m_showVerticalAMarker) {
       setMarkerPosition(marker);
@@ -1982,7 +1982,7 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
       m_plotCtx->replot();
     }
     break;
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
     m_showVerticalBMarker = visible;
     if (m_showVerticalBMarker) {
       setMarkerPosition(marker);
@@ -2001,7 +2001,7 @@ void HyperboleFittingEngine::onShowChartMarker(const HyperboleFittingEngineMsgs:
   }
 }
 
-void HyperboleFittingEngine::onStatModeChanged(const QVariant &v)
+void HyperbolaFittingEngine::onStatModeChanged(const QVariant &v)
 {
   if (!v.canConvert<StatMode>())
     return;
@@ -2009,16 +2009,16 @@ void HyperboleFittingEngine::onStatModeChanged(const QVariant &v)
   m_currentStatMode = v.value<StatMode>();
 }
 
-void HyperboleFittingEngine::onStatsForAnalyteChanged(const HyperboleFittingEngineMsgs::AnalyteId aId)
+void HyperbolaFittingEngine::onStatsForAnalyteChanged(const HyperbolaFittingEngineMsgs::AnalyteId aId)
 {
   if (m_currentFitMode != FitMode::DOUBLE)
     return;
 
   switch (aId) {
-  case HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_A:
+  case HyperbolaFittingEngineMsgs::AnalyteId::ANALYTE_A:
     m_statsForAnalyte = AnalyteId::ANALYTE_A;
     break;
-  case HyperboleFittingEngineMsgs::AnalyteId::ANALYTE_B:
+  case HyperbolaFittingEngineMsgs::AnalyteId::ANALYTE_B:
     m_statsForAnalyte = AnalyteId::ANALYTE_B;
     break;
   default:
@@ -2026,7 +2026,7 @@ void HyperboleFittingEngine::onStatsForAnalyteChanged(const HyperboleFittingEngi
   }
 }
 
-void HyperboleFittingEngine::onStatUnitsChanged(const QVariant &v)
+void HyperbolaFittingEngine::onStatUnitsChanged(const QVariant &v)
 {
   if (!v.canConvert<StatUnits>())
     return;
@@ -2034,24 +2034,24 @@ void HyperboleFittingEngine::onStatUnitsChanged(const QVariant &v)
   m_currentStatUnits = v.value<StatUnits>();
 }
 
-void HyperboleFittingEngine::plotCurve(const Series s, const QVector<QPointF> &data)
+void HyperbolaFittingEngine::plotCurve(const Series s, const QVector<QPointF> &data)
 {
   m_plotCtx->setSerieSamples(seriesIndex(s), data);
 
   m_plotCtx->replot();
 }
 
-void HyperboleFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
+void HyperbolaFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
 {
     QVector<QPointF> curveA;
     for (double x = 0.0; x <= dr.maxX_A; x += (dr.maxX_A - 0.0) / 100.0){
-        echmet::regressCore::RectangularHyperbole2XType<double> mx(0, x);
+        echmet::regressCore::RectangularHyperbola2XType<double> mx(0, x);
         curveA.push_back(QPointF(x, (*m_doubleFitRegressor)(mx)));
     }
 
     QVector<QPointF> curveB;
     for (double x = 0.0; x <= dr.maxX_A; x += (dr.maxX_A - 0.0) / 100.0){
-        echmet::regressCore::RectangularHyperbole2XType<double> mx(1, x);
+        echmet::regressCore::RectangularHyperbola2XType<double> mx(1, x);
         curveB.push_back(QPointF(x, (*m_doubleFitRegressor)(mx)));
     }
 
@@ -2061,7 +2061,7 @@ void HyperboleFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
     m_plotCtx->replot();
 }
 
-void HyperboleFittingEngine::plotPoints(const Series s, std::shared_ptr<const Analyte> a)
+void HyperbolaFittingEngine::plotPoints(const Series s, std::shared_ptr<const Analyte> a)
 {
   QVector<QPointF> points;
   QVector<QPointF> average;
@@ -2085,7 +2085,7 @@ void HyperboleFittingEngine::plotPoints(const Series s, std::shared_ptr<const An
   m_plotCtx->scaleToFit();
 }
 
-void HyperboleFittingEngine::plotSingleCurve(const HypResults &r)
+void HyperbolaFittingEngine::plotSingleCurve(const HypResults &r)
 {
   QVector<QPointF> curve;
   for (double x = 0.0; x <= r.maxX_A; x += (r.maxX_A - 0.0) / 100.0)
@@ -2095,7 +2095,7 @@ void HyperboleFittingEngine::plotSingleCurve(const HypResults &r)
   m_plotCtx->replot();
 }
 
-void HyperboleFittingEngine::refreshModels()
+void HyperbolaFittingEngine::refreshModels()
 {
   m_analytesModel.clear();
 
@@ -2113,13 +2113,13 @@ void HyperboleFittingEngine::refreshModels()
   m_currentAnalyte = nullptr;
   m_secondAnalyte = nullptr;
 
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_A] = "";
-  m_analyteNamesValues[HyperboleFitParameters::String::ANALYTE_B] = "";
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = "";
+  m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_B] = "";
 
-  m_analyteNamesModel.notifyDataChanged(HyperboleFitParameters::String::ANALYTE_A, HyperboleFitParameters::String::ANALYTE_B);
+  m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_B);
 }
 
-QVariant HyperboleFittingEngine::saveUserSettings() const
+QVariant HyperbolaFittingEngine::saveUserSettings() const
 {
   EMT::StringVariantMap map = StandardPlotContextSettingsHandler::saveUserSettings(*m_plotCtx.get(), seriesIndex(Series::LAST_INDEX));
 
@@ -2129,18 +2129,18 @@ QVariant HyperboleFittingEngine::saveUserSettings() const
   return QVariant::fromValue<EMT::StringVariantMap>(map);
 }
 
-int constexpr HyperboleFittingEngine::seriesIndex(const Series s)
+int constexpr HyperbolaFittingEngine::seriesIndex(const Series s)
 {
   return static_cast<int>(s);
 }
 
-void HyperboleFittingEngine::setConcentrationsList(const QList<QStandardItem *> &list)
+void HyperbolaFittingEngine::setConcentrationsList(const QList<QStandardItem *> &list)
 {
   for (QStandardItem *const item : list)
     m_concentrationsModel.appendRow(item);
 }
 
-void HyperboleFittingEngine::setDoubleFitStats()
+void HyperbolaFittingEngine::setDoubleFitStats()
 {
   m_statModeModel.clear();
   try {
@@ -2179,12 +2179,12 @@ void HyperboleFittingEngine::setDoubleFitStats()
   m_currentStatMode = StatMode::MOBILITY_B;
 }
 
-void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs::MarkerType marker)
+void HyperbolaFittingEngine::setMarkerPosition(const HyperbolaFittingEngineMsgs::MarkerType marker)
 {
   const QRectF r = m_plotCtx->range();
 
   switch (marker) {
-  case HyperboleFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::HORIZONTAL_MARKER:
   {
     QVector<QPointF> points;
     points.push_back(QPointF(r.topLeft().x(), m_horizontalMarkerPosition));
@@ -2193,7 +2193,7 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
     m_plotCtx->setSerieSamples(seriesIndex(Series::HORIZONTAL_MARKER), points);
     break;
   }
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_A_MARKER:
   {
     QVector<QPointF> points;
     points.push_back(QPointF(m_verticalAMarkerPosition, r.topLeft().y()));
@@ -2202,7 +2202,7 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
     m_plotCtx->setSerieSamples(seriesIndex(Series::VERTICAL_A_MARKER), points);
     break;
   }
-  case HyperboleFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
+  case HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER:
   {
     QVector<QPointF> points;
     points.push_back(QPointF(m_verticalBMarkerPosition, r.topLeft().y()));
@@ -2216,13 +2216,13 @@ void HyperboleFittingEngine::setMarkerPosition(const HyperboleFittingEngineMsgs:
   }
 }
 
-void HyperboleFittingEngine::setMobilitiesList(const QList<QStandardItem *> &list)
+void HyperbolaFittingEngine::setMobilitiesList(const QList<QStandardItem *> &list)
 {
   for (QStandardItem *const item : list)
     m_mobilitiesModel.appendRow(item);
 }
 
-void HyperboleFittingEngine::setSingleFitStats()
+void HyperbolaFittingEngine::setSingleFitStats()
 {
   m_statModeModel.clear();
   try {
@@ -2245,7 +2245,7 @@ void HyperboleFittingEngine::setSingleFitStats()
   m_currentStatMode = StatMode::MOBILITY_A;
 }
 
-void HyperboleFittingEngine::showDataSeries()
+void HyperbolaFittingEngine::showDataSeries()
 {
   m_plotCtx->hideSerie(seriesIndex(Series::STATS));
   m_plotCtx->hideSerie(seriesIndex(Series::HORIZONTAL_MARKER));
@@ -2265,7 +2265,7 @@ void HyperboleFittingEngine::showDataSeries()
   m_viewMode = ViewMode::DATA;
 }
 
-void HyperboleFittingEngine::showStatsSeries(const StatUnits units, const StatMode mode)
+void HyperbolaFittingEngine::showStatsSeries(const StatUnits units, const StatMode mode)
 {
   switch (units) {
   case StatUnits::P_VALUE:
@@ -2321,12 +2321,12 @@ void HyperboleFittingEngine::showStatsSeries(const StatUnits units, const StatMo
   m_viewMode = ViewMode::STATS;
 }
 
-QAbstractItemModel *HyperboleFittingEngine::statModeModel()
+QAbstractItemModel *HyperbolaFittingEngine::statModeModel()
 {
   return &m_statModeModel;
 }
 
-QAbstractItemModel *HyperboleFittingEngine::statUnitsModel()
+QAbstractItemModel *HyperbolaFittingEngine::statUnitsModel()
 {
   return &m_statUnitsModel;
 }

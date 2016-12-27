@@ -271,5 +271,5 @@ template class HVLPeak<double, double>;
 }  //namespace echmet
 
 //---------------------------------------------------------------------------
-#endif // ECHMET_REGRESS_HYPERBOLE_H
+#endif // ECHMET_REGRESS_HYPERBOLA_H
 

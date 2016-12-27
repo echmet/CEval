@@ -1,13 +1,13 @@
-#ifndef REGISTERINHYPERBOLEFITWIDGET_H
-#define REGISTERINHYPERBOLEFITWIDGET_H
+#ifndef REGISTERINHYPERBOLAFITWIDGET_H
+#define REGISTERINHYPERBOLAFITWIDGET_H
 
 #include <QWidget>
 
 namespace Ui {
-class RegisterInHyperboleFitWidget;
+class RegisterInHyperbolaFitWidget;
 }
 
-class RegisterInHyperboleFitWidget : public QWidget
+class RegisterInHyperbolaFitWidget : public QWidget
 {
   Q_OBJECT
 
@@ -18,8 +18,8 @@ public:
   };
   Q_ENUM(MobilityFrom)
 
-  explicit RegisterInHyperboleFitWidget(QWidget *parent = nullptr);
-  ~RegisterInHyperboleFitWidget();
+  explicit RegisterInHyperbolaFitWidget(QWidget *parent = nullptr);
+  ~RegisterInHyperbolaFitWidget();
   MobilityFrom mobilityFrom() const;
   void setAnalyteText(const QString &text);
   void setInformation(const QString &analyte, const double selConcentration, const double hvlMobility, const double peakMaxMobility);
@@ -27,7 +27,7 @@ public:
 private:
   void setMobilityText(const MobilityFrom m);
 
-  Ui::RegisterInHyperboleFitWidget *ui;
+  Ui::RegisterInHyperbolaFitWidget *ui;
 
   double m_hvlMobility;
   double m_peakMaxMobility;
@@ -37,4 +37,4 @@ private slots:
 
 };
 
-#endif // REGISTERINHYPERBOLEFITWIDGET_H
+#endif // REGISTERINHYPERBOLAFITWIDGET_H

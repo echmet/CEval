@@ -27,7 +27,7 @@
      </widget>
      <widget class="QWidget" name="qtab_hypfit">
       <attribute name="title">
-       <string>Hyperbole fit</string>
+       <string>Hyperbola fit</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_2"/>
      </widget>

@@ -39,8 +39,8 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   /* Prepare export menus */
   makeExportMenus();
   ui->menuExport->addMenu(m_exportEvaluationMenu);
-  ui->menuExport->insertMenu(m_exportEvaluationMenu->menuAction(), m_exportHyperboleFitMenu);
-  m_exportHyperboleFitMenu->menuAction()->setVisible(false);
+  ui->menuExport->insertMenu(m_exportEvaluationMenu->menuAction(), m_exportHyperbolaFitMenu);
+  m_exportHyperbolaFitMenu->menuAction()->setVisible(false);
   m_exportEvaluationMenu->menuAction()->setVisible(false);
 
   setWindowTitle(Globals::VERSION_STRING());
@@ -101,13 +101,13 @@ void EvalMainWindow::connectToAccumulator(QObject *dac)
 
 void EvalMainWindow::makeExportMenus()
 {
-  m_exportHyperboleFitMenu = new QMenu(QObject::tr("Hyperbole fit export"), this);
-  if (m_exportHyperboleFitMenu == nullptr)
+  m_exportHyperbolaFitMenu = new QMenu(QObject::tr("Hyperbola fit export"), this);
+  if (m_exportHyperbolaFitMenu == nullptr)
     return;
 
-  QAction *a = new QAction("Export data table", m_exportHyperboleFitMenu);
+  QAction *a = new QAction("Export data table", m_exportHyperbolaFitMenu);
   connect(a, &QAction::triggered, this, &EvalMainWindow::onActionExportDataTableCsv);
-  m_exportHyperboleFitMenu->addAction(a);
+  m_exportHyperbolaFitMenu->addAction(a);
 
   m_exportEvaluationMenu = new QMenu(QObject::tr("Export evaluation"), this);
   if (m_exportEvaluationMenu == nullptr)
@@ -190,12 +190,12 @@ void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode
 {
   switch (mode) {
   case DataAccumulatorMsgs::ProgramMode::EVALUATION:
-    m_exportHyperboleFitMenu->menuAction()->setVisible(false);
+    m_exportHyperbolaFitMenu->menuAction()->setVisible(false);
     m_exportEvaluationMenu->menuAction()->setVisible(true);
     break;
-  case DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT:
+  case DataAccumulatorMsgs::ProgramMode::HYPERBOLA_FIT:
     m_exportEvaluationMenu->menuAction()->setVisible(false);
-    m_exportHyperboleFitMenu->menuAction()->setVisible(true);
+    m_exportHyperbolaFitMenu->menuAction()->setVisible(true);
     break;
   }
 }

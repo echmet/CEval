@@ -1,7 +1,7 @@
 #include "evaluationengine.h"
 #include "doubletostringconvertor.h"
 #include "gui/appendoverwriteexportfilemessagebox.h"
-#include "gui/registerinhyperbolefitdialog.h"
+#include "gui/registerinhyperbolafitdialog.h"
 #include "gui/setaxistitlesdialog.h"
 #include "gui/specifypeakboundariesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
@@ -359,7 +359,7 @@ void EvaluationEngine::activateCurrentDataContext()
   m_plotCtx->scaleToFit();
 }
 
-void EvaluationEngine::addPeakToList(const PeakContext &ctx , const QString &name, const bool registerInHF, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom)
+void EvaluationEngine::addPeakToList(const PeakContext &ctx , const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom)
 {
   /* Peak has no meaningful evaluation resutls,
    * do not add it */
@@ -392,10 +392,10 @@ void EvaluationEngine::addPeakToList(const PeakContext &ctx , const QString &nam
     double mobility;
 
     switch (mobilityFrom) {
-    case RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1:
+    case RegisterInHyperbolaFitWidget::MobilityFrom::HVL_A1:
       mobility = ctx.hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
       break;
-    case RegisterInHyperboleFitWidget::MobilityFrom::PEAK_MAXIMUM:
+    case RegisterInHyperbolaFitWidget::MobilityFrom::PEAK_MAXIMUM:
       mobility = ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
       break;
     default:
@@ -2045,7 +2045,7 @@ void EvaluationEngine::onReadEof()
   emit updateTEof(tEOF);
 }
 
-void EvaluationEngine::onRegisterPeakInHyperboleFit(const QModelIndex &idx)
+void EvaluationEngine::onRegisterPeakInHyperbolaFit(const QModelIndex &idx)
 {
   if (!isContextValid())
     return;
@@ -2061,7 +2061,7 @@ void EvaluationEngine::onRegisterPeakInHyperboleFit(const QModelIndex &idx)
     return;
 
   StoredPeak &p = m_allPeaks[row];
-  RegisterInHyperboleFitDialog regWidget;
+  RegisterInHyperbolaFitDialog regWidget;
   regWidget.setInformation(p.name,
                            m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
                            p.peak().hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
@@ -2073,10 +2073,10 @@ void EvaluationEngine::onRegisterPeakInHyperboleFit(const QModelIndex &idx)
   double mobility;
 
   switch (regWidget.mobilityFrom()) {
-  case RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1:
+  case RegisterInHyperbolaFitWidget::MobilityFrom::HVL_A1:
     mobility = p.peak().hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1);
     break;
-  case RegisterInHyperboleFitWidget::MobilityFrom::PEAK_MAXIMUM:
+  case RegisterInHyperbolaFitWidget::MobilityFrom::PEAK_MAXIMUM:
     mobility = p.peak().resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF);
     break;
   default:
@@ -2749,7 +2749,7 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
       }
 
       const PeakContext ctx = processFoundPeak(m_currentDataContext->data->data, r, afcInner, false, !disableAutoFit, m_currentPeak);
-      addPeakToList(ctx, QString::number(ctr), false, RegisterInHyperboleFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
+      addPeakToList(ctx, QString::number(ctr), false, RegisterInHyperbolaFitWidget::MobilityFrom::HVL_A1); /* 3rd parameter is useless since 2nd is set to false */
       ctr++;
     }
 

@@ -6,7 +6,7 @@
 #include <QSettings>
 
 const QString DataAccumulator::EVALUATIONENGINE_SETTINGS_TAG("EvaluationEngine");
-const QString DataAccumulator::HYPERBOLEFITTINGENGINE_SETTINGS_TAG("HyperboleFittingEngine");
+const QString DataAccumulator::HYPERBOLAFITTINGENGINE_SETTINGS_TAG("HyperbolaFittingEngine");
 
 DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   QObject(parent),
@@ -27,11 +27,11 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   }
 
   try {
-    m_hyperboleFittingEngine = new HyperboleFittingEngine(this);
+    m_hyperbolaFittingEngine = new HyperbolaFittingEngine(this);
   } catch (std::bad_alloc&) {
-    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate HyperboleFittingEngine"));
+    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate HyperbolaFittingEngine"));
     throw;
-  } catch (HyperboleFittingEngine::regressor_initialization_error &ex) {
+  } catch (HyperbolaFittingEngine::regressor_initialization_error &ex) {
     QMessageBox::critical(nullptr, tr("Initialization error"), QString(ex.what()));
     throw std::exception();
   }
@@ -64,9 +64,9 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
     m_evaluationEngine->assignContext(std::shared_ptr<PlotContextLimited>(new PlotContextLimited(evaluationContext)));
     m_plotCtxs.insert(PlotContextTypes::Types::EVALUATION, evaluationContext);
 
-    std::shared_ptr<PlotContext> hyperboleContext = std::shared_ptr<PlotContext>(new PlotContext(m_plot, m_plotPicker, m_plotZoomer));
-    m_hyperboleFittingEngine->assignContext(std::shared_ptr<PlotContextLimited>(new PlotContextLimited(hyperboleContext)));
-    m_plotCtxs.insert(PlotContextTypes::Types::HYPERBOLE_FIT, hyperboleContext);
+    std::shared_ptr<PlotContext> hyperbolaContext = std::shared_ptr<PlotContext>(new PlotContext(m_plot, m_plotPicker, m_plotZoomer));
+    m_hyperbolaFittingEngine->assignContext(std::shared_ptr<PlotContextLimited>(new PlotContextLimited(hyperbolaContext)));
+    m_plotCtxs.insert(PlotContextTypes::Types::HYPERBOLA_FIT, hyperbolaContext);
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to initialize mode contexts"));
     throw;
@@ -79,11 +79,11 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
 
   m_currentPlotCtx = nullptr;
 
-  connect(m_evaluationEngine, &EvaluationEngine::registerMeasurement, m_hyperboleFittingEngine, &HyperboleFittingEngine::onRegisterMobility);
+  connect(m_evaluationEngine, &EvaluationEngine::registerMeasurement, m_hyperbolaFittingEngine, &HyperbolaFittingEngine::onRegisterMobility);
 
   /* Connect emergency mode to crash handler */
   if (CrashHandler::pointer() != nullptr) {
-    QObject::connect(CrashHandler::pointer(), &CrashHandler::emergency, m_hyperboleFittingEngine, &HyperboleFittingEngine::onEmergencySave);
+    QObject::connect(CrashHandler::pointer(), &CrashHandler::emergency, m_hyperbolaFittingEngine, &HyperbolaFittingEngine::onEmergencySave);
   }
 }
 
@@ -94,7 +94,7 @@ void DataAccumulator::announceDefaultState()
 
 void DataAccumulator::checkForCrashRecovery()
 {
-  m_hyperboleFittingEngine->checkForCrashRecovery();
+  m_hyperbolaFittingEngine->checkForCrashRecovery();
 }
 
 CommonParametersEngine *DataAccumulator::commonParametersEngine() const
@@ -107,9 +107,9 @@ EvaluationEngine *DataAccumulator::evaluationEngine() const
   return m_evaluationEngine;
 }
 
-HyperboleFittingEngine *DataAccumulator::hyperboleFittingEngine() const
+HyperbolaFittingEngine *DataAccumulator::hyperbolaFittingEngine() const
 {
-  return m_hyperboleFittingEngine;
+  return m_hyperbolaFittingEngine;
 }
 
 void DataAccumulator::loadUserSettings(const QVariant &settings)
@@ -128,11 +128,11 @@ void DataAccumulator::loadUserSettings(const QVariant &settings)
       m_evaluationEngine->loadUserSettings(eeSettings);
   }
 
-  if (settingsMap.contains(HYPERBOLEFITTINGENGINE_SETTINGS_TAG)) {
-    QVariant hfSettings = settingsMap[HYPERBOLEFITTINGENGINE_SETTINGS_TAG];
+  if (settingsMap.contains(HYPERBOLAFITTINGENGINE_SETTINGS_TAG)) {
+    QVariant hfSettings = settingsMap[HYPERBOLAFITTINGENGINE_SETTINGS_TAG];
 
     if (hfSettings.isValid())
-      m_hyperboleFittingEngine->loadUserSettings(hfSettings);
+      m_hyperbolaFittingEngine->loadUserSettings(hfSettings);
   }
 
 }
@@ -146,7 +146,7 @@ void DataAccumulator::onExportAction(const DataAccumulatorMsgs::ExportAction act
 {
   switch (action) {
   case DataAccumulatorMsgs::ExportAction::EXPORT_DATATABLE_CSV:
-    m_hyperboleFittingEngine->exportToCsv();
+    m_hyperbolaFittingEngine->exportToCsv();
     break;
   case DataAccumulatorMsgs::ExportAction::EXPORT_PLOT:
     m_plotExporter->exportPlot(m_plot, m_plotZoomer->zoomRect());
@@ -172,9 +172,9 @@ void DataAccumulator::onTabSwitched(const int idx)
   case PlotContextTypes::Types::EVALUATION:
     pmode = DataAccumulatorMsgs::ProgramMode::EVALUATION;
     break;
-  case PlotContextTypes::Types::HYPERBOLE_FIT:
-    m_hyperboleFittingEngine->refreshModels();
-    pmode = DataAccumulatorMsgs::ProgramMode::HYPERBOLE_FIT;
+  case PlotContextTypes::Types::HYPERBOLA_FIT:
+    m_hyperbolaFittingEngine->refreshModels();
+    pmode = DataAccumulatorMsgs::ProgramMode::HYPERBOLA_FIT;
     break;
   default:
     return;
@@ -189,7 +189,7 @@ QVariant DataAccumulator::saveUserSettings() const
   QMap<QString, QVariant> map;
 
   map.insert(EVALUATIONENGINE_SETTINGS_TAG, m_evaluationEngine->saveUserSettings());
-  map.insert(HYPERBOLEFITTINGENGINE_SETTINGS_TAG, m_hyperboleFittingEngine->saveUserSettings());
+  map.insert(HYPERBOLAFITTINGENGINE_SETTINGS_TAG, m_hyperbolaFittingEngine->saveUserSettings());
 
   return map;
 }

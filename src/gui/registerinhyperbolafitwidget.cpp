@@ -1,39 +1,39 @@
-#include "registerinhyperbolefitwidget.h"
-#include "ui_registerinhyperbolefitwidget.h"
+#include "registerinhyperbolafitwidget.h"
+#include "ui_registerinhyperbolafitwidget.h"
 #include "../doubletostringconvertor.h"
 #include <QComboBox>
 #include <cmath>
 
-RegisterInHyperboleFitWidget::RegisterInHyperboleFitWidget(QWidget *parent) :
+RegisterInHyperbolaFitWidget::RegisterInHyperbolaFitWidget(QWidget *parent) :
   QWidget(parent),
-  ui(new Ui::RegisterInHyperboleFitWidget)
+  ui(new Ui::RegisterInHyperbolaFitWidget)
 {
   ui->setupUi(this);
 
   ui->qcbox_mobilityFrom->addItem(tr("HVL a1 parameter"), QVariant::fromValue<MobilityFrom>(MobilityFrom::HVL_A1));
   ui->qcbox_mobilityFrom->addItem(tr("Peak maximum"), QVariant::fromValue<MobilityFrom>(MobilityFrom::PEAK_MAXIMUM));
 
-  connect(ui->qcbox_mobilityFrom, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &RegisterInHyperboleFitWidget::onMobilityFromActivated);
+  connect(ui->qcbox_mobilityFrom, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &RegisterInHyperbolaFitWidget::onMobilityFromActivated);
 }
 
-RegisterInHyperboleFitWidget::~RegisterInHyperboleFitWidget()
+RegisterInHyperbolaFitWidget::~RegisterInHyperbolaFitWidget()
 {
   delete ui;
 }
 
-RegisterInHyperboleFitWidget::MobilityFrom RegisterInHyperboleFitWidget::mobilityFrom() const
+RegisterInHyperbolaFitWidget::MobilityFrom RegisterInHyperbolaFitWidget::mobilityFrom() const
 {
   return ui->qcbox_mobilityFrom->currentData().value<MobilityFrom>();
 }
 
-void RegisterInHyperboleFitWidget::onMobilityFromActivated(const int idx)
+void RegisterInHyperbolaFitWidget::onMobilityFromActivated(const int idx)
 {
   Q_UNUSED(idx);
 
   setMobilityText(ui->qcbox_mobilityFrom->currentData().value<MobilityFrom>());
 }
 
-void RegisterInHyperboleFitWidget::setAnalyteText(const QString &text)
+void RegisterInHyperbolaFitWidget::setAnalyteText(const QString &text)
 {
   ui->ql_analyteRes->setText(text);
 
@@ -46,7 +46,7 @@ void RegisterInHyperboleFitWidget::setAnalyteText(const QString &text)
   }
 }
 
-void RegisterInHyperboleFitWidget::setInformation(const QString &analyte, const double selConcentration, const double hvlMobility, const double peakMaxMobility)
+void RegisterInHyperbolaFitWidget::setInformation(const QString &analyte, const double selConcentration, const double hvlMobility, const double peakMaxMobility)
 {
   ui->ql_selConcRes->setText(QString::number(selConcentration));
   ui->ql_analyteRes->setText(analyte);
@@ -57,7 +57,7 @@ void RegisterInHyperboleFitWidget::setInformation(const QString &analyte, const 
   setMobilityText(ui->qcbox_mobilityFrom->currentData().value<MobilityFrom>());
 }
 
-void RegisterInHyperboleFitWidget::setMobilityText(const MobilityFrom m)
+void RegisterInHyperbolaFitWidget::setMobilityText(const MobilityFrom m)
 {
   double dm;
 

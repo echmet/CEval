@@ -5,7 +5,7 @@
 #include "dataaccumulatormsgs.h"
 #include "evaluationengine.h"
 #include "evaluationenginemsgs.h"
-#include "hyperbolefittingengine.h"
+#include "hyperbolafittingengine.h"
 #include "plotcontext.h"
 #include "plotcontexttypes.h"
 #include "plotexporter.h"
@@ -22,14 +22,14 @@ public:
   void checkForCrashRecovery();
   CommonParametersEngine *commonParametersEngine() const;
   EvaluationEngine *evaluationEngine() const;
-  HyperboleFittingEngine *hyperboleFittingEngine() const;
+  HyperbolaFittingEngine *hyperbolaFittingEngine() const;
   void loadUserSettings(const QVariant &settings);
   QVariant saveUserSettings() const;
 
 private:
   CommonParametersEngine *m_commonParamsEngine;
   EvaluationEngine *m_evaluationEngine;
-  HyperboleFittingEngine *m_hyperboleFittingEngine;
+  HyperbolaFittingEngine *m_hyperbolaFittingEngine;
 
   QMap<PlotContextTypes::Types, std::shared_ptr<PlotContext>> m_plotCtxs;
   std::shared_ptr<PlotContext> m_currentPlotCtx;
@@ -41,7 +41,7 @@ private:
   PlotExporter *m_plotExporter;
 
   static const QString EVALUATIONENGINE_SETTINGS_TAG;
-  static const QString HYPERBOLEFITTINGENGINE_SETTINGS_TAG;
+  static const QString HYPERBOLAFITTINGENGINE_SETTINGS_TAG;
 
 signals:
   void programModeChanged(const DataAccumulatorMsgs::ProgramMode mode);

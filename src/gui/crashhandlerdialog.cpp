@@ -1,7 +1,7 @@
 #include "crashhandlerdialog.h"
 #include "ui_crashhandlerdialog.h"
 #include "../globals.h"
-#include "../hyperbolefittingengine.h"
+#include "../hyperbolafittingengine.h"
 #include <QSysInfo>
 
 const QString CrashHandlerDialog::s_reportToDevsCaption(tr("Report to developers"));
@@ -15,7 +15,7 @@ CrashHandlerDialog::CrashHandlerDialog(QWidget *parent) :
                            "It will be available for loading the next time you start %2. "
                            "You may want to report the backtrace below along with a description (in English or Czech) "
                            "of what exactly happened to the developers."))
-                           .arg(HyperboleFittingEngine::EMERG_SAVE_FILE)
+                           .arg(HyperbolaFittingEngine::EMERG_SAVE_FILE)
                            .arg(Globals::SOFTWARE_NAME))
 {
   ui->setupUi(this);

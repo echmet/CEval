@@ -3,7 +3,7 @@
 
 #include <QDialog>
 #include <QStandardItemModel>
-#include "registerinhyperbolefitwidget.h"
+#include "registerinhyperbolafitwidget.h"
 
 namespace Ui {
 class AddPeakDialog;
@@ -16,11 +16,11 @@ public:
 
   class Answer {
   public:
-    Answer(const bool registerInHF, const QString &name, const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom);
+    Answer(const bool registerInHF, const QString &name, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
 
     const bool registerInHF;
     const QString name;
-    const RegisterInHyperboleFitWidget::MobilityFrom mobilityFrom;
+    const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom;
   };
 
   explicit AddPeakDialog(QWidget *parent = nullptr);
@@ -32,7 +32,7 @@ public:
 private:
   Ui::AddPeakDialog *ui;
 
-  RegisterInHyperboleFitWidget *m_registerInHFWidget;
+  RegisterInHyperbolaFitWidget *m_registerInHFWidget;
   QStandardItemModel m_analytesModel;
 
 private slots:

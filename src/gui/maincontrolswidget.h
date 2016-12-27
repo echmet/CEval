@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include "evaluationupperwidget.h"
-#include "hyperbolefitwidget.h"
+#include "hyperbolafitwidget.h"
 
 namespace Ui {
 class MainControlsWidget;
@@ -21,7 +21,7 @@ public:
 private:
   Ui::MainControlsWidget *ui;
   EvaluationUpperWidget *m_evaluationUpperWidget;
-  HyperboleFitWidget *m_hyperboleFittingWidget;
+  HyperbolaFitWidget *m_hyperbolaFittingWidget;
 
 signals:
   void tabSwitched(const int idx);

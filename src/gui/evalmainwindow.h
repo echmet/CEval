@@ -39,7 +39,7 @@ private:
 
   CheckForUpdateDialog *m_updateDlg;
   QMenu *m_exportEvaluationMenu;
-  QMenu *m_exportHyperboleFitMenu;
+  QMenu *m_exportHyperbolaFitMenu;
 
   void closeEvent(QCloseEvent *ev) override;
   void makeExportMenus();

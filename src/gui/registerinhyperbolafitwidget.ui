@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RegisterInHyperboleFitWidget</class>
- <widget class="QWidget" name="RegisterInHyperboleFitWidget">
+ <class>RegisterInHyperbolaFitWidget</class>
+ <widget class="QWidget" name="RegisterInHyperbolaFitWidget">
   <property name="geometry">
    <rect>
     <x>0</x>

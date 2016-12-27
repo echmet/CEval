@@ -82,9 +82,6 @@ SOURCES += src/main.cpp \
     src/commonparameterswidgetconnector.cpp \
     src/helpers.cpp \
     src/hvlcalculator.cpp \
-    src/gui/hyperbolefitwidget.cpp \
-    src/hyperbolefittingengine.cpp \
-    src/hyperbolefittingwidgetconnector.cpp \
     src/maincontrolswidgetconnector.cpp \
     src/gui/addpeakdialog.cpp \
     src/evalserializable.cpp \
@@ -138,9 +135,12 @@ SOURCES += src/main.cpp \
     src/dataexporter/backends/textstreamexporterbackend.cpp \
     src/gui/appendoverwriteexportfilemessagebox.cpp \
     src/hvllibwrapper.cpp \
-    src/gui/registerinhyperbolefitwidget.cpp \
-    src/gui/registerinhyperbolefitdialog.cpp \
-    src/gui/specifypeakboundariesdialog.cpp
+    src/gui/specifypeakboundariesdialog.cpp \
+    src/hyperbolafittingengine.cpp \
+    src/gui/hyperbolafitwidget.cpp \
+    src/gui/registerinhyperbolafitdialog.cpp \
+    src/gui/registerinhyperbolafitwidget.cpp \
+    src/hyperbolafittingwidgetconnector.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -256,16 +256,10 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/loadcsvfiledialog.h \
     src/commonparameterswidgetconnector.h \
     src/hvlcalculator.h \
-    src/gui/hyperbolefitwidget.h \
-    src/hyperbolefittingengine.h \
     src/stringmappermodel.h \
-    src/hyperbolefittingwidgetconnector.h \
     src/integermappermodel.h \
     src/plotcontexttypes.h \
     src/maincontrolswidgetconnector.h \
-    src/hyperbolefititems.h \
-    src/math/regressor/hyperbole.h \
-    src/math/regressor/hyperbole2.h \
     src/gui/addpeakdialog.h \
     src/evalserializable.h \
     src/globals.h \
@@ -286,7 +280,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/serieproperties.h \
     src/math/mystd/foostream.h \
     src/gui/aboutdialog.h \
-    src/hyperbolefittingenginemsgs.h \
     src/scrollareaeventfilter.h \
     src/inumberformatchangeable.h \
     src/gui/evaluationupperwidget.h \
@@ -324,9 +317,16 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/dataexporter/backends/textstreamexporterbackend.h \
     src/gui/appendoverwriteexportfilemessagebox.h \
     src/hvllibwrapper.h \
-    src/gui/registerinhyperbolefitwidget.h \
-    src/gui/registerinhyperbolefitdialog.h \
-    src/gui/specifypeakboundariesdialog.h
+    src/gui/specifypeakboundariesdialog.h \
+    src/gui/hyperbolafitwidget.h \
+    src/hyperbolafititems.h \
+    src/hyperbolafittingengine.h \
+    src/hyperbolafittingenginemsgs.h \
+    src/hyperbolafittingwidgetconnector.h \
+    src/math/regressor/hyperbola.h \
+    src/math/regressor/hyperbola2.h \
+    src/gui/registerinhyperbolafitdialog.h \
+    src/gui/registerinhyperbolafitwidget.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -336,7 +336,6 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/evaluatedpeakswidget.ui \
     src/gui/selectpeakdialog.ui \
     src/gui/loadcsvfiledialog.ui \
-    src/gui/hyperbolefitwidget.ui \
     src/gui/addpeakdialog.ui \
     src/gui/numberformatdialog.ui \
     src/gui/hvlfitinprogressdialog.ui \
@@ -353,9 +352,10 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/dataexporter/schemesmanagerwidget.ui \
     src/dataexporter/schemeeditor.ui \
     src/gui/textexporterbackendconfigurationdialog.ui \
-    src/gui/registerinhyperbolefitwidget.ui \
-    src/gui/registerinhyperbolefitdialog.ui \
-    src/gui/specifypeakboundariesdialog.ui
+    src/gui/specifypeakboundariesdialog.ui \
+    src/gui/hyperbolafitwidget.ui \
+    src/gui/registerinhyperbolafitdialog.ui \
+    src/gui/registerinhyperbolafitwidget.ui
 
 unix {
     LIBS += -ldl
