@@ -16,6 +16,7 @@
 #include "plotcontextlimited.h"
 #include "stringmappermodel.h"
 
+class QMenu;
 class ExportDatatableToCsvDialog;
 namespace echmet {
   namespace regressCore {
@@ -40,6 +41,11 @@ public:
     DOUBLE
   };
   Q_ENUM(FitMode)
+
+  enum class PlotCtxMenuActions {
+    SCALE_PLOT_TO_FIT
+  };
+  Q_ENUM(PlotCtxMenuActions)
 
   enum class StatMode : int {
     MOBILITY_A,
@@ -222,6 +228,7 @@ private:
   void clearAllModels();
   void clearAnalyteASeries();
   void clearAnalyteBSeries();
+  void createContextMenu() noexcept(false);
   void displayHypResults(const HypResults *r);
   bool doDeserialize(const QString &path);
   DoubleHypResults doDoubleEstimate(const bool usedForStats);
@@ -240,6 +247,7 @@ private:
   QList<QStandardItem *> makeConcentrationsList(const Analyte::ConcentrationMap &data);
   QList<QStandardItem *> makeMobilitiesList(const Concentration::Mobilities &data);
   void plotCurve(const Series s, const QVector<QPointF> &data);
+  void plotCtxMenuTriggered(const PlotCtxMenuActions ma, const QPointF &point);
   void plotDoubleCurve(const DoubleHypResults &dr);
   void plotPoints(const Series s, std::shared_ptr<const Analyte> a);
   void plotSingleCurve(const HypResults &r);
@@ -253,6 +261,7 @@ private:
 
   std::shared_ptr<PlotContextLimited> m_plotCtx;
   ViewMode m_viewMode;
+  QMenu *m_plotCtxMenu;
 
   QMap<QString, std::shared_ptr<Analyte>> m_analytes;
 
@@ -369,6 +378,10 @@ public slots:
   void onStatModeChanged(const QVariant &v);
   void onStatsForAnalyteChanged(const HyperbolaFittingEngineMsgs::AnalyteId aId);
   void onStatUnitsChanged(const QVariant &v);
+
+private slots:
+  void onPlotPointSelected(const QPointF &point, const QPoint &cursor);
+
 };
 
 #endif // HYPERBOLAFITTINGENGINE_H

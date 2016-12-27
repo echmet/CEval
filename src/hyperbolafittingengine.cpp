@@ -1,6 +1,7 @@
 #include "hyperbolafittingengine.h"
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QMenu>
 #include "custommetatypes.h"
 #include "globals.h"
 #include "hyperbolafititems.h"
@@ -266,6 +267,8 @@ HyperbolaFittingEngine::HyperbolaFittingEngine(QObject *parent) :
   m_fitResultsModel.setUnderlyingData(m_fitResultsValues.pointer());
   m_analyteNamesModel.setUnderlyingData(m_analyteNamesValues.pointer());
 
+  createContextMenu();
+
   m_singleFitRegressor = new echmet::regressCore::RectangularHyperbola<double, double>();
   m_doubleFitRegressor = new echmet::regressCore::RectangularHyperbola2<double, double>();
 
@@ -320,6 +323,7 @@ HyperbolaFittingEngine::~HyperbolaFittingEngine()
   delete m_singleFitRegressor;
   delete m_doubleFitRegressor;
   delete m_exportDTToCsvDlg;
+  delete m_plotCtxMenu;
 }
 
 AbstractMapperModel<QString, HyperbolaFitParameters::String> *HyperbolaFittingEngine::analyteNamesModel()
@@ -381,6 +385,8 @@ void HyperbolaFittingEngine::assignContext(std::shared_ptr<PlotContextLimited> c
   m_plotCtx->setAxisFont(SerieProperties::Axis::X_BOTTOM, QFont());
   m_plotCtx->setAxisFont(SerieProperties::Axis::Y_LEFT, QFont());
 
+  connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &HyperbolaFittingEngine::onPlotPointSelected);
+
   showDataSeries();
 }
 
@@ -433,6 +439,17 @@ void HyperbolaFittingEngine::clearAnalyteBSeries()
 QAbstractItemModel *HyperbolaFittingEngine::concentrationsModel()
 {
   return &m_concentrationsModel;
+}
+
+void HyperbolaFittingEngine::createContextMenu() noexcept(false)
+{
+  m_plotCtxMenu = new QMenu();
+
+  QAction *a;
+
+  a = new QAction(tr("Scale plot axes to fit"), m_plotCtxMenu);
+  a->setData(QVariant::fromValue<PlotCtxMenuActions>(PlotCtxMenuActions::SCALE_PLOT_TO_FIT));
+  m_plotCtxMenu->addAction(a);
 }
 
 bool HyperbolaFittingEngine::doDeserialize(const QString &path)
@@ -1683,6 +1700,14 @@ void HyperbolaFittingEngine::onNumberFormatChanged(const QLocale *oldLocale)
   setMobilitiesList(makeMobilitiesList(m_currentConcentration->mobilities()));
 }
 
+void HyperbolaFittingEngine::onPlotPointSelected(const QPointF &point, const QPoint &cursor)
+{
+  QAction *trig = m_plotCtxMenu->exec(cursor);
+
+  if (trig != nullptr)
+    plotCtxMenuTriggered(trig->data().value<PlotCtxMenuActions>(), point);
+}
+
 void HyperbolaFittingEngine::onRedrawDataSeries()
 {
   m_plotCtx->hideSerie(seriesIndex(Series::STATS));
@@ -2039,6 +2064,17 @@ void HyperbolaFittingEngine::plotCurve(const Series s, const QVector<QPointF> &d
   m_plotCtx->setSerieSamples(seriesIndex(s), data);
 
   m_plotCtx->replot();
+}
+
+void HyperbolaFittingEngine::plotCtxMenuTriggered(const PlotCtxMenuActions ma, const QPointF &point)
+{
+  Q_UNUSED(point)
+
+  switch (ma) {
+  case PlotCtxMenuActions::SCALE_PLOT_TO_FIT:
+    m_plotCtx->scaleToFit();
+    break;
+  }
 }
 
 void HyperbolaFittingEngine::plotDoubleCurve(const DoubleHypResults &dr)
