@@ -143,6 +143,7 @@ private:
     void addMobility(const double mobility);
     double avgMobility() const;
     void removeMobility(const int idx);
+    bool updateMobility(const double u, const int idx);
     const Mobilities &mobilities() const;
 
     const double concentration;
@@ -367,6 +368,7 @@ public slots:
   void onDoFit();
   void onDoStats(const HyperbolaStats::Intervals intr);
   void onEditConcentration(const double num, const QModelIndex &idx);
+  void onEditMobility(const double u, const QModelIndex &idx);
   void onEmergencySave();
   void onFitModeChanged(const QVariant &v);
   void onRedrawDataSeries();

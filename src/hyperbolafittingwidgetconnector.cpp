@@ -46,6 +46,7 @@ void HyperbolaFittingWidgetConnector::connectAll(QObject *anonWidget, QObject *a
 
   QObject::connect(w, &HyperbolaFitWidget::addMobility, e, &HyperbolaFittingEngine::onAddMobility);
   QObject::connect(w, &HyperbolaFitWidget::removeMobility, e, &HyperbolaFittingEngine::onRemoveMobility);
+  QObject::connect(w, &HyperbolaFitWidget::editMobility, e, &HyperbolaFittingEngine::onEditMobility);
 
   QObject::connect(w, &HyperbolaFitWidget::fitModeChanged, e, &HyperbolaFittingEngine::onFitModeChanged);
   QObject::connect(w, &HyperbolaFitWidget::statModeChanged, e, &HyperbolaFittingEngine::onStatModeChanged);

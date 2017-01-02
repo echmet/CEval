@@ -163,6 +163,17 @@ void HyperbolaFittingEngine::Concentration::removeMobility(const int idx)
   recalculateAverage();
 }
 
+bool HyperbolaFittingEngine::Concentration::updateMobility(const double u, const int idx)
+{
+  if (idx < 0 || idx >= m_mobilities.length())
+    return false;
+
+  m_mobilities[idx] = u;
+  recalculateAverage();
+
+  return true;
+}
+
 void HyperbolaFittingEngine::Concentration::recalculateAverage()
 {
   double sd = 0.0;
@@ -1718,6 +1729,29 @@ void HyperbolaFittingEngine::onEditConcentration(const double num, const QModelI
   m_currentConcentration = c;
   m_currentConcentrationKey = num;
 
+  plotPoints(Series::POINTS_A, m_currentAnalyte);
+}
+
+void HyperbolaFittingEngine::onEditMobility(const double u, const QModelIndex &idx)
+{
+  if (!idx.isValid())
+    return;
+
+  if (!isEditable())
+    return;
+
+  if (m_currentConcentration == nullptr) {
+    QMessageBox::information(nullptr, tr("No concentration"), tr("No concentration has been selected."));
+    return;
+  }
+
+  if (!m_currentConcentration->updateMobility(u, idx.row()))
+    return;
+
+  m_mobilitiesModel.setData(idx, DoubleToStringConvertor::convert(u));
+  m_mobilitiesModel.setData(idx, u, Qt::UserRole + 1);
+
+  showDataSeries();
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 

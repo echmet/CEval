@@ -24,6 +24,7 @@ HyperbolaFitWidget::HyperbolaFitWidget(QWidget *parent) :
 
   connect(ui->qpb_addMobility, &QPushButton::clicked, this, &HyperbolaFitWidget::onAddMobilityClicked);
   connect(ui->qpb_removeMobility, &QPushButton::clicked, this, &HyperbolaFitWidget::onRemoveMobilityClicked);
+  connect(ui->qlv_mobilities, &QListView::doubleClicked, this, &HyperbolaFitWidget::onMobilitiesListDoubleClicked);
 
   connect(ui->qcbox_fitMode, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperbolaFitWidget::onFitModeActivated);
   connect(ui->qcbox_statData, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated), this, &HyperbolaFitWidget::onStatModeActivated);
@@ -321,6 +322,34 @@ void HyperbolaFitWidget::onConcentrationsListDoubleClicked(const QModelIndex &id
     emit editConcentration(newConc, srcidx);
     const QModelIndex newIdx = m_concentrationsSortProxy.mapFromSource(srcidx);
     ui->qlv_concentrations->setCurrentIndex(newIdx);
+
+    break;
+  }
+}
+
+void HyperbolaFitWidget::onMobilitiesListDoubleClicked(const QModelIndex &idx)
+{
+  if (!idx.isValid())
+    return;
+
+  QInputDialog dlg(this);
+  const QModelIndex srcidx = m_mobilitiesSortProxy.mapToSource(idx);
+  const QString oldMobility = ui->qlv_mobilities->model()->data(idx).toString();
+
+  dlg.setLabelText(tr("Edit mobility"));
+  dlg.setTextValue(oldMobility);
+
+  while (dlg.exec() == QDialog::Accepted) {
+    bool ok;
+    const double u = DoubleToStringConvertor::back(dlg.textValue(), &ok);
+    if (!ok) {
+      QMessageBox::warning(this, tr("Invalid input"), tr("Non-numeric value"));
+      continue;
+    }
+
+    emit editMobility(u, srcidx);
+    const QModelIndex newIdx = m_mobilitiesSortProxy.mapFromSource(srcidx);
+    ui->qlv_mobilities->setCurrentIndex(newIdx);
 
     break;
   }
