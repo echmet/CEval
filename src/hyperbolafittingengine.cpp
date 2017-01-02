@@ -1727,6 +1727,7 @@ void HyperbolaFittingEngine::onEditConcentration(const double num, const QModelI
   m_currentConcentration = c;
   m_currentConcentrationKey = num;
 
+  showDataSeries();
   plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
