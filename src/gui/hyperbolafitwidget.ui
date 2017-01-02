@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1285</width>
+    <width>1154</width>
     <height>630</height>
    </rect>
   </property>
@@ -180,7 +180,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>569</width>
+        <width>619</width>
         <height>614</height>
        </rect>
       </property>
@@ -600,6 +600,13 @@
                  <widget class="QPushButton" name="qpb_redrawPoints">
                   <property name="text">
                    <string>Redraw</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_clearHyperbola">
+                  <property name="text">
+                   <string>Clear hyperbola</string>
                   </property>
                  </widget>
                 </item>

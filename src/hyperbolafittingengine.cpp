@@ -1381,6 +1381,13 @@ void HyperbolaFittingEngine::onChartMarkerValueChanged(const HyperbolaFittingEng
   }
 }
 
+void HyperbolaFittingEngine::onClearHyperbola()
+{
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_A_CURVE));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::FIT_B_CURVE));
+  m_plotCtx->replot();
+}
+
 void HyperbolaFittingEngine::onConcentrationSwitched(const QModelIndex &idx)
 {
   QStandardItem *item;

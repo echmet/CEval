@@ -49,6 +49,7 @@ HyperbolaFitWidget::HyperbolaFitWidget(QWidget *parent) :
   connect(ui->qpb_estimate, &QPushButton::clicked, this, &HyperbolaFitWidget::onEstimateClicked);
   connect(ui->qpb_fit, &QPushButton::clicked, this, &HyperbolaFitWidget::onFitClicked);
   connect(ui->qpb_redrawPoints, &QPushButton::clicked, this, &HyperbolaFitWidget::onRedrawClicked);
+  connect(ui->qpb_clearHyperbola, &QPushButton::clicked, this, &HyperbolaFitWidget::onClearHyperbolaClicked);
 
   ui->qle_analyteAName->setDisabled(true);
   ui->qle_analyteBName->setDisabled(true);
@@ -291,6 +292,11 @@ void HyperbolaFitWidget::onChartVerticalBMarkerValueChanged(const QString &value
 
   if (ok)
     emit chartMarkerValueChanged(HyperbolaFittingEngineMsgs::MarkerType::VERTICAL_B_MARKER, d);
+}
+
+void HyperbolaFitWidget::onClearHyperbolaClicked()
+{
+  emit clearHyperbola();
 }
 
 void HyperbolaFitWidget::onConcentrationsListClicked(const QModelIndex &idx)

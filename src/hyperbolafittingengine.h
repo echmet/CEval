@@ -362,6 +362,7 @@ public slots:
   void onChartHorizontalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void onChartVerticalMarkerIntersection(const HyperbolaFittingEngineMsgs::MarkerType marker);
   void onChartMarkerValueChanged(const HyperbolaFittingEngineMsgs::MarkerType marker, const double d);
+  void onClearHyperbola();
   void onConcentrationSwitched(const QModelIndex &idx);
   void onDeserialize();
   void onDoEstimate();
