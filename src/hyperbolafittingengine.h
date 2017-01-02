@@ -139,6 +139,7 @@ private:
     typedef QVector<double> Mobilities;
 
     Concentration(const double concentration);
+    Concentration(const double concentration, const Concentration &other);
     void addMobility(const double mobility);
     double avgMobility() const;
     void removeMobility(const int idx);
@@ -241,6 +242,7 @@ private:
   void initStatUnitsModel();
   double interpolateVerticalMarkerPosition(const QPointF &a, const QPointF &b, const double y) const;
   void invalidateAll();
+  void invalidateAnalyteA();
   void invalidateAnalyteB();
   void invalidateCurrentConcentration();
   bool isEditable() const;
@@ -364,6 +366,7 @@ public slots:
   void onDoEstimate();
   void onDoFit();
   void onDoStats(const HyperbolaStats::Intervals intr);
+  void onEditConcentration(const double num, const QModelIndex &idx);
   void onEmergencySave();
   void onFitModeChanged(const QVariant &v);
   void onRedrawDataSeries();

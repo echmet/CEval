@@ -67,6 +67,7 @@ signals:
   void doEstimate();
   void doFit();
   void doStats(const HyperbolaStats::Intervals intr);
+  void editConcentration(const double num, const QModelIndex &idx);
   void fitModeChanged(const QVariant &v);
   void redrawDataSeries();
   void removeAnalyte(const QModelIndex &idx);
@@ -91,6 +92,7 @@ private slots:
   void onChartVerticalAMarkerValueChanged(const QString &value);
   void onChartVerticalBMarkerValueChanged(const QString &value);
   void onConcentrationsListClicked(const QModelIndex &idx);
+  void onConcentrationsListDoubleClicked(const QModelIndex &idx);
   void onStatsForAnalyteChanged();
   void onEstimateClicked();
   void onFitClicked();

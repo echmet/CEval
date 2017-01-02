@@ -129,6 +129,13 @@ HyperbolaFittingEngine::Concentration::Concentration(const double concentration)
 {
 }
 
+HyperbolaFittingEngine::Concentration::Concentration(const double concentration, const Concentration &other) :
+  concentration(concentration),
+  m_avgMobility(other.m_avgMobility),
+  m_mobilities(other.m_mobilities)
+{
+}
+
 void HyperbolaFittingEngine::Concentration::addMobility(const double mobility)
 {
   m_mobilities.push_back(mobility);
@@ -991,6 +998,15 @@ double HyperbolaFittingEngine::interpolateVerticalMarkerPosition(const QPointF &
   return ((y - a.y()) / k) + a.x();
 }
 
+void HyperbolaFittingEngine::invalidateAnalyteA()
+{
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_A] = 0.0;
+  m_fitResultsValues[HyperbolaFitResults::Floating::MOBILITY_CS_A] = 0.0;
+  m_fitResultsValues[HyperbolaFitResults::Floating::K_CS_A] = 0.0;
+  m_fitResultsModel.notifyDataChanged(HyperbolaFitResults::Floating::MOBILITY_A, HyperbolaFitResults::Floating::K_CS_A, { Qt::EditRole });
+
+}
+
 void HyperbolaFittingEngine::invalidateAnalyteB()
 {
   m_secondAnalyte = nullptr;
@@ -1234,6 +1250,7 @@ void HyperbolaFittingEngine::onAnalyteSwitched(const QModelIndexList &inList)
         return;
     }
   }
+  invalidateAnalyteA();
   m_analyteNamesValues[HyperbolaFitParameters::String::ANALYTE_A] = name;
   m_analyteNamesModel.notifyDataChanged(HyperbolaFitParameters::String::ANALYTE_A, HyperbolaFitParameters::String::ANALYTE_A);
 
@@ -1650,6 +1667,58 @@ void HyperbolaFittingEngine::onDoStats(const HyperbolaStats::Intervals intr)
   }
 
   m_plotCtx->scaleToFit();
+}
+
+void HyperbolaFittingEngine::onEditConcentration(const double num, const QModelIndex &idx)
+{
+
+  if (!idx.isValid())
+    return;
+
+  if (!isEditable())
+    return;
+
+  if (m_currentAnalyte == nullptr)
+    return;
+
+  if (num < 0.0) {
+    QMessageBox::warning(nullptr, tr("Invalid input"), tr("Entered concentration value is nonsensical."));
+    return;
+  }
+
+  bool ok;
+  const QVariant ocVar = m_concentrationsModel.data(idx, Qt::UserRole + 1);
+  const double oldConcentration = ocVar.toDouble(&ok);
+
+  if (!ok) {
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Invalid concentration index value %1. Please report this as a bugto CEval developers.")).arg(ocVar.toString()));
+    return;
+  }
+
+  if (!m_currentAnalyte->concentrations.contains(oldConcentration)) {
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("No concentration with old value of %1. Please report this as a bug to CEval developers")).arg(oldConcentration));
+    return;
+  }
+
+  std::shared_ptr<Concentration> c = nullptr;
+  try {
+    const std::shared_ptr<Concentration> oldConcPtr = m_currentAnalyte->concentrations[oldConcentration];
+    c = std::make_shared<Concentration>(num, *oldConcPtr.get());
+
+    m_currentAnalyte->concentrations.remove(oldConcentration);
+    m_currentAnalyte->concentrations.insert(num, c);
+  } catch (std::bad_alloc &) {
+    QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Unable to edit concentration, current concentration list may be inconsistent!"));
+    return;
+  }
+
+
+  m_concentrationsModel.setData(idx, DoubleToStringConvertor::convert(num));
+  m_concentrationsModel.setData(idx, num, Qt::UserRole + 1);
+  m_currentConcentration = c;
+  m_currentConcentrationKey = num;
+
+  plotPoints(Series::POINTS_A, m_currentAnalyte);
 }
 
 void HyperbolaFittingEngine::onEmergencySave()

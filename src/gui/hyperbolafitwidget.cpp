@@ -20,6 +20,7 @@ HyperbolaFitWidget::HyperbolaFitWidget(QWidget *parent) :
 
   connect(ui->qpb_addConcentration, &QPushButton::clicked, this, &HyperbolaFitWidget::onAddConcentrationClicked);
   connect(ui->qpb_removeConcentration, &QPushButton::clicked, this, &HyperbolaFitWidget::onRemoveConcentrationClicked);
+  connect(ui->qlv_concentrations, &QListView::doubleClicked, this, &HyperbolaFitWidget::onConcentrationsListDoubleClicked);
 
   connect(ui->qpb_addMobility, &QPushButton::clicked, this, &HyperbolaFitWidget::onAddMobilityClicked);
   connect(ui->qpb_removeMobility, &QPushButton::clicked, this, &HyperbolaFitWidget::onRemoveMobilityClicked);
@@ -298,6 +299,31 @@ void HyperbolaFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
 
   const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
   emit concentrationSwitched(srcidx);
+}
+
+void HyperbolaFitWidget::onConcentrationsListDoubleClicked(const QModelIndex &idx)
+{
+  QInputDialog dlg(this);
+  const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
+  const QString oldConc = ui->qlv_concentrations->model()->data(idx, Qt::DisplayRole).toString();
+
+  dlg.setLabelText(tr("Edit concentration"));
+  dlg.setTextValue(oldConc);
+
+  while (dlg.exec() == QDialog::Accepted) {
+    bool ok;
+    const double newConc = DoubleToStringConvertor::back(dlg.textValue(), &ok);
+    if (!ok) {
+      QMessageBox::warning(this, tr("Invalid input"), tr("Non-numeric value"));
+      continue;
+    }
+
+    emit editConcentration(newConc, srcidx);
+    const QModelIndex newIdx = m_concentrationsSortProxy.mapFromSource(srcidx);
+    ui->qlv_concentrations->setCurrentIndex(newIdx);
+
+    break;
+  }
 }
 
 void HyperbolaFitWidget::onStatsForAnalyteChanged()
