@@ -192,10 +192,18 @@ void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode
   case DataAccumulatorMsgs::ProgramMode::EVALUATION:
     m_exportHyperbolaFitMenu->menuAction()->setVisible(false);
     m_exportEvaluationMenu->menuAction()->setVisible(true);
+    ui->actionLoad_ChemStation_file->setVisible(true);
+    ui->menuLoad_comma_separated_file->menuAction()->setVisible(true);
+    ui->actionLoad_data_table->setVisible(false);
+    ui->actionSave_data_table->setVisible(false);
     break;
   case DataAccumulatorMsgs::ProgramMode::HYPERBOLA_FIT:
     m_exportEvaluationMenu->menuAction()->setVisible(false);
     m_exportHyperbolaFitMenu->menuAction()->setVisible(true);
+    ui->actionLoad_ChemStation_file->setVisible(false);
+    ui->menuLoad_comma_separated_file->menuAction()->setVisible(false);
+    ui->actionLoad_data_table->setVisible(true);
+    ui->actionSave_data_table->setVisible(true);
     break;
   }
 }
