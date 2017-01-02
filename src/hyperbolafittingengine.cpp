@@ -1189,7 +1189,6 @@ void HyperbolaFittingEngine::onAddMobility(const double u, QModelIndex &idx)
   if (!isEditable())
     return;
 
-
   if (m_currentConcentration == nullptr) {
     QMessageBox::information(nullptr, tr("No analyte"), tr("No concentration has been selected. Select the concentration for which you wish to add the migration time first."));
     return;
@@ -1682,7 +1681,6 @@ void HyperbolaFittingEngine::onDoStats(const HyperbolaStats::Intervals intr)
 
 void HyperbolaFittingEngine::onEditConcentration(const double num, const QModelIndex &idx)
 {
-
   if (!idx.isValid())
     return;
 

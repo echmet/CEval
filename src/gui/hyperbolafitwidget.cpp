@@ -304,6 +304,9 @@ void HyperbolaFitWidget::onConcentrationsListClicked(const QModelIndex &idx)
 
 void HyperbolaFitWidget::onConcentrationsListDoubleClicked(const QModelIndex &idx)
 {
+  if (!idx.isValid())
+    return;
+
   QInputDialog dlg(this);
   const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
   const QString oldConc = ui->qlv_concentrations->model()->data(idx, Qt::DisplayRole).toString();
