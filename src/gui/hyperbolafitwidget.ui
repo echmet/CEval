@@ -504,9 +504,41 @@
            <item>
             <widget class="QGroupBox" name="qgb_fitParams">
              <property name="title">
-              <string>Fitter parameters</string>
+              <string>Fitter control</string>
              </property>
              <layout class="QVBoxLayout" name="verticalLayout_8">
+              <item>
+               <layout class="QHBoxLayout" name="horizontalLayout_6">
+                <item>
+                 <widget class="QPushButton" name="qpb_estimate">
+                  <property name="text">
+                   <string>Estimate</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_fit">
+                  <property name="text">
+                   <string>Fit</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_redrawPoints">
+                  <property name="text">
+                   <string>Redraw</string>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="qpb_clearHyperbola">
+                  <property name="text">
+                   <string>Clear hyperbola</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_3">
                 <item row="4" column="0">
@@ -575,38 +607,6 @@
                   </property>
                   <property name="readOnly">
                    <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_6">
-                <item>
-                 <widget class="QPushButton" name="qpb_estimate">
-                  <property name="text">
-                   <string>Estimate</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="qpb_fit">
-                  <property name="text">
-                   <string>Fit</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="qpb_redrawPoints">
-                  <property name="text">
-                   <string>Redraw</string>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QPushButton" name="qpb_clearHyperbola">
-                  <property name="text">
-                   <string>Clear hyperbola</string>
                   </property>
                  </widget>
                 </item>
