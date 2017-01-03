@@ -20,6 +20,12 @@ public:
   };
   Q_ENUM(Floating)
 
+  enum class Boolean : int {
+    NO_EOF,
+    LAST_INDEX
+  };
+  Q_ENUM(Boolean)
+
 };
 
 #endif // COMMONPARAMETERSITEMS_H

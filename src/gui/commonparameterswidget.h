@@ -7,6 +7,7 @@
 #include "../abstractmappermodel.h"
 #include "../commonparametersitems.h"
 #include "../floatingvaluedelegate.h"
+#include "common/qmappedcheckbox.h"
 
 
 namespace Ui {
@@ -20,14 +21,16 @@ public:
   explicit CommonParametersWidget(QWidget *parent = nullptr);
   ~CommonParametersWidget();
   void connectToAccumulator(QObject *dac);
-  void setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
+  void setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model);
+  void setCommonParametersNumModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
 
 private:
   void markAsInvalid(QWidget *w, const bool invalid);
 
   Ui::CommonParametersWidget *ui;
 
-  QDataWidgetMapper *m_commonParametersMapper;
+  QDataWidgetMapper *m_commonParametersBoolMapper;
+  QDataWidgetMapper *m_commonParametersNumMapper;
   FloatingValueDelegate m_commonParametersMapperDelegate;
   QPalette m_invalidPalette;
 

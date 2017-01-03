@@ -403,7 +403,7 @@ void EvaluationEngine::addPeakToList(const PeakContext &ctx , const QString &nam
       break;
     }
 
-    emit registerMeasurement(name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+    emit registerMeasurement(name, m_commonParamsEngine->numValue(CommonParametersItems::Floating::SELECTOR),
                              mobility);
   }
 
@@ -518,12 +518,13 @@ AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *EvaluationEngine:
 }
 
 double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
-                                             const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData)
+                                             const CommonParametersEngine::Context &commonCtx)
 {
+  const bool noEof = commonCtx.boolData.at(CommonParametersItems::Boolean::NO_EOF);
   const double tP = hvlValues.at(HVLFitResultsItems::Floating::HVL_A1) * 60.0;
-  const double tEOF = commonData.at(CommonParametersItems::Floating::T_EOF) * 60.0;
-  const double detector = commonData.at(CommonParametersItems::Floating::DETECTOR) * 1.0e-2 ;
-  const double E = commonData.at(CommonParametersItems::Floating::FIELD) * 1.0e+3;
+  const double tEOF = commonCtx.numData.at(CommonParametersItems::Floating::T_EOF) * 60.0;
+  const double detector = commonCtx.numData.at(CommonParametersItems::Floating::DETECTOR) * 1.0e-2 ;
+  const double E = commonCtx.numData.at(CommonParametersItems::Floating::FIELD) * 1.0e+3;
 
   double vP;
   double vP_Eff;
@@ -534,10 +535,14 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
   else
     return std::numeric_limits<double>::infinity();
 
-  if (Helpers::isSensible(tEOF))
-    vEOF = detector / tEOF;
-  else
-    return std::numeric_limits<double>::infinity();
+  if (noEof)
+    vEOF = 0.0;
+  else {
+    if (Helpers::isSensible(tEOF))
+      vEOF = detector / tEOF;
+    else
+      return std::numeric_limits<double>::infinity();
+  }
 
   vP_Eff = vP - vEOF;
 
@@ -801,7 +806,7 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
   results[HVLFitResultsItems::Floating::HVL_S] = p.s;
   results[HVLFitResultsItems::Floating::HVL_EPSILON] = epsilon;
   results[HVLFitResultsItems::Floating::HVL_TUSP] = tUsp;
-  results[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(results, m_commonParamsEngine->currentContext().data);
+  results[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(results, m_commonParamsEngine->currentContext());
 
 
   *ok = true;
@@ -819,7 +824,13 @@ void EvaluationEngine::drawEofMarker()
 
   /* Mark the EOF  */
   {
-    double tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
+    if (m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF)) {
+      m_plotCtx->clearSerieSamples(seriesIndex(Series::EOF_MARK));
+      m_plotCtx->replot();
+      return;
+    }
+
+    double tEOF = m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF);
 
     if (tEOF > 0.0) {
       const double minY = Helpers::minYValue(m_currentDataContext->data->data);
@@ -1272,17 +1283,18 @@ PeakEvaluator::Parameters EvaluationEngine::makeEvaluatorParameters(const QVecto
 {
   PeakEvaluator::Parameters p(data);
 
-  p.capillary = m_commonParamsEngine->value(CommonParametersItems::Floating::CAPILLARY);
-  p.detector = m_commonParamsEngine->value(CommonParametersItems::Floating::DETECTOR);
-  p.E = m_commonParamsEngine->value(CommonParametersItems::Floating::FIELD);
+  p.capillary = m_commonParamsEngine->numValue(CommonParametersItems::Floating::CAPILLARY);
+  p.detector = m_commonParamsEngine->numValue(CommonParametersItems::Floating::DETECTOR);
+  p.E = m_commonParamsEngine->numValue(CommonParametersItems::Floating::FIELD);
   p.fromIndex = fr->fromIndex;
   p.toIndex = fr->toIndex;
-  p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
+  p.tEOF = m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF);
+  p.noEof = m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF);
   p.fromX = fr->peakFromX;
   p.fromY = fr->peakFromY;
   p.toX = fr->peakToX;
   p.toY = fr->peakToY;
-  p.voltage = m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE);
+  p.voltage = m_commonParamsEngine->numValue(CommonParametersItems::Floating::VOLTAGE);
 
   return p;
 }
@@ -1311,7 +1323,8 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
   p.slopeSensitivity = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_SENSITIVITY);
   p.slopeThreshold = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_THRESHOLD);
   p.slopeWindow = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_WINDOW);
-  p.tEOF = m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF);
+  p.tEOF = m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF);
+  p.noEof = m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF);
   p.to = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::TO);
   p.windowUnits = m_windowUnit;
   p.disturbanceDetection = m_evaluationBooleanValues.at(EvaluationParametersItems::Boolean::DISTURBANCE_DETECTION);
@@ -1417,7 +1430,7 @@ void EvaluationEngine::onAddPeak()
   if (!isContextValid())
     return;
 
-  m_addPeakDlg->setInformation(m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+  m_addPeakDlg->setInformation(m_commonParamsEngine->numValue(CommonParametersItems::Floating::SELECTOR),
                                m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
                                m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   int dlgRet = m_addPeakDlg->exec();
@@ -1521,10 +1534,10 @@ void EvaluationEngine::onCommonParametersChanged()
 
   drawEofMarker();
 
-  if (m_commonParamsEngine->value(CommonParametersItems::Floating::CAPILLARY) <= 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::DETECTOR) <= 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::VOLTAGE) == 0.0 ||
-      m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF) <= 0.0)
+  if (m_commonParamsEngine->numValue(CommonParametersItems::Floating::CAPILLARY) <= 0.0 ||
+      m_commonParamsEngine->numValue(CommonParametersItems::Floating::DETECTOR) <= 0.0 ||
+      m_commonParamsEngine->numValue(CommonParametersItems::Floating::VOLTAGE) == 0.0 ||
+      (m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF) <= 0.0 && !m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF)))
     return;
 
   /* Update all stored peaks */
@@ -1540,7 +1553,7 @@ void EvaluationEngine::onCommonParametersChanged()
 
   if (m_currentPeak.finderResults->isValid()) {
     m_currentPeak = processFoundPeak(m_currentDataContext->data->data, m_currentPeak.finderResults, m_currentPeak.afContext, true, false, m_currentPeak);
-    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_currentPeak.hvlValues, m_commonParamsEngine->currentContext().data);
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_currentPeak.hvlValues, m_commonParamsEngine->currentContext());
 
     m_resultsNumericValues = m_currentPeak.resultsValues;
     m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_U_EFF_A1,
@@ -1886,7 +1899,7 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
 
   if (from <= m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A1) &&
       to >= m_hvlFitModel.indexFromItem(HVLFitResultsItems::Floating::HVL_A1)) {
-    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_hvlFitValues, m_commonParamsEngine->currentContext().data);
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_U_EFF_A1] = calculateA1Mobility(m_hvlFitValues, m_commonParamsEngine->currentContext());
 
     m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_U_EFF_A1, HVLFitResultsItems::Floating::HVL_U_EFF_A1, roles);
   }
@@ -1897,6 +1910,13 @@ void EvaluationEngine::onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex
 void EvaluationEngine::onManageExporterScheme()
 {
   m_dataExporter.manageSchemes();
+}
+
+void EvaluationEngine::onNoEofStateChanged(const bool noEof)
+{
+  Q_UNUSED(noEof);
+
+  drawEofMarker();
 }
 
 void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
@@ -2063,7 +2083,7 @@ void EvaluationEngine::onRegisterPeakInHyperbolaFit(const QModelIndex &idx)
   StoredPeak &p = m_allPeaks[row];
   RegisterInHyperbolaFitDialog regWidget;
   regWidget.setInformation(p.name,
-                           m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+                           m_commonParamsEngine->numValue(CommonParametersItems::Floating::SELECTOR),
                            p.peak().hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1),
                            p.peak().resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
 
@@ -2084,7 +2104,7 @@ void EvaluationEngine::onRegisterPeakInHyperbolaFit(const QModelIndex &idx)
     break;
   }
 
-  emit registerMeasurement(p.name, m_commonParamsEngine->value(CommonParametersItems::Floating::SELECTOR),
+  emit registerMeasurement(p.name, m_commonParamsEngine->numValue(CommonParametersItems::Floating::SELECTOR),
                            mobility);
 }
 

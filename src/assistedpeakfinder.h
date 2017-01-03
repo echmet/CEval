@@ -28,6 +28,7 @@ public:
     /* Bools */
     bool noiseCorrection;
     bool disturbanceDetection;
+    bool noEof;
 
     /* Numeric */
     double from;

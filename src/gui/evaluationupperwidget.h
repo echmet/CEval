@@ -19,7 +19,8 @@ public:
   explicit EvaluationUpperWidget(QWidget *parent = nullptr);
   ~EvaluationUpperWidget();
   void connectToAccumulator(QObject *dac);
-  void setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
+  void setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model);
+  void setCommonParametersNumModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
   void setDefaultState();
   void setEvaluationLoadedFilesModel(QAbstractItemModel *model);
 

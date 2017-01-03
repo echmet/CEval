@@ -27,6 +27,8 @@ public:
     double tEOF;
     double voltage;
 
+    bool noEof;
+
     const QVector<QPointF> &data;
   };
 

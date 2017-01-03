@@ -167,7 +167,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak effective mobility", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak area", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
-  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a0", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a1", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a2", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2));
@@ -189,7 +189,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak effective mobility", resultsValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak area", resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "Peak height", resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
-  MAKE_EXPORTABLE(peakListExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->value(CommonParametersItems::Floating::T_EOF));
+  MAKE_EXPORTABLE(peakListExportables, EvaluationEngine, "EOF time", m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a0", hvlValues.at(HVLFitResultsItems::Floating::HVL_A0));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a1", hvlValues.at(HVLFitResultsItems::Floating::HVL_A1));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a2", hvlValues.at(HVLFitResultsItems::Floating::HVL_A2));

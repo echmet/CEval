@@ -105,8 +105,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>278</width>
-           <height>282</height>
+           <width>258</width>
+           <height>310</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -337,7 +337,7 @@
               </property>
              </widget>
             </item>
-            <item row="6" column="1">
+            <item row="7" column="1">
              <widget class="QPushButton" name="qpb_readEof">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -350,6 +350,13 @@
               </property>
               <property name="text">
                <string>Read EOF time</string>
+              </property>
+             </widget>
+            </item>
+            <item row="6" column="1">
+             <widget class="QMappedCheckBox" name="qcb_noEof">
+              <property name="text">
+               <string>No EOF</string>
               </property>
              </widget>
             </item>
@@ -382,6 +389,11 @@
    <class>FloatingValueLineEdit</class>
    <extends>QLineEdit</extends>
    <header>src/gui/common/floatingvaluelineedit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QMappedCheckBox</class>
+   <extends>QCheckBox</extends>
+   <header>src/gui/common/qmappedcheckbox.h</header>
   </customwidget>
  </customwidgets>
  <tabstops>

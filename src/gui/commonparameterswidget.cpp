@@ -7,7 +7,8 @@ CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
   QWidget(parent),
   ui(new Ui::CommonParametersWidget)
 {
-  m_commonParametersMapper = new QDataWidgetMapper(this);
+  m_commonParametersBoolMapper = new QDataWidgetMapper(this);
+  m_commonParametersNumMapper = new QDataWidgetMapper(this);
 
   ui->setupUi(this);
 
@@ -63,16 +64,25 @@ void CommonParametersWidget::onValidityState(const bool state, const CommonParam
   }
 }
 
-void CommonParametersWidget::setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)
-{
-  m_commonParametersMapper->setModel(model);
-  m_commonParametersMapper->setItemDelegate(&m_commonParametersMapperDelegate);
 
-  m_commonParametersMapper->addMapping(ui->qle_capillary, model->indexFromItem(CommonParametersItems::Floating::CAPILLARY));
-  m_commonParametersMapper->addMapping(ui->qle_detector, model->indexFromItem(CommonParametersItems::Floating::DETECTOR));
-  m_commonParametersMapper->addMapping(ui->qle_fieldStrength, model->indexFromItem(CommonParametersItems::Floating::FIELD));
-  m_commonParametersMapper->addMapping(ui->qle_selector, model->indexFromItem(CommonParametersItems::Floating::SELECTOR));
-  m_commonParametersMapper->addMapping(ui->qle_tEOF, model->indexFromItem(CommonParametersItems::Floating::T_EOF));
-  m_commonParametersMapper->addMapping(ui->qle_voltage, model->indexFromItem(CommonParametersItems::Floating::VOLTAGE));
-  m_commonParametersMapper->toFirst();
+void CommonParametersWidget::setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model)
+{
+  m_commonParametersBoolMapper->setModel(model);
+
+  m_commonParametersBoolMapper->addMapping(ui->qcb_noEof, model->indexFromItem(CommonParametersItems::Boolean::NO_EOF));
+  m_commonParametersBoolMapper->toFirst();
+}
+
+void CommonParametersWidget::setCommonParametersNumModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)
+{
+  m_commonParametersNumMapper->setModel(model);
+  m_commonParametersNumMapper->setItemDelegate(&m_commonParametersMapperDelegate);
+
+  m_commonParametersNumMapper->addMapping(ui->qle_capillary, model->indexFromItem(CommonParametersItems::Floating::CAPILLARY));
+  m_commonParametersNumMapper->addMapping(ui->qle_detector, model->indexFromItem(CommonParametersItems::Floating::DETECTOR));
+  m_commonParametersNumMapper->addMapping(ui->qle_fieldStrength, model->indexFromItem(CommonParametersItems::Floating::FIELD));
+  m_commonParametersNumMapper->addMapping(ui->qle_selector, model->indexFromItem(CommonParametersItems::Floating::SELECTOR));
+  m_commonParametersNumMapper->addMapping(ui->qle_tEOF, model->indexFromItem(CommonParametersItems::Floating::T_EOF));
+  m_commonParametersNumMapper->addMapping(ui->qle_voltage, model->indexFromItem(CommonParametersItems::Floating::VOLTAGE));
+  m_commonParametersNumMapper->toFirst();
 }

@@ -75,9 +75,14 @@ void EvaluationUpperWidget::onPreviousFileClicked()
   emit traverseFiles(EvaluationEngineMsgs::Traverse::PREVIOUS);
 }
 
-void EvaluationUpperWidget::setCommonParametersModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)
+void EvaluationUpperWidget::setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model)
 {
-  m_commonParametersWidget->setCommonParametersModel(model);
+  m_commonParametersWidget->setCommonParametersBoolModel(model);
+}
+
+void EvaluationUpperWidget::setCommonParametersNumModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model)
+{
+  m_commonParametersWidget->setCommonParametersNumModel(model);
 }
 
 void EvaluationUpperWidget::setDefaultState()

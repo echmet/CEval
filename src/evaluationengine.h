@@ -226,7 +226,7 @@ private:
   void activateCurrentDataContext();
   void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
-  double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const MappedVectorWrapper<double, CommonParametersItems::Floating> commonData);
+  double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const CommonParametersEngine::Context &commonCtx);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
@@ -433,6 +433,7 @@ public slots:
   void onExportScheme();
   void onFindPeaks();
   void onManageExporterScheme();
+  void onNoEofStateChanged(const bool noEof);
   void onPeakSwitched(const QModelIndex &idx);
   void onPlotPointHovered(const QPointF &point, const QPoint &cursor);
   void onPlotPointSelected(const QPointF &point, const QPoint &cursor);
