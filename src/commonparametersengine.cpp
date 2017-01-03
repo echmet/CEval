@@ -36,7 +36,7 @@ CommonParametersEngine::CommonParametersEngine(QObject *parent) :
   QObject(parent)
 {
   connect(&m_numModel, &FloatingMapperModel<CommonParametersItems::Floating>::dataChanged, this, &CommonParametersEngine::onNumModelDataChanged);
-  connect(&m_boolModel, &BooleanMapperModel<CommonParametersItems::Boolean>::dataChanged, this, &CommonParametersEngine::onNoEofStateChanged);
+  connect(&m_boolModel, &BooleanMapperModel<CommonParametersItems::Boolean>::dataChanged, this, &CommonParametersEngine::onBoolModelDataChanged);
 
   m_numModel.setUnderlyingData(m_numData.pointer());
   m_boolModel.setUnderlyingData(m_boolData.pointer());
@@ -65,6 +65,13 @@ AbstractMapperModel<double, CommonParametersItems::Floating> *CommonParametersEn
 double CommonParametersEngine::numValue(const CommonParametersItems::Floating item) const
 {
   return m_numData.at(item);
+}
+
+void CommonParametersEngine::onBoolModelDataChanged()
+{
+  checkValidity();
+  emit noEofStateChanged(m_boolData.at(CommonParametersItems::Boolean::NO_EOF));
+  emit parametersUpdated();
 }
 
 void CommonParametersEngine::onNumModelDataChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)
@@ -97,11 +104,6 @@ void CommonParametersEngine::onNumModelDataChanged(QModelIndex topLeft, QModelIn
 
   if (emitParams)
     emit parametersUpdated();
-}
-
-void CommonParametersEngine::onNoEofStateChanged()
-{
-  emit noEofStateChanged(m_boolData.at(CommonParametersItems::Boolean::NO_EOF));
 }
 
 void CommonParametersEngine::onUpdateTEof(const double t)

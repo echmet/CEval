@@ -49,10 +49,10 @@ signals:
   void validityState(const bool state, const CommonParametersItems::Floating item) const;
 
 public slots:
-    void onNoEofStateChanged();
     void onUpdateTEof(const double t);
 
 private slots:
+  void onBoolModelDataChanged();
   void onNumModelDataChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
 
 };

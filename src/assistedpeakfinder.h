@@ -28,7 +28,6 @@ public:
     /* Bools */
     bool noiseCorrection;
     bool disturbanceDetection;
-    bool noEof;
 
     /* Numeric */
     double from;
@@ -41,7 +40,6 @@ public:
     double slopeSensitivity;
     double slopeThreshold;
     double slopeWindow;
-    double tEOF;
     double to;
     double disturbanceDetectionWindow;
 

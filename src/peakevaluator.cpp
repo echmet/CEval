@@ -196,13 +196,17 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   }
 
   /* EOF */
-  if (p.tEOF > 0.0)
-    r.vEOF = Detector / (p.tEOF * 60.0);
+  if (p.noEof)
+    r.vEOF = 0.0;
   else {
-    if (E == 0.0)
-      r.vEOF = 0.0;
-    else
-      r.vEOF = std::numeric_limits<double>::infinity();
+    if (p.tEOF > 0.0)
+      r.vEOF = Detector / (p.tEOF * 60.0);
+    else {
+      if (E == 0.0)
+        r.vEOF = 0.0;
+      else
+        r.vEOF = std::numeric_limits<double>::infinity();
+    }
   }
 
   if (std::isfinite(E) && std::isfinite(r.vEOF))

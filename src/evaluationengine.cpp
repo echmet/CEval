@@ -1323,8 +1323,6 @@ AssistedPeakFinder::Parameters EvaluationEngine::makeFinderParameters()
   p.slopeSensitivity = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_SENSITIVITY);
   p.slopeThreshold = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_THRESHOLD);
   p.slopeWindow = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::SLOPE_WINDOW);
-  p.tEOF = m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF);
-  p.noEof = m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF);
   p.to = m_evaluationFloatingValues.at(EvaluationParametersItems::Floating::TO);
   p.windowUnits = m_windowUnit;
   p.disturbanceDetection = m_evaluationBooleanValues.at(EvaluationParametersItems::Boolean::DISTURBANCE_DETECTION);
