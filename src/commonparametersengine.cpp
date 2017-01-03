@@ -92,8 +92,10 @@ void CommonParametersEngine::onNumModelDataChanged(QModelIndex topLeft, QModelIn
       emitParams = recalculate();
       checkValidity();
       break;
-    case CommonParametersItems::Floating::DETECTOR:
     case CommonParametersItems::Floating::T_EOF:
+      if (m_boolData.at(CommonParametersItems::Boolean::NO_EOF))
+        continue;
+    case CommonParametersItems::Floating::DETECTOR:
       checkValidity();
       emitParams = true;
       break;
