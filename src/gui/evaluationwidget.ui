@@ -41,7 +41,7 @@
       </size>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="qtab_evaluationParameters">
       <property name="sizePolicy">
@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>764</width>
-            <height>538</height>
+            <width>776</width>
+            <height>517</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -621,7 +621,7 @@
             <x>0</x>
             <y>0</y>
             <width>744</width>
-            <height>1050</height>
+            <height>1076</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2145,7 +2145,7 @@ padding-right: 2em;</string>
             <x>0</x>
             <y>0</y>
             <width>764</width>
-            <height>538</height>
+            <height>537</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">
