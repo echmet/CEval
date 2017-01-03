@@ -38,6 +38,7 @@ signals:
   void readEof();
 
 private slots:
+  void onNoEofClicked();
   void onReadEofClicked();
 
 public slots:

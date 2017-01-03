@@ -16,6 +16,7 @@ CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
   m_invalidPalette.setColor(QPalette::WindowText, Qt::red);
 
   connect(ui->qpb_readEof, &QPushButton::clicked, this, &CommonParametersWidget::onReadEofClicked);
+  connect(ui->qcb_noEof, &QMappedCheckBox::stateChanged, this, &CommonParametersWidget::onNoEofClicked);
 }
 
 CommonParametersWidget::~CommonParametersWidget()
@@ -34,6 +35,18 @@ void CommonParametersWidget::markAsInvalid(QWidget *w, const bool invalid)
     w->setPalette(m_invalidPalette);
   else
     w->setPalette(QPalette());
+}
+
+void CommonParametersWidget::onNoEofClicked()
+{
+  switch (ui->qcb_noEof->checkState()) {
+  case Qt::Checked:
+    ui->qle_tEOF->setEnabled(false);
+    break;
+  default:
+    ui->qle_tEOF->setEnabled(true);
+    break;
+  }
 }
 
 void CommonParametersWidget::onReadEofClicked()
@@ -63,7 +76,6 @@ void CommonParametersWidget::onValidityState(const bool state, const CommonParam
     break;
   }
 }
-
 
 void CommonParametersWidget::setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model)
 {

@@ -2059,6 +2059,9 @@ void EvaluationEngine::onReadEof()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
+  if (m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF))
+    return;
+
   double tEOF = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X);
   emit updateTEof(tEOF);
 }
