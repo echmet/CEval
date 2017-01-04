@@ -2711,7 +2711,10 @@ double EvaluationEngine::timeStep(const int fromIdx, const int toIdx)
   if (m_currentDataContext->data->data.length() == 0)
     return 1.0;
 
-  double dt = m_currentDataContext->data->data.at(toIdx).x() - m_currentDataContext->data->data.at(fromIdx).x();
+  if (toIdx <= fromIdx)
+    return 1.0;
+
+  double dt = (m_currentDataContext->data->data.at(toIdx).x() - m_currentDataContext->data->data.at(fromIdx).x()) / (toIdx - fromIdx);
 
   return dt;
 }
