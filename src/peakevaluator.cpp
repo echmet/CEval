@@ -44,28 +44,17 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
   const QVector<QPointF> &Data = p.data;
   Results r = ir;
 
-  /* Subtracting baseline */
   if (Data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < Data.length()) {
     QVector<double> peak_subtracted;
 
+    /* Subtracting baseline */
     peak_subtracted.reserve(p.toIndex - p.fromIndex + 1);
     for (int i = p.fromIndex; i <= p.toIndex; i++)
       peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
 
-     r.peakArea = 0.0;
-
-     /* Peak::Peak Area */
-     for (
-          QVector<double>::iterator i = peak_subtracted.begin(),
-          i_end = peak_subtracted.end()
-          ;
-          i != i_end
-          ;
-          ++i
-         ) r.peakArea += *i;
-
-    r.peakArea -= (peak_subtracted[0] + peak_subtracted.back()) / 2;
-    r.peakArea *= (Data[1].x() - Data[0].x());
+    r.peakArea = 0.0;
+    for (int idx = 1; idx < peak_subtracted.size(); idx++)
+      r.peakArea += ((peak_subtracted.at(idx) + peak_subtracted.at(idx - 1)) / 2.0) * (Data.at(idx + p.fromIndex).x() - Data.at(idx - 1 + p.fromIndex).x());
 
     /* Height (5 %) */
     int i_w005, j_w005;
