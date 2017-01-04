@@ -1949,12 +1949,8 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
   if (!isContextValid())
     return;
 
-  if (m_currentDataContext->data->data.size() < 2)
-    return;
-
   if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
     QVector<QPointF> line;
-    double x;
     double fx;
     double tx;
     double fy;
@@ -1970,16 +1966,9 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
       fy = point.y();
       ty = m_manualPeakFrom.y();
     }
-    const double k = (ty - fy) / (tx - fx);
-    const double step = (m_currentDataContext->data->data.at(1).x() - m_currentDataContext->data->data.at(0).x()) / 10.0;
 
-    x = fx;
-    while (x <= tx) {
-      const double vf = k * (x - fx) + fy;
-
-      line.push_back(QPointF(x, vf));
-      x += step;
-    }
+    line.push_back(QPointF(fx, fy));
+    line.push_back(QPointF(tx, ty));
 
     m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), line);
     m_plotCtx->replot();
@@ -2403,7 +2392,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                 hvlResults.at(HVLFitResultsItems::Floating::HVL_A1),
                                 hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
                                 hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
-                                fr->peakFromX, fr->peakToX, timeStep(),
+                                fr->peakFromX, fr->peakToX, timeStep(fr->fromIndex, fr->toIndex),
                                 srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
@@ -2711,7 +2700,7 @@ void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWi
   m_evaluationFloatingModel.notifyDataChanged(EvaluationParametersItems::Floating::SLOPE_WINDOW, EvaluationParametersItems::Floating::SLOPE_WINDOW, { Qt::EditRole });
 }
 
-double EvaluationEngine::timeStep()
+double EvaluationEngine::timeStep(const int fromIdx, const int toIdx)
 {
   if (!isContextValid())
     return 1.0;
@@ -2722,7 +2711,7 @@ double EvaluationEngine::timeStep()
   if (m_currentDataContext->data->data.length() == 0)
     return 1.0;
 
-  double dt = m_currentDataContext->data->data.at(1).x() - m_currentDataContext->data->data.at(0).x();
+  double dt = m_currentDataContext->data->data.at(toIdx).x() - m_currentDataContext->data->data.at(fromIdx).x();
 
   return dt;
 }

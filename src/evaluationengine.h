@@ -292,7 +292,7 @@ private:
   void storeCurrentPeak();
   void switchEvaluationContext(const QString &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
-  double timeStep();
+  double timeStep(const int fromIdx = 0, const int toIdx = 1);
   void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderContext &afContext, const bool updatePeak = false);
 
   /* All data contexts */
