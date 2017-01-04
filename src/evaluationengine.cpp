@@ -2137,7 +2137,7 @@ void EvaluationEngine::onReplotHvl()
                                              m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3),
                                              m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X),
                                              m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X),
-                                             timeStep(),
+                                             timeStep(m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex),
                                              m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
 
   HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
