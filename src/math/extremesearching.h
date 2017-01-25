@@ -2,14 +2,10 @@
 #ifndef ExtremeSearchingH
 #define ExtremeSearchingH
 
-#include <fstream>
-
 //---------------------------------------------------------------------------
 class TExtremeSearcher
 {
 private:
-
-  std::fstream debug;
 
   int QCount, _I_, IMax, IMin, Count, I_end;
   double YMax, YMin;

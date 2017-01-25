@@ -2,6 +2,7 @@
 // INCLUDE
 #include "extremesearching.h"
 #include <cmath>
+#include <algorithm>
 
 //=============================================================================
 // SETTINGS
@@ -48,42 +49,33 @@ int TExtremeSearcher::CheckForCentralExtreme()
     int diL = _I_ - QCount;      if (diL < 0)     diL = 0;
     int diR = diL + ChainPoints; if (diR > Count) diR = Count;
 
-    debug << "\n ------------------ \n" << std::endl;
-    for (int i = diL; i != diR; ++i) {
-        debug << "_I_ " << _I_
-              << " IMax " << IMax << " YMax " << YMax
-              << " IMin " << IMin << " YMin " << YMin
-              << std::endl;
-
-        debug << i << " : " << Data->GetY(i);
-
-        if (Data->GetY(i) > YMax) { IMax = i; YMax = Data->GetY(IMax); debug << " -> *** MAX ***";}
-        if (Data->GetY(i) < YMin) { IMin = i; YMin = Data->GetY(IMin); debug << " -> *** MIN ***";}
-
-        debug << std::endl;
-
+    for (int i = diL; i < diR; ++i) {
+        if (Data->GetY(i) > YMax) {
+            IMax = i;
+            YMax = Data->GetY(IMax);
+        }
+        if (Data->GetY(i) < YMin) {
+            IMin = i;
+            YMin = Data->GetY(IMin);
+        }
     }
 
-    if (IMax < _I_) { IMax = diR - 1; YMax = Data->GetY(IMax); }
-    if (IMin < _I_) { IMin = diR - 1; YMin = Data->GetY(IMin); }
-
-    debug << " == RETURN == " << std::endl;
-    debug << "_I_ " << _I_
-          << " IMax " << IMax << " YMax " << YMax
-          << " IMin " << IMin << " YMin " << YMin
-          << std::endl;
+    if (IMax < _I_) {
+        IMax = diR - 1;
+        YMax = Data->GetY(IMax);
+    }
+    if (IMin < _I_) {
+        IMin = diR - 1;
+        YMin = Data->GetY(IMin);
+    }
 
     return IMax == _I_ ? 1 : (IMin == _I_ ? -1 : 0);
-
 }
 
 
 //-----------------------------------------------------------------------------
 void TExtremeSearcher::Search()
 {
-    /*debug.close();
-    debug.clear();
-    debug.open("N:\\Pavel\\PRG\\CPP" "\\debug.txt", std::ios_base::trunc | std::ios_base::out);*/
     QCount = ChainPoints / 2 + 1;
 
     Count = Data->Count();
@@ -108,7 +100,4 @@ void TExtremeSearcher::Search()
         } else _I_ = std::min(IMax, IMin);
 
     }
-
-    /*debug.close();
-    debug.clear();*/
 }
