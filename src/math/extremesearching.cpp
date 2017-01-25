@@ -83,7 +83,8 @@ void TExtremeSearcher::Search()
 
     // INIT
 
-    IMax = 0; YMax = Data->GetY(0); YMin = Data->GetY(0);
+    IMax = 0; YMax = Data->GetY(0);
+    IMin = 0; YMin = Data->GetY(0);
     _I_ = LeftBoundary ? QCount : 0;
     const long iEnd = RightBoundary ? I_end : Count;
     while (_I_ < iEnd){
