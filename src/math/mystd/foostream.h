@@ -11,9 +11,9 @@ class foostream {
 public:
   foostream() {}
 
-  foostream(const char *, std::_Ios_Openmode) {}
+  foostream(const char *, std::ios::openmode) {}
 
-  void open(const char *, std::_Ios_Openmode) {}
+  void open(const char *, std::ios::openmode) {}
 
 };
 
