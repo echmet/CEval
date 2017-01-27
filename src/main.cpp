@@ -77,8 +77,13 @@ void setOpenMPThreads()
 {
   int hwThreads;
   DWORD ret;
-  LPTSTR ompThreads = static_cast<LPTSTR>(HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, 32767));
+  LPTSTR ompThreads;
+  HANDLE heap = GetProcessHeap();
 
+  if (heap == NULL)
+      return;
+
+  ompThreads = static_cast<LPTSTR>(HeapAlloc(heap, HEAP_ZERO_MEMORY, 32767));
   if (ompThreads == nullptr)
     return;
 
@@ -95,6 +100,8 @@ void setOpenMPThreads()
     if (hwThreads == LONG_MIN || hwThreads == LONG_MAX)
       hwThreads = 0;
   }
+
+  HeapFree(heap, 0, ompThreads);
 
   if (hwThreads > 0)
     omp_set_num_threads(hwThreads);
