@@ -4,13 +4,13 @@
 #include "../hyperbolafittingengine.h"
 #include <QSysInfo>
 
-const QString CrashHandlerDialog::s_reportToDevsCaption(tr("Report to developers"));
+const QString CrashHandlerDialog::s_reportToDevsCaption(QObject::tr("Report to developers"));
 
 
 CrashHandlerDialog::CrashHandlerDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::CrashHandlerDialog),
-  m_apologyMessage(QString(tr("We are sorry, but %2 has encountered an internal error from which it cannot recover. "
+  m_apologyMessage(QString(QObject::tr("We are sorry, but %2 has encountered an internal error from which it cannot recover. "
                            "Your current data table has been saved to \"%1\" file in %2´s working directory. "
                            "It will be available for loading the next time you start %2. "
                            "You may want to report the backtrace below along with a description (in English or Czech) "
@@ -19,7 +19,7 @@ CrashHandlerDialog::CrashHandlerDialog(QWidget *parent) :
                            .arg(Globals::SOFTWARE_NAME))
 {
   ui->setupUi(this);
-  setWindowTitle(tr("Crash handler"));
+  setWindowTitle(QObject::tr("Crash handler"));
 
   ui->ql_reportToDevs->setOpenExternalLinks(true);
 

@@ -1,6 +1,6 @@
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
-#include "crashhandler.h"
+#include "crashhandlerprovider.h"
 #include "dataaccumulator.h"
 #include "doubletostringconvertor.h"
 #include "globals.h"
@@ -144,6 +144,12 @@ int main(int argc, char *argv[])
   SoftwareUpdater *updater;
   int aRet;
 
+  if (!CrashHandlerProvider::installCrashHandler()) {
+    /* TODO: Display a warning here */
+    qDebug() << "Unable to install crash handler";
+  } else
+    qDebug() << "Crash handler installed";
+
   setOpenMPThreads();
 
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);
@@ -151,8 +157,6 @@ int main(int argc, char *argv[])
   QCoreApplication::setApplicationVersion(Globals::VERSION_STRING());
 
   EMT::registerAll();
-
-  CrashHandler::install();
 
   DoubleToStringConvertor::initialize();
 
@@ -186,7 +190,7 @@ int main(int argc, char *argv[])
   saveUserSettings(dac, updater);
 
 out:
-  CrashHandler::uninstall();
+  CrashHandlerProvider::uninstallCrashHandler();
 
   return aRet;
 }

@@ -15,10 +15,18 @@ unix {
     DEFINES += LIBHVL_PLATFORM_UNIX
 } win32 {
     DEFINES += LIBHVL_PLATFORM_WIN32
-    DEFINES += LIBHVL_COMPILER_MINGW
+
+    win32-msvc2015 {
+        DEFINES += LIBHVL_COMPILER_MSVC
+    } else {
+        DEFINES += LIBHVL_COMPILER_MINGW
+    }
 }
 
-CONFIG += xopenmp
+!win32-msvc2015 {
+    CONFIG += xopenmp xsimd
+}
+
 xopenmp {
     linux-clang {
         QMAKE_CXXFLAGS += -fopenmp=libomp
@@ -29,7 +37,6 @@ xopenmp {
     }
 }
 
-CONFIG += xsimd
 xsimd {
     QMAKE_CXXFLAGS += "-mmmx -msse -msse2"
 }
@@ -90,7 +97,6 @@ SOURCES += src/main.cpp \
     src/gui/numberformatdialog.cpp \
     src/gui/hvlfitinprogressdialog.cpp \
     src/witchcraft.cpp \
-    src/crashhandler.cpp \
     src/gui/crashhandlerdialog.cpp \
     src/gui/adjustplotvisualsdialog.cpp \
     src/custommetatypes.cpp \
@@ -141,7 +147,11 @@ SOURCES += src/main.cpp \
     src/gui/registerinhyperbolafitdialog.cpp \
     src/gui/registerinhyperbolafitwidget.cpp \
     src/hyperbolafittingwidgetconnector.cpp \
-    src/customlocalesortproxymodel.cpp
+    src/customlocalesortproxymodel.cpp \
+    src/crashhandlerwindows.cpp \
+    src/abstractcrashhandler.cpp \
+    src/crashhandlerprovider.cpp \
+    src/nullcrashhandler.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -271,7 +281,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/hvlfitinprogressdialog.h \
     src/witchcraft.h \
     src/mappedvectorwrapper.h \
-    src/crashhandler.h \
     src/stacktrace.h \
     src/stacktrace_win.h \
     src/gui/crashhandlerdialog.h \
@@ -328,7 +337,11 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/regressor/hyperbola2.h \
     src/gui/registerinhyperbolafitdialog.h \
     src/gui/registerinhyperbolafitwidget.h \
-    src/customlocalesortproxymodel.h
+    src/customlocalesortproxymodel.h \
+    src/crashhandlerwindows.h \
+    src/abstractcrashhandler.h \
+    src/crashhandlerprovider.h \
+    src/nullcrashhandler.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -367,5 +380,8 @@ unix {
 
 include($$PWD/CEval.pri)
 
-QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
-
+!win32-msvc2015 {
+    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
+} else {
+    INCLUDEPATH += $$BOOSTPATH
+}

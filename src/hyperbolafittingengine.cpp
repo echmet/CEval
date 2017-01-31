@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QMenu>
+#include <functional>
 #include "custommetatypes.h"
 #include "globals.h"
 #include "hyperbolafititems.h"
@@ -20,23 +21,23 @@ using namespace regressCore;
 
 typedef RectangularHyperbola2<double, double>::x_type hyp2x_type;
 
-const QString HyperbolaFittingEngine::s_dataPointsATitle = tr("Points A");
-const QString HyperbolaFittingEngine::s_dataPointsBTitle = tr("Points B");
-const QString HyperbolaFittingEngine::s_dataPointsAAvgTitle = tr("Average of points A");
-const QString HyperbolaFittingEngine::s_dataPointsBAvgTitle = tr("Average of points B");
-const QString HyperbolaFittingEngine::s_fitCurveATitle = tr("Fit A");
-const QString HyperbolaFittingEngine::s_fitCurveBTitle = tr("Fit B");
-const QString HyperbolaFittingEngine::s_fitCurveStatsTitle = tr("Statistics");
-const QString HyperbolaFittingEngine::s_horizontalMarkerTitle = tr("Horizontal marker");
-const QString HyperbolaFittingEngine::s_verticalAMarkerTitle = tr("Vertical A marker");
-const QString HyperbolaFittingEngine::s_verticalBMarkerTitle = tr("Vertical B marker");
+const QString HyperbolaFittingEngine::s_dataPointsATitle = QObject::tr("Points A");
+const QString HyperbolaFittingEngine::s_dataPointsBTitle = QObject::tr("Points B");
+const QString HyperbolaFittingEngine::s_dataPointsAAvgTitle = QObject::tr("Average of points A");
+const QString HyperbolaFittingEngine::s_dataPointsBAvgTitle = QObject::tr("Average of points B");
+const QString HyperbolaFittingEngine::s_fitCurveATitle = QObject::tr("Fit A");
+const QString HyperbolaFittingEngine::s_fitCurveBTitle = QObject::tr("Fit B");
+const QString HyperbolaFittingEngine::s_fitCurveStatsTitle = QObject::tr("Statistics");
+const QString HyperbolaFittingEngine::s_horizontalMarkerTitle = QObject::tr("Horizontal marker");
+const QString HyperbolaFittingEngine::s_verticalAMarkerTitle = QObject::tr("Vertical A marker");
+const QString HyperbolaFittingEngine::s_verticalBMarkerTitle = QObject::tr("Vertical B marker");
 
-const QString HyperbolaFittingEngine::s_uACaption = tr("Free mobility (\u03BC (A))");
-const QString HyperbolaFittingEngine::s_uCSCaption = tr("Mobility of complex (\u03BC (AS))");
-const QString HyperbolaFittingEngine::s_KCSCaption = tr("Complexation constant (K (AS))");
-const QString HyperbolaFittingEngine::s_tauCaption = tr("Tau (\u03C4)");
-const QString HyperbolaFittingEngine::s_confidenceCaption = tr("Confidence");
-const QString HyperbolaFittingEngine::s_pValueCaption = tr("P-value");
+const QString HyperbolaFittingEngine::s_uACaption = QObject::tr("Free mobility (\u03BC (A))");
+const QString HyperbolaFittingEngine::s_uCSCaption = QObject::tr("Mobility of complex (\u03BC (AS))");
+const QString HyperbolaFittingEngine::s_KCSCaption = QObject::tr("Complexation constant (K (AS))");
+const QString HyperbolaFittingEngine::s_tauCaption = QObject::tr("Tau (\u03C4)");
+const QString HyperbolaFittingEngine::s_confidenceCaption = QObject::tr("Confidence");
+const QString HyperbolaFittingEngine::s_pValueCaption = QObject::tr("P-value");
 
 
 const double HyperbolaFittingEngine::s_defaultViscositySlope = 0.0;

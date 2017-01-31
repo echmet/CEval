@@ -1,14 +1,18 @@
 #include "chemstationfileinfomodel.h"
 #include <QPalette>
 
-#define LESS_THAN_CPR(member) \
-   [](const Entry &e1, const Entry &e2) -> bool { \
+#define MAKE_LESS_THAN_CPR(member) \
+  bool compare_lessThan_##member##(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
     return e1.member < e2.member; \
   }
-#define GREATER_THAN_CPR(member) \
-   [](const Entry &e1, const Entry &e2) -> bool { \
+
+#define MAKE_GREATER_THAN_CPR(member) \
+  bool compare_greaterThan_##member##(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
     return e1.member > e2.member; \
   }
+
+#define LESS_THAN_CPR(member) compare_lessThan_##member
+#define GREATER_THAN_CPR(member) compare_greaterThan_##member
 
 ChemStationFileInfoModel::Entry::Entry(const QString &name, const QString &type, const QString &info, const bool isChFile) :
   name(name),
@@ -43,6 +47,13 @@ ChemStationFileInfoModel::Entry &ChemStationFileInfoModel::Entry::operator=(cons
 
   return *this;
 }
+
+MAKE_LESS_THAN_CPR(name)
+MAKE_LESS_THAN_CPR(type)
+MAKE_LESS_THAN_CPR(info)
+MAKE_GREATER_THAN_CPR(name)
+MAKE_GREATER_THAN_CPR(type)
+MAKE_GREATER_THAN_CPR(info)
 
 ChemStationFileInfoModel::ChemStationFileInfoModel(QObject *parent) :
   QAbstractItemModel(parent)

@@ -54,39 +54,39 @@ const EvaluationParametersItems::ComboShowWindow EvaluationEngine::s_defaultShow
 const EvaluationParametersItems::ComboWindowUnits EvaluationEngine::s_defaultWindowUnits = EvaluationParametersItems::ComboWindowUnits::MINUTES;
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>>
-EvaluationEngine::s_windowUnitsValues({ ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(tr("Minutes"), EvaluationParametersItems::ComboWindowUnits::MINUTES),
-                                        ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(tr("Points"), EvaluationParametersItems::ComboWindowUnits::POINTS )});
+EvaluationEngine::s_windowUnitsValues({ ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Minutes"), EvaluationParametersItems::ComboWindowUnits::MINUTES),
+                                        ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Points"), EvaluationParametersItems::ComboWindowUnits::POINTS )});
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>>
-EvaluationEngine::s_baselineAlgorithmValues({ ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>(tr("Slope"), EvaluationParametersItems::ComboBaselineAlgorithm::SLOPE),
-                                              ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>(tr("Noise"), EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) });
+EvaluationEngine::s_baselineAlgorithmValues({ ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>(QObject::tr("Slope"), EvaluationParametersItems::ComboBaselineAlgorithm::SLOPE),
+                                              ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>(QObject::tr("Noise"), EvaluationParametersItems::ComboBaselineAlgorithm::NOISE) });
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboShowWindow>>
-EvaluationEngine::s_showWindowValues({ ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("None"), EvaluationParametersItems::ComboShowWindow::NONE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Noise"), EvaluationParametersItems::ComboShowWindow::NOISE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Slope threshold"), EvaluationParametersItems::ComboShowWindow::SLOPE_THRESHOLD),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Peak window"), EvaluationParametersItems::ComboShowWindow::PEAK_WINDOW),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Peak height"), EvaluationParametersItems::ComboShowWindow::PEAK_HEIGHT),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Peak half width"), EvaluationParametersItems::ComboShowWindow::PEAK_WIDTH_HALF),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Peak width 0.05"), EvaluationParametersItems::ComboShowWindow::NOISE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Baseline"), EvaluationParametersItems::ComboShowWindow::BASELINE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Smoothed"), EvaluationParametersItems::ComboShowWindow::SMOOTHED),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("1st derivative"), EvaluationParametersItems::ComboShowWindow::FIRST_DERIVATIVE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("2nd derivative"), EvaluationParametersItems::ComboShowWindow::SECOND_DERIVATIVE),
-                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(tr("Both derivatives"), EvaluationParametersItems::ComboShowWindow::BOTH_DERIVATIVES)});
+EvaluationEngine::s_showWindowValues({ ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("None"), EvaluationParametersItems::ComboShowWindow::NONE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Noise"), EvaluationParametersItems::ComboShowWindow::NOISE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Slope threshold"), EvaluationParametersItems::ComboShowWindow::SLOPE_THRESHOLD),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Peak window"), EvaluationParametersItems::ComboShowWindow::PEAK_WINDOW),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Peak height"), EvaluationParametersItems::ComboShowWindow::PEAK_HEIGHT),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Peak half width"), EvaluationParametersItems::ComboShowWindow::PEAK_WIDTH_HALF),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Peak width 0.05"), EvaluationParametersItems::ComboShowWindow::NOISE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Baseline"), EvaluationParametersItems::ComboShowWindow::BASELINE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Smoothed"), EvaluationParametersItems::ComboShowWindow::SMOOTHED),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("1st derivative"), EvaluationParametersItems::ComboShowWindow::FIRST_DERIVATIVE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("2nd derivative"), EvaluationParametersItems::ComboShowWindow::SECOND_DERIVATIVE),
+                                       ComboBoxItem<EvaluationParametersItems::ComboShowWindow>(QObject::tr("Both derivatives"), EvaluationParametersItems::ComboShowWindow::BOTH_DERIVATIVES)});
 
-const QString EvaluationEngine::s_serieBaselineTitle = QString(tr("Peak baseline"));
-const QString EvaluationEngine::s_serieEofTitle = QString(tr("EOF"));
-const QString EvaluationEngine::s_seriePeakHeightTitle = QString(tr("Peak height"));
-const QString EvaluationEngine::s_seriePeakTimeTitle = QString(tr("Peak maximum time"));
-const QString EvaluationEngine::s_serieProvisionalPeakTitle = QString(tr("Provisional peak"));
-const QString EvaluationEngine::s_serieSignalTitle = QString(tr("Signal"));
-const QString EvaluationEngine::s_serieFinderSystemATitle = QString(tr("Finder A"));
-const QString EvaluationEngine::s_serieFinderSystemBTitle = QString(tr("Finder A"));
-const QString EvaluationEngine::s_serieHVLTitle = QString(tr("HVL"));
-const QString EvaluationEngine::s_serieBaselineFromTitle = QString(tr("Baseline from"));
-const QString EvaluationEngine::s_serieBaselineToTitle = QString(tr("Baseline from"));
-const QString EvaluationEngine::s_serieProvisionalBaseline = QString(tr("Provisional baseline"));
+const QString EvaluationEngine::s_serieBaselineTitle = QString(QObject::tr("Peak baseline"));
+const QString EvaluationEngine::s_serieEofTitle = QString(QObject::tr("EOF"));
+const QString EvaluationEngine::s_seriePeakHeightTitle = QString(QObject::tr("Peak height"));
+const QString EvaluationEngine::s_seriePeakTimeTitle = QString(QObject::tr("Peak maximum time"));
+const QString EvaluationEngine::s_serieProvisionalPeakTitle = QString(QObject::tr("Provisional peak"));
+const QString EvaluationEngine::s_serieSignalTitle = QString(QObject::tr("Signal"));
+const QString EvaluationEngine::s_serieFinderSystemATitle = QString(QObject::tr("Finder A"));
+const QString EvaluationEngine::s_serieFinderSystemBTitle = QString(QObject::tr("Finder A"));
+const QString EvaluationEngine::s_serieHVLTitle = QString(QObject::tr("HVL"));
+const QString EvaluationEngine::s_serieBaselineFromTitle = QString(QObject::tr("Baseline from"));
+const QString EvaluationEngine::s_serieBaselineToTitle = QString(QObject::tr("Baseline from"));
+const QString EvaluationEngine::s_serieProvisionalBaseline = QString(QObject::tr("Provisional baseline"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 

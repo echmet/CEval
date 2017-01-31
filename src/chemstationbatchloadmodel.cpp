@@ -1,13 +1,17 @@
 #include "chemstationbatchloadmodel.h"
 
-#define LESS_THAN_CPR(member) \
-   [](const Entry &e1, const Entry &e2) -> bool { \
+#define MAKE_LESS_THAN_CPR(member) \
+  bool compare_lessThan_##member##(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
     return e1.member < e2.member; \
   }
-#define GREATER_THAN_CPR(member) \
-   [](const Entry &e1, const Entry &e2) -> bool { \
+
+#define MAKE_GREATER_THAN_CPR(member) \
+  bool compare_greaterThan_##member##(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
     return e1.member > e2.member; \
   }
+
+#define LESS_THAN_CPR(member) compare_lessThan_##member
+#define GREATER_THAN_CPR(member) compare_greaterThan_##member
 
 ChemStationBatchLoadModel::Entry::Entry(const QString &type, const QString &info, const ChemStationBatchLoader::Filter &filter) :
   type(type),
@@ -39,6 +43,10 @@ ChemStationBatchLoadModel::Entry & ChemStationBatchLoadModel::Entry::operator=(c
   return *this;
 }
 
+MAKE_LESS_THAN_CPR(type)
+MAKE_LESS_THAN_CPR(info)
+MAKE_GREATER_THAN_CPR(type)
+MAKE_GREATER_THAN_CPR(info)
 
 ChemStationBatchLoadModel::ChemStationBatchLoadModel(QObject *parent) :
   QAbstractItemModel(parent)
