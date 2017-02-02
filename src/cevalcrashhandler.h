@@ -1,7 +1,7 @@
 #ifndef CEVALCRASHHANDLER_H
 #define CEVALCRASHHANDLER_H
 
-#include <QObject>
+#include "crasheventcatcher.h"
 #include <type_traits>
 
 class CrashHandlerBase;
@@ -13,15 +13,15 @@ class CEvalCrashHandler
 public:
   CEvalCrashHandler() = delete;
 
-  template <typename Receiver, void(Receiver::*EmergencySlot)()>
-  bool connectToEmergency(const Receiver *receiver)
+  template <typename Receiver, void (Receiver::*EmergencySlot)()>
+  static bool connectToEmergency(const Receiver *receiver)
   {
     static_assert(std::is_base_of<QObject, Receiver>::value, "Receiver must be a QObject");
 
     if (s_catcher == nullptr)
       return false;
 
-    //QObject::connect(s_catcher, &CrashEventCatcher::emergency, receiver, EmergencySlot);
+    QObject::connect(s_catcher, &CrashEventCatcher::emergency, receiver, EmergencySlot);
 
     return true;
   }
