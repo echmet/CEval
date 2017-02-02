@@ -2,7 +2,7 @@
 #define CRASHHANDLINGPROVIDER_H
 
 #include "crashhandlerbase.h"
-#include<assert.h>
+#include <assert.h>
 #include <type_traits>
 
 template <typename CrashHandlerType>
@@ -21,13 +21,13 @@ public:
     s_handler = nullptr;
   }
 
-  static bool initialize()
+  static bool initialize(const std::string & miniDumpPath)
   {
     if (s_handler != nullptr)
       return true;
 
     try {
-      s_handler = new CrashHandlerType();
+      s_handler = new CrashHandlerType(miniDumpPath);
     } catch (std::bad_alloc &) {
       return false;
     }

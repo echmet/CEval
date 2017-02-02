@@ -57,14 +57,26 @@ void __cdecl pureVirtualHandler()
   me->handleCrash(CrashHandlerWindows::CrashType::PURE_VIRTUAL_CALL);
 }
 
-CrashHandlerWindows::CrashHandlerWindows() :
+CrashHandlerWindows::CrashHandlerWindows(const std::string &miniDumpPath) :
+  CrashHandlerBase(miniDumpPath),
   m_shutdownHandlerThread(false)
 {
+#if defined _UNICODE || defined UNICODE
+  const size_t length = MultiByteToWideChar(CP_ACP, 0, miniDumpPath.c_str(), -1, NULL, 0);
+  m_tstrMiniDumpPath = (LPTSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, length * sizeof(TCHAR));
+  if (m_tstrMiniDumpPath != NULL)
+    MultiByteToWideChar(CP_ACP, 0, miniDumpPath.c_str(), -1, m_tstrMiniDumpPath, length);
+#else
+  const size_t length = (miniDumpPath.length() + 1) * sizeof(TCHAR);
+  m_tstrMiniDumpPath = (LPTSTR)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, length);
+  if (m_tstrMiniDumpPath != NULL)
+    memcpy_s(m_tstrMiniDumpPath, length, miniDumpPath.c_str(), length);
+#endif
 }
 
 CrashHandlerWindows::~CrashHandlerWindows()
 {
-
+  HeapFree(GetProcessHeap(), 0, m_tstrMiniDumpPath);
 }
 
 const std::string & CrashHandlerWindows::crashInfo() const
@@ -120,7 +132,11 @@ void CrashHandlerWindows::handleCrashThreadExecutor()
       m_crashInfo = backtrace.c_str();
 
       /* Write crash minidump */
-      HANDLE hMiniDumpFile = CreateFile(TEXT("./CEval_minidump.mdmp"), GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+
+      HANDLE hMiniDumpFile = NULL;
+      if (m_tstrMiniDumpPath != NULL)
+        hMiniDumpFile = CreateFile(m_tstrMiniDumpPath, GENERIC_WRITE, 0, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
+
       if (hMiniDumpFile != NULL) {
         MINIDUMP_EXCEPTION_INFORMATION dump_ex_info;
         HANDLE hProcess = GetCurrentProcess();

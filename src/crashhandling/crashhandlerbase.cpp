@@ -1,6 +1,7 @@
 #include "crashhandlerbase.h"
 
-CrashHandlerBase::CrashHandlerBase() :
+CrashHandlerBase::CrashHandlerBase(const std::string &miniDumpPath) :
+  m_miniDumpPath(miniDumpPath),
   m_finalizer(nullptr)
 {
 }

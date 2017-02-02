@@ -15,8 +15,8 @@ public:
     HEAP_CORRUPTION
   };
 
-  CrashHandlerWindows();
-  ~CrashHandlerWindows();
+  explicit CrashHandlerWindows(const std::string &miniDumpPath);
+  virtual ~CrashHandlerWindows() override;
   virtual const std::string & crashInfo() const override;
   void handleCrash(const CrashType crash, LPEXCEPTION_POINTERS exptrs = nullptr);
   void handleCrashThreadExecutor();
@@ -32,6 +32,7 @@ private:
   HANDLE m_handlerThreadStarted;
   bool m_shutdownHandlerThread;
   CRITICAL_SECTION m_handlerCriticalSection;
+  LPTSTR m_tstrMiniDumpPath;
 
   HANDLE m_proceedToKillSemaphore;
 

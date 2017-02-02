@@ -7,7 +7,8 @@
 class CrashHandlerBase
 {
 public:
-  explicit CrashHandlerBase();
+  explicit CrashHandlerBase(const std::string &miniDumpPath);
+  virtual ~CrashHandlerBase() {}
   virtual const std::string & crashInfo() const = 0;
   virtual bool install() = 0;
   virtual void proceedToKill() const;
@@ -17,6 +18,8 @@ public:
 
 protected:
   void finalize();
+
+  const std::string m_miniDumpPath;
 
 private:
   CrashHandlerFinalizerRoot *m_finalizer;

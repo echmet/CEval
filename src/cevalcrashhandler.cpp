@@ -40,7 +40,7 @@ CrashHandlerBase * CEvalCrashHandler::handler()
 
 bool CEvalCrashHandler::installCrashHandler()
 {
-  if (!CrashHandlingProvider<CrashHandlerPlatform>::initialize())
+  if (!CrashHandlingProvider<CrashHandlerPlatform>::initialize("CEval_minidump.mdmp"))
     return false;
 
   try {
