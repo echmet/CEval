@@ -32,10 +32,10 @@ const QString HyperbolaFittingEngine::s_horizontalMarkerTitle = QObject::tr("Hor
 const QString HyperbolaFittingEngine::s_verticalAMarkerTitle = QObject::tr("Vertical A marker");
 const QString HyperbolaFittingEngine::s_verticalBMarkerTitle = QObject::tr("Vertical B marker");
 
-const QString HyperbolaFittingEngine::s_uACaption = QObject::tr("Free mobility (\u03BC (A))");
-const QString HyperbolaFittingEngine::s_uCSCaption = QObject::tr("Mobility of complex (\u03BC (AS))");
+const QString HyperbolaFittingEngine::s_uACaption = QObject::tr("Free mobility (\xCE\xBC (A))");
+const QString HyperbolaFittingEngine::s_uCSCaption = QObject::tr("Mobility of complex (\xCE\xBC (AS))");
 const QString HyperbolaFittingEngine::s_KCSCaption = QObject::tr("Complexation constant (K (AS))");
-const QString HyperbolaFittingEngine::s_tauCaption = QObject::tr("Tau (\u03C4)");
+const QString HyperbolaFittingEngine::s_tauCaption = QObject::tr("Tau (\xCF\x84)");
 const QString HyperbolaFittingEngine::s_confidenceCaption = QObject::tr("Confidence");
 const QString HyperbolaFittingEngine::s_pValueCaption = QObject::tr("P-value");
 

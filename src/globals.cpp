@@ -7,9 +7,9 @@ const int Globals::VERSION_MAJ = 0;
 const int Globals::VERSION_MIN = 6;
 const QString Globals::VERSION_REV = "g";
 
-const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\u00FD", "pavel.dubsky@natur.cuni.cz"),
-                                                            Globals::DeveloperID("Magda \u00D6rd\u00F6gov\u00E1", "magda.ordogova@natur.cuni.cz"),
-                                                            Globals::DeveloperID("Michal Mal\u00FD", "malymi@natur.cuni.cz")
+const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\xC3\xBD", "pavel.dubsky@natur.cuni.cz"),
+                                                            Globals::DeveloperID("Magda \xC3\x96rd\xC3\xB6gov\xC3\xA1", "magda.ordogova@natur.cuni.cz"),
+                                                            Globals::DeveloperID("Michal Mal\xC3\xBD", "malymi@natur.cuni.cz")
                                                           };
 
 Globals::DeveloperID::DeveloperID(const QString &name, const QString &mail) :
