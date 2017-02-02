@@ -21,9 +21,12 @@ private:
   static const QString s_mailSubject;
   static const QString s_reportToDevsCaption;
   const QString m_apologyMessage;
+  QString m_mailToDevelopers;
 
 private slots:
   void onOkClicked();
+  void onReportToDevelopersClicked();
+
 };
 
 #endif // CRASHHANDLERDIALOG_H

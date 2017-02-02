@@ -65,9 +65,9 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="ql_reportToDevs">
+      <widget class="QPushButton" name="qpb_reportToDevelopers">
        <property name="text">
-        <string>&lt;placeholder&gt;</string>
+        <string>Report to developers</string>
        </property>
       </widget>
      </item>

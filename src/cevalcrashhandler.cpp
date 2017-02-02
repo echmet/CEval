@@ -3,9 +3,8 @@
 #include "crasheventcatcher.h"
 #include "crashhandling/crashhandlingprovider.h"
 #include "crashhandling/crashhandlerwindows.h"
-
 #include <QApplication>
-#include <QDebug>
+
 
 #ifdef Q_OS_WIN
   #define CrashHandlerPlatform CrashHandlerWindows

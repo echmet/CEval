@@ -3,7 +3,6 @@
 #include "crashhandlerwindows.h"
 #include "crashhandlerwindows_stacktrace.h"
 #include "crashhandlingprovider.h"
-#include <QDebug>
 
 #ifndef DBG_PRINTEXCEPTION_WIDE_C
 #define DBG_PRINTEXCEPTION_WIDE_C 0x4001000A
@@ -91,8 +90,6 @@ void CrashHandlerWindows::handleCrash(const CrashType crash, LPEXCEPTION_POINTER
 /* Keep in mind that this is called from the handler thread */
 void CrashHandlerWindows::handleCrashThreadExecutor()
 {
-  qDebug() << "Crash handler thread launched";
-
   std::ostringstream logStream;
   std::string backtrace;
 
@@ -184,8 +181,6 @@ bool CrashHandlerWindows::install()
   m_originalPureVirtualHandler = _set_purecall_handler(pureVirtualHandler);
   m_originalInvalidParameterHandler = _set_invalid_parameter_handler(invalidParameterHandler);
 
-  qDebug() << "CrashHandlerWindows initialized";
-
   return true;
 
 errout_3:
@@ -217,7 +212,6 @@ void CrashHandlerWindows::uninstall()
 void CrashHandlerWindows::proceedToKill() const
 {
   ReleaseSemaphore(m_proceedToKillSemaphore, 1, NULL);
-  qDebug() << "Killing...";
 }
 
 void CrashHandlerWindows::waitForKill()
