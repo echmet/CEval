@@ -180,6 +180,7 @@ int main(int argc, char *argv[])
 
   setDefaultState(w);
 
+  CEvalCrashHandler::checkForCrash();
   dac->checkForCrashRecovery();
 
   updater->checkAutomatically();

@@ -13,6 +13,8 @@ public:
   CrashEventCatcher();
   void executeEmergency();
 
+  static void displayCrashDialog(const char *dump);
+
 protected:
   bool eventFilter(QObject *watched, QEvent *event);
 

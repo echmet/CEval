@@ -27,6 +27,7 @@ public:
     return true;
   }
 
+  static void checkForCrash();
   static bool installCrashHandler();
   static void uninstallCrashHandler();
   static CrashHandlerBase * handler();
@@ -34,6 +35,8 @@ public:
 private:
   static UICrashFinalizer *s_uiFinalizer;
   static CrashEventCatcher *s_catcher;
+
+  static const std::string s_textCrashDumpFile;
 
 };
 
