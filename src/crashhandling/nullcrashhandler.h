@@ -1,7 +1,7 @@
 #ifndef NULLCRASHHANDLER_H
 #define NULLCRASHHANDLER_H
 
-#include "crashhandling/crashhandlerbase.h"
+#include "crashhandlerbase.h"
 
 class NullCrashHandler : public CrashHandlerBase {
 public:

@@ -145,10 +145,10 @@ int main(int argc, char *argv[])
   int aRet;
 
   if (!CEvalCrashHandler::installCrashHandler()) {
-    /* TODO: Display a warning here */
-    qDebug() << "Unable to install crash handler";
-  } else
-    qDebug() << "Crash handler installed";
+    QMessageBox::warning(nullptr, QObject::tr("Unable to install crash handler"),
+                         QObject::tr("CEval was unable to install crash handler. You will not receive a detailed diagnostic"
+                                     "output in an event of unhandled internal error."));
+  }
 
   setOpenMPThreads();
 
@@ -169,18 +169,6 @@ int main(int argc, char *argv[])
     aRet = EXIT_FAILURE;
     goto out;
   }
-
-
-  /* CRASHER */
-  /*{
-    int *_i = nullptr;
-    int x = *(_i) + 1;
-    qDebug() << "A";
-    //delete (void*)0xDEADBEEF;
-    //delete ++_i;
-    qDebug() << "B";
-    qDebug() << x;
-  }*/
 
   HVLCalculator::initialize();
 
