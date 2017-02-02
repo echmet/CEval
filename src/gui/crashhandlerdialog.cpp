@@ -7,21 +7,34 @@
 #include <QMessageBox>
 
 const QString CrashHandlerDialog::s_reportToDevsCaption(QObject::tr("Report to developers"));
+const QString CrashHandlerDialog::s_dialogCaptionDuring("D\xC3\xA9j\xC3\xA0 vu, I fall apart!");
+const QString CrashHandlerDialog::s_dialogCaptionPostCrash("D\xC3\xA9j\xC3\xA0 vu, I fell apart!");
 
-
-CrashHandlerDialog::CrashHandlerDialog(QWidget *parent) :
+CrashHandlerDialog::CrashHandlerDialog(const bool postCrash, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::CrashHandlerDialog),
-  m_apologyMessage(QString(QObject::tr("We are sorry, but %2 has encountered an internal error from which it cannot recover. "
-                           "Your current data table has been saved to \"%1\" file in %2´s working directory. "
-                           "It will be available for loading the next time you start %2. "
-                           "You may want to report the backtrace below along with a description (in English or Czech) "
-                           "of what exactly happened to the developers."))
-                           .arg(HyperbolaFittingEngine::EMERG_SAVE_FILE)
-                           .arg(Globals::SOFTWARE_NAME))
+  m_apologyMessagePartOneDuring(QString(QObject::tr("We are sorry, but %1 has encountered an internal error from which it cannot recover.")).arg(Globals::SOFTWARE_NAME)),
+  m_apologyMessagePartOnePostCrash(QString(QObject::tr("We are sorry, but it seems that %1 crashed last time it was run.")).arg(Globals::SOFTWARE_NAME)),
+  m_apologyMessagePartTwo(QString(QObject::tr("\n"
+                                              "Your %4 data table has been saved to \"%1\" file in %2\x27s working directory. "
+                                              "%3"
+                                              "You may want to report the backtrace below along with a description (in English or Czech) "
+                                              "of what exactly happened to the developers."))
+                                              .arg(HyperbolaFittingEngine::EMERG_SAVE_FILE)
+                                              .arg(Globals::SOFTWARE_NAME)
+                                              .arg(postCrash ? "" : QString(QObject::tr("It will be available for loading the next time you start %1." )).arg(Globals::SOFTWARE_NAME)))
 {
   ui->setupUi(this);
   setWindowTitle(QObject::tr("Crash handler"));
+  if (postCrash) {
+    ui->ql_fallApart->setText(s_dialogCaptionPostCrash);
+    m_apologyMessage = m_apologyMessagePartOnePostCrash;
+  } else {
+    ui->ql_fallApart->setText(s_dialogCaptionDuring);
+    m_apologyMessage = m_apologyMessagePartOneDuring;
+  }
+
+  m_apologyMessage += m_apologyMessagePartTwo.arg(postCrash ? QObject::tr("last") : QObject::tr("current"));
 
   connect(ui->qpb_ok, &QPushButton::clicked, this, &CrashHandlerDialog::onOkClicked);
   connect(ui->qpb_reportToDevelopers, &QPushButton::clicked, this, &CrashHandlerDialog::onReportToDevelopersClicked);

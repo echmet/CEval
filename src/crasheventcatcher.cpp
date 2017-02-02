@@ -21,9 +21,9 @@ bool CrashEventCatcher::eventFilter(QObject *watched, QEvent *event)
   }
 }
 
-void CrashEventCatcher::displayCrashDialog(const char *dump)
+void CrashEventCatcher::displayCrashDialog(const char *dump, const bool postCrash)
 {
-  CrashHandlerDialog dlg;
+  CrashHandlerDialog dlg(postCrash);
 
   dlg.setBacktrace(dump);
   dlg.exec();

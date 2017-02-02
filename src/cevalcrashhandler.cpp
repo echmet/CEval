@@ -62,7 +62,7 @@ void CEvalCrashHandler::checkForCrash()
 
   textDumpSt << textDump.rdbuf();
 
-  CrashEventCatcher::displayCrashDialog(textDumpSt.str().c_str());
+  CrashEventCatcher::displayCrashDialog(textDumpSt.str().c_str(), true);
   textDump.close();
 
   ::remove(s_textCrashDumpFile.c_str());

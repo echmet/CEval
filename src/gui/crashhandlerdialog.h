@@ -11,17 +11,24 @@ class CrashHandlerDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit CrashHandlerDialog(QWidget *parent = nullptr);
+  explicit CrashHandlerDialog(const bool postCrash = false, QWidget *parent = nullptr);
   ~CrashHandlerDialog();
   void setBacktrace(const QString &backtrace);
 
 private:
   Ui::CrashHandlerDialog *ui;
 
+  QString m_apologyMessage;
+  QString m_mailToDevelopers;
+
+  const QString m_apologyMessagePartOneDuring;
+  const QString m_apologyMessagePartOnePostCrash;
+  const QString m_apologyMessagePartTwo;
+
   static const QString s_mailSubject;
   static const QString s_reportToDevsCaption;
-  const QString m_apologyMessage;
-  QString m_mailToDevelopers;
+  static const QString s_dialogCaptionDuring;
+  static const QString s_dialogCaptionPostCrash;
 
 private slots:
   void onOkClicked();
