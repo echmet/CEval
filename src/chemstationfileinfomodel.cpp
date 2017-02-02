@@ -2,12 +2,12 @@
 #include <QPalette>
 
 #define MAKE_LESS_THAN_CPR(member) \
-  bool compare_lessThan_##member##(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
+  bool compare_lessThan_##member(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
     return e1.member < e2.member; \
   }
 
 #define MAKE_GREATER_THAN_CPR(member) \
-  bool compare_greaterThan_##member##(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
+  bool compare_greaterThan_##member(const ChemStationFileInfoModel::Entry &e1, const ChemStationFileInfoModel::Entry &e2) { \
     return e1.member > e2.member; \
   }
 

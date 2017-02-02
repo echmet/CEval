@@ -1,6 +1,5 @@
 #include "dataaccumulator.h"
 #include "doubletostringconvertor.h"
-#include "abstractcrashhandler.h"
 #include "qwt_picker_machine.h"
 #include <QMessageBox>
 #include <QSettings>

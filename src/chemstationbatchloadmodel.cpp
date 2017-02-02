@@ -1,12 +1,12 @@
 #include "chemstationbatchloadmodel.h"
 
 #define MAKE_LESS_THAN_CPR(member) \
-  bool compare_lessThan_##member##(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
+  bool compare_lessThan_##member(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
     return e1.member < e2.member; \
   }
 
 #define MAKE_GREATER_THAN_CPR(member) \
-  bool compare_greaterThan_##member##(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
+  bool compare_greaterThan_##member(const ChemStationBatchLoadModel::Entry &e1, const ChemStationBatchLoadModel::Entry &e2) { \
     return e1.member > e2.member; \
   }
 

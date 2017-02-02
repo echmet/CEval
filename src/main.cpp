@@ -1,6 +1,6 @@
 #include "gui/evalmainwindow.h"
 #include "custommetatypes.h"
-#include "crashhandlerprovider.h"
+#include "cevalcrashhandler.h"
 #include "dataaccumulator.h"
 #include "doubletostringconvertor.h"
 #include "globals.h"
@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
   SoftwareUpdater *updater;
   int aRet;
 
-  if (!CrashHandlerProvider::installCrashHandler()) {
+  if (!CEvalCrashHandler::installCrashHandler()) {
     /* TODO: Display a warning here */
     qDebug() << "Unable to install crash handler";
   } else
@@ -170,6 +170,18 @@ int main(int argc, char *argv[])
     goto out;
   }
 
+
+  /* CRASHER */
+  /*{
+    int *_i = nullptr;
+    int x = *(_i) + 1;
+    qDebug() << "A";
+    //delete (void*)0xDEADBEEF;
+    //delete ++_i;
+    qDebug() << "B";
+    qDebug() << x;
+  }*/
+
   HVLCalculator::initialize();
 
   setupBindings(w, dac);
@@ -190,7 +202,7 @@ int main(int argc, char *argv[])
   saveUserSettings(dac, updater);
 
 out:
-  CrashHandlerProvider::uninstallCrashHandler();
+  CEvalCrashHandler::uninstallCrashHandler();
 
   return aRet;
 }

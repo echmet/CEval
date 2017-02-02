@@ -10,6 +10,8 @@
 #include <QThread>
 #include <armadillo>
 
+#include <windows.h>
+
 using namespace arma;
 using namespace std;
 
@@ -74,6 +76,7 @@ void HVLCalculatorWorker::process()
   if (size < 1)
     return;
 
+  RaiseException(0xC0000005, 0, NULL, NULL);
   vector<double> x(size, 1);
   Mat<double>    y(size, 1);
 

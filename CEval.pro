@@ -148,10 +148,12 @@ SOURCES += src/main.cpp \
     src/gui/registerinhyperbolafitwidget.cpp \
     src/hyperbolafittingwidgetconnector.cpp \
     src/customlocalesortproxymodel.cpp \
-    src/crashhandlerwindows.cpp \
-    src/abstractcrashhandler.cpp \
-    src/crashhandlerprovider.cpp \
-    src/nullcrashhandler.cpp
+    src/crashhandling/crashhandlerwindows.cpp \
+    src/crashhandling/crashhandlerbase.cpp \
+    src/crashhandling/nullcrashhandler.cpp \
+    src/crashevent.cpp \
+    src/cevalcrashhandler.cpp \
+    src/crasheventcatcher.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -282,7 +284,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/witchcraft.h \
     src/mappedvectorwrapper.h \
     src/stacktrace.h \
-    src/stacktrace_win.h \
+    src/crashhandling/crashhandlerwindows_stacktrace.h \
     src/gui/crashhandlerdialog.h \
     src/gui/adjustplotvisualsdialog.h \
     src/custommetatypes.h \
@@ -338,10 +340,14 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/registerinhyperbolafitdialog.h \
     src/gui/registerinhyperbolafitwidget.h \
     src/customlocalesortproxymodel.h \
-    src/crashhandlerwindows.h \
-    src/abstractcrashhandler.h \
-    src/crashhandlerprovider.h \
-    src/nullcrashhandler.h
+    src/crashhandling/crashhandlerwindows.h \
+    src/crashhandling/crashhandlerbase.h \
+    src/crashhandling/nullcrashhandler.h \
+    src/crashevent.h \
+    src/crashhandling/crashhandlerfinalizer.h \
+    src/crashhandling/crashhandlingprovider.h \
+    src/cevalcrashhandler.h \
+    src/crasheventcatcher.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
