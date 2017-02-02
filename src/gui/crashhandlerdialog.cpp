@@ -67,11 +67,10 @@ void CrashHandlerDialog::setBacktrace(const QString &backtrace)
     mails.append(QString("%1;").arg(dev.mail.toHtmlEscaped()));
 
   QString debugInfo = QString("Version: %1\n\nBacktrace:\n%2").arg(Globals::VERSION_STRING()).arg(backtrace);
-  m_mailToDevelopers = QString("<a href=\"mailto:%1?subject=%2&body=%3\">%4</a>")
+  m_mailToDevelopers = QString("mailto:%1?subject=%2&body=%3")
                                .arg(mails)
                                .arg(QString("%1 (%2 %3) crash report").arg(Globals::SOFTWARE_NAME).arg(QGuiApplication::platformName()).arg(QSysInfo::buildCpuArchitecture()))
-                               .arg(debugInfo.toHtmlEscaped())
-                               .arg(s_reportToDevsCaption);
+                               .arg(debugInfo.toHtmlEscaped());
 
   ui->ql_message->setText(m_apologyMessage);
   ui->qte_backtrace->setText(backtrace);
