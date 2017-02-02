@@ -9,9 +9,7 @@
 #include <QApplication>
 #include <QThread>
 #include <armadillo>
-
 #include <windows.h>
-
 using namespace arma;
 using namespace std;
 
@@ -76,7 +74,7 @@ void HVLCalculatorWorker::process()
   if (size < 1)
     return;
 
-  RaiseException(0xC0000005, 0, NULL, NULL);
+//RaiseException(0xC0000005, 0, NULL, NULL);
   vector<double> x(size, 1);
   Mat<double>    y(size, 1);
 
@@ -190,6 +188,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   inProgressDlg.exec();
 
   p = worker.results();
+  RaiseException(0xC0000005, 0, NULL, NULL);
 
   if (p.aborted)
     return p;

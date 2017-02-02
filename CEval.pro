@@ -13,8 +13,10 @@ DEFINES += _USE_MATH_DEFINES
 DEFINES += ARMA_DONT_USE_WRAPPER
 unix {
     DEFINES += LIBHVL_PLATFORM_UNIX
+    DEFINES += CRASHHANDLING_UNIX
 } win32 {
     DEFINES += LIBHVL_PLATFORM_WIN32
+    DEFINES += CRASHHANDLING_WIN32
 
     win32-msvc2015 {
         DEFINES += LIBHVL_COMPILER_MSVC
@@ -389,5 +391,9 @@ include($$PWD/CEval.pri)
 !win32-msvc2015 {
     QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
 } else {
+    QMAKE_LFLAGS_RELEASE += /MAP
+    QMAKE_CFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
+
     INCLUDEPATH += $$BOOSTPATH
 }

@@ -11,6 +11,7 @@ public:
   virtual ~CrashHandlerBase() {}
   virtual const std::string & crashInfo() const = 0;
   virtual bool install() = 0;
+  virtual bool mainThreadCrashed() const = 0;
   virtual void proceedToKill() const;
   virtual void uninstall() = 0;
   void setFinalizer(CrashHandlerFinalizerRoot *finalizer);

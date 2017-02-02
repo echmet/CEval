@@ -1,4 +1,4 @@
-//#ifdef Q_OS_WIN
+#ifdef CRASHHANDLING_WIN32
 
 #include "crashhandlerwindows.h"
 #include "crashhandlerwindows_stacktrace.h"
@@ -59,7 +59,8 @@ void __cdecl pureVirtualHandler()
 
 CrashHandlerWindows::CrashHandlerWindows(const std::string &miniDumpPath) :
   CrashHandlerBase(miniDumpPath),
-  m_shutdownHandlerThread(false)
+  m_shutdownHandlerThread(false),
+  m_mainThreadId(GetCurrentThreadId())
 {
 #if defined _UNICODE || defined UNICODE
   const size_t length = MultiByteToWideChar(CP_ACP, 0, miniDumpPath.c_str(), -1, NULL, 0);
@@ -209,6 +210,11 @@ errout_1:
   return false;
 }
 
+bool CrashHandlerWindows::mainThreadCrashed() const
+{
+  return m_mainThreadId == m_exceptionThreadId;
+}
+
 void CrashHandlerWindows::uninstall()
 {
   m_shutdownHandlerThread = true;
@@ -235,4 +241,4 @@ void CrashHandlerWindows::waitForKill()
   WaitForSingleObject(m_proceedToKillSemaphore, INFINITE);
 }
 
-//#endif // Q_OS_WIN
+#endif CRASHHANDLING_WIN32

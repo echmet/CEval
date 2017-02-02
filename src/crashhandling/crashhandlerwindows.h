@@ -1,7 +1,7 @@
 #ifndef CRASHHANDLERWINDOWS_H
 #define CRASHHANDLERWINDOWS_H
 
-//#ifdef Q_OS_WIN
+#ifdef CRASHHANDLING_WIN32
 
 #include "crashhandlerbase.h"
 #include <windows.h>
@@ -20,6 +20,7 @@ public:
   virtual const std::string & crashInfo() const override;
   void handleCrash(const CrashType crash, LPEXCEPTION_POINTERS exptrs = nullptr);
   void handleCrashThreadExecutor();
+  virtual bool mainThreadCrashed() const override;
   virtual bool install() override;
   virtual void uninstall() override;
   virtual void proceedToKill() const override;
@@ -40,6 +41,7 @@ private:
   _purecall_handler m_originalPureVirtualHandler;
   _invalid_parameter_handler m_originalInvalidParameterHandler;
 
+  DWORD m_mainThreadId;
   LPEXCEPTION_POINTERS m_currentExPtrs;
   DWORD m_exceptionThreadId;
   CrashType m_crashType;
@@ -47,6 +49,6 @@ private:
 
 };
 
-//#endif // Q_OS_WIN
+#endif // CRASHHANDLING_WIN32
 
 #endif // CRASHHANDLERWINDOWS_H

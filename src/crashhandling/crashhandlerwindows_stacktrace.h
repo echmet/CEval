@@ -21,6 +21,8 @@
 #ifndef CRASHHANDLERWINDOWS_STACKTRACE_H
 #define CRASHHANDLERWINDOWS_STACKTRACE_H
 
+#ifdef CRASHHANDLING_WIN32
+
 #include <windows.h>
 #include <dbghelp.h>
 #include <stdio.h>
@@ -246,5 +248,7 @@ const std::string straceWin::getBacktrace(std::ostringstream &logStream, const D
 #pragma warning(pop)
 #pragma optimize("g", on)
 #endif
+
+#endif // CRASHHANDLING_WIN32
 
 #endif // CRASHHANDLERWINDOWS_STACKTRACE_H

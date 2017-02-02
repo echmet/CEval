@@ -3,8 +3,8 @@
 #include "crasheventcatcher.h"
 #include "crashhandling/crashhandlingprovider.h"
 #include "crashhandling/crashhandlerwindows.h"
+#include <fstream>
 #include <QApplication>
-
 
 #ifdef Q_OS_WIN
   #define CrashHandlerPlatform CrashHandlerWindows
@@ -24,6 +24,23 @@ public:
   virtual void operator()() override
   {
     CrashEvent *evt = new CrashEvent(m_handler);
+
+    if (m_handler->mainThreadCrashed()) {
+      /* Let then know that I have been stiff
+         and smiling 'till the crash */
+
+      CEvalCrashHandler::s_catcher->executeEmergency();
+
+      std::ofstream textDump("crashdump.txt", std::ios_base::out);
+      if (textDump.is_open()) {
+        textDump << m_handler->crashInfo();
+        textDump.close();
+      }
+
+      /* And now make the final splash... */
+      return;
+    }
+
     qApp->postEvent(qApp, evt);
 
     m_handler->waitForKill();
