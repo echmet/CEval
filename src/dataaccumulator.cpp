@@ -1,5 +1,6 @@
 #include "dataaccumulator.h"
 #include "doubletostringconvertor.h"
+#include "cevalcrashhandler.h"
 #include "qwt_picker_machine.h"
 #include <QMessageBox>
 #include <QSettings>
@@ -81,6 +82,7 @@ DataAccumulator::DataAccumulator(QwtPlot *plot, QObject *parent) :
   connect(m_evaluationEngine, &EvaluationEngine::registerMeasurement, m_hyperbolaFittingEngine, &HyperbolaFittingEngine::onRegisterMobility);
 
   /* Connect emergency mode to crash handler */
+  CEvalCrashHandler::connectToEmergency<HyperbolaFittingEngine, &HyperbolaFittingEngine::onEmergencySave>(m_hyperbolaFittingEngine);
   /*if (CrashHandler::pointer() != nullptr) {
     QObject::connect(CrashHandler::pointer(), &CrashHandler::emergency, m_hyperbolaFittingEngine, &HyperbolaFittingEngine::onEmergencySave);
   }*/
