@@ -101,8 +101,6 @@ public:
 
     typedef Mat<YT> MatrixY;
 
-    typedef size_t msize_t;
-
     RectangularHyperbola2 ();
 
     virtual ~RectangularHyperbola2 () override;

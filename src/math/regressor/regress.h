@@ -74,7 +74,11 @@ typedef foostream dbstream;
 //===========================================================================
 // dcl
 
-typedef size_t msize_t;
+#ifdef _MSC_VER
+    typedef int msize_t;
+#else
+    typedef size_t msize_t;
+#endif
 
 //---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double> class RegressFunction {

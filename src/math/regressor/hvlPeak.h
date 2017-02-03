@@ -29,8 +29,6 @@ public:
 
     typedef Mat<YT> MatrixY;
 
-    typedef size_t msize_t;
-
     HVLPeak (const HVLLibWrapper *hvlLib = nullptr);
     ~HVLPeak();
 

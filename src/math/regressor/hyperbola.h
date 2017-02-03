@@ -26,8 +26,6 @@ public:
 
     typedef Mat<YT> MatrixY;
 
-    typedef size_t msize_t;
-
  RectangularHyperbola ();
 
  ~RectangularHyperbola ();
