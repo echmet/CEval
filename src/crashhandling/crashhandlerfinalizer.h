@@ -18,6 +18,7 @@ public:
   {
     handler->setFinalizer(this);
   }
+  virtual ~CrashHandlerFinalizer() {}
 
 protected:
   CrashHandlerType *m_handler;
