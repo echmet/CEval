@@ -30,7 +30,7 @@ LONG WINAPI unhandledExceptionHandler(LPEXCEPTION_POINTERS exptrs)
     return EXCEPTION_CONTINUE_EXECUTION;
   }
 
-  /* NOTE: We are unlikely to catch an exception of type 0xC000000374 - Heap Corruption
+  /* NOTE: We are unlikely to catch an exception of type 0xC0000374 - Heap Corruption
    * as the CRT library handles this internally and does not allow us to continue execution
    * in any meaningful way anyway. */
   me->handleCrash(code == 0xC0000374 ?
