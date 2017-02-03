@@ -144,7 +144,7 @@ public:
     msize_t  GetNMax()             const { return m_nmax; }
     YT       GetEps()              const { return m_epsilon; }
 
-    bool    IsDampped () const { return m_damping; }
+    bool    IsDamped () const { return m_damping; }
     bool    IsAborted () const { return m_aborted; }
     bool    IsAccepted() const { return m_accepted; }
 
