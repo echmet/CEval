@@ -5,6 +5,7 @@
 #include <QSysInfo>
 #include <QDesktopServices>
 #include <QMessageBox>
+#include <thread>
 
 const QString CrashHandlerDialog::s_reportToDevsCaption(QObject::tr("Report to developers"));
 const QString CrashHandlerDialog::s_dialogCaptionDuring("D\xC3\xA9j\xC3\xA0 vu, I fall apart!");
@@ -52,11 +53,10 @@ void CrashHandlerDialog::onOkClicked()
 
 void CrashHandlerDialog::onReportToDevelopersClicked()
 {
-  bool sent = QDesktopServices::openUrl(QUrl(m_mailToDevelopers));
-
-  if (!sent)
-    QMessageBox::warning(nullptr, QObject::tr("Cannot send report"),
-                         QObject::tr("Cannot send report. Check that you have an e-mail client installed and set up."));
+  std::thread t([&]() {
+    QDesktopServices::openUrl(QUrl(m_mailToDevelopers));
+  });
+  t.detach();
 }
 
 void CrashHandlerDialog::setBacktrace(const QString &backtrace)

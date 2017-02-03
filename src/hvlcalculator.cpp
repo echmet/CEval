@@ -9,7 +9,7 @@
 #include <QApplication>
 #include <QThread>
 #include <armadillo>
-
+#include <windows.h>
 using namespace arma;
 using namespace std;
 
@@ -188,7 +188,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   inProgressDlg.exec();
 
   p = worker.results();
-  //RaiseException(0xC0000005, 0, NULL, NULL);
+  RaiseException(0xC0000005, 0, NULL, NULL);
 
   if (p.aborted)
     return p;
