@@ -2,17 +2,19 @@
 #include "crashevent.h"
 #include "crasheventcatcher.h"
 #include "crashhandling/crashhandlingprovider.h"
-#include "crashhandling/crashhandlerwindows.h"
 #include <fstream>
 #include <sstream>
 #include <cstdio>
 #include <QApplication>
 
 #ifdef Q_OS_WIN
+  #include "crashhandling/crashhandlerwindows.h"
   #define CrashHandlerPlatform CrashHandlerWindows
 #elif defined (Q_OS_LINUX)
-  #define CrashHandlerPlatform CrashHandlerLinux
+  #include "crashhandling/nullcrashhandler.h"
+  #define CrashHandlerPlatform NullCrashHandler
 #else
+  #include "crashhandling/nullcrashhandler.h"
   #define CrashHandlerPlatform NullCrashHandler
 #endif // Q_OS_
 
