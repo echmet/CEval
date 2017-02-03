@@ -1,3 +1,10 @@
+/**********************************************************************************
+ *   The crash handling logic used in this code is                                *
+ *   based on the implementation used by the Google Breakpad project              *
+ *   Visit project's page https://chromium.googlesource.com/breakpad/breakpad     *
+ *   for further information.                                                     *
+ **********************************************************************************/
+
 #ifndef CRASHHANDLERWINDOWS_H
 #define CRASHHANDLERWINDOWS_H
 
