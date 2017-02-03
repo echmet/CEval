@@ -569,7 +569,7 @@ HyperbolaFittingEngine::DoubleHypResults HyperbolaFittingEngine::doDoubleEstimat
   if (!m_currentAnalyte->concentrations.contains(0.0)) {
     double u0 = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
     int ret = QMessageBox::question(nullptr, tr("No zero concentration"), QString(tr("List of entered concentrations does not contain any data for zero concentration of the selector.\n"
-                                                                                     "Do you want to use the current value of \u03BC0 = %1 as the estimate?")).arg(u0),
+                                                                                     "Do you want to use the current value of \xCE\xBC = %1 as the estimate?")).arg(u0),
                                     QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes)
       return DoubleHypResults();
@@ -754,7 +754,7 @@ HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleEstimate()
   if (!m_currentAnalyte->concentrations.contains(0.0)) {
     double u0 = m_fitResultsValues.at(HyperbolaFitResults::Floating::MOBILITY_A);
     int ret = QMessageBox::question(nullptr, tr("No zero concentration"), QString(tr("List of entered concentrations does not contain any data for zero concentration of the selector.\n"
-                                                                                     "Do you want to use the current value of \u03BC0 = %1 as the estimate?")).arg(u0),
+                                                                                     "Do you want to use the current value of \xCE\xBC = %1 as the estimate?")).arg(u0),
                                     QMessageBox::Yes | QMessageBox::No);
     if (ret != QMessageBox::Yes)
       return HypResults();

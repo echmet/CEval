@@ -241,4 +241,4 @@ void CrashHandlerWindows::waitForKill()
   WaitForSingleObject(m_proceedToKillSemaphore, INFINITE);
 }
 
-#endif CRASHHANDLING_WIN32
+#endif // CRASHHANDLING_WIN32
