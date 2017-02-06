@@ -289,7 +289,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/hvlfitinprogressdialog.h \
     src/witchcraft.h \
     src/mappedvectorwrapper.h \
-    src/stacktrace.h \
+    src/crashhandling/crashhandlerlinux_stacktrace.h \
     src/crashhandling/crashhandlerwindows_stacktrace.h \
     src/gui/crashhandlerdialog.h \
     src/gui/adjustplotvisualsdialog.h \

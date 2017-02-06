@@ -19,12 +19,49 @@ public:
   virtual void uninstall() override;
 
 private:
-  void handleSignal(siginfo_t *siginfo, void *uctx);
+  class ChildParam {
+  public:
+    pid_t pid;
+
+  };
+
+  class CrashContext {
+  public:
+    siginfo_t siginfo;
+    pid_t exceptionThreadId;
+    struct ucontext uctx;
+    struct _libc_fpstate fpuState;
+
+  };
+
+  class RawMemPage {
+  public:
+    explicit RawMemPage(const size_t bytes);
+    ~RawMemPage();
+
+    void *mem;
+
+  private:
+    size_t mapSize() const;
+
+    const size_t m_pageSize;
+    const size_t m_NPages;
+
+  };
+
+  void generateMiniDump();
+  void handleSignal(siginfo_t *siginfo, void *vuctx);
   void restoreHandler(const int signum);
+  bool restoreOriginalStack();
+  void runChild();
+  void waitForParent();
+  void writeDump();
   static constexpr size_t alternateStackSize();
-  static void crashHandlerFunc(int signum, siginfo_t *siginfo, void *uctx);
+  static int clonedProcessFunc(void *param);
+  static void crashHandlerFunc(int signum, siginfo_t *siginfo, void *vuctx);
   static bool retrigger(const int signum);
 
+  CrashContext m_crashCtx;
   std::string m_crashInfo;
 
   pthread_mutex_t m_handlerMutex;
@@ -32,6 +69,7 @@ private:
   stack_t m_alternateStack;
   std::array<struct sigaction, 6> m_originalHandlers;
   std::array<struct sigaction, 6> m_crashHandlers;
+  int m_pipeDes[2];
 
   const pid_t m_mainThreadId;
 
