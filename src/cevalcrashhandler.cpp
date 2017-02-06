@@ -11,8 +11,8 @@
   #include "crashhandling/crashhandlerwindows.h"
   #define CrashHandlerPlatform CrashHandlerWindows
 #elif defined (Q_OS_LINUX)
-  #include "crashhandling/nullcrashhandler.h"
-  #define CrashHandlerPlatform NullCrashHandler
+  #include "crashhandling/crashhandlerlinux.h"
+  #define CrashHandlerPlatform CrashHandlerLinux
 #else
   #include "crashhandling/nullcrashhandler.h"
   #define CrashHandlerPlatform NullCrashHandler

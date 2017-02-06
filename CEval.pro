@@ -13,7 +13,6 @@ DEFINES += _USE_MATH_DEFINES
 DEFINES += ARMA_DONT_USE_WRAPPER
 unix {
     DEFINES += LIBHVL_PLATFORM_UNIX
-    DEFINES += CRASHHANDLING_UNIX
 } win32 {
     DEFINES += LIBHVL_PLATFORM_WIN32
     DEFINES += CRASHHANDLING_WIN32
@@ -23,6 +22,10 @@ unix {
     } else {
         DEFINES += LIBHVL_COMPILER_MINGW
     }
+}
+
+linux {
+    DEFINES += CRASHHANDLING_LINUX
 }
 
 !win32-msvc2015 {
@@ -155,7 +158,8 @@ SOURCES += src/main.cpp \
     src/crashhandling/nullcrashhandler.cpp \
     src/crashevent.cpp \
     src/cevalcrashhandler.cpp \
-    src/crasheventcatcher.cpp
+    src/crasheventcatcher.cpp \
+    src/crashhandling/crashhandlerlinux.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -349,7 +353,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlerfinalizer.h \
     src/crashhandling/crashhandlingprovider.h \
     src/cevalcrashhandler.h \
-    src/crasheventcatcher.h
+    src/crasheventcatcher.h \
+    src/crashhandling/crashhandlerlinux.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
