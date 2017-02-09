@@ -56,6 +56,7 @@ private:
   std::array<struct sigaction, 6> m_crashHandlers;
   int m_pipeDes[2];
   sem_t m_waitForKillSemaphore;
+  bool m_installed;
 
   const pid_t m_mainThreadId;
 

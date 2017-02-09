@@ -25,6 +25,7 @@ const std::array<int, 6> CrashHandlerLinux::m_handledSignals = { SIGSEGV, SIGABR
 
 CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
   CrashHandlerBase(miniDumpPath),
+  m_installed(false),
   m_mainThreadId(syscall(__NR_gettid))
 {
   m_pipeDes[0] = 1;
@@ -34,13 +35,7 @@ CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
 
 CrashHandlerLinux::~CrashHandlerLinux()
 {
-  for (const int signum : m_handledSignals)
-    restoreHandler(signum);
-
-  if (restoreOriginalStack() == false)
-    _exit(1);
-
-  free(m_alternateStack.ss_sp);
+  uninstall();
 }
 
 constexpr size_t CrashHandlerLinux::alternateStackSize()
@@ -174,6 +169,8 @@ bool CrashHandlerLinux::install()
     }
   }
 
+  m_installed = true;
+
   return true;
 
 errout_2:
@@ -222,7 +219,7 @@ bool CrashHandlerLinux::restoreOriginalStack()
   stack_t currentStack;
   bool altStackDisabled;
 
-  if (sys_sigaltstack(nullptr, &currentStack) < 1) /* Get info about the currently used stack */
+  if (sys_sigaltstack(nullptr, &currentStack) == -1) /* Get info about the currently used stack */
     return false;
 
   if (m_alternateStack.ss_sp == currentStack.ss_sp) { /* Are we on the alternate stack? */
@@ -243,6 +240,18 @@ bool CrashHandlerLinux::restoreOriginalStack()
 
 void CrashHandlerLinux::uninstall()
 {
+  if (!m_installed)
+    return;
+
+  for (const int signum : m_handledSignals)
+    restoreHandler(signum);
+
+  if (restoreOriginalStack()) {
+    free(m_alternateStack.ss_sp);
+    memset(&m_alternateStack, 0, sizeof(stack_t));
+  }
+
+  m_installed = false;
 }
 
 void CrashHandlerLinux::waitForKill()
