@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <execinfo.h>
 #include <cxxabi.h>
+#include <signal.h>
 #include "rawmemblock.h"
 
 void st_memcpy(void *dest, const void *src, const size_t size)
@@ -48,6 +49,35 @@ void st_zeromem(void *dest, const char v, const size_t size)
     _dest[idx] = v;
 }
 
+void signumToString(char *dest, const int signum)
+{
+  const char *signame;
+
+  switch (signum) {
+  case SIGSEGV:
+    signame = "Segmentation fault\n";
+    break;
+  case SIGABRT:
+    signame = "Aborted\n";
+    break;
+  case SIGFPE:
+    signame = "Floating point exception\n";
+    break;
+  case SIGILL:
+    signame = "Illegal instruction\n";
+    break;
+  case SIGBUS:
+    signame = "Bus error\n";
+    break;
+  case SIGTRAP:
+    signame = "Trap\n";
+    break;
+  default:
+    signame = "Unknown\n";
+  }
+
+  st_strcpy(dest, signame);
+}
 
 const size_t LinuxStackTracer::MAX_FRAMES(63);
 const size_t LinuxStackTracer::MAX_LINE_LENGTH(512);
@@ -55,11 +85,11 @@ const size_t LinuxStackTracer::MAX_LINE_LENGTH(512);
 #define MAX_FUNCNAME_LENGTH 256
 #define ADVANCE_OUTPTR(f, b, tb) { tb += b; if (tb >= MAX_LINE_LENGTH - 1) break; f += b; }
 
-bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines)
+bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines, const int signum)
 {
   RawMemBlock<void *> addrList(sizeof(void *) * (MAX_FRAMES + 1));
 
-  if (!outbuf.allocate(MAX_FRAMES * MAX_LINE_LENGTH))
+  if (!outbuf.allocate((MAX_FRAMES + 1) * MAX_LINE_LENGTH))
     return false;
 
   const size_t addrlen = backtrace(addrList.mem(), MAX_FRAMES + 1);
@@ -71,12 +101,14 @@ bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtrace
   /* TODO: Pass the backtrace to file descriptor to avoid malloc()ing would be a lot better */
   char **symbolList = backtrace_symbols(addrList.mem(), addrlen);
 
+  signumToString(outbuf.mem(), signum);
+
   /* Skip the top of the backtrace */
   for (size_t idx = 0; idx < addrlen; idx++) {
-    char *outstr = outbuf.mem() + ((idx - 0) * MAX_LINE_LENGTH);
+    char *outstr = outbuf.mem() + ((idx + 1) * MAX_LINE_LENGTH);
     char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
 
-    for (char *p = symbolList[idx - 0]; *p; ++p) {
+    for (char *p = symbolList[idx]; *p; ++p) {
       if (*p == '(')
         begin_name = p;
       else if (*p == '+')
@@ -103,7 +135,7 @@ bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtrace
       size_t totalBytes = 0;
       size_t bytes;
       if (status == 0) {
-        bytes = st_strcpy(outstr, symbolList[idx - 0]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, symbolList[idx]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, " : "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, funcName.mem()); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, "+"); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
@@ -114,7 +146,7 @@ bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtrace
       } else {
         // demangling failed. Output function name as a C function with
         // no arguments.
-        bytes = st_strcpy(outstr, symbolList[idx - 0]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, symbolList[idx]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, " : "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, begin_name); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, "()+"); ADVANCE_OUTPTR(outstr, bytes, totalBytes);

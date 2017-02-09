@@ -12,7 +12,7 @@
 class LinuxStackTracer
 {
 public:
-  static bool getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines);
+  static bool getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines, const int signum);
 
   static const size_t MAX_LINE_LENGTH;
   static const size_t MAX_FRAMES;

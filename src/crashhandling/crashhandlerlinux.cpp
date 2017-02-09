@@ -78,12 +78,12 @@ const std::string & CrashHandlerLinux::crashInfo() const
 }
 
 /* This may run in a compromised context */
-bool CrashHandlerLinux::generateMiniDump()
+bool CrashHandlerLinux::generateMiniDump(const int signum)
 {
   size_t backtraceLines = 0;
   RawMemBlock<char> backtrace;
 
-  if (!LinuxStackTracer::getBacktrace(backtrace, backtraceLines))
+  if (!LinuxStackTracer::getBacktrace(backtrace, backtraceLines, signum))
     return false;
 
   for (size_t idx = 0; idx < backtraceLines; idx++) {
@@ -110,7 +110,7 @@ bool CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
 
   m_crashCtx.exceptionThreadId = syscall(__NR_gettid);
 
-  return generateMiniDump();
+  return generateMiniDump(siginfo->si_signo);
 }
 
 bool CrashHandlerLinux::install()

@@ -37,7 +37,7 @@ private:
 
   };
 
-  bool generateMiniDump();
+  bool generateMiniDump(const int signum);
   bool handleSignal(siginfo_t *siginfo, void *vuctx);
   void restoreHandler(const int signum);
   bool restoreOriginalStack();
