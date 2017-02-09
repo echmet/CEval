@@ -159,7 +159,8 @@ SOURCES += src/main.cpp \
     src/crashevent.cpp \
     src/cevalcrashhandler.cpp \
     src/crasheventcatcher.cpp \
-    src/crashhandling/crashhandlerlinux.cpp
+    src/crashhandling/crashhandlerlinux.cpp \
+    src/crashhandling/crashhandlerlinux_stacktrace.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \

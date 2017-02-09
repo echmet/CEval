@@ -30,7 +30,7 @@ CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
 {
   m_pipeDes[0] = 1;
   m_pipeDes[1] = -1;
-  m_crashInfo.reserve(MAX_FRAMES * MAX_LINE_LENGTH + 1);
+  m_crashInfo.reserve(LinuxStackTracer::MAX_FRAMES * LinuxStackTracer::MAX_LINE_LENGTH + 1);
 }
 
 CrashHandlerLinux::~CrashHandlerLinux()
@@ -83,11 +83,11 @@ bool CrashHandlerLinux::generateMiniDump()
   size_t backtraceLines = 0;
   RawMemBlock<char> backtrace;
 
-  if (!getBacktrace(backtrace, backtraceLines))
+  if (!LinuxStackTracer::getBacktrace(backtrace, backtraceLines))
     return false;
 
   for (size_t idx = 0; idx < backtraceLines; idx++) {
-    const char *line = backtrace.mem() + (idx * MAX_LINE_LENGTH);
+    const char *line = backtrace.mem() + (idx * LinuxStackTracer::MAX_LINE_LENGTH);
 
     m_crashInfo += std::string(line);
   }
