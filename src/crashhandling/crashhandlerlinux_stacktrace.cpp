@@ -125,11 +125,14 @@ bool LinuxStackTracer::getBacktrace(RawMemBlock<char> &outbuf, size_t &backtrace
       }
     } else {
       /* The line could not have been parsed so use the whole line as-is */
-      if (st_strlen(symbolList[idx]) > 511) {
-        st_memcpy(outstr, symbolList[idx], 511);
+      if (st_strlen(symbolList[idx]) > 510) {
+        st_memcpy(outstr, symbolList[idx], 510);
+        outstr[510] = '\n';
         outstr[511] = '\0';
-      } else
-        st_strcpy(outstr, symbolList[idx]);
+      } else {
+        size_t bytes = st_strcpy(outstr, symbolList[idx]);
+        st_strcpy(outstr + bytes, "\n");
+      }
     }
   }
 
