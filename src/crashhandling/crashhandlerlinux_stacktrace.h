@@ -115,13 +115,10 @@ static bool getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines)
         bytes = st_strcpy(outstr, begin_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, " "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, ++end_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
-        bytes = st_strcpy(outstr, "\n");
+        st_strcpy(outstr, "\n");
       } else {
         // demangling failed. Output function name as a C function with
         // no arguments.
-        size_t totalBytes = 0;
-        size_t bytes;
-
         bytes = st_strcpy(outstr, symbolList[idx - 0]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, " : "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, begin_name); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
@@ -129,7 +126,7 @@ static bool getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines)
         bytes = st_strcpy(outstr, begin_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, " "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
         bytes = st_strcpy(outstr, ++end_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
-        bytes = st_strcpy(outstr, "\n");
+        st_strcpy(outstr, "\n");
       }
     }
   }
