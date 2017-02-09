@@ -18,6 +18,9 @@
 #endif
 #include <sched.h>
 
+#define sys_prctl syscall(__NR_prctl, PR_SET_DUMPABLE, 1, 0, 0, 0);
+#define sys_sigaltstack(newStack, originalStack) syscall(__NR_sigaltstack, newStack, originalStack)
+
 const std::array<int, 6> CrashHandlerLinux::m_handledSignals = { SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, SIGTRAP };
 
 CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
@@ -105,7 +108,7 @@ bool CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
   const bool signalPidTrusted = siginfo->si_code == SI_USER || siginfo->si_code == SI_TKILL;
 
   if (signalTrusted || (signalPidTrusted && siginfo->si_pid == getpid()))
-    prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
+    sys_prctl(PR_SET_DUMPABLE, 1, 0, 0, 0);
 
   if (uctx->uc_mcontext.fpregs)
     memcpy(&m_crashCtx.fpuState, uctx->uc_mcontext.fpregs, sizeof(struct _libc_fpstate));
@@ -136,7 +139,7 @@ bool CrashHandlerLinux::install()
   m_alternateStack.ss_sp = malloc(alternateStackSize()); /* Consider using mmap() instead */
   m_alternateStack.ss_size = alternateStackSize();
 
-  if (sigaltstack(&m_alternateStack, &m_originalStack) < 0)
+  if (sys_sigaltstack(&m_alternateStack, &m_originalStack) < 0)
     goto errout_1;
 
   /* Store the original crash handlers */
@@ -219,18 +222,18 @@ bool CrashHandlerLinux::restoreOriginalStack()
   stack_t currentStack;
   bool altStackDisabled;
 
-  if (sigaltstack(nullptr, &currentStack) < 1) /* Get info about the currently used stack */
+  if (sys_sigaltstack(nullptr, &currentStack) < 1) /* Get info about the currently used stack */
     return false;
 
   if (m_alternateStack.ss_sp == currentStack.ss_sp) { /* Are we on the alternate stack? */
     if (m_originalStack.ss_sp != nullptr) /* Do we have the original stack? */
-      altStackDisabled = sigaltstack(&m_originalStack, nullptr) == 0;
+      altStackDisabled = sys_sigaltstack(&m_originalStack, nullptr) == 0;
     else {
       /* No pointer to the original stack so just disable the current one */
       stack_t stackDisabler;
 
       stackDisabler.ss_flags = SS_DISABLE;
-      altStackDisabled = sigaltstack(&stackDisabler, nullptr) == 0;
+      altStackDisabled = sys_sigaltstack(&stackDisabler, nullptr) == 0;
     }
   } else
     altStackDisabled = true;
