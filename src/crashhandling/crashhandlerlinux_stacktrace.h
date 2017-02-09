@@ -10,99 +10,132 @@
 #include <stdlib.h>
 #include <execinfo.h>
 #include <cxxabi.h>
-#include <QStringList>
+#include <sys/syscall.h>
+#include "rawmemblock.h"
 
-/** Print a demangled stack backtrace of the caller function to FILE* out. */
-static inline QString getBacktrace(unsigned int max_frames = 63)
+void st_memcpy(void *dest, const void *src, const size_t size)
 {
-    QString btrace;
+  char *_dest = static_cast<char *>(dest);
+  const char *_src = static_cast<const char *>(src);
 
-    // storage array for stack trace address data
-    void** addrlist = (void**)calloc(sizeof(void*), max_frames+1);
-    memset(addrlist, 0, max_frames+1);
+  for (size_t idx = 0; idx < size; idx++)
+    _dest[idx] = _src[idx];
+}
 
-    if (addrlist == nullptr)
-        return btrace;
+size_t st_strlen(const char *str)
+{
+  size_t len = 0;
 
-    // retrieve current stack addresses
-    int addrlen = backtrace(addrlist, max_frames+1);
+  while (str[len] != '\0')
+    len++;
 
-    if (addrlen == 0) {
-        free(addrlist);
-        return QString("  <empty, possibly corrupt>\n");
+  return len;
+}
+
+
+size_t st_strcpy(char *dest, const char *str)
+{
+  const size_t len = st_strlen(str);
+
+  if (len == 0)
+    return 0;
+
+  st_memcpy(dest, str, len);
+  dest[len] = '\0';
+
+  return len;
+}
+
+void st_zeromem(void *dest, const char v, const size_t size)
+{
+  char * _dest = static_cast<char *>(dest);
+
+  for (size_t idx = 0; idx < size; idx++)
+    _dest[idx] = v;
+}
+
+
+#define MAX_FRAMES 63
+#define MAX_LINE_LENGTH 512
+#define MAX_FUNCNAME_LENGTH 256
+#define ADVANCE_OUTPTR(f, b, tb) { tb += b; if (tb >= MAX_LINE_LENGTH - 1) break; f += b; }
+
+static bool getBacktrace(RawMemBlock<char> &outbuf, size_t &backtraceLines)
+{
+  RawMemBlock<void *> addrList(sizeof(void *) * (MAX_FRAMES + 1));
+
+  if (!outbuf.allocate(MAX_FRAMES * MAX_LINE_LENGTH))
+    return false;
+
+  const size_t addrlen = backtrace(addrList.mem(), MAX_FRAMES + 1);
+
+  /* Empty or corrupted address list */
+  if (addrlen == 0)
+    return true;
+
+  /* TODO: Pass the backtrace to file descriptor to avoid malloc()ing would be a lot better */
+  char **symbolList = backtrace_symbols(addrList.mem(), addrlen);
+
+  /* Skip the top of the backtrace */
+  for (size_t idx = 0; idx < addrlen; idx++) {
+    char *outstr = outbuf.mem() + ((idx - 0) * MAX_LINE_LENGTH);
+    char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+
+    for (char *p = symbolList[idx - 0]; *p; ++p) {
+      if (*p == '(')
+        begin_name = p;
+      else if (*p == '+')
+        begin_offset = p;
+      else if (*p == ')' && begin_offset) {
+        end_offset = p;
+        break;
+      }
     }
 
-    // resolve addresses into strings containing "filename(function+address)",
-    // this array must be free()-ed
-    char** symbollist = backtrace_symbols(addrlist, addrlen);
+    if (begin_name && begin_offset && end_offset && begin_name < begin_offset) {
+      *begin_name++ = '\0';
+      *begin_offset++ = '\0';
+      *end_offset = '\0';
 
-    // allocate string which will be filled with the demangled function name
-    size_t funcnamesize = 256;
-    char* funcname = (char*)malloc(funcnamesize);
+      RawMemBlock<char> funcName(MAX_FUNCNAME_LENGTH);
+      size_t funcNameLen = MAX_FUNCNAME_LENGTH;
 
-    // iterate over the returned symbol lines. skip the first, it is the
-    // address of this function.
-    for (int i = 2; i < addrlen; i++)
-    {
-        char *begin_name = 0, *begin_offset = 0, *end_offset = 0;
+      int status;
+      /* This is potentially dangerous since the function may try to realloc()
+       * an mmap()'ed region of memory if it's not large enough. */
+      char *ret = abi::__cxa_demangle(begin_name, funcName.mem(), &funcNameLen, &status);
+      (void)ret;
+      size_t totalBytes = 0;
+      size_t bytes;
+      if (status == 0) {
+        bytes = st_strcpy(outstr, symbolList[idx - 0]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, " : "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, funcName.mem()); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, "+"); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, begin_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, " "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, ++end_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, "\n");
+      } else {
+        // demangling failed. Output function name as a C function with
+        // no arguments.
+        size_t totalBytes = 0;
+        size_t bytes;
 
-        // find parentheses and +address offset surrounding the mangled name:
-        // ./module(function+0x15c) [0x8048a6d]
-        //fprintf(out, "%s TT\n", symbollist[i]);
-        for (char *p = symbollist[i]; *p; ++p)
-        {
-            if (*p == '(')
-                begin_name = p;
-            else if (*p == '+')
-                begin_offset = p;
-            else if (*p == ')' && begin_offset) {
-                end_offset = p;
-                break;
-            }
-        }
-
-        if (begin_name && begin_offset && end_offset
-            && begin_name < begin_offset)
-        {
-            *begin_name++ = '\0';
-            *begin_offset++ = '\0';
-            *end_offset = '\0';
-
-            // mangled name is now in [begin_name, begin_offset) and caller
-            // offset in [begin_offset, end_offset). now apply
-            // __cxa_demangle():
-
-            int status;
-            char* ret = abi::__cxa_demangle(begin_name,
-                                            funcname, &funcnamesize, &status);
-            if (status == 0) {
-                funcname = ret; // use possibly realloc()-ed string
-                btrace.append(QString("%1 : %2+%3 %4\n").arg(QString::fromLatin1(symbollist[i]))
-                                                      .arg(QString::fromLatin1(funcname))
-                                                      .arg(QString::fromLatin1(begin_offset))
-                                                      .arg(QString::fromLatin1(++end_offset)));
-            }
-            else {
-                // demangling failed. Output function name as a C function with
-                // no arguments.
-                btrace.append(QString("%1 : %2+%3 %4\n").arg(QString::fromLatin1(symbollist[i]))
-                                                      .arg(QString::fromLatin1(funcname))
-                                                      .arg(QString::fromLatin1(begin_offset))
-                                                      .arg(QString::fromLatin1(++end_offset)));
-            }
-        }
-        else
-        {
-            // couldn't parse the line? print the whole line.
-            btrace.append(QString::fromLatin1(symbollist[i]) + "\n");
-        }
+        bytes = st_strcpy(outstr, symbolList[idx - 0]); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, " : "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, begin_name); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, "()+"); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, begin_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, " "); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, ++end_offset); ADVANCE_OUTPTR(outstr, bytes, totalBytes);
+        bytes = st_strcpy(outstr, "\n");
+      }
     }
+  }
 
-    free(funcname);
-    free(symbollist);
-    free(addrlist);
-
-    return btrace;
+  backtraceLines = addrlen;
+  return true;
 }
 
 #endif // CRASHHANDLING_LINUX

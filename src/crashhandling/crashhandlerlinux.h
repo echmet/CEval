@@ -7,6 +7,7 @@
 #include <array>
 #include <pthread.h>
 #include <signal.h>
+#include <semaphore.h>
 
 class CrashHandlerLinux : public CrashHandlerBase
 {
@@ -15,8 +16,10 @@ public:
   virtual ~CrashHandlerLinux() override;
   virtual const std::string & crashInfo() const override;
   virtual bool install() override;
+  virtual void proceedToKill() const override;
   virtual bool mainThreadCrashed() const override;
   virtual void uninstall() override;
+  virtual void waitForKill() override;
 
 private:
   class ChildParam {
@@ -27,35 +30,17 @@ private:
 
   class CrashContext {
   public:
-    siginfo_t siginfo;
+    siginfo_t siginfo;                  /* Currently unused */
     pid_t exceptionThreadId;
-    struct ucontext uctx;
+    struct ucontext uctx;               /* Currently unused */
     struct _libc_fpstate fpuState;
 
   };
 
-  class RawMemPage {
-  public:
-    explicit RawMemPage(const size_t bytes);
-    ~RawMemPage();
-
-    void *mem;
-
-  private:
-    size_t mapSize() const;
-
-    const size_t m_pageSize;
-    const size_t m_NPages;
-
-  };
-
-  void generateMiniDump();
-  void handleSignal(siginfo_t *siginfo, void *vuctx);
+  bool generateMiniDump();
+  bool handleSignal(siginfo_t *siginfo, void *vuctx);
   void restoreHandler(const int signum);
   bool restoreOriginalStack();
-  void runChild();
-  void waitForParent();
-  void writeDump();
   static constexpr size_t alternateStackSize();
   static int clonedProcessFunc(void *param);
   static void crashHandlerFunc(int signum, siginfo_t *siginfo, void *vuctx);
@@ -70,6 +55,7 @@ private:
   std::array<struct sigaction, 6> m_originalHandlers;
   std::array<struct sigaction, 6> m_crashHandlers;
   int m_pipeDes[2];
+  sem_t m_waitForKillSemaphore;
 
   const pid_t m_mainThreadId;
 

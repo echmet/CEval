@@ -2,12 +2,13 @@
 
 #include "crashhandlerlinux.h"
 #include "crashhandlingprovider.h"
+#include "crashhandlerlinux_stacktrace.h"
+#include "rawmemblock.h"
 #include <algorithm>
 #include <cstring>
 #include <errno.h>
 #include <syscall.h>
 #include <unistd.h>
-#include <sys/mman.h>
 #include <sys/prctl.h>
 #include <sys/syscall.h>
 #include <sys/types.h>
@@ -17,35 +18,7 @@
 #endif
 #include <sched.h>
 
-#define HANDLE_EINTR(x) ({ \
-  __typeof__(x) eintr_wrapper_result; \
-  do { \
-    eintr_wrapper_result = (x); \
-  } while (eintr_wrapper_result == -1 && errno == EINTR); \
-  eintr_wrapper_result; \
-})
-
 const std::array<int, 6> CrashHandlerLinux::m_handledSignals = { SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, SIGTRAP };
-
-CrashHandlerLinux::RawMemPage::RawMemPage(const size_t bytes) :
-  mem(nullptr),
-  m_pageSize(getpagesize()),
-  m_NPages((bytes % m_pageSize == 0) ? (bytes / m_pageSize) : (bytes / m_pageSize) + 1)
-{
-  mem = mmap(nullptr, mapSize(), PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-}
-
-CrashHandlerLinux::RawMemPage::~RawMemPage()
-{
-  if (mem != nullptr)
-    munmap(mem, mapSize());
-}
-
-size_t CrashHandlerLinux::RawMemPage::mapSize() const
-{
-
-  return m_NPages * m_pageSize;
-}
 
 CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
   CrashHandlerBase(miniDumpPath),
@@ -53,6 +26,7 @@ CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
 {
   m_pipeDes[0] = 1;
   m_pipeDes[1] = -1;
+  m_crashInfo.reserve(MAX_FRAMES * MAX_LINE_LENGTH + 1);
 }
 
 CrashHandlerLinux::~CrashHandlerLinux()
@@ -71,32 +45,32 @@ constexpr size_t CrashHandlerLinux::alternateStackSize()
   return (16384 > SIGSTKSZ) ? 16384 : SIGSTKSZ;
 }
 
-int CrashHandlerLinux::clonedProcessFunc(void *param)
-{
-  /* Wait till the parent lets us ptrace it */
-  CrashHandlerLinux *me = CrashHandlingProvider<CrashHandlerLinux>::handler();
-  ChildParam *chParam = static_cast<ChildParam *>(param);
-
-  me->waitForParent();
-
-}
-
 void CrashHandlerLinux::crashHandlerFunc(int signum, siginfo_t *siginfo, void *vuctx)
 {
   CrashHandlerLinux *me = CrashHandlingProvider<CrashHandlerLinux>::handler();
 
   pthread_mutex_lock(&me->m_handlerMutex);
 
-  me->handleSignal(siginfo, vuctx);
+  const bool haveDump = me->handleSignal(siginfo, vuctx);
 
   me->restoreHandler(signum);
 
+  if (haveDump)
+    me->finalize();
+
   pthread_mutex_unlock(&me->m_handlerMutex);
+
+  /* Send the signal to the main thread if necessary */
+  if (!me->mainThreadCrashed()) {
+    if (syscall(__NR_tgkill, me->m_mainThreadId, getpid(), signum))
+      _exit(EXIT_FAILURE);
+    return;
+  }
 
   /* Retrigger the signal by hand if it came from a userspace kill() */
   if (siginfo->si_code < 0 || signum == SIGABRT) {
     if (retrigger(signum))
-      _exit(1);
+      _exit(EXIT_FAILURE);
   }
 }
 
@@ -106,47 +80,25 @@ const std::string & CrashHandlerLinux::crashInfo() const
 }
 
 /* This may run in a compromised context */
-void CrashHandlerLinux::generateMiniDump()
+bool CrashHandlerLinux::generateMiniDump()
 {
-  RawMemPage raw(16384);
-  if (raw.mem == nullptr)
-    return;
+  size_t backtraceLines = 0;
+  RawMemBlock<char> backtrace;
 
-  uint8_t *stack = reinterpret_cast<uint8_t *>(raw.mem);
-  stack += 16384; /* Stack grows downwards on x86 */
-  /* Zeroize the top of the stack */
-  for (size_t offset = 0; offset <= 16; offset++)
-    *(stack - 16 + offset) = 0;
+  if (!getBacktrace(backtrace, backtraceLines))
+    return false;
 
-  /* Use the pipe to block the cloned process */
-  if (pipe(m_pipeDes) < 0) {
-    m_pipeDes[0] = -1;
-    m_pipeDes[1] = -1;
+  for (size_t idx = 0; idx < backtraceLines; idx++) {
+    const char *line = backtrace.mem() + (idx * MAX_LINE_LENGTH);
+
+    m_crashInfo += std::string(line);
   }
 
-  const pid_t child = clone(clonedProcessFunc, stack, CLONE_FILES | CLONE_FS | CLONE_UNTRACED, nullptr, nullptr, nullptr, nullptr);
-  if (child < 0) {
-    close(m_pipeDes[0]);
-    close(m_pipeDes[1]);
-    return;
-  }
-
-  prctl(PR_SET_PTRACER, child, 0, 0);
-  runChild();
-
-  int status;
-  const int ret = HANDLE_EINTR(waitpid(child, &status, __WALL));
-
-  close(m_pipeDes[0]);
-  close(m_pipeDes[1]);
-
-  const bool haveDump = (ret != -1) && WIFEXITED(status) && (WEXITSTATUS(status) == 0);
-  if (haveDump)
-    writeDump();
+  return true;
 }
 
 /* This may run in a compromised context */
-void CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
+bool CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
 {
   struct ucontext *uctx = static_cast<struct ucontext *>(vuctx);
   const bool signalTrusted = siginfo->si_code > 0;
@@ -160,13 +112,15 @@ void CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
 
   m_crashCtx.exceptionThreadId = syscall(__NR_gettid);
 
-  generateMiniDump();
-
+  return generateMiniDump();
 }
 
 bool CrashHandlerLinux::install()
 {
   struct sigaction crashAction;
+
+  if (sem_init(&m_waitForKillSemaphore, 0, 0) == -1)
+    return false;
 
   if (pthread_mutex_init(&m_handlerMutex, nullptr) != 0)
     return false;
@@ -206,7 +160,7 @@ bool CrashHandlerLinux::install()
     const int signum = m_handledSignals.at(idx);
 
     if (sigaction(signum, &crashAction, nullptr) < 0) {
-      /* Something went wrong while wiring up the crash handler
+      /* Something went wrong while wiring up the crash handler.
        * Unwind and error out */
       for (size_t jdx = 0; jdx <= idx; jdx++) {
         const int _signum = m_handledSignals.at(jdx);
@@ -230,7 +184,12 @@ errout_1:
 
 bool CrashHandlerLinux::mainThreadCrashed() const
 {
-  return true;
+  return m_mainThreadId == m_crashCtx.exceptionThreadId;
+}
+
+void CrashHandlerLinux::proceedToKill() const
+{
+  sem_post(const_cast<sem_t *>(&m_waitForKillSemaphore));
 }
 
 bool CrashHandlerLinux::retrigger(const int signum)
@@ -279,26 +238,14 @@ bool CrashHandlerLinux::restoreOriginalStack()
   return altStackDisabled;
 }
 
-void CrashHandlerLinux::runChild()
-{
-  static const char proceed = 'a';
-
-  HANDLE_EINTR(write(m_pipeDes[1], &proceed, sizeof(char)));
-}
-
 void CrashHandlerLinux::uninstall()
 {
 }
 
-void CrashHandlerLinux::waitForParent()
+void CrashHandlerLinux::waitForKill()
 {
-  char recv;
-  HANDLE_EINTR(read(m_pipeDes[0], &recv, sizeof(char)));
+  sem_wait(&m_waitForKillSemaphore);
 }
 
-void CrashHandlerLinux::writeDump()
-{
-
-}
 
 #endif // CRASHHANDLING_LINUX

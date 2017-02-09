@@ -354,7 +354,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlingprovider.h \
     src/cevalcrashhandler.h \
     src/crasheventcatcher.h \
-    src/crashhandling/crashhandlerlinux.h
+    src/crashhandling/crashhandlerlinux.h \
+    src/crashhandling/rawmemblock.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
