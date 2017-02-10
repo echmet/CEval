@@ -55,34 +55,55 @@ inline Coefficients Coefficients::Calculate
 
     double K, L;
 
-    a3d = - 7.0314510E-05 * std::pow(T, 6)
-          + 0.0029964061 * std::pow(T, 5)
-          - 0.0504087123 * std::pow(T, 4)
-          + 0.4192587314 * std::pow(T, 3)
-          - 1.659194832 * std::pow(T, 2)
-          + 11.0520416259 * T
-          - 9.4041906377;
+    /*
+       a3d estimation function
 
-    K   = + 1.2613657E-06 * std::pow(T, 8)
-          - 7.2546260E-05 * std::pow(T, 7)
-          + 0.0017711503 * std::pow(T, 6)
-          - 0.0239360421 * std::pow(T, 5)
-          + 0.1958219401 * std::pow(T, 4)
-          - 0.9965250412 * std::pow(T, 3)
-          + 3.119561001 * std::pow(T, 2)
-          - 5.7078188237 * T
-          + 3.3847455286;
+       Běhehrádek's model:
 
-    L = - 1.3436376E-07 * std::pow(T, 8)
-        + 7.5277456E-06 * std::pow(T, 7)
-        - 0.0001773468 * std::pow(T, 6)
-        + 0.0022779991 * std::pow(T, 5)
-        - 0.0172494574 * std::pow(T, 4)
-        + 0.0770821460 * std::pow(T, 3)
-        - 0.1859409997 * std::pow(T, 2)
-        + 0.1457839822 * T
-        + 0.4070344262;
+       y = a * (x - b)^c
 
+     */
+    {
+        static const double a = 6.75238;
+        static const double b = 0.78126;
+        static const double c = 1.11211;
+
+        a3d = a * std::pow(T - b, c);
+    }
+
+    /*
+      K function for a2 parameter estimate
+
+      Rational fractional function:
+
+      y = (b + c * x) / (1 + a * x)
+
+      */
+    {
+      static const double a = -7.98009;
+      static const double b = -16.16297;
+      static const double c = 15.97496;
+
+      K = (b + c * T) / (1 + a * T);
+    }
+
+    /*
+       K function for a1 parameter estimate
+
+       Rational fractional function:
+
+       y = a * (d + x^b) / (e + x^c)
+
+       */
+    {
+      static const double a = 0.55439;
+      static const double b = 1.68759;
+      static const double c = 2.24811;
+      static const double d = 0.22110;
+      static const double e = 0.59183;
+
+      L = a * (d + std::pow(T, b)) / (e + std::pow(T, c));
+    }
 
     a0   = area;
     a1   = t - (sign * K * fwhm);   // 1
