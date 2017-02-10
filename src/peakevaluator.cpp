@@ -59,11 +59,14 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     /* Height (5 %) */
     int i_w005, j_w005;
 
-    for (i_w005 = 0; i_w005 < peak_subtracted.size() && std::abs(peak_subtracted[i_w005]) <= std::abs(0.05 * r.peakHeightBaseline); ++i_w005);
+    /* TODO: Peak base search should probably take the baseline noise into account */
+    const int centerIndex = ir.peakIndex - p.fromIndex;
+
+    for (i_w005 = centerIndex; i_w005 > 0 && std::abs(peak_subtracted[i_w005]) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
 
     double width005Left = r.peakX - Data[i_w005 + p.fromIndex].x();
 
-    for (j_w005 = (peak_subtracted.size() - 1); j_w005 > i_w005 && std::abs(peak_subtracted[j_w005]) <= std::abs(0.05 * r.peakHeightBaseline); --j_w005);
+    for (j_w005 = centerIndex; j_w005 < peak_subtracted.size() && std::abs(peak_subtracted[j_w005]) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
 
     double width005Right = Data[j_w005 + p.fromIndex].x() - r.peakX;
 
