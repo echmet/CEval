@@ -77,7 +77,7 @@ void HVLCalculatorWorker::process()
   vector<double> x(size, 1);
   Mat<double>    y(size, 1);
 
-#pragma omp parallel for
+  #pragma omp parallel for
   for (int j = 0; j < size; ++j) {
     x[j]   = m_params.data->at(m_params.fromIdx + j).x();
     y(j,0) = m_params.data->at(m_params.fromIdx + j).y();
@@ -185,6 +185,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 
   thread.start();
   inProgressDlg.exec();
+  thread.wait();
 
   p = worker.results();
 

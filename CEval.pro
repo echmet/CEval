@@ -52,6 +52,7 @@ CONFIG(release, debug|release) {
 }
 CONFIG(debug, debug|release) {
     # Configuration specific for "debug" build
+
 }
 
 
@@ -401,7 +402,7 @@ include($$PWD/CEval.pri)
     QMAKE_LFLAGS_RELEASE += /MAP
     QMAKE_CFLAGS_RELEASE += /Zi
     QMAKE_LFLAGS_RELEASE += /debug /opt:ref
-    QMAKE_CXXFLAGS_RELEASE += /openmp
+    QMAKE_CXXFLAGS += /openmp
 
     INCLUDEPATH += $$BOOSTPATH
 }
