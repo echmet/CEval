@@ -133,6 +133,90 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
   }
 }
 
+int HVLCalculator::estimatePrecision(const double from, const double to, const double step,
+                                     const double a0, const double a1, const double a2, const double a3,
+                                     const bool negative)
+{
+  static const auto comparatorGreater = [](const double current, const double last) { return current + 1.0e-11 > last; };
+  static const auto comparatorLess = [](const double current, const double last) { return current - 1.0e-11 < last; };
+  static const auto calculatePrecision = [](const double t, const double a1, const double a2, const double a3) {
+    const double expArg = -0.5 * std::pow((t - a1) / a2, 2.0);
+    const double gauss = std::abs(exp(expArg) * std::sqrt(2.0 / M_PI) / a2);
+
+    /* Semi-empiric guess based on the dx of the error function plus some safety margin */
+    const int prec = static_cast<int>(std::floor(-std::log10(gauss) - 0.5)) + 15 + static_cast<int>(std::floor(std::exp(0.025 * std::abs(a3)) + 0.5));
+    return (prec > 17) ? prec : 17;
+  };
+
+  const int currentPrecision = s_me->m_wrapper->precision();
+
+  try {
+    s_me->m_wrapper->setPrecision(225);
+  } catch (HVLLibWrapper::HVLLibException &) {
+    return -1;
+  }
+
+  HVLLibWrapper::Result hvlDx = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::DX, from, to, step, a0, a1, a2, a3);
+  if (hvlDx.count() == 0) {
+    try {
+      s_me->m_wrapper->setPrecision(currentPrecision);
+    } catch (HVLLibWrapper::HVLLibException &) {
+      /* There is not much to do here except for avoiding a crash */
+    }
+
+    return -1;
+  }
+
+
+  std::function<bool (const double, const double)> extremeComparator = (!negative) ? ((a3 > 0.0) ? comparatorGreater : comparatorLess) :
+                                                                                     ((a3 > 0.0) ? comparatorLess : comparatorGreater);
+  auto updateExtreme = [](std::function<bool (const double, const double)> comparator, HVLLibWrapper::Result &r, double &extreme, int &extremeIdx, const int idx, int &postExtremeCtr) {
+    const double value = r[idx].y;
+
+    if (comparator(value, extreme)) {
+      extreme = value;
+      extremeIdx = idx;
+      postExtremeCtr = 0;
+    } else {
+      postExtremeCtr++;
+    }
+  };
+
+  double extremeVal;
+  int extremeIdx;
+  int postExtremeCtr = 0;
+
+  if (a3 > 0.0) {
+    extremeVal = hvlDx[0].y;
+    extremeIdx = 0;
+
+    for (int idx = 1; idx < hvlDx.count(); idx++) {
+      updateExtreme(extremeComparator, hvlDx, extremeVal, extremeIdx, idx, postExtremeCtr);
+      if (postExtremeCtr >= 5)
+        break;
+    }
+  } else {
+    extremeVal = hvlDx[hvlDx.count() - 1].y;
+    extremeIdx = hvlDx.count() - 1;
+
+    for (int idx = hvlDx.count() - 1; idx >= 0; idx--) {
+      updateExtreme(extremeComparator, hvlDx, extremeVal, extremeIdx, idx, postExtremeCtr);
+      if (postExtremeCtr >= 5)
+        break;
+    }
+  }
+
+  const double extremeT = hvlDx[extremeIdx].x;
+
+  try {
+    s_me->m_wrapper->setPrecision(currentPrecision);
+  } catch (HVLLibWrapper::HVLLibException &) {
+    return -1;
+  }
+
+  return calculatePrecision(extremeT, a1, a2, a3);
+}
+
 HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,

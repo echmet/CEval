@@ -62,6 +62,10 @@ public:
 
   static void applyBaseline(QVector<QPointF> &data, const double k, const double q);
 
+  static int estimatePrecision(const double from, const double to, const double step,
+                               const double a0, const double a1, const double a2, const double a3,
+                               const bool negative);
+
   static HVLParameters fit(
     const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     const double a0, const double a1, const double a2, const double a3,

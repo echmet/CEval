@@ -774,7 +774,6 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
     return results;
   }
 
-
   HVLCalculator::HVLParameters p = HVLCalculator::fit(
     m_currentDataContext->data->data,
     finderResults->fromIndex, finderResults->toIndex,
@@ -2350,8 +2349,14 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     HVL_a3 = er.HVL_a3;
     hvlEpsilon = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
-    hvlDigits =  m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
     hvlTUsp = er.HVL_tUSP;
+
+    {
+      const double step = (fr->peakToX - fr->peakFromX) / (fr->toIndex - fr->fromIndex);
+      hvlDigits = HVLCalculator::estimatePrecision(fr->peakFromX, fr->peakToX, step,
+                                                   HVL_a0, HVL_a1, HVL_a2, HVL_a3,
+                                                   srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+    }
   }
 
   if (doHvlFitRq) {
@@ -2393,12 +2398,15 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                 hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
                                 hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
                                 fr->peakFromX, fr->peakToX, timeStep(fr->fromIndex, fr->toIndex),
-                                srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
+                                hvlDigits);
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
+  MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues = srcCtx.hvlFitIntValues;
+  hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
+
   const PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
-                                                        hvlResults,
-                                                        srcCtx.hvlFitIntValues, srcCtx.hvlFitFixedValues),
+                                                                hvlResults,
+                                                                hvlFitIntValues, srcCtx.hvlFitFixedValues),
                                           afContext, fr, er, hvlPlot);
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
@@ -2516,9 +2524,11 @@ void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
 
   m_resultsNumericValues = ctx.resultsValues;
   m_hvlFitValues = ctx.hvlValues;
+  m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = ctx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
 
   m_resultsFloatingModel.notifyAllDataChanged();
   m_hvlFitModel.notifyAllDataChanged();
+  m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS, HVLFitParametersItems::Int::DIGITS);
 
   connect(&m_hvlFitModel, &FloatingMapperModel<HVLFitResultsItems::Floating>::dataChanged, this, &EvaluationEngine::onHvlResultsModelChanged);
 }
