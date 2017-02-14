@@ -2365,9 +2365,14 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
 
     {
       const double step = (fr->peakToX - fr->peakFromX) / (fr->toIndex - fr->fromIndex);
-      hvlDigits = HVLCalculator::estimatePrecision(fr->peakFromX, fr->peakToX, step,
-                                                   HVL_a0, HVL_a1, HVL_a2, HVL_a3,
-                                                   srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+      const int _hvlDigits = HVLCalculator::estimatePrecision(fr->peakFromX, fr->peakToX, step,
+                                                              HVL_a0, HVL_a1, HVL_a2, HVL_a3,
+                                                              srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+
+      if (_hvlDigits > 0)
+        hvlDigits = _hvlDigits;
+      else
+        hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
     }
   }
 
