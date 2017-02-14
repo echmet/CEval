@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>776</width>
-            <height>517</height>
+            <width>764</width>
+            <height>538</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -619,9 +619,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-188</y>
             <width>744</width>
-            <height>1076</height>
+            <height>1050</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1471,6 +1471,13 @@
                   </property>
                  </widget>
                 </item>
+                <item row="3" column="3">
+                 <widget class="QCheckBox" name="qcb_hvlAutoDigits">
+                  <property name="text">
+                   <string>Auto</string>
+                  </property>
+                 </widget>
+                </item>
                </layout>
               </item>
               <item>
@@ -2145,7 +2152,7 @@ padding-right: 2em;</string>
             <x>0</x>
             <y>0</y>
             <width>764</width>
-            <height>537</height>
+            <height>538</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">

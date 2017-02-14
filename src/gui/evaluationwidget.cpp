@@ -10,7 +10,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationParametersBooleanMapper = new QDataWidgetMapper(this);
   m_evaluationParametersFloatingMapper = new QDataWidgetMapper(this);
   m_evaluationResultsMapper = new QDataWidgetMapper(this);
-  m_evaluationHvlFitFixedMapper = new QDataWidgetMapper(this);
+  m_evaluationHvlFitBooleanMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitIntMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitOptionsMapper = new QDataWidgetMapper(this);
@@ -279,15 +279,16 @@ void EvaluationWidget::setEvaluationBaselineModel(QAbstractItemModel* model)
   ui->qcbox_baselineAlgorithm->setModel(model);
 }
 
-void EvaluationWidget::setEvaluationHvlFixedModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model)
+void EvaluationWidget::setEvaluationHvlBooleanModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model)
 {
-  m_evaluationHvlFitFixedMapper->setModel(model);
+  m_evaluationHvlFitBooleanMapper->setModel(model);
 
-  m_evaluationHvlFitFixedMapper->addMapping(ui->qcb_hvlA0Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_A0));
-  m_evaluationHvlFitFixedMapper->addMapping(ui->qcb_hvlA1Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_A1));
-  m_evaluationHvlFitFixedMapper->addMapping(ui->qcb_hvlA2Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_A2));
-  m_evaluationHvlFitFixedMapper->addMapping(ui->qcb_hvlA3Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_A3));
-  m_evaluationHvlFitFixedMapper->toFirst();
+  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA0Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A0));
+  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA1Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A1));
+  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA2Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A2));
+  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA3Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A3));
+  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlAutoDigits, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS));
+  m_evaluationHvlFitBooleanMapper->toFirst();
 }
 
 void EvaluationWidget::setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLFitParametersItems::Int> *model)

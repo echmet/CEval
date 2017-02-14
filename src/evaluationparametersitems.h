@@ -100,10 +100,11 @@ public:
 class HVLFitParametersItems {
 public:
   enum class Boolean {
-    HVL_A0,
-    HVL_A1,
-    HVL_A2,
-    HVL_A3,
+    HVL_FIX_A0,
+    HVL_FIX_A1,
+    HVL_FIX_A2,
+    HVL_FIX_A3,
+    HVL_AUTO_DIGITS,
     LAST_INDEX
   };
 

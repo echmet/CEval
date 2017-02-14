@@ -22,7 +22,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
 
   /* Bind models */
   w->setEvaluationBaselineModel(e->baselineModel());
-  w->setEvaluationHvlFixedModel(e->hvlFitFixedModel());
+  w->setEvaluationHvlBooleanModel(e->hvlFitBooleanModel());
   w->setEvaluationHvlFitIntModel(e->hvlFitIntModel());
   w->setEvaluationHvlFitModel(e->hvlFitModel());
   w->setEvaluationHvlFitOptionsModel(e->hvlFitOptionsModel());

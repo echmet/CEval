@@ -135,31 +135,31 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
     {
       const QStringRef name = m_xmlReader->qualifiedName();
 
-      if (name.compare("updateinfo") == 0) {
+      if (name.compare(QString("updateinfo")) == 0) {
         if (m_parseState != ParseState::AT_ROOT)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_ROOT;
-      } else if (name.compare("software") == 0) {
+      } else if (name.compare(QString("software")) == 0) {
         if (m_parseState != ParseState::IN_ROOT)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_SOFTWARE;
         resetSoftwareInfo();
-      } else if (name.compare("name") == 0 ||
-                 name.compare("link") == 0) {
+      } else if (name.compare(QString("name")) == 0 ||
+                 name.compare(QString("link")) == 0) {
         if (m_parseState != ParseState::IN_SOFTWARE)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_INFO;
-      } else if (name.compare("version") == 0) {
+      } else if (name.compare(QString("version")) == 0) {
         if (m_parseState != ParseState::IN_SOFTWARE)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_VERSION;
-      } else if (name.compare("major") == 0 ||
-                 name.compare("minor") == 0 ||
-                 name.compare("revision") == 0) {
+      } else if (name.compare(QString("major")) == 0 ||
+                 name.compare(QString("minor")) == 0 ||
+                 name.compare(QString("revision")) == 0) {
         if (m_parseState != ParseState::IN_VERSION)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
@@ -212,12 +212,12 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
 
       m_lastElementName = "";
 
-      if (name.compare("updateinfo") == 0) {
+      if (name.compare(QString("updateinfo")) == 0) {
         if (m_parseState != ParseState::IN_ROOT)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::AT_ROOT;
-      } else if (name.compare("software") == 0) {
+      } else if (name.compare(QString("software")) == 0) {
         if (m_parseState != ParseState::IN_SOFTWARE)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
@@ -252,20 +252,20 @@ UpdateListFetcher::RetCode UpdateListFetcher::parseInternal()
           m_updateInfoList.insert(swNameLower, sui);
         } catch (SoftwareUpdateInfo::Version::InvalidRevisionStringException &) {
         }
-      } else if (name.compare("name") == 0 ||
-                 name.compare("link") == 0) {
+      } else if (name.compare(QString("name")) == 0 ||
+                 name.compare(QString("link")) == 0) {
         if (m_parseState != ParseState::IN_INFO)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_SOFTWARE;
-      } else if (name.compare("version") == 0) {
+      } else if (name.compare(QString("version")) == 0) {
         if (m_parseState != ParseState::IN_VERSION)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 
         m_parseState = ParseState::IN_SOFTWARE;
-      } else if (name.compare("major") == 0 ||
-                 name.compare("minor") == 0 ||
-                 name.compare("revision") == 0) {
+      } else if (name.compare(QString("major")) == 0 ||
+                 name.compare(QString("minor")) == 0 ||
+                 name.compare(QString("revision")) == 0) {
         if (m_parseState != ParseState::IN_VERSION_INFO)
           throw InvalidDocumentStructureException(m_xmlReader->lineNumber());
 

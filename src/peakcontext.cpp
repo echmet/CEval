@@ -11,14 +11,14 @@ EvaluationEngine::PeakContext::PeakContext() :
 EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                           const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
+                                           const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
                                            const AssistedFinderContext &afContext,
                                            const std::shared_ptr<PeakFinderResults::Result> &finderResults, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot) :
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
-  hvlFitFixedValues(hvlFitFixedValues),
+  hvlFitBooleanValues(hvlFitBooleanValues),
   afContext(afContext),
   finderResults(finderResults),
   baselineSlope(baselineSlope),
@@ -31,6 +31,7 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   resultsValues(other.resultsValues),
   hvlValues(other.hvlValues),
   hvlFitIntValues(other.hvlFitIntValues),
+  hvlFitBooleanValues(other.hvlFitBooleanValues),
   afContext(other.afContext),
   finderResults(other.finderResults),
   baselineSlope(other.baselineSlope),
@@ -41,11 +42,11 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
 
 void EvaluationEngine::PeakContext::updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
                                                   const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
-                                                  const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitFixedValues)
+                                                  const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitBooleanValues)
 {
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues) = inHvlValues;
   const_cast<MappedVectorWrapper<int, HVLFitParametersItems::Int>&>(hvlFitIntValues) = inHvlFitIntValues;
-  const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitFixedValues) = inHvlFitFixedValues;
+  const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitBooleanValues) = inHvlFitBooleanValues;
 }
 
 void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot)
@@ -58,7 +59,7 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<MappedVectorWrapper<double, EvaluationResultsItems::Floating>&>(resultsValues) = other.resultsValues;
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues) = other.hvlValues;
   const_cast<MappedVectorWrapper<int, HVLFitParametersItems::Int>&>(hvlFitIntValues) = other.hvlFitIntValues;
-  const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitFixedValues) = other.hvlFitFixedValues;
+  const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitBooleanValues) = other.hvlFitBooleanValues;
   const_cast<double&>(baselineSlope) = other.baselineSlope;
   const_cast<double&>(baselineIntercept) = other.baselineIntercept;
   const_cast<QVector<QPointF>&>(hvlPlot) = other.hvlPlot;

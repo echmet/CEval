@@ -89,7 +89,7 @@ public:
   QAbstractItemModel *evaluatedPeaksModel();
   QAbstractItemModel *exporterBackendsModel();
   QAbstractItemModel *exporterSchemesModel();
-  AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitFixedModel();
+  AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitBooleanModel();
   AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
   AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
   AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *hvlFitOptionsModel();
@@ -146,12 +146,12 @@ private:
     explicit PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                                const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues);
+                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
     const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
-    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
+    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues;
 
   };
 
@@ -161,7 +161,7 @@ private:
     explicit PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                         const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues,
+                         const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
                          const AssistedFinderContext &afContext,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const double baselineSlope, const double baselineIntercept,
@@ -169,13 +169,13 @@ private:
     PeakContext(const PeakContext &other);
     void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
-                       const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitFixedValues);
+                       const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitBooleanValues);
     void updateHvlPlot(const QVector<QPointF> &plot);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
     const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
-    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues;
+    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues;
     const AssistedFinderContext afContext;
     const std::shared_ptr<PeakFinderResults::Result> finderResults;
     const double baselineSlope;
@@ -232,7 +232,7 @@ private:
   bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
-  QVector<bool> defaultHvlFixedValues() const;
+  QVector<bool> defaultHvlBooleanValues() const;
   QVector<int> defaultHvlIntValues() const;
   void displayAssistedFinderData(const AssistedFinderContext &afContext);
   void displayCurrentPeak();
@@ -267,11 +267,11 @@ private:
   PeakContext makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
                               const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues,
                               const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues,
-                              const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitFixedValues,
+                              const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues,
                               const PeakContext &oldPeak) const;
   PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er, const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlResults,
                                           const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitFixedValues) const;
+                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues) const;
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
@@ -325,7 +325,7 @@ private:
   EvaluationParametersItems::ComboShowWindow m_showWindow;
   MappedVectorWrapper<double, EvaluationResultsItems::Floating> m_resultsNumericValues;
   MappedVectorWrapper<int, HVLFitParametersItems::Int> m_hvlFitIntValues;
-  MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> m_hvlFitFixedValues;
+  MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> m_hvlFitBooleanValues;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> m_hvlFitValues;
   MappedVectorWrapper<bool, HVLFitOptionsItems::Boolean> m_hvlFitOptionsValues;
 
@@ -339,7 +339,7 @@ private:
   ComboBoxModel<EvaluationParametersItems::ComboWindowUnits> m_windowUnitsModel;
   FloatingMapperModel<EvaluationResultsItems::Floating> m_resultsFloatingModel;
   IntegerMapperModel<HVLFitParametersItems::Int> m_hvlFitIntModel;
-  BooleanMapperModel<HVLFitParametersItems::Boolean> m_hvlFixedModel;
+  BooleanMapperModel<HVLFitParametersItems::Boolean> m_hvlFitBooleanModel;
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
 
