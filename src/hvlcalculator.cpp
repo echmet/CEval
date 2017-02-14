@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QThread>
 #include <armadillo>
+#include <functional>
 
 using namespace arma;
 using namespace std;
@@ -137,8 +138,8 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
                                      const double a0, const double a1, const double a2, const double a3,
                                      const bool negative)
 {
-  static const auto comparatorGreater = [](const double current, const double last) { return current + 1.0e-11 > last; };
-  static const auto comparatorLess = [](const double current, const double last) { return current - 1.0e-11 < last; };
+  static const std::function<bool (const double, const double)> comparatorGreater = [](const double current, const double last) { return current + 1.0e-11 > last; };
+  static const std::function<bool (const double, const double)> comparatorLess = [](const double current, const double last) { return current - 1.0e-11 < last; };
   static const auto calculatePrecision = [](const double t, const double a1, const double a2, const double a3) {
     const double expArg = -0.5 * std::pow((t - a1) / a2, 2.0);
     const double gauss = std::abs(exp(expArg) * std::sqrt(2.0 / M_PI) / a2);
@@ -166,7 +167,6 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
 
     return -1;
   }
-
 
   std::function<bool (const double, const double)> extremeComparator = (!negative) ? ((a3 > 0.0) ? comparatorGreater : comparatorLess) :
                                                                                      ((a3 > 0.0) ? comparatorLess : comparatorGreater);
