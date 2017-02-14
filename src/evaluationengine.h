@@ -280,6 +280,7 @@ private:
   PeakContext processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr,
                                const AssistedFinderContext &afContext, const bool updateCurrentPeak, const bool doHvlFitRq,
                                const PeakContext &srcCtx);
+  void replotHvl(const double a0, const double a1, const double a2, const double a3, const double from, const double to, const double step);
   void showSetAxisTitlesDialog();
   void setAxisTitles();
   void setDefaultFinderParameters();

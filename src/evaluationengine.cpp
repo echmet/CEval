@@ -1757,7 +1757,16 @@ void EvaluationEngine::onDoHvlFit()
   if (ok) {
     m_hvlFitValues = results;
     m_hvlFitModel.notifyAllDataChanged();
-    onReplotHvl();
+
+    const double a0 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0);
+    const double a1 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1);
+    const double a2 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2);
+    const double a3 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3);
+    const double from = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X);
+    const double to = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X);
+    const double step = timeStep(m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex);
+
+    replotHvl(a0, a1, a2, a3, from, to, step);
   }
 }
 
@@ -2130,21 +2139,24 @@ void EvaluationEngine::onReplotHvl()
   if (!m_currentPeak.finderResults->isValid())
     return;
 
-  QVector<QPointF> vec = HVLCalculator::plot(m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0),
-                                             m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1),
-                                             m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2),
-                                             m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3),
-                                             m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X),
-                                             m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X),
-                                             timeStep(m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex),
-                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
+  const double a0 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0);
+  const double a1 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1);
+  const double a2 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2);
+  const double a3 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3);
+  const double from = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X);
+  const double to = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_TO_X);
+  const double step = timeStep(m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex);
 
-  HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
-  m_currentPeak.updateHvlPlot(vec);
+  const int hvlDigits = HVLCalculator::estimatePrecision(from, to, step, a0, a1, a2, a3,
+                                                         m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
 
-  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
+  if (hvlDigits > 0) {
+    m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
 
-  m_plotCtx->replot();
+    m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS, HVLFitParametersItems::Int::DIGITS);
+  }
+
+  replotHvl(a0, a1, a2, a3, from, to, step);
 }
 
 void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
@@ -2412,6 +2424,21 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
   return ctx;
+}
+
+void EvaluationEngine::replotHvl(const double a0, const double a1, const double a2, const double a3, const double from, const double to, const double step)
+{
+  QVector<QPointF> vec = HVLCalculator::plot(a0, a1, a2, a3,
+                                             from, to, step,
+                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS)
+                                            );
+
+  HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
+  m_currentPeak.updateHvlPlot(vec);
+
+  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
+
+  m_plotCtx->replot();
 }
 
 AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine::resultsValuesModel()
