@@ -1,5 +1,6 @@
 #include "hvlfitinprogressdialog.h"
 #include "ui_hvlfitinprogressdialog.h"
+#include "../doubletostringconvertor.h"
 
 HVLFitInProgressDialog::HVLFitInProgressDialog(const int maxIterations, QWidget *parent) :
   QDialog(parent),
@@ -9,7 +10,7 @@ HVLFitInProgressDialog::HVLFitInProgressDialog(const int maxIterations, QWidget 
 {
   ui->setupUi(this);
 
-  setCurrentIterationText(1);
+  setCurrentIterationText(1, -1.0);
 
   connect(ui->qpb_abort, &QPushButton::clicked, this, &HVLFitInProgressDialog::onAbortClicked);
 }
@@ -43,12 +44,17 @@ void HVLFitInProgressDialog::reject()
   return;
 }
 
-void HVLFitInProgressDialog::setCurrentIteration(const int iteration)
+void HVLFitInProgressDialog::setCurrentIteration(const int iteration, const double avgTimePerIter)
 {
-  setCurrentIterationText(iteration);
+  setCurrentIterationText(iteration, avgTimePerIter);
 }
 
-void HVLFitInProgressDialog::setCurrentIterationText(const int iteration)
+void HVLFitInProgressDialog::setCurrentIterationText(const int iteration, const double avgTimePerIter)
 {
   ui->ql_iterations->setText(QString(tr("Iteration %1 of %2")).arg(iteration).arg(m_maxIterations));
+
+  if (avgTimePerIter < 0.0)
+    ui->ql_avgTimePerIterValue->setText("-");
+  else
+    ui->ql_avgTimePerIterValue->setText(DoubleToStringConvertor::convert(avgTimePerIter));
 }

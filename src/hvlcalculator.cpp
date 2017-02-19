@@ -5,7 +5,6 @@
 #include "hvllibwrapper.h"
 #include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
-#include <QTime>
 #include <QApplication>
 #include <QThread>
 #include <armadillo>
@@ -75,7 +74,12 @@ void HVLCalculatorWorker::process()
     HVLCalculatorWorker *tMe = static_cast<HVLCalculatorWorker *>(me);
     const int iter = rFunc.GetIterationCounter();
 
-    emit tMe->nextIteration(iter);
+    QTime now = QTime::currentTime();
+
+    const double elapsedTime = tMe->m_fitStartTime.msecsTo(now);
+    const double avgTimePerIter = elapsedTime / (iter * 1000.0);
+
+    emit tMe->nextIteration(iter, avgTimePerIter);
   };
 
   int size = m_params.toIdx - m_params.fromIdx;
@@ -107,6 +111,8 @@ void HVLCalculatorWorker::process()
     m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a3, m_params.a3);
 
   double s0 = m_regressor->GetS();
+
+  m_fitStartTime = QTime::currentTime();
 
   bool ok = m_regressor->Regress();
 

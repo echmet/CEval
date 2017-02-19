@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QPointF>
 #include <QObject>
+#include <QTime>
 
 class HVLLibWrapper;
 namespace echmet {
@@ -101,7 +102,7 @@ public:
 
 signals:
   void finished();
-  void nextIteration(const int iteration);
+  void nextIteration(const int iteration, const double avgTimePerIter);
 
 public slots:
   void abort();
@@ -110,6 +111,7 @@ public slots:
 private:
   echmet::regressCore::HVLPeak<double, double> *m_regressor;
   HVLCalculator::HVLParameters m_outParams;
+  QTime m_fitStartTime;
 
   const HVLCalculator::HVLInParameters m_params;
 

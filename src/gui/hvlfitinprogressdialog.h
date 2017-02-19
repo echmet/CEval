@@ -22,7 +22,7 @@ private:
   bool m_execable;
   const int m_maxIterations;
 
-  void setCurrentIterationText(const int iteration);
+  void setCurrentIterationText(const int iteration, const double avgTimePerIter);
 
 signals:
   void abortFit();
@@ -32,7 +32,7 @@ private slots:
 
 public slots:
   void onHvlFitDone();
-  void setCurrentIteration(const int iteration);
+  void setCurrentIteration(const int iteration, const double avgTimePerIter);
 
 };
 
