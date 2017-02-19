@@ -30,6 +30,11 @@ QString DoubleToStringConvertor::convert(const double d)
   return s_me->m_locale.toString(d, s_me->m_type, s_me->m_digits);
 }
 
+QString DoubleToStringConvertor::convert(const double d, const int digits)
+{
+  return s_me->m_locale.toString(d, s_me->m_type, digits);
+}
+
 int DoubleToStringConvertor::digits()
 {
   return s_me->m_digits;

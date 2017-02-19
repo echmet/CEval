@@ -56,5 +56,5 @@ void HVLFitInProgressDialog::setCurrentIterationText(const int iteration, const 
   if (avgTimePerIter < 0.0)
     ui->ql_avgTimePerIterValue->setText("-");
   else
-    ui->ql_avgTimePerIterValue->setText(DoubleToStringConvertor::convert(avgTimePerIter));
+    ui->ql_avgTimePerIterValue->setText(DoubleToStringConvertor::convert(avgTimePerIter, 3));
 }
