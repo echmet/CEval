@@ -145,7 +145,7 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
     const double gauss = std::abs(exp(expArg) * std::sqrt(2.0 / M_PI) / a2);
 
     /* Semi-empiric guess based on the dx of the error function plus some safety margin */
-    const int prec = static_cast<int>(std::floor(-std::log10(gauss) - 0.5)) + 15 + static_cast<int>(std::floor(std::exp(0.025 * std::abs(a3)) + 0.5));
+    const int prec = static_cast<int>(std::floor(-std::log10(gauss) - 0.5)) + 15 + static_cast<int>(std::floor(std::exp(0.010 * std::abs(a3)) + 0.5));
     return (prec > 17) ? prec : 17;
   };
 
