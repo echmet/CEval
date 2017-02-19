@@ -92,7 +92,7 @@ public:
 
     typedef Mat<YT> MatrixY;
 
-    typedef void (*report_function)(RegressFunction const &);
+    typedef void (*report_function)(RegressFunction const &, void *);
 
     // Initializers
 
@@ -120,7 +120,8 @@ public:
     void Abort   ();
     void Report  () const;
 
-    void RegisterReportFunction(report_function);
+    void RegisterReportFunction(report_function, void *);
+    void UnregisterReportFunction();
 
     template<typename ENUM> void FixParameter(ENUM id);
     template<typename ENUM> void FixParameter(ENUM id, YT val);
@@ -225,6 +226,7 @@ protected:
 private:
 
     report_function   m_report_function;
+    void *   m_report_function_context;
 
     // Initialized in constructor
     vector<bool>     m_fixedParams;     //           [params]
@@ -283,6 +285,7 @@ inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
     m_params(MatrixY(params, 1)),
     m_notFixed(params),
     m_report_function(nullptr),
+    m_report_function_context(nullptr),
     m_rss(0),
     m_nmax(0),
     m_epsilon(1E-9),
@@ -556,16 +559,26 @@ inline void RegressFunction<XT, YT>::Abort() { m_aborted = true; }
 template <typename XT, typename YT>
 inline void RegressFunction<XT, YT>::Report() const {
 
-    if (m_report_function != nullptr ) m_report_function(*this);
+    if (m_report_function != nullptr ) m_report_function(*this, m_report_function_context);
 
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline void RegressFunction<XT, YT>::RegisterReportFunction(report_function f)
+inline void RegressFunction<XT, YT>::RegisterReportFunction(report_function f, void *context)
 {
 
     m_report_function = f;
+    m_report_function_context = context;
+
+}
+
+template <typename XT, typename YT>
+inline void RegressFunction<XT, YT>::UnregisterReportFunction()
+{
+
+    m_report_function = nullptr;
+    m_report_function_context = nullptr;
 
 }
 

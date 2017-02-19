@@ -11,7 +11,7 @@ class HVLFitInProgressDialog : public QDialog
 {
   Q_OBJECT
 public:
-  explicit HVLFitInProgressDialog(QWidget *parent = nullptr);
+  explicit HVLFitInProgressDialog(const int maxIterations, QWidget *parent = nullptr);
   ~HVLFitInProgressDialog();
   int exec() override;
   void reject() override;
@@ -20,6 +20,9 @@ private:
   Ui::HVLFitInProgressDialog *ui;
 
   bool m_execable;
+  const int m_maxIterations;
+
+  void setCurrentIterationText(const int iteration);
 
 signals:
   void abortFit();
@@ -29,6 +32,8 @@ private slots:
 
 public slots:
   void onHvlFitDone();
+  void setCurrentIteration(const int iteration);
+
 };
 
 #endif // HVLFITINPROGRESSDIALOG_H

@@ -1,12 +1,15 @@
 #include "hvlfitinprogressdialog.h"
 #include "ui_hvlfitinprogressdialog.h"
 
-HVLFitInProgressDialog::HVLFitInProgressDialog(QWidget *parent) :
+HVLFitInProgressDialog::HVLFitInProgressDialog(const int maxIterations, QWidget *parent) :
   QDialog(parent),
   ui(new Ui::HVLFitInProgressDialog),
-  m_execable(true)
+  m_execable(true),
+  m_maxIterations(maxIterations)
 {
   ui->setupUi(this);
+
+  setCurrentIterationText(1);
 
   connect(ui->qpb_abort, &QPushButton::clicked, this, &HVLFitInProgressDialog::onAbortClicked);
 }
@@ -38,4 +41,14 @@ void HVLFitInProgressDialog::onHvlFitDone()
 void HVLFitInProgressDialog::reject()
 {
   return;
+}
+
+void HVLFitInProgressDialog::setCurrentIteration(const int iteration)
+{
+  setCurrentIterationText(iteration);
+}
+
+void HVLFitInProgressDialog::setCurrentIterationText(const int iteration)
+{
+  ui->ql_iterations->setText(QString(tr("Iteration %1 of %2")).arg(iteration).arg(m_maxIterations));
 }

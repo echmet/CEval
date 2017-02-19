@@ -71,6 +71,13 @@ const HVLCalculator::HVLParameters & HVLCalculatorWorker::results() const
 
 void HVLCalculatorWorker::process()
 {
+  auto repFunc = [](const echmet::regressCore::RegressFunction<double, double> &rFunc, void *me) {
+    HVLCalculatorWorker *tMe = static_cast<HVLCalculatorWorker *>(me);
+    const int iter = rFunc.GetIterationCounter();
+
+    emit tMe->nextIteration(iter);
+  };
+
   int size = m_params.toIdx - m_params.fromIdx;
   if (size < 1)
     return;
@@ -87,6 +94,8 @@ void HVLCalculatorWorker::process()
   m_regressor->Initialize(x, y, m_params.epsilon, m_params.iterations, true,
                           echmet::HVLCore::Coefficients(m_params.a0, m_params.a1, m_params.a2, m_params.a3),
                           m_params.bsl, m_params.bslSlope);
+
+  m_regressor->RegisterReportFunction(repFunc, this);
 
   if (m_params.a0fixed)
     m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a0, m_params.a0);
@@ -115,6 +124,8 @@ void HVLCalculatorWorker::process()
   m_outParams.s0 = s0;
   m_outParams.iterations = m_regressor->GetIterationCounter();
   m_outParams.validate();
+
+  m_regressor->UnregisterReportFunction();
 
   emit finished();
 }
@@ -225,7 +236,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 {
   Q_ASSERT(s_me != nullptr);
 
-  HVLFitInProgressDialog inProgressDlg;
+  HVLFitInProgressDialog inProgressDlg(iterations);
   HVLParameters p;
   HVLInParameters in;
 
@@ -262,6 +273,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
   connect(&worker, &HVLCalculatorWorker::finished, &thread, &QThread::quit);
   connect(&worker, &HVLCalculatorWorker::finished, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
+  connect(&worker, &HVLCalculatorWorker::nextIteration, &inProgressDlg, &HVLFitInProgressDialog::setCurrentIteration);
   connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort, Qt::DirectConnection);
 
   QTime stopwatch;

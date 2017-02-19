@@ -101,6 +101,7 @@ public:
 
 signals:
   void finished();
+  void nextIteration(const int iteration);
 
 public slots:
   void abort();
@@ -111,6 +112,7 @@ private:
   HVLCalculator::HVLParameters m_outParams;
 
   const HVLCalculator::HVLInParameters m_params;
+
 };
 
 #endif // HVLCALCULATOR_H
