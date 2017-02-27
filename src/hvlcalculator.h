@@ -37,6 +37,23 @@ public:
     bool m_valid;
   };
 
+  class HVLEstimateParameters {
+  public:
+    explicit HVLEstimateParameters(const double from, const double to, const double step,
+                                   const double a0, const double a1, const double a2, const double a3,
+                                   const bool negative);
+
+    const double from;
+    const double to;
+    const double step;
+    const double a0;
+    const double a1;
+    const double a2;
+    const double a3;
+    const bool negative;
+
+  };
+
   class HVLInParameters {
   public:
     explicit HVLInParameters();
@@ -114,6 +131,26 @@ private:
   QTime m_fitStartTime;
 
   const HVLCalculator::HVLInParameters m_params;
+
+};
+
+class HVLEstimatorWorker : public QObject {
+  Q_OBJECT
+public:
+  explicit HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params, HVLLibWrapper *wrapper);
+  ~HVLEstimatorWorker();
+  int precision() const;
+
+signals:
+  void finished();
+
+public slots:
+  void process();
+
+private:
+  const HVLCalculator::HVLEstimateParameters &m_params;
+  HVLLibWrapper *m_wrapper;
+  int m_precision;
 
 };
 

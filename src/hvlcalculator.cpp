@@ -2,6 +2,7 @@
 #include "globals.h"
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
+#include "gui/hvlestimateinprogressdialog.h"
 #include "hvllibwrapper.h"
 #include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
@@ -38,6 +39,20 @@ void HVLCalculator::HVLParameters::validate()
 }
 
 HVLCalculator::HVLInParameters::HVLInParameters()
+{
+}
+
+HVLCalculator::HVLEstimateParameters::HVLEstimateParameters(const double from, const double to, const double step,
+                                                            const double a0, const double a1, const double a2, const double a3,
+                                                            const bool negative):
+  from(from),
+  to(to),
+  step(step),
+  a0(a0),
+  a1(a1),
+  a2(a2),
+  a3(a3),
+  negative(negative)
 {
 }
 
@@ -151,9 +166,17 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
   }
 }
 
-int HVLCalculator::estimatePrecision(const double from, const double to, const double step,
-                                     const double a0, const double a1, const double a2, const double a3,
-                                     const bool negative)
+HVLEstimatorWorker::HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params, HVLLibWrapper *wrapper) :
+  m_params(params),
+  m_wrapper(wrapper)
+{
+}
+
+HVLEstimatorWorker::~HVLEstimatorWorker()
+{
+}
+
+void HVLEstimatorWorker::process()
 {
   static const std::function<bool (const double, const double)> comparatorGreater = [](const double current, const double last) { return current + 1.0e-11 > last; };
   static const std::function<bool (const double, const double)> comparatorLess = [](const double current, const double last) { return current - 1.0e-11 < last; };
@@ -166,27 +189,30 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
     return (prec > 17) ? prec : 17;
   };
 
-  const int currentPrecision = s_me->m_wrapper->precision();
+  const int currentPrecision = m_wrapper->precision();
 
   try {
-    s_me->m_wrapper->setPrecision(225);
+    m_wrapper->setPrecision(225);
   } catch (HVLLibWrapper::HVLLibException &) {
-    return -1;
+    m_precision = -1;
+    emit finished();
   }
 
-  HVLLibWrapper::Result hvlDx = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::DX, from, to, step, a0, a1, a2, a3);
+  HVLLibWrapper::Result hvlDx = m_wrapper->calculateRange(HVLLibWrapper::Parameter::DX, m_params.from, m_params.to, m_params.step,
+                                                          m_params.a0, m_params.a1, m_params.a2, m_params.a3);
   if (hvlDx.count() == 0) {
     try {
-      s_me->m_wrapper->setPrecision(currentPrecision);
+     m_wrapper->setPrecision(currentPrecision);
     } catch (HVLLibWrapper::HVLLibException &) {
       /* There is not much to do here except for avoiding a crash */
     }
 
-    return -1;
+    m_precision = -1;
+    emit finished();
   }
 
-  std::function<bool (const double, const double)> extremeComparator = (!negative) ? ((a3 > 0.0) ? comparatorGreater : comparatorLess) :
-                                                                                     ((a3 > 0.0) ? comparatorLess : comparatorGreater);
+  std::function<bool (const double, const double)> extremeComparator = (!m_params.negative) ? ((m_params.a3 > 0.0) ? comparatorGreater : comparatorLess) :
+                                                                                     ((m_params.a3 > 0.0) ? comparatorLess : comparatorGreater);
   auto updateExtreme = [](std::function<bool (const double, const double)> comparator, HVLLibWrapper::Result &r, double &extreme, int &extremeIdx, const int idx, int &postExtremeCtr) {
     const double value = r[idx].y;
 
@@ -203,7 +229,7 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
   int extremeIdx;
   int postExtremeCtr = 0;
 
-  if (a3 > 0.0) {
+  if (m_params.a3 > 0.0) {
     extremeVal = hvlDx[0].y;
     extremeIdx = 0;
 
@@ -226,12 +252,41 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
   const double extremeT = hvlDx[extremeIdx].x;
 
   try {
-    s_me->m_wrapper->setPrecision(currentPrecision);
+    m_wrapper->setPrecision(currentPrecision);
   } catch (HVLLibWrapper::HVLLibException &) {
-    return -1;
+    m_precision = -1;
+    emit finished();
   }
 
-  return calculatePrecision(extremeT, a1, a2, a3);
+  m_precision = calculatePrecision(extremeT, m_params.a1, m_params.a2, m_params.a3);
+  emit finished();
+}
+
+int HVLEstimatorWorker::precision() const
+{
+  return m_precision;
+}
+
+int HVLCalculator::estimatePrecision(const double from, const double to, const double step,
+                                     const double a0, const double a1, const double a2, const double a3,
+                                     const bool negative)
+{
+  HVLEstimateParameters params(from, to, step, a0, a1, a2, a3, negative);
+  HVLEstimateInProgressDialog dlg;
+  HVLEstimatorWorker worker(params, s_me->m_wrapper);
+  QThread workerThread;
+
+  worker.moveToThread(&workerThread);
+
+  connect(&workerThread, &QThread::started, &worker, &HVLEstimatorWorker::process);
+  connect(&worker, &HVLEstimatorWorker::finished, &workerThread, &QThread::quit);
+  connect(&worker, &HVLEstimatorWorker::finished, &dlg, &HVLEstimateInProgressDialog::onEstimateDone);
+
+  workerThread.start();
+  dlg.exec();
+  workerThread.wait();
+
+  return worker.precision();
 }
 
 HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const int fromIdx, const int toIdx,

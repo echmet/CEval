@@ -161,7 +161,8 @@ SOURCES += src/main.cpp \
     src/cevalcrashhandler.cpp \
     src/crasheventcatcher.cpp \
     src/crashhandling/crashhandlerlinux.cpp \
-    src/crashhandling/crashhandlerlinux_stacktrace.cpp
+    src/crashhandling/crashhandlerlinux_stacktrace.cpp \
+    src/gui/hvlestimateinprogressdialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -357,7 +358,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/cevalcrashhandler.h \
     src/crasheventcatcher.h \
     src/crashhandling/crashhandlerlinux.h \
-    src/crashhandling/rawmemblock.h
+    src/crashhandling/rawmemblock.h \
+    src/gui/hvlestimateinprogressdialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -386,7 +388,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/specifypeakboundariesdialog.ui \
     src/gui/hyperbolafitwidget.ui \
     src/gui/registerinhyperbolafitdialog.ui \
-    src/gui/registerinhyperbolafitwidget.ui
+    src/gui/registerinhyperbolafitwidget.ui \
+    src/gui/hvlestimateinprogressdialog.ui
 
 unix {
     LIBS += -ldl
