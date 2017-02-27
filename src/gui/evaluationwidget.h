@@ -89,6 +89,7 @@ private slots:
   void onExportOnFileLeftClicked();
   void onExportSchemeClicked();
   void onFindPeaksClicked();
+  void onHvlAutoDigitsStateChanged();
   void onManageExporterSchemesClicked();
   void onReplotHvl();
   void onShowWindowComboBoxChanged(int idx);

@@ -19,6 +19,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
 
   ui->setupUi(this);
 
+  ui->qle_hvlDigits->setDisabled(ui->qcb_hvlAutoDigits->checkState() == Qt::Checked);
+
   connect(ui->qpb_defaultFinderParameters, &QPushButton::clicked, this, &EvaluationWidget::onDefaultFinderParametersClicked);
   connect(ui->qcbox_baselineAlgorithm, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onBaselineComboBoxChanged);
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
@@ -38,6 +40,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
   connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
   connect(ui->qcb_exportOnLeave, &QCheckBox::clicked, this, &EvaluationWidget::onExportOnFileLeftClicked);
+  connect(ui->qcb_hvlAutoDigits, &QCheckBox::stateChanged, this, &EvaluationWidget::onHvlAutoDigitsStateChanged);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -203,6 +206,11 @@ void EvaluationWidget::onExportOnFileLeftClicked()
 void EvaluationWidget::onFindPeaksClicked()
 {
   emit findPeaks();
+}
+
+void EvaluationWidget::onHvlAutoDigitsStateChanged()
+{
+  ui->qle_hvlDigits->setDisabled(ui->qcb_hvlAutoDigits->checkState() == Qt::Checked);
 }
 
 void EvaluationWidget::onManageExporterSchemesClicked()
