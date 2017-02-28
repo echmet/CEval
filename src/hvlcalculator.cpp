@@ -35,6 +35,7 @@ bool HVLCalculator::HVLParameters::isValid() const
 
 void HVLCalculator::HVLParameters::validate()
 {
+  failure = Failure::OK;
   m_valid = true;
 }
 
@@ -70,7 +71,7 @@ HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &p
 
 HVLCalculatorWorker::~HVLCalculatorWorker()
 {
-  delete m_regressor;
+    delete m_regressor;
 }
 
 void HVLCalculatorWorker::abort()
@@ -110,9 +111,13 @@ void HVLCalculatorWorker::process()
     y(j,0) = m_params.data->at(m_params.fromIdx + j).y();
   }
 
-  m_regressor->Initialize(x, y, m_params.epsilon, m_params.iterations, true,
-                          echmet::HVLCore::Coefficients(m_params.a0, m_params.a1, m_params.a2, m_params.a3),
-                          m_params.bsl, m_params.bslSlope);
+  if (!m_regressor->Initialize(x, y, m_params.epsilon, m_params.iterations, true,
+                               echmet::HVLCore::Coefficients(m_params.a0, m_params.a1, m_params.a2, m_params.a3),
+                               m_params.bsl, m_params.bslSlope)) {
+    m_outParams.failure = HVLCalculator::HVLParameters::Failure::CANNOT_INIT;
+    emit finished();
+    return;
+  }
 
   m_regressor->RegisterReportFunction(repFunc, this);
 
@@ -131,8 +136,13 @@ void HVLCalculatorWorker::process()
 
   bool ok = m_regressor->Regress();
 
-  m_outParams.aborted = m_regressor->IsAborted();
-  if (m_outParams.aborted || !ok) {
+  if (m_regressor->IsAborted()) {
+    m_outParams.failure = HVLCalculator::HVLParameters::Failure::ABORTED;
+    emit finished();
+    return;
+  }
+  if (!ok) {
+    m_outParams.failure = HVLCalculator::HVLParameters::Failure::NO_CONVERGENCE;
     emit finished();
     return;
   }
@@ -346,15 +356,20 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 
   p = worker.results();
 
-  if (p.aborted)
+  switch (p.failure) {
+  case HVLParameters::Failure::ABORTED:
     return p;
-
-  if (!p.isValid()) {
+  case HVLParameters::Failure::CANNOT_INIT:
+    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor could not have been initialized"));
+    return p;
+  case HVLParameters::Failure::NO_CONVERGENCE:
     QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
                                                            "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
                                                            "of iterations will not have any effect.").arg(in.iterations));
 
     return p;
+  case HVLParameters::Failure::OK:
+    break;
   }
 
   if (showStats) {

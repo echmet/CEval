@@ -19,6 +19,13 @@ class HVLCalculator : public QObject
 public:
   class HVLParameters {
   public:
+    enum class Failure {
+        OK,
+        ABORTED,
+        CANNOT_INIT,
+        NO_CONVERGENCE
+    };
+
     explicit HVLParameters();
     explicit HVLParameters(const double a0, const double a1, const double a2, const double a3);
     bool isValid() const;
@@ -31,7 +38,7 @@ public:
     double s;
     double s0;
     int iterations;
-    bool aborted;
+    Failure failure;
 
   private:
     bool m_valid;

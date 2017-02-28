@@ -162,7 +162,8 @@ SOURCES += src/main.cpp \
     src/crasheventcatcher.cpp \
     src/crashhandling/crashhandlerlinux.cpp \
     src/crashhandling/crashhandlerlinux_stacktrace.cpp \
-    src/gui/hvlestimateinprogressdialog.cpp
+    src/gui/hvlestimateinprogressdialog.cpp \
+    src/math/hvlestimate.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \

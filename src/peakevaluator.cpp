@@ -41,74 +41,70 @@ void PeakEvaluator::Results::validateHvl()
 
 PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Parameters &p)
 {
+  static auto isInputValid = [](const Parameters &p) {
+    return p.data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < p.data.length();
+  };
   const QVector<QPointF> &Data = p.data;
   Results r = ir;
 
-  if (Data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < Data.length()) {
-    QVector<double> peak_subtracted;
-
-    /* Subtracting baseline */
-    peak_subtracted.reserve(p.toIndex - p.fromIndex + 1);
-    for (int i = p.fromIndex; i <= p.toIndex; i++)
-      peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
-
-    r.peakArea = 0.0;
-    for (int idx = 1; idx < peak_subtracted.size(); idx++)
-      r.peakArea += ((peak_subtracted.at(idx) + peak_subtracted.at(idx - 1)) / 2.0) * (Data.at(idx + p.fromIndex).x() - Data.at(idx - 1 + p.fromIndex).x());
-
-    /* Height (5 %) */
-    int i_w005, j_w005;
-
-    /* TODO: Peak base search should probably take the baseline noise into account */
-    const int centerIndex = ir.peakIndex - p.fromIndex;
-
-    for (i_w005 = centerIndex; i_w005 > 0 && std::abs(peak_subtracted[i_w005]) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
-
-    double width005Left = r.peakX - Data[i_w005 + p.fromIndex].x();
-
-    for (j_w005 = centerIndex; j_w005 < peak_subtracted.size() && std::abs(peak_subtracted[j_w005]) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
-
-    double width005Right = Data[j_w005 + p.fromIndex].x() - r.peakX;
-
-    r.HVL_width005 = width005Left + width005Right;
-    r.HVL_width005Left = width005Left;
-    r.HVL_width005Right = width005Right;
-
-
-    r.seriesAOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.baselineSlope * Data[i_w005].x() + r.baselineIntercept));
-    r.seriesATwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
-    r.seriesBOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline * Data[i_w005].x() + r.baselineIntercept));
-    r.seriesBTwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
-
-    /* HVL Estimation */
-    r.HVL_tP = r.peakX;
-    r.HVL_tUSP = (width005Right + width005Left) / (2 * width005Left);
-
-    r.HVL_migT = r.HVL_tP;
-    r.HVL_width = r.widthHalfFull;
-    r.HVL_widthLeft = r.widthHalfLeft;
-    r.HVL_widthRight = r.widthHalfRight;
-
-    echmet::HVLCore::Coefficients HVL_coefficients(
-        r.peakArea,
-        r.HVL_tP,
-        r.widthHalfFull,
-        r.HVL_tUSP,
-        int()
-    );
-
-
-    r.HVL_a1 = HVL_coefficients.a1;
-    r.HVL_a2 = HVL_coefficients.a2;
-    r.HVL_a3 = HVL_coefficients.a3d;
-
-    r.HVL_tP = r.HVL_a1;
-    r.validateHvl();
-  } else {
+  if (!isInputValid(p)) {
     QMessageBox::warning(nullptr, QObject::tr("Evaluation error"), QString(QObject::tr("Some of the evaluation parameters are not valid, peak area and HVL estimation values"
                                                                                        " cannot be calculated\n\n"
                                                                                        "Data length: %1, tAi: %2, tBi: %3")).arg(Data.length()).arg(p.fromIndex).arg(p.toIndex));
+    return r;
   }
+
+  QVector<double> peak_subtracted;
+
+  /* Subtracting baseline */
+  peak_subtracted.reserve(p.toIndex - p.fromIndex + 1);
+  for (int i = p.fromIndex; i <= p.toIndex; i++)
+    peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
+
+  r.peakArea = 0.0;
+  for (int idx = 1; idx < peak_subtracted.size(); idx++)
+    r.peakArea += ((peak_subtracted.at(idx) + peak_subtracted.at(idx - 1)) / 2.0) * (Data.at(idx + p.fromIndex).x() - Data.at(idx - 1 + p.fromIndex).x());
+
+  /* Height (5 %) */
+  int i_w005, j_w005;
+
+  /* TODO: Peak base search should probably take the baseline noise into account */
+  const int centerIndex = ir.peakIndex - p.fromIndex;
+
+  for (i_w005 = centerIndex; i_w005 > 0 && std::abs(peak_subtracted.at(i_w005)) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
+
+  double width005Left = r.peakX - Data.at(i_w005 + p.fromIndex).x();
+
+  for (j_w005 = centerIndex; j_w005 < peak_subtracted.size() && std::abs(peak_subtracted.at(j_w005)) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
+
+  double width005Right = Data.at(j_w005 + p.fromIndex).x() - r.peakX;
+
+  r.HVL_width005 = width005Left + width005Right;
+  r.HVL_width005Left = width005Left;
+  r.HVL_width005Right = width005Right;
+
+  r.seriesAOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.baselineSlope * Data[i_w005].x() + r.baselineIntercept));
+  r.seriesATwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
+  r.seriesBOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline * Data[i_w005].x() + r.baselineIntercept));
+  r.seriesBTwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
+
+  /* HVL Estimation */
+  r.HVL_tP = r.peakX;
+  r.HVL_tUSP = (width005Right + width005Left) / (2 * width005Left);
+
+  r.HVL_migT = r.HVL_tP;
+  r.HVL_width = r.widthHalfFull;
+  r.HVL_widthLeft = r.widthHalfLeft;
+  r.HVL_widthRight = r.widthHalfRight;
+
+  echmet::HVLCore::Coefficients HVL_coefficients = echmet::HVLCore::Coefficients::Calculate(r.peakArea, r.HVL_tP, r.widthHalfFull, r.HVL_tUSP);
+
+  r.HVL_a1 = HVL_coefficients.a1;
+  r.HVL_a2 = HVL_coefficients.a2;
+  r.HVL_a3 = HVL_coefficients.a3d;
+
+  r.HVL_tP = r.HVL_a1;
+  r.validateHvl();
 
   return r;
 }
