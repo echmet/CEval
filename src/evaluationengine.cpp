@@ -761,6 +761,7 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
                                                                                      const double epsilon,
                                                                                      const int iterations, const int digits,
                                                                                      const double tUsp,
+                                                                                     const double baselineSlope, const double baselineIntercept,
                                                                                      bool *ok)
 {
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> results;
@@ -790,8 +791,8 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
     fixA1,
     fixA2,
     fixA3,
-    m_currentPeak.baselineIntercept,
-    m_currentPeak.baselineSlope,
+    baselineIntercept,
+    baselineSlope,
     epsilon,
     iterations,
     digits,
@@ -1758,6 +1759,7 @@ void EvaluationEngine::onDoHvlFit()
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
                                                                                m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
                                                                                m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP),
+                                                                               m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept,
                                                                                &ok);
   if (ok) {
     m_hvlFitValues = results;
@@ -2395,6 +2397,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                           srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A2),
                           srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A3),
                           hvlEpsilon, hvlIterations, hvlDigits, hvlTUsp,
+                          er.baselineSlope, er.baselineIntercept,
                           &hvlOk);
     hvlResults[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
 

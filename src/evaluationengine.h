@@ -241,6 +241,7 @@ private:
                                                                      const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
                                                                      const double epsilon,
                                                                      const int iterations, const int digits, const double tUsp,
+                                                                     const double baselineSlope, const double baselineIntercept,
                                                                      bool *ok);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);

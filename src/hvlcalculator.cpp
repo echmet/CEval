@@ -102,7 +102,7 @@ void HVLCalculatorWorker::process()
   if (size < 1)
     return;
 
-  vector<double> x(size, 1);
+  vector<double> x(size);
   Mat<double>    y(size, 1);
 
   #pragma omp parallel for
