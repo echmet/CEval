@@ -42,6 +42,11 @@ void EvaluationUpperWidget::connectToAccumulator(QObject *dac)
 void EvaluationUpperWidget::onCloseFileClicked()
 {
   emit closeFile(ui->qcbox_files->currentIndex());
+
+  const int newIdx = ui->qcbox_files->currentIndex();
+
+  if (newIdx >= 0)
+      emit fileSwitched(newIdx);
 }
 
 void EvaluationUpperWidget::onComboBoxChangedExt(const EvaluationEngineMsgs::ComboBoxNotifier notifier)

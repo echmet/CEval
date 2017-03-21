@@ -1481,33 +1481,17 @@ void EvaluationEngine::onClipboardExporterDelimiterChanged(const QString &delimi
 
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
-  int newIdx;
-  const QString oldKey(m_currentDataContextKey);
-
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
 
   if (m_allDataContexts.size() == 0)
     return;
-  else if (m_allDataContexts.size() == 1) {
+  else {
     m_loadedFilesModel.deleteByIdx(idx);
+    m_allDataContexts.remove(m_currentDataContextKey);
     m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
     m_currentDataContextKey = "";
-  } else {
-    m_loadedFilesModel.deleteByIdx(idx);
-    newIdx = (idx > 0) ? idx - 1 : 0;
-    QString newKey = m_loadedFilesModel.data(m_loadedFilesModel.index(newIdx, 0), Qt::UserRole + 1).toString();
-
-    if (!m_allDataContexts.contains(newKey)) {
-      QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Data context for key %1 not found!")).arg(newKey));
-      return;
-    }
-
-    m_currentDataContext = m_allDataContexts[newKey];
-    m_currentDataContextKey = newKey;
   }
-
-  m_allDataContexts.remove(oldKey);
 
   activateCurrentDataContext();
 }
