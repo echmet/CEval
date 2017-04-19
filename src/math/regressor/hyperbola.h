@@ -172,17 +172,17 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
 
     // Finalize
 
-    if ( (_Y = (ndata * SummXX - SummX * SummX)) )
-        _X = (ndata * SummXY - SummX * SummY) / _Y;
-    else
-        _X = 0.0;
-    if (_Y)
-        _Y = (SummY * SummXX - SummX * SummXY) / _Y;
-    else
-        _Y = 0.0;
+    YT SLOPE;
+    YT INTERCEPT;
 
-    double SLOPE     = _X;
-    double INTERCEPT = _Y;
+    if ( (_Y = (ndata * SummXX - SummX * SummX)) )
+        SLOPE = (ndata * SummXY - SummX * SummY) / _Y;
+    else
+        SLOPE = 0.0;
+    if (_Y)
+        INTERCEPT = (SummY * SummXX - SummX * SummXY) / _Y;
+    else
+        INTERCEPT = 0.0;
 
     // hyperbola "delinearization"
 
@@ -244,7 +244,7 @@ YT RectangularHyperbola<XT, YT>::ACalculateDerivative (
 
     uS  /= YT(1) + m_viscoeff * x;
 
-    double helper = YT(1) + (KS * x);
+    const YT helper = YT(1) + (KS * x);
 
     switch(static_cast<RectangularHyperbolaParams>(param_idx))
     {
