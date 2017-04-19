@@ -163,7 +163,12 @@ bool Profiler<XT, YT>::profile(
 
     msize_t    df        = f.GetDF();
 
-    m_reg->Assign(f);
+    try {
+        m_reg->Assign(f);
+    } catch (std::bad_cast &) {
+        return false;
+    }
+
     m_reg->FixParameter(param_id, param);
     out.push_back(std::make_pair(param, converter( 0, 0.5, f, *m_reg )));
 

@@ -357,7 +357,13 @@ inline RegressFunction<XT, YT> *
 RegressFunction<XT, YT>::Clone(std::nothrow_t) const
 {
 
-    try { return Clone(); } catch(std::bad_alloc &) { return nullptr; }
+    try {
+        return Clone();
+    } catch(std::bad_alloc &) {
+        return nullptr;
+    } catch (std::bad_cast &) {
+        return nullptr;
+    }
 
 }
 
