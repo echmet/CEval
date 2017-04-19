@@ -157,7 +157,7 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
         // reading x and y
         _X = x[i]; _Y = y(i, 0);
 
-        if (_X == YT(0) || _Y == YT(0)) continue;
+        if (_X == YT(0) || _Y == u0) continue;
 
         // hyperbola linearization
         _X = 1./_X;	_Y = 1./(_Y - u0);

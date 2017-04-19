@@ -244,7 +244,7 @@ bool RectangularHyperbola2<XT, YT>::AInitialize(
         // reading x and y
         _X = x[i]; _Y = y(i,0);
 
-        if (_X.value == YT(0) || _Y == (_Y - u0[_X.index]) ) continue;
+        if (_X.value == YT(0) || _Y == u0[_X.index]) continue;
 
         // hyperbola linearization
         _XVAL = 1./_X.value;	_Y = 1./(_Y - u0[_X.index]);
