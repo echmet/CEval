@@ -213,6 +213,8 @@ protected:
 
     virtual bool AAccepted (YT, MatrixY const &) const { return true; }
 
+    virtual void AValidateParameters(MatrixY &) { return; }
+
     virtual void CalculateP ();
 
     template<typename ENUM>
@@ -501,6 +503,7 @@ RESTART:;
                 ++j;
             }
         }
+        AValidateParameters(m_params);
 
         YT sOld = this->GetS();
         OnParamsChanged(true);

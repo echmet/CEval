@@ -65,6 +65,8 @@ protected:
 
  virtual bool AAccepted (YT, MatrixY const & params) const override;
 
+ virtual void AValidateParameters(MatrixY &params) override;
+
 private:
 
  YT m_u0Setting;
@@ -275,6 +277,15 @@ const {
     return true;
 
 #endif
+
+}
+
+template <typename XT, typename YT>
+void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
+{
+
+    if (this->GetParam(params, RectangularHyperbolaParams::KS) <= YT(0.0))
+        this->SetParam(params, RectangularHyperbolaParams::KS, YT(1.0e-6));
 
 }
 
