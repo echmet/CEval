@@ -454,8 +454,6 @@ void HyperbolaFitWidget::onRemoveConcentrationClicked()
 {
   QMessageBox::StandardButton reply;
   QMap<int, QVariant> itemData;
-  double c;
-  bool ok;
   const QModelIndex &idx = ui->qlv_concentrations->currentIndex();
 
   if (!idx.isValid())
@@ -464,11 +462,8 @@ void HyperbolaFitWidget::onRemoveConcentrationClicked()
   itemData = ui->qlv_concentrations->model()->itemData(idx);
   if (!itemData.contains(Qt::DisplayRole))
     return;
-  c = itemData[Qt::DisplayRole].toDouble(&ok);
-  if (!ok)
-    return;
 
-  reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(c),
+  reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(itemData[Qt::DisplayRole].toString()),
                                 QMessageBox::Yes | QMessageBox::No);
   if (reply == QMessageBox::Yes) {
     const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
