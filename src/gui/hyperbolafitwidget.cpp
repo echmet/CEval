@@ -463,7 +463,9 @@ void HyperbolaFitWidget::onRemoveConcentrationClicked()
   if (!itemData.contains(Qt::DisplayRole))
     return;
 
-  reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(itemData[Qt::DisplayRole].toString()),
+  const QString numStr = itemData[Qt::DisplayRole].toString();
+
+  reply = QMessageBox::question(this, tr("Remove concentration?"), QString(tr("Really remove concentraiton \"%1\"?")).arg(numStr),
                                 QMessageBox::Yes | QMessageBox::No);
   if (reply == QMessageBox::Yes) {
     const QModelIndex srcidx = m_concentrationsSortProxy.mapToSource(idx);
