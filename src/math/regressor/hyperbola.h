@@ -68,9 +68,14 @@ protected:
  virtual void AValidateParameters(MatrixY &params) override;
 
 private:
+ enum class HyperbolaOrientation {
+     DOWNWARD,
+     UPWARD
+ };
 
  YT m_u0Setting;
  YT m_viscoeff;
+ HyperbolaOrientation m_hypOr;
 
 };
 
@@ -194,6 +199,15 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
     if (SLOPE )
         this->SetParam(params, RectangularHyperbolaParams::KS, INTERCEPT / SLOPE);
 
+    /* Store the orientation of the hyperbola. Regressor is very likely to fail if the guessed parameters
+     * describe a hyperbola with opposite orientation.
+     */
+
+    if (this->GetParam(params, RectangularHyperbolaParams::u0) > this->GetParam(params, RectangularHyperbolaParams::uS))
+        m_hypOr = HyperbolaOrientation::DOWNWARD;
+    else
+        m_hypOr = HyperbolaOrientation::UPWARD;
+
     // Check and Return
 
     return AAccepted(YT(0), params);
@@ -284,8 +298,31 @@ template <typename XT, typename YT>
 void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
 {
 
-    if (this->GetParam(params, RectangularHyperbolaParams::KS) <= YT(0.0))
-        this->SetParam(params, RectangularHyperbolaParams::KS, YT(1.0e-6));
+    static const YT DELTA = YT(1.0e-6);
+    static const YT ZERO = YT(0);
+
+    const YT u0 = this->GetParam(params, RectangularHyperbolaParams::u0);
+    const YT uS = this->GetParam(params, RectangularHyperbolaParams::uS);
+    const YT KS = this->GetParam(params, RectangularHyperbolaParams::KS);
+
+    /* Prevent the regressor from using negative complexation constant. */
+    if (KS <= ZERO)
+        this->SetParam(params, RectangularHyperbolaParams::KS, DELTA);
+
+    /* Try to prevent the regressor from inverting the orientation
+     * of the hyperbola. This requires the estimate to be good enough
+     * to at least predict the orientation of the hyperbola correctly
+     */
+    switch (m_hypOr) {
+    case HyperbolaOrientation::DOWNWARD:
+        if (u0 < uS)
+            this->SetParam(params, RectangularHyperbolaParams::uS, u0 - DELTA);
+      break;
+    case HyperbolaOrientation::UPWARD:
+        if (u0 > uS)
+            this->SetParam(params, RectangularHyperbolaParams::uS, u0 + DELTA);
+      break;
+    }
 
 }
 
