@@ -150,13 +150,13 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
     }
 
     this->SetParam(params, RectangularHyperbolaParams::u0, u0);
-    this->SetParam(params, RectangularHyperbolaParams::uS, YT(0));
-    this->SetParam(params, RectangularHyperbolaParams::KS, YT(0));
+    this->SetParam(params, RectangularHyperbolaParams::uS, ZERO);
+    this->SetParam(params, RectangularHyperbolaParams::KS, ZERO);
 
     long       ndata = 0;
     XT _X = XT(0);
-    YT _Y = YT(0);
-    YT SummX = YT(0); YT SummXX = YT(0); YT SummY = YT(0); YT SummXY = YT(0);
+    YT _Y = ZERO;
+    YT SummX = ZERO; YT SummXX = ZERO; YT SummY = ZERO; YT SummXY = ZERO;
 
     // Doit
 
@@ -165,7 +165,7 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
         // reading x and y
         _X = x[i]; _Y = y(i, 0);
 
-        if (_X == YT(0) || _Y == u0) continue;
+        if (_X == XT(0) || _Y == u0) continue;
 
         // hyperbola linearization
         _X = 1./_X;	_Y = 1./(_Y - u0);
@@ -186,11 +186,11 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
     if ( (_Y = (ndata * SummXX - SummX * SummX)) )
         SLOPE = (ndata * SummXY - SummX * SummY) / _Y;
     else
-        SLOPE = 0.0;
+        SLOPE = ZERO;
     if (_Y)
         INTERCEPT = (SummY * SummXX - SummX * SummXY) / _Y;
     else
-        INTERCEPT = 0.0;
+        INTERCEPT = ZERO;
 
     // hyperbola "delinearization"
 
@@ -211,7 +211,7 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
 
     // Check and Return
 
-    return AAccepted(YT(0), params);
+    return AAccepted(ZERO, params);
 
 }
 
