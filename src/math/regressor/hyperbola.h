@@ -317,11 +317,11 @@ void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
     case HyperbolaOrientation::DOWNWARD:
         if (u0 < uS)
             this->SetParam(params, RectangularHyperbolaParams::uS, u0 - DELTA);
-      break;
+        break;
     case HyperbolaOrientation::UPWARD:
         if (u0 > uS)
             this->SetParam(params, RectangularHyperbolaParams::uS, u0 + DELTA);
-      break;
+        break;
     }
 
 }
