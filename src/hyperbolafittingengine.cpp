@@ -1075,7 +1075,8 @@ QList<QStandardItem *> HyperbolaFittingEngine::makeConcentrationsList(const Anal
   QList<QStandardItem *> list;
 
   for (std::shared_ptr<Concentration> c : data) {
-    QStandardItem *item = new QStandardItem(DoubleToStringConvertor::convert(c->concentration));
+    QStandardItem *item = new QStandardItem();
+    item->setData(QVariant(c->concentration), Qt::DisplayRole);
     item->setData(c->concentration, Qt::UserRole + 1);
 
     list.push_back(item);
@@ -1089,7 +1090,8 @@ QList<QStandardItem *> HyperbolaFittingEngine::makeMobilitiesList(const Concentr
   QList<QStandardItem *> list;
 
   for (const double d : data) {
-    QStandardItem *item = new QStandardItem(DoubleToStringConvertor::convert(d));
+    QStandardItem *item = new QStandardItem();
+    item->setData(QVariant(d), Qt::DisplayRole);
     item->setData(d, Qt::UserRole + 1);
 
     list.push_back(item);
