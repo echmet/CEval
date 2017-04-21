@@ -77,6 +77,8 @@ private:
  YT m_viscoeff;
  HyperbolaOrientation m_hypOr;
 
+ const YT ZERO = YT(0);
+
 };
 
 //===========================================================================
@@ -87,7 +89,8 @@ template <typename XT, typename YT>
 inline RectangularHyperbola<XT, YT>::RectangularHyperbola()
 :
     RegressFunction<XT, YT>(3),
-    m_u0Setting(0.)
+    m_u0Setting(YT(0)),
+    ZERO(YT(0))
 {}
 
 //---------------------------------------------------------------------------
@@ -138,15 +141,13 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
 
     const size_t count = x.size();
 
-    YT   u0 = 0.;
-    bool found = false;
-    for (size_t i = 0; !found && i != count; ++i)
-        if ( x[i] == 0.) {
-            found = true;
+    YT u0 = m_u0Setting;
+    for (size_t i = 0; i != count; ++i) {
+        if (x.at(i) == ZERO) {
             u0 = y(i, 0);
+            break;
         }
-
-    if (!found) u0 = m_u0Setting;
+    }
 
     this->SetParam(params, RectangularHyperbolaParams::u0, u0);
     this->SetParam(params, RectangularHyperbolaParams::uS, YT(0));
@@ -299,7 +300,6 @@ void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
 {
 
     static const YT DELTA = YT(1.0e-6);
-    static const YT ZERO = YT(0);
 
     const YT u0 = this->GetParam(params, RectangularHyperbolaParams::u0);
     const YT uS = this->GetParam(params, RectangularHyperbolaParams::uS);
