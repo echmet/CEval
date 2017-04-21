@@ -304,9 +304,11 @@ void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
     const YT u0 = this->GetParam(params, RectangularHyperbolaParams::u0);
     const YT uS = this->GetParam(params, RectangularHyperbolaParams::uS);
     const YT KS = this->GetParam(params, RectangularHyperbolaParams::KS);
+    const bool u0Free = !this->IsFixedParameter(RectangularHyperbolaParams::u0);
+    const bool uSFree = !this->IsFixedParameter(RectangularHyperbolaParams::uS);
 
     /* Prevent the regressor from using negative complexation constant. */
-    if (KS <= ZERO)
+    if (KS <= ZERO && !this->IsFixedParameter(RectangularHyperbolaParams::KS))
         this->SetParam(params, RectangularHyperbolaParams::KS, DELTA);
 
     /* Try to prevent the regressor from inverting the orientation
@@ -315,12 +317,22 @@ void RectangularHyperbola<XT, YT>::AValidateParameters(MatrixY & params)
      */
     switch (m_hypOr) {
     case HyperbolaOrientation::DOWNWARD:
-        if (u0 < uS)
-            this->SetParam(params, RectangularHyperbolaParams::uS, u0 - DELTA);
+        if (u0 < uS) {
+            if (uSFree)
+                this->SetParam(params, RectangularHyperbolaParams::uS, u0 - DELTA);
+            else if (u0Free)
+                this->SetParam(params, RectangularHyperbolaParams::u0, uS + DELTA);
+            /* else: Both parameters are fixed - hyperbola orientation shall never change */
+        }
         break;
     case HyperbolaOrientation::UPWARD:
-        if (u0 > uS)
-            this->SetParam(params, RectangularHyperbolaParams::uS, u0 + DELTA);
+        if (u0 > uS) {
+            if (uSFree)
+                this->SetParam(params, RectangularHyperbolaParams::uS, u0 + DELTA);
+            else if (u0Free)
+                this->SetParam(params, RectangularHyperbolaParams::u0, uS - DELTA);
+            /* else: Both parameters are fixed - hyperbola orientation shall never change */
+        }
         break;
     }
 
