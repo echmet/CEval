@@ -825,7 +825,8 @@ HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleEstimate()
 HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleFit(const HypResults &r)
 {
   echmet::regressCore::RectangularHyperbola<double, double> &sfrRef = *m_singleFitRegressor;
-  sfrRef.Regress();
+  if (!sfrRef.Regress())
+    return HypResults();
 
   double u0 = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::u0);
   double uCS = sfrRef.GetParameter(echmet::regressCore::RectangularHyperbolaParams::uS);
