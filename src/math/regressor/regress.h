@@ -142,6 +142,7 @@ public:
     bool    IsAccepted() const { return m_accepted; }
 
     bool    HasConverged() const;
+    void    CheckSolution(const MatrixY &A, const MatrixY &result, const MatrixY &rhs) const;
 
     msize_t GetNCount       () const;
     msize_t GetPCount       () const; // 1
@@ -458,12 +459,11 @@ RESTART:;
         INSPECT(m_beta)
 #endif
 
-        /* FIXME: Eigen does not throw if there is no solution */
         try {
               checkMatrix(m_alpha);
 
               m_delta = m_alpha.lu().solve(m_beta);
-              //m_delta = solve(m_alpha, m_beta, solve_opts::equilibrate + solve_opts::no_approx);
+              CheckSolution(m_alpha, m_delta, m_beta);
         } catch (std::runtime_error &) {
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
@@ -471,9 +471,6 @@ RESTART:;
             m_iterationCounter++;
             goto FINALIZE;
 
-        } catch (std::logic_error &) {
-          m_accepted = false;
-          return false;
         }
 
 
@@ -934,6 +931,15 @@ void RegressFunction<XT, YT>::checkMatrix (MatrixY const & matrix) noexcept(fals
                 throw std::runtime_error("Non-numerical values in matrix");
         }
     }
+}
+
+template <typename XT, typename YT>
+void RegressFunction<XT, YT>::CheckSolution(const MatrixY &A, const MatrixY &result, const MatrixY &rhs) const
+{
+    const bool solutionExists = (A * result).isApprox(rhs, 1.0e-10);
+
+    if (!solutionExists)
+        throw std::runtime_error("No solution exists!");
 }
 
 //---------------------------------------------------------------------------
