@@ -24,14 +24,14 @@ template<typename XT = double, typename YT = double> class RectangularHyperbola
 : public RegressFunction<XT, YT> {
 public:
 
-    typedef Mat<YT> MatrixY;
+ typedef typename RegressFunction<XT, YT>::MatrixY MatrixY;
 
  RectangularHyperbola ();
 
  ~RectangularHyperbola ();
 
  bool Initialize (
-     vector<XT> const & x,
+     Vector<XT> const & x,
      MatrixY const & y,
      YT eps, unsigned nmax, bool dumping,
      YT u0Setting = YT(0),
@@ -44,7 +44,7 @@ protected:
 
  virtual bool AInitialize(
      MatrixY       & params,
-     vector<XT> const & x,
+     Vector<XT> const & x,
      MatrixY const & y
  ) override;
 
@@ -100,8 +100,7 @@ RectangularHyperbola<XT, YT>::~RectangularHyperbola ()
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline bool RectangularHyperbola<XT, YT>::Initialize(
-    vector<XT> const & x,
+inline bool RectangularHyperbola<XT, YT>::Initialize(const Vector<XT> &x,
     MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
     YT u0Setting, YT viscoeff
@@ -130,9 +129,8 @@ inline RectangularHyperbola<XT, YT> * RectangularHyperbola<XT, YT>::ACreate() co
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool RectangularHyperbola<XT, YT>::AInitialize(
-    MatrixY       & params,
-    vector<XT> const & x,
+bool RectangularHyperbola<XT, YT>::AInitialize(MatrixY & params,
+    const Vector<XT> &x,
     MatrixY const & y
 )
 {
@@ -143,7 +141,7 @@ bool RectangularHyperbola<XT, YT>::AInitialize(
 
     YT u0 = m_u0Setting;
     for (size_t i = 0; i != count; ++i) {
-        if (x.at(i) == ZERO) {
+        if (x(i) == ZERO) {
             u0 = y(i, 0);
             break;
         }

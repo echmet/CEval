@@ -27,13 +27,13 @@ template<typename XT = double, typename YT = double> class HVLPeak
 : public RegressFunction<XT, YT> {
 public:
 
-    typedef Mat<YT> MatrixY;
+    typedef Eigen::Matrix<YT, Eigen::Dynamic, Eigen::Dynamic> MatrixY;
 
     HVLPeak (const HVLLibWrapper *hvlLib = nullptr);
     ~HVLPeak();
 
     bool Initialize (
-         vector<XT> const & x,
+         Vector<XT> const & x,
          MatrixY const & y,
          YT eps, unsigned nmax, bool dumping,
          HVLCore::Coefficients c, YT bsl, YT bslSlope
@@ -45,7 +45,7 @@ protected:
 
     virtual bool AInitialize(
         MatrixY          & params,
-        vector<XT> const & x,
+        Vector<XT> const & x,
         MatrixY    const & y
     ) override;
 
@@ -97,7 +97,7 @@ HVLPeak<XT, YT>::~HVLPeak ()
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 bool HVLPeak<XT, YT>::Initialize (
-    vector<XT> const & x,
+    Vector<XT> const & x,
     MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
     HVLCore::Coefficients c, YT bsl, YT bslSlope
@@ -127,7 +127,7 @@ HVLPeak<XT, YT> * HVLPeak<XT, YT>::ACreate() const
 template <typename XT, typename YT>
 bool HVLPeak<XT, YT>::AInitialize(
     MatrixY       & params,
-    vector<XT> const &,
+    Vector<XT> const &,
     MatrixY const &
 )
 {

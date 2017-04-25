@@ -10,7 +10,6 @@ TARGET = CEval
 TEMPLATE = app
 
 DEFINES += _USE_MATH_DEFINES
-DEFINES += ARMA_DONT_USE_WRAPPER
 unix {
     DEFINES += LIBHVL_PLATFORM_UNIX
 } win32 {
@@ -48,7 +47,6 @@ xsimd {
 
 CONFIG(release, debug|release) {
     DEFINES += USE_CRASHHANDLER
-    DEFINES += ARMA_NO_DEBUG
 }
 CONFIG(debug, debug|release) {
     # Configuration specific for "debug" build
@@ -401,7 +399,7 @@ unix {
 include($$PWD/CEval.pri)
 
 !win32-msvc2015 {
-    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$ARMAPATH/include\" -isystem \"$$QWTPATH/include\""
+    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$EIGENPATH/include\" -isystem \"$$QWTPATH/include\""
 } else {
     QMAKE_LFLAGS_RELEASE += /MAP
     QMAKE_CFLAGS_RELEASE += /Zi

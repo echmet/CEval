@@ -8,11 +8,8 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QThread>
-#include <armadillo>
+#include <Eigen/Dense>
 #include <functional>
-
-using namespace arma;
-using namespace std;
 
 HVLCalculator *HVLCalculator::s_me;
 
@@ -102,8 +99,8 @@ void HVLCalculatorWorker::process()
   if (size < 1)
     return;
 
-  vector<double> x(size);
-  Mat<double>    y(size, 1);
+  Eigen::VectorXd x(size);
+  Eigen::MatrixXd y(size, 1);
 
   #pragma omp parallel for
   for (int j = 0; j < size; ++j) {

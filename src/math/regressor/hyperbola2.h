@@ -99,14 +99,14 @@ public:
 
     typedef RectangularHyperbola2XType<XT> x_type;
 
-    typedef Mat<YT> MatrixY;
+    typedef typename RegressFunction<XT, YT>::MatrixY MatrixY;
 
     RectangularHyperbola2 ();
 
     virtual ~RectangularHyperbola2 () override;
 
     bool Initialize (
-        vector<x_type> const & x,
+        Vector<x_type> const & x,
         MatrixY const & fx,
         YT eps, unsigned nmax, bool dumping,
         YT u01Setting = YT(0), YT u02Setting = YT(0), YT visckoef = YT(0)
@@ -123,7 +123,7 @@ protected:
 
  virtual bool AInitialize(
      MatrixY       & params,
-     vector<x_type> const & x,
+     Vector<x_type> const & x,
      MatrixY const & y
  ) override;
 
@@ -172,7 +172,7 @@ RectangularHyperbola2<XT, YT>
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 inline bool RectangularHyperbola2<XT, YT>::Initialize(
-    vector<x_type> const & x,
+    Vector<x_type> const & x,
     MatrixY const & y,
     YT eps, unsigned nmax, bool damping,
     YT u01Setting, YT u02Setting, YT viscoeff
@@ -202,9 +202,8 @@ RectangularHyperbola2<XT, YT>::ACreate() const
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-bool RectangularHyperbola2<XT, YT>::AInitialize(
-    MatrixY       & params,
-    vector<x_type> const & x,
+bool RectangularHyperbola2<XT, YT>::AInitialize(MatrixY & params,
+    const Vector<x_type> &x,
     MatrixY const & y
 )
 {

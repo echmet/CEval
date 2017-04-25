@@ -297,12 +297,12 @@ HyperbolaFittingEngine::HyperbolaFittingEngine(QObject *parent) :
 
   connect(&m_fitFixedModel, &BooleanMapperModel<HyperbolaFitParameters::Boolean>::dataChanged, this, &HyperbolaFittingEngine::onSecondAnalyteSameChanged);
 
-  typedef Mat<double> MatrixD;
+  typedef Eigen::MatrixXd MatrixD;
 
   /* Preinitialize regressors */
   {
-    vector<double> mat_x(1, 1);
-    MatrixD        mat_y(1, 1);
+    Eigen::VectorXd mat_x(1, 1);
+    MatrixD         mat_y(1, 1);
     bool ret;
 
     mat_x[0] = 0;
@@ -317,7 +317,7 @@ HyperbolaFittingEngine::HyperbolaFittingEngine(QObject *parent) :
         throw regressor_initialization_error("Failed to preinitialize single fit regressor");
   }
   {
-    vector<hyp2x_type> mat_x(1, 1);
+    Vector<hyp2x_type> mat_x(1, 1);
     MatrixD            mat_y(1, 1);
     bool ret;
 
@@ -554,9 +554,9 @@ HyperbolaFittingEngine::DoubleHypResults HyperbolaFittingEngine::doDoubleEstimat
   /* Prevent any ptr vs. var mishaps */
   echmet::regressCore::RectangularHyperbola2<double, double> &dfrRef = *m_doubleFitRegressor;
 
-  typedef Mat<double> MatrixD;
+  typedef Eigen::VectorXd MatrixD;
 
-  vector<hyp2x_type> mat_x;
+  Vector<hyp2x_type> mat_x;
   MatrixD            mat_y;
 
   if (m_currentAnalyte == nullptr || m_secondAnalyte == nullptr)
@@ -579,7 +579,7 @@ HyperbolaFittingEngine::DoubleHypResults HyperbolaFittingEngine::doDoubleEstimat
   const Analyte::ConcentrationMap &cs1 = (!usedForStats) ? m_currentAnalyte->concentrations : ( (m_statsForAnalyte == AnalyteId::ANALYTE_A) ? m_currentAnalyte->concentrations : m_secondAnalyte->concentrations );
   const Analyte::ConcentrationMap &cs2 = (!usedForStats) ? m_secondAnalyte->concentrations : ( (m_statsForAnalyte == AnalyteId::ANALYTE_A) ? m_secondAnalyte->concentrations : m_currentAnalyte->concentrations );
 
-  mat_x = vector<hyp2x_type> (cs1.size() + cs2.size());
+  mat_x = Vector<hyp2x_type> (cs1.size() + cs2.size());
   mat_y = MatrixD            (cs1.size() + cs2.size(), 1);
 
   // reading 1st
@@ -740,9 +740,9 @@ HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleEstimate()
   /* Prevent any ptr vs. var mishaps */
   echmet::regressCore::RectangularHyperbola<double, double> &sfrRef = *m_singleFitRegressor;
 
-  typedef Mat<double> MatrixD;
+  typedef Eigen::MatrixXd MatrixD;
 
-  vector<double> mat_x;
+  Vector<double> mat_x;
   MatrixD        mat_y;
 
   if (m_currentAnalyte == nullptr)
@@ -762,7 +762,7 @@ HyperbolaFittingEngine::HypResults HyperbolaFittingEngine::doSingleEstimate()
 
   const Analyte::ConcentrationMap &cs = m_currentAnalyte->concentrations;
 
-  mat_x = vector<double>(cs.size());
+  mat_x = Vector<double>(cs.size());
   mat_y = MatrixD(cs.size(), 1);
   int idx = 0;
   for (std::shared_ptr<const Concentration> c : cs) {

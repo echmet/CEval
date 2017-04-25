@@ -28,8 +28,7 @@
 
 #include <new>
 #include <fstream> // debug
-#include <vector>
-#include <armadillo>
+#include <Eigen/Dense>
 
 //===========================================================================
 // CODE
@@ -39,10 +38,6 @@
 namespace echmet {
 
 namespace regressCore {
-
-//---------------------------------------------------------------------------
-using namespace arma;
-using namespace std;
 
 //---------------------------------------------------------------------------
 #if ECHMET_REGRESS_DEBUG == 1
@@ -74,11 +69,8 @@ typedef foostream dbstream;
 //===========================================================================
 // dcl
 
-#ifdef _MSC_VER
-    typedef int msize_t;
-#else
-    typedef size_t msize_t;
-#endif
+template<typename T> using Vector = Eigen::Matrix<T, Eigen::Dynamic, 1>;
+typedef int msize_t;
 
 //---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double> class RegressFunction {
@@ -90,7 +82,7 @@ public:
     typedef XT x_type;
     typedef YT y_type;
 
-    typedef Mat<YT> MatrixY;
+    typedef Eigen::Matrix<YT, Eigen::Dynamic, Eigen::Dynamic> MatrixY;
 
     typedef void (*report_function)(RegressFunction const &, void *);
 
@@ -106,7 +98,7 @@ public:
     // Controllers
 
     bool Initialize  (
-        vector<XT> const & x,
+        Vector<XT> const & x,
         MatrixY const & y,
         YT eps, unsigned nmax, bool damp
     );
@@ -133,7 +125,7 @@ public:
     report_function GetReportFunction() const { return m_report_function; }
 
     MatrixY const & GetParameters()       const { return m_params; }
-    vector<XT> const & GetXs()            const { return m_x; }
+    Vector<XT> const & GetXs()            const { return m_x; }
     MatrixY const & GetYs()               const { return m_y; }
     MatrixY const & GetFx()               const { return m_fx; }
     MatrixY const & GetErrors()           const { return m_error; }
@@ -176,7 +168,7 @@ protected:
 
     //---
     // Initialized in Initialize
-    vector<XT>       m_x;   //data x                 [x, 1]
+    Vector<XT>       m_x;   //data x                 [x, 1]
     MatrixY          m_fx;  //fx calculated          [x, 1]
 
     // Initialized in constructor
@@ -192,7 +184,7 @@ protected:
 
     virtual bool AInitialize(
      MatrixY       & params,
-     vector<XT> const & x,
+     Vector<XT> const & x,
      MatrixY const & y
     ) = 0;
 
@@ -231,8 +223,8 @@ private:
     void *   m_report_function_context;
 
     // Initialized in constructor
-    vector<bool>     m_fixedParams;     //           [params]
-    vector<msize_t>  m_pindexes;        //           [params]
+    Vector<bool>     m_fixedParams;     //           [params]
+    Vector<msize_t>  m_pindexes;        //           [params]
 
     // Initialized in Initialize
     MatrixY          m_y;   //data y                 [x, 1]
@@ -308,7 +300,7 @@ RegressFunction<XT, YT>::~RegressFunction()
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline bool RegressFunction<XT, YT>::Initialize  (const vector<XT> &x,
+inline bool RegressFunction<XT, YT>::Initialize  (const Vector<XT> &x,
     const MatrixY &y,
     YT eps, unsigned nmax, bool damp
 )
@@ -325,14 +317,14 @@ inline bool RegressFunction<XT, YT>::Initialize  (const vector<XT> &x,
     m_epsilon  = eps;
     m_damping  = damp;
 
-    if (x.size() == 0 || x.size() != y.n_rows) return false;
+    if (x.size() == 0 || x.size() != y.rows()) return false;
 
     m_x = x;
     m_y = y;
 
     if (!AInitialize(m_params, m_x, m_y)) return false;
 
-    m_fx = MatrixY(m_y.n_rows, 1);
+    m_fx = MatrixY(m_y.rows(), 1);
 
     OnParamsChanged();
 
@@ -440,11 +432,7 @@ RESTART:;
 
     while ( m_iterationCounter != m_nmax && fabs(m_improvement) > m_epsilon && !m_aborted ) {
 
-        // alpha
-        // $$$ alpha = p * p.GetTransposed();
-        //m_alpha(m_p);
-
-        m_alpha = m_p * trans(m_p);
+        m_alpha = m_p * m_p.transpose();
 
         if (m_damping) {
 
@@ -453,7 +441,7 @@ RESTART:;
 
             debug << "lambda: " << m_lambda << std::endl;
 
-            m_alpha.diag(0) *= (1 + m_lambda);
+            m_alpha.diagonal(0) *= (1 + m_lambda);
 
         };
 
@@ -470,14 +458,12 @@ RESTART:;
         INSPECT(m_beta)
 #endif
 
+        /* FIXME: Eigen does not throw if there is no solution */
         try {
-
-              //delta
-              // $$$ delta = alpha.Inverted() * beta;
-              //GaussSolver<double, trRows>::Solve(m_alpha, m_delta);
               checkMatrix(m_alpha);
 
-              m_delta = solve(m_alpha, m_beta, solve_opts::equilibrate + solve_opts::no_approx);
+              m_delta = m_alpha.lu().solve(m_beta);
+              //m_delta = solve(m_alpha, m_beta, solve_opts::equilibrate + solve_opts::no_approx);
         } catch (std::runtime_error &) {
 
             debug << " !!!! SINGULARITY ERROR -> goto FINALIZE !!!! " << std::endl;
@@ -495,9 +481,7 @@ RESTART:;
         INSPECT(m_delta)
 #endif
 
-        //params
-        // $$$ params += delta;
-        for (unsigned long i = 0, j = 0; i < m_fixedParams.size(); ++i) {
+        for (int i = 0, j = 0; i < m_fixedParams.size(); ++i) {
             if (!m_fixedParams[i]) {
                 m_params(i, 0) += m_delta(j, 0);
                 ++j;
@@ -659,7 +643,7 @@ template <typename XT, typename YT>
 inline msize_t RegressFunction<XT, YT>::GetNCount() const
 {
 
-    return m_y.n_rows;
+    return m_y.rows();
 
 }
 
@@ -800,7 +784,7 @@ inline void RegressFunction<XT, YT>::OnParamsChanged(bool regressCall) {
         Reset();
 
         m_p = MatrixY(m_notFixed, m_x.size());
-        for (msize_t i = 0, nfx = 0; i != m_params.n_rows; ++i)
+        for (msize_t i = 0, nfx = 0; i != m_params.rows(); ++i)
             if (!IsFixedParameter(i)) m_pindexes[nfx++] = i;
 
     }
@@ -932,7 +916,7 @@ inline void RegressFunction<XT, YT>::CalculateRSS () {
     // RSS
     // $$$ RSS = (Error.GetTransposed() * Error)[0][0];
     MatrixY RSStmp(1,1);
-    RSStmp = trans(m_error) * m_error;
+    RSStmp = m_error.transpose() * m_error;
 
     m_rss = RSStmp(0,0);
 
@@ -942,16 +926,14 @@ inline void RegressFunction<XT, YT>::CalculateRSS () {
 
 template <typename XT, typename YT>
 void RegressFunction<XT, YT>::checkMatrix (MatrixY const & matrix) noexcept(false) {
-  typename MatrixY::const_iterator cit = matrix.begin();
+    for (int col = 0; col < matrix.cols(); col++) {
+        for (int row = 0; row < matrix.rows(); row++) {
+            const YT &v = matrix(row, col);
 
-  while (cit != matrix.end()) {
-    YT const & v = *cit;
-
-    if (std::isnan(v) || std::isinf(v))
-      throw std::runtime_error("Non-numerical values in matrix");
-
-    cit++;
-  }
+            if (std::isnan(v) || std::isinf(v))
+                throw std::runtime_error("Non-numerical values in matrix");
+        }
+    }
 }
 
 //---------------------------------------------------------------------------
