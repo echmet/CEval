@@ -8,7 +8,7 @@
 
 #define ECHMET_REGRESS_DEBUG           0
 
-#define ECHMET_REGRESS_DEBUG_PATH      "Q:\\Users\\Developer"
+#define ECHMET_REGRESS_DEBUG_PATH      "./regressor_debug/"
 
 #define ECHMET_REGRESS_DEBUG_X         0
 #define ECHMET_REGRESS_DEBUG_Y         0
@@ -47,10 +47,10 @@ typedef std::fstream dbstream;
 #define INSPECT(MATRIX) {                                                      \
     debug << "\n------------------\n"                                          \
           << #MATRIX                                                           \
-          << "[" << MATRIX.n_rows << "] [" << MATRIX.n_cols << "]"   \
+          << "[" << MATRIX.rows() << "] [" << MATRIX.cols() << "]"   \
           << std::endl;                                                        \
-    for (msize_t i = 0; i != MATRIX.n_rows; ++i) {                      \
-        for (msize_t j = 0; j != MATRIX.n_cols; ++j)                     \
+    for (msize_t i = 0; i != MATRIX.rows(); ++i) {                      \
+        for (msize_t j = 0; j != MATRIX.cols(); ++j)                     \
         debug << MATRIX(i,j) << "\t";                                         \
         debug << std::endl;                                                    \
     }                                                                          \
@@ -208,7 +208,7 @@ protected:
 
     virtual void AValidateParameters(MatrixY &) { return; }
 
-    virtual void CalculateP ();
+    virtual void ACalculateP ();
 
     template<typename ENUM>
     void SetParam(MatrixY & params, ENUM id, YT);
@@ -289,7 +289,7 @@ inline RegressFunction<XT, YT>::RegressFunction (msize_t params)
 
     Reset();
 
-    m_fixedParams.resize(params);
+    m_fixedParams = Vector<bool>::Constant(params, 1, false);
     m_pindexes.resize(params);
 
 }
@@ -462,7 +462,7 @@ RESTART:;
         try {
               checkMatrix(m_alpha);
 
-              m_delta = m_alpha.lu().solve(m_beta);
+              m_delta = m_alpha.colPivHouseholderQr().solve(m_beta);
               CheckSolution(m_alpha, m_delta, m_beta);
         } catch (std::runtime_error &) {
 
@@ -621,7 +621,7 @@ template<typename ENUM>
 inline bool RegressFunction<XT, YT>::IsFixedParameter(ENUM id)
 {
 
-    return m_fixedParams[static_cast<msize_t>(id)];
+    return m_fixedParams(static_cast<msize_t>(id));
 
 }
 
@@ -845,24 +845,25 @@ template <typename XT, typename YT>
 void RegressFunction<XT, YT>::OnParamsChangedInternal()
 {
     CalculateFx();
-    CalculateP();
+    ACalculateP();
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
 inline void RegressFunction<XT, YT>::CalculateFx () {
-#pragma omp parallel for
+
     for (msize_t i = 0; i < m_x.size(); ++i)
-    m_fx(i, 0) = ACalculateFx(m_x[i], m_params, i);
+        m_fx(i, 0) = ACalculateFx(m_x[i], m_params, i);
 }
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-void RegressFunction<XT, YT>::CalculateP () {
+void RegressFunction<XT, YT>::ACalculateP () {
 
     for (size_t i = 0; i != static_cast<size_t>(m_notFixed); ++i) {
 
         const msize_t pid = m_pindexes[i];
+
         #pragma omp parallel for
         for (msize_t k = 0; k < m_x.size(); ++k)
             m_p(i,k) = ACalculateDerivative(m_x[k], m_params, pid, k);

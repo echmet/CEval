@@ -8,7 +8,6 @@
 #include "../hvlestimate.h"
 #include "regress.h"
 
-
 //===========================================================================
 // CODE
 
@@ -27,7 +26,7 @@ template<typename XT = double, typename YT = double> class HVLPeak
 : public RegressFunction<XT, YT> {
 public:
 
-    typedef Eigen::Matrix<YT, Eigen::Dynamic, Eigen::Dynamic> MatrixY;
+    typedef typename RegressFunction<XT, YT>::MatrixY MatrixY;
 
     HVLPeak (const HVLLibWrapper *hvlLib = nullptr);
     ~HVLPeak();
@@ -66,7 +65,7 @@ protected:
 
     virtual bool AAccepted (YT, MatrixY const & params) const override;
 
-    virtual void CalculateP () override;
+    virtual void ACalculateP () override;
     virtual void OnParamsChangedInternal () override;
 
 private:
@@ -215,11 +214,11 @@ const {
 template <typename XT, typename YT>
 void HVLPeak<XT, YT>::OnParamsChangedInternal()
 {
-  CalculateP(); /* Our CalculateP calculates Fx as well */
+  ACalculateP(); /* Our CalculateP calculates Fx as well */
 }
 
 template <typename XT, typename YT>
-void HVLPeak<XT, YT>::CalculateP()
+void HVLPeak<XT, YT>::ACalculateP()
 {
     /* I must have done something really terrible in my previous life... */
 

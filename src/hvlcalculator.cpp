@@ -102,7 +102,6 @@ void HVLCalculatorWorker::process()
   Eigen::VectorXd x(size);
   Eigen::MatrixXd y(size, 1);
 
-  #pragma omp parallel for
   for (int j = 0; j < size; ++j) {
     x[j]   = m_params.data->at(m_params.fromIdx + j).x();
     y(j,0) = m_params.data->at(m_params.fromIdx + j).y();
