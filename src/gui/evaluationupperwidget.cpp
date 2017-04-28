@@ -20,6 +20,10 @@ EvaluationUpperWidget::EvaluationUpperWidget(QWidget *parent) :
   m_splitter->addWidget(m_evaluatedPeaksWidget);
   m_splitter->addWidget(m_evaluationWidget);
 
+  m_splitter->setStretchFactor(0, 0);
+  m_splitter->setStretchFactor(1, 0);
+  m_splitter->setStretchFactor(2, 1);
+
   connect(ui->qcbox_files, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationUpperWidget::onFileComboBoxChanged);
   connect(ui->qpb_closeFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onCloseFileClicked);
   connect(ui->qpb_nextFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onNextFileClicked);
