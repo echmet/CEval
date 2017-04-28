@@ -11,7 +11,7 @@ In ACE mode CEval can assist with evaluation of electrophoretic mobilities and c
 Dependencies
 ---
 
-CEval makes use of the following tools:
+CEval makes use of the following toolkits:
 
 - [Qt 5 toolkit](http://www.qt.io/)
 - [Boost](http://www.boost.org/)
