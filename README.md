@@ -14,11 +14,9 @@ Dependencies
 CEval makes use of the following tools:
 
 - [Qt 5 toolkit](http://www.qt.io/)
-- [Armadillo](http://arma.sourceforge.net/)
-- [BLAS](http://www.netlib.org/blas/)
-- [LAPACK](http://www.netlib.org/lapack/)
 - [Boost](http://www.boost.org/)
 - [Qwt](http://qwt.sourceforge.net/)
+- [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [libHPCS](https://github.com/echmet/libHPCS)
 - [HVL_MT](https://github.com/echmet/HVL_MT)
 
@@ -27,11 +25,7 @@ All of the libraries and packages above are hard dependencies. CEval cannot be b
 Build
 ---
 
-Prior to building CEval, all hard dependencies have to be available in binary form, either by building them from source or by obtaining an appropriate pre-built package (The binary form requirement does not apply for the Boost libraries). Refer to web presentations of the respective projects for further instructions.
-
-CEval is configured to use the Armadillo library only as a wrapper at the source code level, it links directly against BLAS and LAPACK. When building Armadillo, set the variable `ARMA_USE_WRAPPER` to `false` in its `CMakeLists.txt` file.
-
-It is possible to build Armadillo as a binary wrapper and/or link against other LAPACK and BLAS implementations supported by the Armadillo library. However, note that such configurations have not been tested by CEval developers. Should you wish to try, note that the `LIBS` variable in `CEval.pri` has to be adjusted accordingly.
+Prior to building CEval, all hard dependencies have to be available in binary form, either by building them from source or by obtaining an appropriate pre-built package (the binary form requirement does not apply to the Boost and Eigen libraries). Please refer to web presentations of the respective projects for further instructions.
 
 1. Setting up paths to build dependencies
 
@@ -41,8 +35,13 @@ It is possible to build Armadillo as a binary wrapper and/or link against other 
   - `HPCSPATH` - Path to the directory which contains both **libHPCS** shared library and **libHPCS.h** public header file
   - `BOOSTPATH` - Path to the directory with the Boost library headers
   - `QWTPATH` - Path to the **features/qwt.prf** file
-  - `ARMAPATH` - Path to the directory where the Armadillo library is installed. This path must include the **/lib** and **/include** subdirectories.
-  - Set the `LIBS` QMake variable in `CEval.pri` to point to your **BLAS** and **LAPACK** libraries locations or use `-lblas` and  `-llapack` if you have a system-wide installation of these libraries.
+  - `EIGENPATH` - Path to the directory where the Eigen library is located
+
+**Hint:** If you intend to modify CEval and commit your changes to git, we suggest you run
+
+`git update-index --assume-unchanged CEval.pri`
+
+prior to making any changes to the `CEval.pri` file. This will make git exclude any changes made to the file while still being aware of any upstream changes to that file.
 
 2. Building
 
@@ -59,20 +58,23 @@ It is possible to build Armadillo as a binary wrapper and/or link against other 
 
   ### Windows
 
-  It is recommended to install [QtCreator](https://www.qt.io/ide/) and use its user interface to set the project up and build it. While it might be possible to use other compilers, the authors recommend to use the [MinGW toolchain](http://www.mingw.org/) to build CEval. Development package for Windows downloadable from the [Qt project's](http://qt.io) website ships both Qt 5 and MinGW compiler.
+  It is recommended to install [QtCreator](https://www.qt.io/ide/) and use its user interface to set the project up and build it. CEval has been tested to build with both [MinGW toolchain](http://www.mingw.org/) and Microsoft VC++14 (part of [Microsoft Visual Studio 2015](https://www.visualstudio.com/)). Microsoft VC++14 is the preferred compiler on Windows. Development package for Windows downloadable from the [Qt project's](http://qt.io) website ships Qt 5 binaries linkable against MinGW and VC++14 binaries and the MinGW compiler, Microsoft VC++14 compiler has to be obtained separately.
+
 
 3. Run
 
-  If the Qwt, libHPCS and libhvl_mt libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib**; **libHPCS.so, libHPCS.dll, libHPCS.dylib** and **libhvl_mt.so, libhvl_mt.dll, libhvl_mt.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the same directory as CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries.
+  If the Qwt, libHPCS and libhvl_mt libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib**; **libHPCS.so, libHPCS.dll, libHPCS.dylib** and **libhvl_mt.so, libhvl_mt.dll, libhvl_mt.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the directory which contains the CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries, Windows users may adjust the **PATH** variable in the same manner.
 
 Pre-built binaries
 ---
-Pre-built binaries for commonly used platforms can be downloaded from here:  
+Pre-built binaries for commonly used platforms can be downloaded from the link below. Please note that the binaries may be considerably out of date.
+
 [ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
 
 Usage
 ---
-Tutorial for CEval can be obtained from here:  
+Tutorial for CEval can be obtained from here. Please keep in mind that the tutorial corresponds to the binary version that is available for download at the ECHMET website and may not reflect the state of the latest development code.
+
 [ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
 
 Licensing
