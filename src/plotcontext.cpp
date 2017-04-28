@@ -606,7 +606,7 @@ QRectF PlotContext::uniteBoundingRects() const
 {
   QRectF total;
 
-  for (const std::shared_ptr<QwtPlotCurve> plotCurve : m_plotCurves) {
+  for (const std::shared_ptr<QwtPlotCurve> &plotCurve : m_plotCurves) {
     if (plotCurve->data()->size() == 0)
       continue;
     if (plotCurve->plot() == nullptr)
