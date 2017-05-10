@@ -171,6 +171,11 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     return Data();
   }
 
+  if (lines.size() < linesToSkip + 1) {
+    QMessageBox::warning(nullptr, QObject::tr("Invalid data"), QObject::tr("File contains less lines than the number of lines that were to be skipped"));
+    return Data();
+  }
+
   linesRead = linesToSkip;
   if (hasHeader) {
     QStringList header;
@@ -188,7 +193,6 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     linesRead++;
   } else {
     /* Check file format and warn the user early if the expected format does not match to that of the file */
-
     const QString &line = lines.at(linesRead);
     const QStringList splitted = line.split(delimiter);
 
