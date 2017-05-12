@@ -7,12 +7,12 @@
 # a directory that contains a "boost" subdirectory
 # with the boost libraries.
 HPCSPATH = /home/madcat/Devel/ECHMET/libHPCS-bin
-HVLPATH = $$PWD/libhvl
+HVLPATH = /home/madcat/Devel/ECHMET/HVL_MT-bin
 BOOSTPATH = $$PWD/includes
 QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin"
 EIGENPATH = "/home/madcat/Devel/eigen-3.3.3"
 INCLUDEPATH += "$$HPCSPATH/include"
-INCLUDEPATH += $$HVLPATH
+INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
 DEPENDPATH += $$HPCSPATH
 
@@ -20,7 +20,7 @@ DEPENDPATH += $$HPCSPATH
 include("$$QWTPATH/features/qwt.prf")
 
 # Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L"$$HPCSPATH/lib" -lHPCS -L$$HVLPATH -lhvl_mt -lpthread
+unix|win32: LIBS += -L"$$HPCSPATH/lib" -lHPCS -L"$$HVLPATH/lib" -lhvl_mt -lpthread
 
 # Development version
 DEFINES += UNSTABLE_VERSION
