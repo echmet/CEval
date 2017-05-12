@@ -31,11 +31,11 @@ Prior to building CEval, all hard dependencies have to be available in binary fo
 
   Paths to build dependencies can be set in **CEval.pri** file. The variables to set are following:
 
-  - `HVLPATH` - Path to the directory which contains both **hvl_mt** shared library and **hvl.h** header file
-  - `HPCSPATH` - Path to the directory which contains both **libHPCS** shared library and **libHPCS.h** public header file
-  - `BOOSTPATH` - Path to the directory with the Boost library headers
-  - `QWTPATH` - Path to the **features/qwt.prf** file
-  - `EIGENPATH` - Path to the directory where the Eigen library is located
+  - `HVLPATH` - Path to the directory which contains installation of the **HVL_MT** library.
+  - `HPCSPATH` - Path to the directory which contains installation of the **libHPCS** library.
+  - `BOOSTPATH` - Path to the directory with the Boost library headers.
+  - `QWTPATH` - Path to the **features/qwt.prf** file.
+  - `EIGENPATH` - Path to the directory where the Eigen library is located.
 
 **Hint:** If you intend to modify CEval and commit your changes to git, we suggest you run
 
