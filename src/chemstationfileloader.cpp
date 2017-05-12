@@ -1,5 +1,5 @@
 #include "chemstationfileloader.h"
-#include "libhpcs.h"
+#include <libHPCS.h>
 #include <QMessageBox>
 
 ChemStationFileLoader::Data::Data(const struct HPCS_MeasuredData *mdata) :

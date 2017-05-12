@@ -5,7 +5,7 @@
 #include <QPointF>
 #include <QString>
 #include <QVector>
-#include "libhpcs.h"
+#include <libHPCS.h>
 
 class ChemStationFileLoader
 {
