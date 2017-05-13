@@ -208,119 +208,102 @@ void DataFileLoader::loadChemStationFileWholeDirectory(const QString &path, cons
     loadChemStationFileSingle(filePath);
 }
 
-void DataFileLoader::loadCsvFile(const bool readFromClipboard)
+void DataFileLoader::loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const LoadCsvFileDialog::Parameters &p)
 {
-  LoadCsvFileDialog::Parameters p;
-  QStringList filePaths;
-  QFileDialog openDlg(nullptr, tr("Pick a text data file"), m_lastCsvPath);
+  QString xType;
+  QString yType;
+  QString xUnit;
+  QString yUnit;
+  QString fileName;
 
-  if (!readFromClipboard) {
-    openDlg.setAcceptMode(QFileDialog::AcceptOpen);
-    openDlg.setFileMode(QFileDialog::ExistingFiles);
-
-    if (openDlg.exec() != QDialog::Accepted)
-      return;
-
-    filePaths = openDlg.selectedFiles();
-    if (filePaths.length() < 1)
-      return;
-  }
-
-  while (true) {
-    if (m_loadCsvFileDlg->exec() != QDialog::Accepted)
-      return;
-
-    p = m_loadCsvFileDlg->parameters();
-    if (p.delimiter.length() != 1 && (p.delimiter.compare("\\t") != 0)) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character or '\\t' to represent TAB."));
-      continue;
-    }
-    if (p.decimalSeparator == p.delimiter) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
-      continue;
-    }
-
-    if (p.xColumn == p.yColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columns cannot be the same"));
-      continue;
-    }
-
+  switch (p.header) {
+  case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
+    xType = p.xType;
+    yType = p.yType;
+    xUnit = p.xUnit;
+    yUnit = p.yUnit;
+    break;
+  case LoadCsvFileDialog::HeaderHandling::HEADER_WITH_UNITS:
+    xType = csvData.xType;
+    yType = csvData.yType;
+    break;
+  case LoadCsvFileDialog::HeaderHandling::HEADER_WITHOUT_UNITS:
+    xType = csvData.xType;
+    yType = csvData.yType;
+    xUnit = p.xUnit;
+    yUnit = p.yUnit;
     break;
   }
 
-  QChar delimiter;
-  if (p.delimiter.compare("\\t") == 0)
-    delimiter = '\t';
-  else
-    delimiter = p.delimiter.at(0);
-
-  const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
-
-  auto doLoad = [this, &p](const CsvFileLoader::Data &csvData, const QString &path) {
-    QString xType;
-    QString yType;
-    QString xUnit;
-    QString yUnit;
-    QString fileName = "";
-
-    switch (p.header) {
-    case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
-      xType = p.xType;
-      yType = p.yType;
-      xUnit = p.xUnit;
-      yUnit = p.yUnit;
-      break;
-    case LoadCsvFileDialog::HeaderHandling::HEADER_WITH_UNITS:
-      xType = csvData.xType;
-      yType = csvData.yType;
-      break;
-    case LoadCsvFileDialog::HeaderHandling::HEADER_WITHOUT_UNITS:
-      xType = csvData.xType;
-      yType = csvData.yType;
-      xUnit = p.xUnit;
-      yUnit = p.yUnit;
-      break;
-    }
-
-    if (yUnit.length() > 0) {
-      if (yUnit.at(yUnit.length() - 1) == '\n')
-        yUnit.chop(1);
-    }
-
-    std::shared_ptr<Data> data = std::shared_ptr<Data>(new Data(csvData.data,
-                                                       xType, xUnit,
-                                                       yType, yUnit));
-
-    if (path != "")
-      fileName = QFileInfo(path).fileName();
-    emit dataLoaded(data, path, fileName);
-  };
-
-  if (readFromClipboard) {
-    CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(delimiter, p.decimalSeparator, p.xColumn, p.yColumn,
-                                                               p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
-                                                               p.linesToSkip, p.encodingId);
-
-    if (!csvData.isValid())
-      return;
-
-    doLoad(csvData, "");
-
-  } else {
-    for (const QString &path : filePaths) {
-      CsvFileLoader::Data csvData = CsvFileLoader::readFile(path, delimiter, p.decimalSeparator,
-                                                            p.xColumn, p.yColumn,
-                                                            p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER, p.linesToSkip,
-                                                            p.encodingId, bom);
-
-      if (!csvData.isValid())
-        continue;
-
-      m_lastCsvPath = path;
-      doLoad(csvData, path);
-    }
+  if (yUnit.length() > 0) {
+    if (yUnit.at(yUnit.length() - 1) == '\n')
+      yUnit.chop(1);
   }
 
+  std::shared_ptr<Data> data = std::shared_ptr<Data>(new Data(csvData.data,
+                                                              xType, xUnit,
+                                                              yType, yUnit));
+
+  if (file.length() > 0)
+    fileName = QFileInfo(file).fileName();
+
+  emit dataLoaded(data, file, fileName);
+}
+
+void DataFileLoader::loadCsvFromClipboard()
+{
+  while (true) {
+    CsvFileLoader::Parameters readerParams = makeCsvLoaderParameters();
+    if (!readerParams.isValid)
+      return;
+
+    CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(readerParams);
+    if (!csvData.isValid()) {
+      readerParams = CsvFileLoader::Parameters();
+      continue;
+    }
+
+    loadCsvData(csvData, QString(), m_loadCsvFileDlg->parameters());
+    return;
+  }
+}
+
+void DataFileLoader::loadCsvFromFile()
+{
+  QStringList files;
+  QFileDialog openDlg(nullptr, tr("Pick a text data file"), m_lastCsvPath);
+
+  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
+  openDlg.setFileMode(QFileDialog::ExistingFiles);
+
+  if (openDlg.exec() != QDialog::Accepted)
+    return;
+
+  files = openDlg.selectedFiles();
+  if (files.length() < 1)
+    return;
+
+  CsvFileLoader::Parameters readerParams;
+
+  for (const QString &f : files) {
+    while (true) {
+      if (!readerParams.isValid) {
+        readerParams = makeCsvLoaderParameters();
+        if (!readerParams.isValid)
+          break;
+      }
+
+      CsvFileLoader::Data csvData = CsvFileLoader::readFile(f, readerParams);
+      if (!csvData.isValid()) {
+        readerParams = CsvFileLoader::Parameters();
+        continue;
+      }
+
+      m_lastCsvPath = f;
+      loadCsvData(csvData, f, m_loadCsvFileDlg->parameters());
+      break;
+    }
+  }
 }
 
 void DataFileLoader::loadUserSettings(const QVariant &settings)
@@ -357,6 +340,44 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
   }
 }
 
+CsvFileLoader::Parameters DataFileLoader::makeCsvLoaderParameters()
+{
+  while (true) {
+    if (m_loadCsvFileDlg->exec() != QDialog::Accepted)
+      return CsvFileLoader::Parameters();
+
+    const LoadCsvFileDialog::Parameters p = m_loadCsvFileDlg->parameters();
+
+    if (p.delimiter.length() != 1 && (p.delimiter.compare("\\t") != 0)) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character or '\\t' to represent TAB."));
+      continue;
+    }
+    if (p.decimalSeparator == p.delimiter) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
+      continue;
+    }
+
+    if (p.xColumn == p.yColumn) {
+      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columns cannot be the same"));
+      continue;
+    }
+
+    QChar delimiter;
+    if (p.delimiter.compare("\\t") == 0)
+      delimiter = '\t';
+    else
+      delimiter = p.delimiter.at(0);
+
+    const QByteArray &bom = p.readBom == true ? CsvFileLoader::SUPPORTED_ENCODINGS[p.encodingId].bom : QByteArray();
+
+    return CsvFileLoader::Parameters(delimiter, p.decimalSeparator,
+                                     p.xColumn, p.yColumn,
+                                     p.header != LoadCsvFileDialog::HeaderHandling::NO_HEADER,
+                                     p.linesToSkip,
+                                     p.encodingId, p.readBom);
+  }
+}
+
 void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type)
 {
   switch (type) {
@@ -364,10 +385,10 @@ void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes 
     loadChemStationFile();
     break;
   case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_CLIPBOARD:
-    loadCsvFile(true);
+    loadCsvFromClipboard();
     break;
   case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE:
-    loadCsvFile(false);
+    loadCsvFromFile();
     break;
   default:
     break;

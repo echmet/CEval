@@ -39,16 +39,31 @@ public:
 
   };
 
+  class Parameters {
+  public:
+    Parameters();
+    Parameters(const QChar &delimiter, const QChar &decimalSeparator,
+               const int xColumn, const int yColumn,
+               const bool hasHeader, const int linesToSkip,
+               const QString &encodingId, const bool &readBom);
+    Parameters & operator=(const Parameters &other);
+
+    const QChar delimiter;
+    const QChar decimalSeparator;
+    const int xColumn;
+    const int yColumn;
+    const bool hasHeader;
+    const int linesToSkip;
+    const QString encodingId;
+    const bool readBom;
+    const bool isValid;
+
+  };
+
   CsvFileLoader() = delete;
 
-  static Data readClipboard(const QChar &delimiter, const QChar &decimalSeparator,
-                            const int xColumn, const int yColumn,
-                            const bool hasHeader, const int linesToSkip,
-                            const QString &encodingId);
-  static Data readFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
-                       const int xColumn, const int yColumn,
-                       const bool hasHeader, const int linesToSkip,
-                       const QString &encodingId, const QByteArray &bom);
+  static Data readClipboard(const Parameters &params);
+  static Data readFile(const QString &path, const Parameters &params);
 
   static const QMap<QString, Encoding> SUPPORTED_ENCODINGS;
 

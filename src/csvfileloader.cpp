@@ -82,24 +82,58 @@ bool CsvFileLoader::Data::isValid() const
   return m_valid;
 }
 
-CsvFileLoader::Data CsvFileLoader::readClipboard(const QChar &delimiter, const QChar &decimalSeparator,
-                                                 const int xColumn, const int yColumn,
-                                                 const bool hasHeader, const int linesToSkip,
-                                                 const QString &encodingId)
+CsvFileLoader::Parameters::Parameters() :
+  delimiter('\0'),
+  decimalSeparator('.'),
+  xColumn(0), yColumn(0),
+  hasHeader(false),
+  linesToSkip(0),
+  encodingId(QString()),
+  readBom(false),
+  isValid(false)
+{
+}
+
+CsvFileLoader::Parameters::Parameters(const QChar &delimiter, const QChar &decimalSeparator,
+                                      const int xColumn, const int yColumn,
+                                      const bool hasHeader, const int linesToSkip,
+                                      const QString &encodingId, const bool &readBom) :
+  delimiter(delimiter),
+  decimalSeparator(decimalSeparator),
+  xColumn(xColumn), yColumn(yColumn),
+  hasHeader(hasHeader), linesToSkip(linesToSkip),
+  encodingId(encodingId), readBom(readBom),
+  isValid(true)
+{
+}
+
+CsvFileLoader::Parameters & CsvFileLoader::Parameters::operator=(const Parameters &other)
+{
+  const_cast<QChar&>(delimiter) = other.delimiter;
+  const_cast<QChar&>(decimalSeparator) = other.decimalSeparator;
+  const_cast<int&>(xColumn) = other.xColumn;
+  const_cast<int&>(yColumn) = other.yColumn;
+  const_cast<bool&>(hasHeader) = other.hasHeader;
+  const_cast<int&>(linesToSkip) = other.linesToSkip;
+  const_cast<QString&>(encodingId) = other.encodingId;
+  const_cast<bool&>(readBom) = other.readBom;
+  const_cast<bool&>(isValid) = other.isValid;
+
+  return *this;
+}
+
+CsvFileLoader::Data CsvFileLoader::readClipboard(const Parameters &params)
 {
   QString clipboardText = QApplication::clipboard()->text();
   QTextStream stream;
 
-  stream.setCodec(encodingId.toUtf8());
+  stream.setCodec(params.encodingId.toUtf8());
   stream.setString(&clipboardText);
 
-  return readStream(stream, delimiter, decimalSeparator, xColumn, yColumn, hasHeader, linesToSkip);
+  return readStream(stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
 }
 
-CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const QChar &delimiter, const QChar &decimalSeparator,
-                                            const int xColumn, const int yColumn,
-                                            const bool hasHeader, const int linesToSkip,
-                                            const QString &encodingId, const QByteArray &bom)
+CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const Parameters &params)
 {
   QFile dataFile(path);
   QTextStream stream;
@@ -117,8 +151,9 @@ CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const QChar &de
   }
 
   /* Check BOM */
-  if (bom.size() > 0) {
-    QByteArray actualBom = dataFile.read(bom.size());
+  if (params.readBom) {
+    const QByteArray &bom = SUPPORTED_ENCODINGS[params.encodingId].bom;
+    const QByteArray actualBom = dataFile.read(bom.size());
 
     if (actualBom.size() != bom.size()) {
       QMessageBox::warning(nullptr, QObject::tr("Cannot read file"), QObject::tr("Byte order mark was expected but not found"));
@@ -132,9 +167,9 @@ CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const QChar &de
   }
 
   stream.setDevice(&dataFile);
-  stream.setCodec(encodingId.toUtf8());
+  stream.setCodec(params.encodingId.toUtf8());
 
-  return readStream(stream, delimiter, decimalSeparator, xColumn, yColumn, hasHeader, linesToSkip);
+  return readStream(stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
 
 }
 
