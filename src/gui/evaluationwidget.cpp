@@ -368,7 +368,6 @@ void EvaluationWidget::setEvaluationResultsModel(AbstractMapperModel<double, Eva
   m_evaluationResultsMapper->setItemDelegate(&m_floatingMapperDelegate);
 
   m_evaluationResultsMapper->addMapping(ui->qle_vEof, model->indexFromItem(EvaluationResultsItems::Floating::EOF_VELOCITY));
-  m_evaluationResultsMapper->addMapping(ui->qle_vEofEff, model->indexFromItem(EvaluationResultsItems::Floating::EOF_VELOCITY_EFF));
   m_evaluationResultsMapper->addMapping(ui->qle_uEof, model->indexFromItem(EvaluationResultsItems::Floating::EOF_MOBILITY));
   m_evaluationResultsMapper->addMapping(ui->qle_peakFromXRes, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_FROM_X));
   m_evaluationResultsMapper->addMapping(ui->qle_peakFromYRes, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_FROM_Y));

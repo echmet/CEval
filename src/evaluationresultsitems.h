@@ -6,7 +6,6 @@ class EvaluationResultsItems
 public:
   enum class Floating : int {
     EOF_VELOCITY,
-    EOF_VELOCITY_EFF,
     EOF_MOBILITY,
     PEAK_FROM_X,
     PEAK_FROM_Y,

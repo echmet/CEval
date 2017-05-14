@@ -50,7 +50,6 @@ void EvaluationEngine::initClipboardExporter()
   DataExporter::ExportablesMap peakDims;
 
   MAKE_EXPORTABLE(eof, EvaluationEngine, "v (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
-  MAKE_EXPORTABLE(eof, EvaluationEngine, "v! (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY_EFF));
   MAKE_EXPORTABLE(eof, EvaluationEngine, "u (1e-9 m.m/V/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::EOF_MOBILITY));
 
   MAKE_EXPORTABLE(hvl, EvaluationEngine, "a0", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0));
@@ -115,8 +114,7 @@ void EvaluationEngine::initClipboardExporter()
   DataExporter::SelectedExportablesMap sePeakDims;
 
   MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "v (1e-3 m/s)", 0);
-  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "v! (1e-3 m/s)", 1);
-  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "u (1e-9 m.m/V/s)", 2);
+  MAKE_SELECTED_EXPORTABLE_CTC(eof, seEof, "u (1e-9 m.m/V/s)", 1);
 
   MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a0", 0);
   MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a1", 1);
