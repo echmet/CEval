@@ -57,7 +57,7 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE(hvl, EvaluationEngine, "a2", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A2));
   MAKE_EXPORTABLE(hvl, EvaluationEngine, "a3", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(hvl, EvaluationEngine, "S", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S));
-  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a1 u! (1e-9 m.m/V/s)", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+  MAKE_EXPORTABLE(hvl, EvaluationEngine, "a1 uEff (1e-9 m.m/V/s)", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
 
   MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak from X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_X));
   MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak from Y", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_FROM_Y));
@@ -66,8 +66,8 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak max at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_X));
   MAKE_EXPORTABLE(peak, EvaluationEngine, "Peak height", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
   MAKE_EXPORTABLE(peak, EvaluationEngine, "v (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY));
-  MAKE_EXPORTABLE(peak, EvaluationEngine, "v! (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
-  MAKE_EXPORTABLE(peak, EvaluationEngine, "u! (1e-9 m.m/V/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "vEff (1e-3 m/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
+  MAKE_EXPORTABLE(peak, EvaluationEngine, "uEff (1e-9 m.m/V/s)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   MAKE_EXPORTABLE(peak, EvaluationEngine, "Area (Units.min)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_AREA));
   MAKE_EXPORTABLE(peak, EvaluationEngine, "t USP", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_TUSP));
 
@@ -121,7 +121,7 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a2", 2);
   MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a3", 3);
   MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "S", 4);
-  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a1 u! (1e-9 m.m/V/s)", 5);
+  MAKE_SELECTED_EXPORTABLE_CTC(hvl, seHvl, "a1 uEff (1e-9 m.m/V/s)", 5);
 
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak from X", 0);
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak from Y", 1);
@@ -130,8 +130,8 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak max at X", 4);
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Peak height", 5);
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "v (1e-3 m/s)", 6);
-  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "v! (1e-3 m/s)", 7);
-  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "u! (1e-9 m.m/V/s)", 8);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "vEff (1e-3 m/s)", 7);
+  MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "uEff (1e-9 m.m/V/s)", 8);
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "Area (Units.min)", 9);
   MAKE_SELECTED_EXPORTABLE_CTC(peak, sePeak, "t USP", 10);
 
