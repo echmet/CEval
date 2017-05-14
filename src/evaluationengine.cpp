@@ -958,7 +958,8 @@ void EvaluationEngine::findPeakAssisted()
   AssistedPeakFinder::Parameters fp = makeFinderParameters();
   fp.selPeakDialog = &dialog;
 
-  connect(&dialog, &SelectPeakDialog::listClicked, this, &EvaluationEngine::onProvisionalPeakSelected);
+  connect(&dialog, &SelectPeakDialog::allPeaksUnselected, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
+  connect(&dialog, &SelectPeakDialog::peakSelected, this, &EvaluationEngine::onProvisionalPeakSelected);
   connect(&dialog, &SelectPeakDialog::closedSignal, this, &EvaluationEngine::onUnhighlightProvisionalPeak);
 
   try {

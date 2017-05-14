@@ -45,8 +45,15 @@ void SelectPeakDialog::onListClicked(const QModelIndex &index)
     return;
 
   const QAbstractItemModel *model = ui->qtbv_listOfPeaks->model();
+  const QList<QModelIndex> &selectedIndices = ui->qtbv_listOfPeaks->selectionModel()->selectedIndexes();
 
-  emit listClicked(index, model, m_peakWindow);
+  if (selectedIndices.empty())
+    emit allPeaksUnselected();
+
+  for (const QModelIndex &idx : selectedIndices) {
+    if (idx.row() == index.row())
+      emit peakSelected(index, model, m_peakWindow);
+  }
 }
 
 void SelectPeakDialog::onListDoubleClicked(const QModelIndex &index)

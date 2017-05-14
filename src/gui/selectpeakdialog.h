@@ -35,8 +35,9 @@ private:
   QVector<int> m_selectedPeakNumbers;
 
 signals:
+  void allPeaksUnselected();
   void closedSignal();
-  void listClicked(const QModelIndex &index, const QAbstractItemModel *model, const int peakWindow);
+  void peakSelected(const QModelIndex &index, const QAbstractItemModel *model, const int peakWindow);
 
 private slots:
   void onCancelClicked();
