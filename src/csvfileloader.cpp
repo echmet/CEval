@@ -5,6 +5,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QTextStream>
+#include "gui/malformedcsvfilemessage.h"
 
 const QMap<QString, CsvFileLoader::Encoding> CsvFileLoader::SUPPORTED_ENCODINGS = { {"ISO-8859-1", CsvFileLoader::Encoding("ISO-8859-1", QByteArray(), "ISO-8859-1 (Latin 1)") },
                                                                                     {"ISO-8859-2", CsvFileLoader::Encoding("ISO-8859-2", QByteArray(), "ISO-8859-2 (Latin 2)") },
@@ -122,6 +123,12 @@ CsvFileLoader::Parameters & CsvFileLoader::Parameters::operator=(const Parameter
   return *this;
 }
 
+void showMalformedFileError(const MalformedCsvFileMessage::Error err, const int lineNo, const QString &badLine)
+{
+  MalformedCsvFileMessage dlg(err, lineNo, badLine);
+  dlg.exec();
+}
+
 CsvFileLoader::Data CsvFileLoader::readClipboard(const Parameters &params)
 {
   QString clipboardText = QApplication::clipboard()->text();
@@ -218,7 +225,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     header = line.split(delimiter);
     if (header.size() < highColumn) {
-      warnPossiblyIncorrectSettings();
+      showMalformedFileError(MalformedCsvFileMessage::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
 
       return Data();
     }
@@ -232,7 +239,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     const QStringList splitted = line.split(delimiter);
 
     if (splitted.size() < highColumn) {
-      warnPossiblyIncorrectSettings();
+      showMalformedFileError(MalformedCsvFileMessage::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
 
       return Data();
     }
@@ -248,35 +255,35 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     values = line.split(delimiter);
     if (values.size() < highColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
+      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
+      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"time\" on line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
+      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Malformed line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
+      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
-      QMessageBox::warning(nullptr, QObject::tr("Malformed file"), QString(QObject::tr("Invalid value for \"value\" on line %1. Data will be incomplete")).arg(linesRead + emptyLines + 1));
+      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
@@ -285,11 +292,4 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
   }
 
   return Data(points, xType, yType);
-}
-
-void CsvFileLoader::warnPossiblyIncorrectSettings()
-{
-  QMessageBox::warning(nullptr, QObject::tr("Invalid format"),
-                       QString(QObject::tr("The selected file does not appear to have the desired format.\n"
-                                           "Check that delimiter and decimal separator are set correctly.")));
 }
