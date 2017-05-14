@@ -1,6 +1,5 @@
 #include "malformedcsvfilemessage.h"
 #include "ui_malformedcsvfilemessage.h"
-#include <QTextDocument>
 
 const QString MalformedCsvFileMessage::POSSIBLY_INCORRECT_SETTINGS_MSG = tr("The selected file does not appear to have the desired format.\n"
                                                                                         "Check that delimiter and decimal separator are set correctly");
