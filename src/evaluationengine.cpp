@@ -1651,7 +1651,7 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
     for (keyIdx = 0; keyIdx < keys.size(); keyIdx++) {
       const QString &key = keys.at(keyIdx);
 
-      if (key.startsWith("temporary")) {
+      if (key.startsWith("clipboard")) {
         int idx = key.lastIndexOf("_");
 
         if (idx < 0)
@@ -1669,7 +1669,7 @@ void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, 
       }
     }
 
-    fileID = QString("temporary_") + QString::number(num + 1);
+    fileID = QString("clipboard_") + QString::number(num + 1);
     fileName = fileID;
   }
 
