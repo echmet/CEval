@@ -29,6 +29,9 @@ private:
   static const QString BAD_TIME_MSG;
   static const QString BAD_VALUE_MSG;
 
+private slots:
+  void onOkClicked();
+
 };
 
 #endif // MALFORMEDCSVFILEMESSAGE_H

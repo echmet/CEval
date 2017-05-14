@@ -30,9 +30,16 @@ MalformedCsvFileMessage::MalformedCsvFileMessage(const Error err, const int line
     ui->ql_message->setText(BAD_VALUE_MSG.arg(lineNo));
     break;
   }
+
+  connect(ui->qpb_ok, &QPushButton::clicked, this, &MalformedCsvFileMessage::onOkClicked);
 }
 
 MalformedCsvFileMessage::~MalformedCsvFileMessage()
 {
   delete ui;
+}
+
+void MalformedCsvFileMessage::onOkClicked()
+{
+  accept();
 }
