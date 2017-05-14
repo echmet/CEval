@@ -205,7 +205,7 @@
                 <item row="3" column="4">
                  <widget class="QLabel" name="ql_noiseRefPoint">
                   <property name="text">
-                   <string>Noise ref. point [min]</string>
+                   <string>Noise ref. point (min)</string>
                   </property>
                  </widget>
                 </item>
@@ -422,7 +422,7 @@
                 <item row="4" column="4">
                  <widget class="QLabel" name="ql_slopeRefPoint">
                   <property name="text">
-                   <string>Slope ref. point [min]</string>
+                   <string>Slope ref. point (min)</string>
                   </property>
                  </widget>
                 </item>
