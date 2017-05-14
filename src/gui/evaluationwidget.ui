@@ -85,8 +85,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>764</width>
-            <height>538</height>
+            <width>776</width>
+            <height>517</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -621,7 +621,7 @@
             <x>0</x>
             <y>0</y>
             <width>744</width>
-            <height>1050</height>
+            <height>1076</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -672,21 +672,21 @@
                 <item row="0" column="2">
                  <widget class="QLabel" name="ql_vEofRel">
                   <property name="text">
-                   <string>v! (1e-3 m/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="4">
                  <widget class="QLabel" name="ql_uEof">
                   <property name="text">
-                   <string>u (1e-9 m.m/V/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;u (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="ql_vEof">
                   <property name="text">
-                   <string>v (1e-3 m/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -811,7 +811,7 @@
                 <item row="2" column="2">
                  <widget class="QLabel" name="ql_vPeakRel">
                   <property name="text">
-                   <string>v! (1e-3 m/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -868,7 +868,7 @@
                 <item row="2" column="4">
                  <widget class="QLabel" name="ql_uPeak">
                   <property name="text">
-                   <string>u! (1e-9 m.m/V/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;u&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -900,7 +900,7 @@
                 <item row="2" column="0">
                  <widget class="QLabel" name="ql_vPeak">
                   <property name="text">
-                   <string>v (1e-3 m/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -1448,7 +1448,7 @@
                 <item row="4" column="0">
                  <widget class="QLabel" name="ql_hvlA1Mobility">
                   <property name="text">
-                   <string>a1 u! (1e-9 m.m/V/s)</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a1 u&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
@@ -2152,7 +2152,7 @@ padding-right: 2em;</string>
             <x>0</x>
             <y>0</y>
             <width>764</width>
-            <height>538</height>
+            <height>537</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_13">
