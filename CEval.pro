@@ -162,7 +162,7 @@ SOURCES += src/main.cpp \
     src/crashhandling/crashhandlerlinux_stacktrace.cpp \
     src/gui/hvlestimateinprogressdialog.cpp \
     src/math/hvlestimate.cpp \
-    src/gui/malformedcsvfilemessage.cpp
+    src/gui/malformedcsvfiledialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -360,7 +360,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlerlinux.h \
     src/crashhandling/rawmemblock.h \
     src/gui/hvlestimateinprogressdialog.h \
-    src/gui/malformedcsvfilemessage.h
+    src/gui/malformedcsvfiledialog.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -391,7 +391,7 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/registerinhyperbolafitdialog.ui \
     src/gui/registerinhyperbolafitwidget.ui \
     src/gui/hvlestimateinprogressdialog.ui \
-    src/gui/malformedcsvfilemessage.ui
+    src/gui/malformedcsvfiledialog.ui
 
 unix {
     LIBS += -ldl

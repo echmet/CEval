@@ -1,13 +1,13 @@
-#ifndef MALFORMEDCSVFILEMESSAGE_H
-#define MALFORMEDCSVFILEMESSAGE_H
+#ifndef MALFORMEDCSVFILEDIALOG_H
+#define MALFORMEDCSVFILEDIALOG_H
 
 #include <QDialog>
 
 namespace Ui {
-class MalformedCsvFileMessage;
+class MalformedCsvFileDialog;
 }
 
-class MalformedCsvFileMessage : public QDialog
+class MalformedCsvFileDialog : public QDialog
 {
   Q_OBJECT
 public:
@@ -18,11 +18,11 @@ public:
     BAD_VALUE_DATA
   };
 
-  explicit MalformedCsvFileMessage(const Error err, const int lineNo, const QString &badString, QWidget *parent = nullptr);
-  ~MalformedCsvFileMessage();
+  explicit MalformedCsvFileDialog(const Error err, const int lineNo, const QString &badString, QWidget *parent = nullptr);
+  ~MalformedCsvFileDialog();
 
 private:
-  Ui::MalformedCsvFileMessage *ui;
+  Ui::MalformedCsvFileDialog *ui;
 
   static const QString POSSIBLY_INCORRECT_SETTINGS_MSG;
   static const QString BAD_DELIMITER_MSG;
@@ -34,4 +34,4 @@ private slots:
 
 };
 
-#endif // MALFORMEDCSVFILEMESSAGE_H
+#endif // MALFORMEDCSVFILEDIALOG_H

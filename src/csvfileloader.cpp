@@ -5,7 +5,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QTextStream>
-#include "gui/malformedcsvfilemessage.h"
+#include "gui/malformedcsvfiledialog.h"
 
 const QMap<QString, CsvFileLoader::Encoding> CsvFileLoader::SUPPORTED_ENCODINGS = { {"ISO-8859-1", CsvFileLoader::Encoding("ISO-8859-1", QByteArray(), "ISO-8859-1 (Latin 1)") },
                                                                                     {"ISO-8859-2", CsvFileLoader::Encoding("ISO-8859-2", QByteArray(), "ISO-8859-2 (Latin 2)") },
@@ -123,9 +123,9 @@ CsvFileLoader::Parameters & CsvFileLoader::Parameters::operator=(const Parameter
   return *this;
 }
 
-void showMalformedFileError(const MalformedCsvFileMessage::Error err, const int lineNo, const QString &badLine)
+void showMalformedFileError(const MalformedCsvFileDialog::Error err, const int lineNo, const QString &badLine)
 {
-  MalformedCsvFileMessage dlg(err, lineNo, badLine);
+  MalformedCsvFileDialog dlg(err, lineNo, badLine);
   dlg.exec();
 }
 
@@ -225,7 +225,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     header = line.split(delimiter);
     if (header.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
 
       return Data();
     }
@@ -239,7 +239,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     const QStringList splitted = line.split(delimiter);
 
     if (splitted.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
 
       return Data();
     }
@@ -255,35 +255,35 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     values = line.split(delimiter);
     if (values.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
-      showMalformedFileError(MalformedCsvFileMessage::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
+      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
       return Data(points, xType, yType);
     }
 
