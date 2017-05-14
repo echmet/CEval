@@ -2,11 +2,11 @@
 #include "ui_malformedcsvfilemessage.h"
 #include <QTextDocument>
 
-const QString MalformedCsvFileMessage::POSSIBLY_INCORRECT_SETTINGS_MSG = QStringLiteral("The selected file does not appear to have the desired format.\n"
+const QString MalformedCsvFileMessage::POSSIBLY_INCORRECT_SETTINGS_MSG = tr("The selected file does not appear to have the desired format.\n"
                                                                                         "Check that delimiter and decimal separator are set correctly");
-const QString MalformedCsvFileMessage::BAD_DELIMITER_MSG = QString("Invalid delimiter on line %1. Data will be incomplete");
-const QString MalformedCsvFileMessage::BAD_TIME_MSG = QString("Invalid value for \"time\" on line %1. Data will be incomplete");
-const QString MalformedCsvFileMessage::BAD_VALUE_MSG = QString("Invalid value for \"value\" on line %1. Data will be incomplete");
+const QString MalformedCsvFileMessage::BAD_DELIMITER_MSG = tr("Invalid delimiter on line %1. Data will be incomplete");
+const QString MalformedCsvFileMessage::BAD_TIME_MSG = tr("Invalid value for \"time\" on line %1. Data will be incomplete");
+const QString MalformedCsvFileMessage::BAD_VALUE_MSG = tr("Invalid value for \"value\" on line %1. Data will be incomplete");
 
 MalformedCsvFileMessage::MalformedCsvFileMessage(const Error err, const int lineNo, const QString &badLine, QWidget *parent) :
   QDialog(parent),
