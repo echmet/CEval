@@ -65,6 +65,7 @@ private slots:
   void onActionLoadChemStationFile();
   void onActionLoadCsvClipboard();
   void onActionLoadCsvFile();
+  void onActionLoadNetCDFFile();
   void onActionLoadDataTable();
   void onActionSaveDataTable();
   void onActionSetNumberFormat();

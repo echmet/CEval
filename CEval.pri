@@ -6,11 +6,11 @@
 # BOOSTPATH variable is supposed to point to
 # a directory that contains a "boost" subdirectory
 # with the boost libraries.
-HPCSPATH = /home/madcat/Devel/ECHMET/libHPCS-bin
-HVLPATH = /home/madcat/Devel/ECHMET/HVL_MT-bin
+HPCSPATH = /home/echmet/Devel/libHPCS-bin
+HVLPATH = /home/echmet/Devel/HVL_MT-bin
 BOOSTPATH = $$PWD/includes
-QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1-bin"
-EIGENPATH = "/home/madcat/Devel/eigen-3.3.3"
+QWTPATH = "/home/echmet/Devel/qwt-6.1-bin"
+EIGENPATH = "/home/echmet/Devel/eigen-3.3.3"
 INCLUDEPATH += "$$HPCSPATH/include"
 INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
@@ -24,3 +24,9 @@ unix|win32: LIBS += -L"$$HPCSPATH/lib" -lHPCS -L"$$HVLPATH/lib" -lhvl_mt -lpthre
 
 # Development version
 DEFINES += UNSTABLE_VERSION
+
+##  HACK
+NETCDFPATH = /home/echmet/Devel/NetCDF-bin/
+INCLUDEPATH += "$$NETCDFPATH/include"
+
+LIBS += -L"$$NETCDFPATH/lib/" -lnetcdf

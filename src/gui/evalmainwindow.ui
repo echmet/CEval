@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>29</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -38,6 +38,7 @@
     </widget>
     <addaction name="actionLoad_ChemStation_file"/>
     <addaction name="menuLoad_comma_separated_file"/>
+    <addaction name="actionLoad_NetCDF_file"/>
     <addaction name="separator"/>
     <addaction name="actionLoad_data_table"/>
     <addaction name="actionSave_data_table"/>
@@ -128,6 +129,11 @@
   <action name="actionCsv_from_clipboard">
    <property name="text">
     <string>From &amp;clipboard</string>
+   </property>
+  </action>
+  <action name="actionLoad_NetCDF_file">
+   <property name="text">
+    <string>Load NetCDF file</string>
    </property>
   </action>
  </widget>

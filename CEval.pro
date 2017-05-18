@@ -162,7 +162,8 @@ SOURCES += src/main.cpp \
     src/crashhandling/crashhandlerlinux_stacktrace.cpp \
     src/gui/hvlestimateinprogressdialog.cpp \
     src/math/hvlestimate.cpp \
-    src/gui/malformedcsvfiledialog.cpp
+    src/gui/malformedcsvfiledialog.cpp \
+    src/netcdffileloader.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -360,7 +361,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlerlinux.h \
     src/crashhandling/rawmemblock.h \
     src/gui/hvlestimateinprogressdialog.h \
-    src/gui/malformedcsvfiledialog.h
+    src/gui/malformedcsvfiledialog.h \
+    src/netcdffileloader.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

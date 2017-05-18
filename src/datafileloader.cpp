@@ -1,14 +1,14 @@
 #include "datafileloader.h"
 #include "custommetatypes.h"
+#include "netcdffileloader.h"
 #include "gui/loadchemstationdatadialog.h"
 #include "gui/loadcsvfiledialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 
-#include <QDebug>
-
 const QString DataFileLoader::LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG("LastChemStationLoadPath");
 const QString DataFileLoader::LAST_CSV_LOAD_PATH_SETTINGS_TAG("LastCsvLoadPath");
+const QString DataFileLoader::LAST_NETCDF_LOAD_PATH_SETTINGS_TAG("LastNetCDFLoadPath");
 const QString DataFileLoader::LAST_CHEMSTATION_DLG_SIZE_TAG("LastChemStationDlgSize");
 
 DataFileLoader::Data::Data(const QVector<QPointF> data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
@@ -51,6 +51,7 @@ DataFileLoader::Data &DataFileLoader::Data::operator=(const Data &other)
 DataFileLoader::DataFileLoader(QObject *parent) :
   QObject(parent),
   m_lastCsvPath(QDir::homePath()),
+  m_lastNetCDFPath(QDir::homePath()),
   m_lastChemStationDlgSize(QSize(0,0)),
   m_defaultPathsToTry([]() {
     QStringList pathsToTry = { QDir::homePath() };
@@ -306,6 +307,47 @@ void DataFileLoader::loadCsvFromFile()
   }
 }
 
+void DataFileLoader::loadNetCDFFile()
+{
+  QStringList files;
+  QFileDialog openDlg(nullptr, tr("Pick a NetCDF file"), m_lastNetCDFPath);
+
+  openDlg.setNameFilter("NetCDF file (*.cdf *.CDF)");
+  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
+  openDlg.setFileMode(QFileDialog::ExistingFiles);
+
+  if  (openDlg.exec() != QDialog::Accepted)
+      return;
+
+  files = openDlg.selectedFiles();
+  if (files.length() < 1)
+      return;
+
+  const QString file = files.at(0);
+
+  try {
+    NetCDFFileLoader::Data data = NetCDFFileLoader::load(file);
+
+    QVector<QPointF> qData;
+    qData.reserve(data.scans.size());
+
+    for (const auto &point : data.scans)
+      qData.append(QPointF(std::get<0>(point), std::get<1>(point)));
+
+    std::shared_ptr<Data> globData = std::shared_ptr<Data>(new Data(qData,
+                                                                    "Time", data.xUnits,
+                                                                    "Detector", data.yUnits));
+
+    QString fileName = QFileInfo(file).fileName();
+
+    m_lastNetCDFPath = file;
+    emit dataLoaded(globData, file, fileName);
+  } catch (std::runtime_error &err) {
+    QMessageBox::warning(nullptr, tr("Failed to load NetCDF file"), err.what());
+  }
+
+}
+
 void DataFileLoader::loadUserSettings(const QVariant &settings)
 {
   if (!settings.canConvert<EMT::StringVariantMap>())
@@ -323,6 +365,12 @@ void DataFileLoader::loadUserSettings(const QVariant &settings)
     const QVariant &v = map[LAST_CSV_LOAD_PATH_SETTINGS_TAG];
 
     m_lastCsvPath = v.toString();
+  }
+
+  if (map.contains(LAST_NETCDF_LOAD_PATH_SETTINGS_TAG)) {
+    const QVariant &v = map[LAST_NETCDF_LOAD_PATH_SETTINGS_TAG];
+
+    m_lastNetCDFPath = v.toString();
   }
 
   if (map.contains(LAST_CHEMSTATION_DLG_SIZE_TAG)) {
@@ -390,6 +438,8 @@ void DataFileLoader::onLoadDataFile(const DataFileLoaderMsgs::LoadableFileTypes 
   case DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE:
     loadCsvFromFile();
     break;
+  case DataFileLoaderMsgs::LoadableFileTypes::NETCDF_FILE:
+    loadNetCDFFile();
   default:
     break;
   }
@@ -401,6 +451,7 @@ QVariant DataFileLoader::saveUserSettings() const
 
   map[LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG] = m_lastChemStationPath;
   map[LAST_CSV_LOAD_PATH_SETTINGS_TAG] = m_lastCsvPath;
+  map[LAST_NETCDF_LOAD_PATH_SETTINGS_TAG] = m_lastNetCDFPath;
   map[LAST_CHEMSTATION_DLG_SIZE_TAG] = m_lastChemStationDlgSize;
 
   return QVariant::fromValue<EMT::StringVariantMap>(map);

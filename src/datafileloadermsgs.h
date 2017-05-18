@@ -9,7 +9,8 @@ public:
   enum class LoadableFileTypes : int {
     CHEMSTATION,
     COMMA_SEPARATED_CLIPBOARD,
-    COMMA_SEPARATED_FILE
+    COMMA_SEPARATED_FILE,
+    NETCDF_FILE
   };
   Q_ENUM(LoadableFileTypes)
 };

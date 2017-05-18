@@ -48,6 +48,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 #ifdef Q_OS_LINUX
   ui->actionLoad_ChemStation_file->setIcon(QIcon::fromTheme("document-open"));
   ui->menuLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
+  ui->actionLoad_NetCDF_file->setIcon(QIcon::fromTheme("document-open"));
   ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
   ui->actionSave_data_table->setIcon(QIcon::fromTheme("document-save"));
   ui->actionExit->setIcon(QIcon::fromTheme("application-exit"));
@@ -58,6 +59,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 #else
   ui->actionLoad_ChemStation_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->menuLoad_comma_separated_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+  ui->actionLoad_NetCDF_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionLoad_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionSave_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
   ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
@@ -75,6 +77,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionLoad_ChemStation_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadChemStationFile);
   connect(ui->actionCsv_from_clipboard, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvClipboard);
   connect(ui->actionCsv_from_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvFile);
+  connect(ui->actionLoad_NetCDF_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadNetCDFFile);
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);
   connect(ui->actionSave_data_table, &QAction::triggered, this, &EvalMainWindow::onActionSaveDataTable);
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
@@ -163,6 +166,11 @@ void EvalMainWindow::onActionLoadCsvClipboard()
 void EvalMainWindow::onActionLoadCsvFile()
 {
   emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE);
+}
+
+void EvalMainWindow::onActionLoadNetCDFFile()
+{
+  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::NETCDF_FILE);
 }
 
 void EvalMainWindow::onActionLoadDataTable()

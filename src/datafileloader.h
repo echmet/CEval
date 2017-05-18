@@ -52,6 +52,7 @@ private:
   void loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const LoadCsvFileDialog::Parameters &p);
   void loadCsvFromFile();
   void loadCsvFromClipboard();
+  void loadNetCDFFile();
   CsvFileLoader::Parameters makeCsvLoaderParameters();
 
   LoadChemStationDataDialog *m_loadChemStationDataDlg;
@@ -59,12 +60,14 @@ private:
 
   QString m_lastChemStationPath;
   QString m_lastCsvPath;
+  QString m_lastNetCDFPath;
   QSize m_lastChemStationDlgSize;
 
   const QStringList m_defaultPathsToTry;
 
   static const QString LAST_CHEMSTATION_LOAD_PATH_SETTINGS_TAG;
   static const QString LAST_CSV_LOAD_PATH_SETTINGS_TAG;
+  static const QString LAST_NETCDF_LOAD_PATH_SETTINGS_TAG;
   static const QString LAST_CHEMSTATION_DLG_SIZE_TAG;
 
 signals:
