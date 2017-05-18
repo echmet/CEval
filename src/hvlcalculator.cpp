@@ -62,6 +62,7 @@ HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
 
 HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper) :
   m_regressor(new echmet::regressCore::HVLPeak<double, double>(wrapper)),
+  m_aborted(false),
   m_params(params)
 {
 }
@@ -73,7 +74,12 @@ HVLCalculatorWorker::~HVLCalculatorWorker()
 
 void HVLCalculatorWorker::abort()
 {
-  m_regressor->Abort();
+  QMutexLocker locker(&m_abortLock);
+
+  if (!m_aborted) {
+    m_regressor->Abort();
+    m_aborted = true;
+  }
 }
 
 const HVLCalculator::HVLParameters & HVLCalculatorWorker::results() const

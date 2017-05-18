@@ -4,6 +4,7 @@
 #include <QVector>
 #include <QPointF>
 #include <QObject>
+#include <QMutex>
 #include <QTime>
 
 class HVLLibWrapper;
@@ -136,6 +137,8 @@ private:
   echmet::regressCore::HVLPeak<double, double> *m_regressor;
   HVLCalculator::HVLParameters m_outParams;
   QTime m_fitStartTime;
+  QMutex m_abortLock;
+  bool m_aborted;
 
   const HVLCalculator::HVLInParameters m_params;
 

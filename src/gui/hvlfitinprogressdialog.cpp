@@ -31,6 +31,10 @@ int HVLFitInProgressDialog::exec()
 void HVLFitInProgressDialog::onAbortClicked()
 {
   emit abortFit();
+
+  ui->qpb_abort->setText(tr("Aborting..."));
+  ui->qpb_abort->setDisabled(true);
+  disconnect(ui->qpb_abort, &QPushButton::clicked, this, &HVLFitInProgressDialog::onAbortClicked);
 }
 
 void HVLFitInProgressDialog::onHvlFitDone()
