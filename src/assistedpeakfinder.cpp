@@ -202,6 +202,8 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
 
   if (toIdx >= data.length())
     return -1;
+  if (mid == fromIdx || mid == toIdx)
+    return -1;
   if (fromIdx >= toIdx)
     return fromIdx >= data.length() ? -1 : fromIdx;
 
@@ -224,7 +226,7 @@ int AssistedPeakFinder::chopLeadingDisturbance(const QVector<QPointF> &data, con
      * original window.
      *
      * The rationale for this is that the leading disturbance
-     * we are trying to chop off might in the right part
+     * we are trying to chop off might be in the right part
      * of the window; in such a case the jitter in the shifted
      * right part of the window will be lower.
      */
