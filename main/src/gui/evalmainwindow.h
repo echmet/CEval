@@ -5,7 +5,6 @@
 #include <QCloseEvent>
 #include <QDataWidgetMapper>
 #include <QSplitter>
-#include "../datafileloadermsgs.h"
 #include "../dataaccumulatormsgs.h"
 #include "maincontrolswidget.h"
 #include "qwt_plot.h"
@@ -43,11 +42,12 @@ private:
 
   void closeEvent(QCloseEvent *ev) override;
   void makeExportMenus();
+  void makeSupportedFileFormatsActions();
 
 signals:
   void adjustPlotAppearance();
   void exportAction(const DataAccumulatorMsgs::ExportAction action);
-  void loadDataFile(const DataFileLoaderMsgs::LoadableFileTypes type);
+  void loadElectrophoregram(const QString &formatTag);
   void loadDataTable();
   void saveDataTable();
   void testExporter();
@@ -62,11 +62,8 @@ private slots:
   void onActionExit();
   void onActionExportDataTableCsv();
   void onActionExportPlotAsImage();
-  void onActionLoadChemStationFile();
-  void onActionLoadCsvClipboard();
-  void onActionLoadCsvFile();
-  void onActionLoadNetCDFFile();
   void onActionLoadDataTable();
+  void onActionLoadElectrophoregram();
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
   void onActionWholePeakToClipboard();

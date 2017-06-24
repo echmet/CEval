@@ -3,8 +3,8 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QMessageBox>
-#include "../chemstationbatchloader.h"
-#include "../chemstationbatchloadmodel.h"
+#include "chemstationbatchloader.h"
+#include "chemstationbatchloadmodel.h"
 
 LoadChemStationDataDialog::LoadInfo::LoadInfo(const LoadingMode loadingMode, const QString &path,
                                               const QStringList &dirPaths,

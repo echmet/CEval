@@ -2,6 +2,7 @@
 #include "gui/evalmainwindow.h"
 #include "dataaccumulator.h"
 #include "helpers.h"
+#include "efg/efgloaderinterface.h"
 
 void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac)
 {
@@ -40,7 +41,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(w, &EvaluationWidget::evaluationSetDefault, e, &EvaluationEngine::onSetDefault);
   QObject::connect(e, &EvaluationEngine::comboBoxIndexChanged, w, &EvaluationWidget::onComboBoxChangedExt);
   QObject::connect(w, &EvaluationWidget::findPeaks, e, &EvaluationEngine::onFindPeaks);
-  QObject::connect(mw, &EvalMainWindow::loadDataFile, e->dataFileLoader(), &DataFileLoader::onLoadDataFile);
+  QObject::connect(mw, &EvalMainWindow::loadElectrophoregram , &EFGLoaderInterface::instance(), &EFGLoaderInterface::loadData);
   QObject::connect(w, &EvaluationWidget::doHvlFit, e, &EvaluationEngine::onDoHvlFit);
   QObject::connect(w, &EvaluationWidget::replotHvl, e, &EvaluationEngine::onReplotHvl);
   QObject::connect(w, &EvaluationWidget::copyToClipboard, e, &EvaluationEngine::onCopyToClipboard);

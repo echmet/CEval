@@ -6,7 +6,6 @@
 #include "booleanmappermodel.h"
 #include "comboboxmodel.h"
 #include "commonparametersengine.h"
-#include "datafileloader.h"
 #include "dynamiccomboboxmodel.h"
 #include "evaluatedpeaksmodel.h"
 #include "evaluationparametersitems.h"
@@ -18,6 +17,7 @@
 #include "mappedvectorwrapper.h"
 #include "plotcontextlimited.h"
 #include "peakevaluator.h"
+#include "efg/efgtypes.h"
 #include "gui/addpeakdialog.h"
 
 class AddPeakDialog;
@@ -85,7 +85,6 @@ public:
   QAbstractItemModel *baselineModel();
   AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
   QAbstractItemModel *clipboardDataArrangementModel();
-  const DataFileLoader *dataFileLoader() const { return m_dataFileLoader; }
   QAbstractItemModel *evaluatedPeaksModel();
   QAbstractItemModel *exporterBackendsModel();
   QAbstractItemModel *exporterSchemesModel();
@@ -214,10 +213,10 @@ private:
 
   class DataContext {
   public:
-    DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
+    DataContext(std::shared_ptr<EFGData> data, const QString &name,
                 const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx);
 
-    std::shared_ptr<DataFileLoader::Data> data;
+    std::shared_ptr<EFGData> data;
     QString name;
     CommonParametersEngine::Context commonContext;
     EvaluationContext evaluationContext;
@@ -229,7 +228,7 @@ private:
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const CommonParametersEngine::Context &commonCtx);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);
-  bool createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name);
+  bool createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
   QVector<bool> defaultHvlBooleanValues() const;
@@ -306,7 +305,6 @@ private:
   PeakContext m_currentPeak;
   int m_currentPeakIdx;
 
-  DataFileLoader *m_dataFileLoader;
   AddPeakDialog *m_addPeakDlg;
   QMenu *m_findPeakMenu;
   QMenu *m_manualIntegrationMenu;
@@ -447,7 +445,7 @@ public slots:
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
 
 private slots:
-  void onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName);
+  void onDataLoaded(std::shared_ptr<EFGData> &data, QString fileID, QString fileName);
   void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow);

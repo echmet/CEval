@@ -14,6 +14,7 @@
 #include "dataexporter/backends/textexporterbackend.h"
 #include "dataexporter/backends/htmlexporterbackend.h"
 #include "dataexporter/backends/textstreamexporterbackend.h"
+#include "efg/efgloaderinterface.h"
 #include <QApplication>
 #include <QClipboard>
 #include <QFileDialog>
@@ -100,7 +101,7 @@ const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DELIMTIER_TAG("ClipboardExporter-Delimiter");
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG("ClipboardExporter-DataArrangement");
 
-EvaluationEngine::DataContext::DataContext(std::shared_ptr<DataFileLoader::Data> data, const QString &name,
+EvaluationEngine::DataContext::DataContext(std::shared_ptr<EFGData> data, const QString &name,
                                            const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
   data(data),
   name(name),
@@ -224,13 +225,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_dataExporter("EVALUATION_ENGINE_DEXP")
 {
   try {
-    m_dataFileLoader = new DataFileLoader(this);
-  } catch (std::bad_alloc&) {
-    QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate DataFileLoader"));
-    throw;
-  }
-
-  try {
     createContextMenus();
   } catch (std::bad_alloc&) {
     QMessageBox::critical(nullptr, tr("Insufficient memory"), tr("Unable to allocate context menus"));
@@ -303,7 +297,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::SHOW_FIT_STATS] = false;
   m_hvlFitOptionsModel.setUnderlyingData(m_hvlFitOptionsValues.pointer());
 
-  connect(m_dataFileLoader, &DataFileLoader::dataLoaded, this, &EvaluationEngine::onDataLoaded);
+  connect(&EFGLoaderInterface::instance(), &EFGLoaderInterface::onDataLoaded, this, &EvaluationEngine::onDataLoaded);
 
   connect(&m_hvlFitModel, &FloatingMapperModel<HVLFitResultsItems::Floating>::dataChanged, this, &EvaluationEngine::onHvlResultsModelChanged);
   connect(&m_hvlFitIntModel, &IntegerMapperModel<HVLFitParametersItems::Int>::dataChanged, this, &EvaluationEngine::onHvlParametersModelChanged);
@@ -695,7 +689,7 @@ void EvaluationEngine::createContextMenus() noexcept(false)
   m_postProcessMenu->addAction(a);
 }
 
-bool EvaluationEngine::createSignalPlot(std::shared_ptr<DataFileLoader::Data> data, const QString &name)
+bool EvaluationEngine::createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name)
 {
   m_plotCtx->setPlotTitle(name);
 
@@ -1221,11 +1215,13 @@ void EvaluationEngine::loadUserSettings(const QVariant &settings)
 
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
 
+  /* FIXME. Store last used paths
   if (map.contains(DATAFILELOADER_SETTINGS_TAG)) {
     const QVariant &v = map[DATAFILELOADER_SETTINGS_TAG];
 
     m_dataFileLoader->loadUserSettings(v);
   }
+  */
 
   if (map.contains(HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG)) {
     const QVariant &v = map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG];
@@ -1638,7 +1634,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   clipboard->setText(out);
 }
 
-void EvaluationEngine::onDataLoaded(std::shared_ptr<DataFileLoader::Data> data, QString fileID, QString fileName)
+void EvaluationEngine::onDataLoaded(std::shared_ptr<EFGData> &data, QString fileID, QString fileName)
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
@@ -2450,7 +2446,7 @@ AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine:
 QVariant EvaluationEngine::saveUserSettings() const
 {
   EMT::StringVariantMap map = StandardPlotContextSettingsHandler::saveUserSettings(*m_plotCtx.get(), seriesIndex(Series::LAST_INDEX));
-  map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
+  //map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
   map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
   map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS);
   map[CLIPBOARDEXPORTER_DELIMTIER_TAG] = m_ctcDelimiter;

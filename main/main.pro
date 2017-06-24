@@ -6,9 +6,14 @@
 
 QT       += core gui network printsupport widgets
 
+linux {
+    QT += dbus
+}
+
 TARGET = CEval
 TEMPLATE = app
 
+DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += _USE_MATH_DEFINES
 unix {
     DEFINES += LIBHVL_PLATFORM_UNIX
@@ -25,6 +30,7 @@ unix {
 
 linux {
     DEFINES += CRASHHANDLING_LINUX
+    DEFINES += ENABLE_IPC_INTERFACE_DBUS
 }
 
 !win32-msvc2015 {
@@ -65,11 +71,7 @@ SOURCES += src/main.cpp \
     src/gui/maincontrolswidget.cpp \
     src/gui/evaluationwidget.cpp \
     src/gui/commonparameterswidget.cpp \
-    src/gui/loadchemstationdatadialog.cpp \
-    src/chemstationfileinfomodel.cpp \
-    src/chemstationfileloader.cpp \
     src/evaluationwidgetconnector.cpp \
-    src/datafileloader.cpp \
     src/evalmainwindowconnector.cpp \
     src/gui/evaluatedpeakswidget.cpp \
     src/gui/selectpeakdialog.cpp \
@@ -129,8 +131,6 @@ SOURCES += src/main.cpp \
     src/softwareupdater.cpp \
     src/evalmainwindowsoftwareupdaterconnector.cpp \
     src/updatecheckresults.cpp \
-    src/chemstationbatchloadmodel.cpp \
-    src/chemstationbatchloader.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
     src/dataexporter/exporterelems.cpp \
@@ -163,7 +163,12 @@ SOURCES += src/main.cpp \
     src/gui/hvlestimateinprogressdialog.cpp \
     src/math/hvlestimate.cpp \
     src/gui/malformedcsvfiledialog.cpp \
-    src/netcdffileloader.cpp
+    src/netcdffileloader.cpp \
+    src/efg/efgloaderwatcher.cpp \
+    src/efg/efgloaderinterface.cpp \
+    src/efg/dbusclient.cpp \
+    src/efg/efgtypes.cpp \
+    src/efg/ipcclient.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -181,14 +186,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/maincontrolswidget.h \
     src/gui/evaluationwidget.h \
     src/gui/commonparameterswidget.h \
-    src/gui/loadchemstationdatadialog.h \
-    src/chemstationfileinfomodel.h \
-    src/chemstationfileloader.h \
     src/comboboxmodel.h \
     src/evaluationwidgetconnector.h \
-    src/datafileloader.h \
     src/evalmainwindowconnector.h \
-    src/datafileloadermsgs.h \
     src/dynamiccomboboxmodel.h \
     src/gui/evaluatedpeakswidget.h \
     src/helpers.h \
@@ -323,8 +323,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/updatelistfetcher.h \
     src/softwareupdater.h \
     src/updatecheckresults.h \
-    src/chemstationbatchloadmodel.h \
-    src/chemstationbatchloader.h \
     src/doubleclickableqwtplotzoomer.h \
     src/dataexporter/exporter.h \
     src/dataexporter/exporterelems.h \
@@ -362,7 +360,12 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/rawmemblock.h \
     src/gui/hvlestimateinprogressdialog.h \
     src/gui/malformedcsvfiledialog.h \
-    src/netcdffileloader.h
+    src/netcdffileloader.h \
+    src/efg/efgloaderwatcher.h \
+    src/efg/efgloaderinterface.h \
+    src/efg/dbusclient.h \
+    src/efg/efgtypes.h \
+    src/efg/ipcclient.h
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \
@@ -401,10 +404,10 @@ unix {
     LIBS += -ldbghelp
 }
 
-include($$PWD/CEval.pri)
+include($$PWD/main.pri)
 
 !win32-msvc2015 {
-    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$EIGENPATH/include\" -isystem \"$$QWTPATH/include\""
+    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$EIGENPATH\" -isystem \"$$QWTPATH/include\""
 } else {
     QMAKE_LFLAGS_RELEASE += /MAP
     QMAKE_CFLAGS_RELEASE += /Zi
@@ -413,3 +416,5 @@ include($$PWD/CEval.pri)
 
     INCLUDEPATH += $$BOOSTPATH
 }
+
+DESTDIR = ../

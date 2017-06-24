@@ -6,9 +6,9 @@
 #include <QTreeView>
 #include <QTableView>
 #include <QSplitter>
-#include "../chemstationfileinfomodel.h"
-#include "../chemstationfileloader.h"
-#include "../chemstationbatchloader.h"
+#include "chemstationfileinfomodel.h"
+#include "chemstationfileloader.h"
+#include "chemstationbatchloader.h"
 
 class ChemStationBatchLoadModel;
 

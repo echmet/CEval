@@ -2,6 +2,7 @@
 #include "ui_evalmainwindow.h"
 #include "aboutdialog.h"
 #include "checkforupdatedialog.h"
+#include "../efg/efgloaderinterface.h"
 #include "../evaluationparametersitems.h"
 #include "../evalmainwindowconnector.h"
 #include "../helpers.h"
@@ -45,10 +46,9 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
 
   setWindowTitle(Globals::VERSION_STRING());
 
+  makeSupportedFileFormatsActions();
+
 #ifdef Q_OS_LINUX
-  ui->actionLoad_ChemStation_file->setIcon(QIcon::fromTheme("document-open"));
-  ui->menuLoad_comma_separated_file->setIcon(QIcon::fromTheme("document-open"));
-  ui->actionLoad_NetCDF_file->setIcon(QIcon::fromTheme("document-open"));
   ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
   ui->actionSave_data_table->setIcon(QIcon::fromTheme("document-save"));
   ui->actionExit->setIcon(QIcon::fromTheme("application-exit"));
@@ -57,9 +57,6 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionCheck_for_update->setIcon(QIcon::fromTheme("system-software-update"));
   ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
 #else
-  ui->actionLoad_ChemStation_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-  ui->menuLoad_comma_separated_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-  ui->actionLoad_NetCDF_file->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionLoad_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionSave_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
   ui->actionExit->setIcon(style()->standardIcon(QStyle::SP_DialogCloseButton));
@@ -74,10 +71,6 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionCheck_for_update, &QAction::triggered, this, &EvalMainWindow::onActionCheckForUpdate);
   connect(ui->actionExit, &QAction::triggered, this, &EvalMainWindow::onActionExit);
   connect(ui->actionExport_plot_as_image, &QAction::triggered, this, &EvalMainWindow::onActionExportPlotAsImage);
-  connect(ui->actionLoad_ChemStation_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadChemStationFile);
-  connect(ui->actionCsv_from_clipboard, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvClipboard);
-  connect(ui->actionCsv_from_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadCsvFile);
-  connect(ui->actionLoad_NetCDF_file, &QAction::triggered, this, &EvalMainWindow::onActionLoadNetCDFFile);
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);
   connect(ui->actionSave_data_table, &QAction::triggered, this, &EvalMainWindow::onActionSaveDataTable);
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
@@ -121,6 +114,30 @@ void EvalMainWindow::makeExportMenus()
   m_exportEvaluationMenu->addAction(a);
 }
 
+void EvalMainWindow::makeSupportedFileFormatsActions()
+{
+  QVector<EFGSupportedFileFormat> supportedFormats;
+  const bool ok = EFGLoaderInterface::instance().supportedFileFormats(supportedFormats);
+
+  if (!ok)
+    return;
+
+  for (const EFGSupportedFileFormat &sff : supportedFormats) {
+    QAction *a = new QAction(QString("Load %1").arg(sff.formatTag), this);
+    a->setData(sff.formatTag);
+
+#ifdef Q_OS_LINUX
+  a->setIcon(QIcon::fromTheme("document-open"));
+#else
+  a->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+#endif // Q_OS_LINUX
+
+  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
+  ui->menuFile->insertAction(ui->actionExit, a);
+  }
+
+}
+
 void EvalMainWindow::onActionAbout()
 {
   AboutDialog dlg;
@@ -153,29 +170,23 @@ void EvalMainWindow::onActionExportPlotAsImage()
   emit exportAction(DataAccumulatorMsgs::ExportAction::EXPORT_PLOT);
 }
 
-void EvalMainWindow::onActionLoadChemStationFile()
-{
-  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::CHEMSTATION);
-}
-
-void EvalMainWindow::onActionLoadCsvClipboard()
-{
-  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_CLIPBOARD);
-}
-
-void EvalMainWindow::onActionLoadCsvFile()
-{
-  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::COMMA_SEPARATED_FILE);
-}
-
-void EvalMainWindow::onActionLoadNetCDFFile()
-{
-  emit loadDataFile(DataFileLoaderMsgs::LoadableFileTypes::NETCDF_FILE);
-}
-
 void EvalMainWindow::onActionLoadDataTable()
 {
   emit loadDataTable();
+}
+
+void EvalMainWindow::onActionLoadElectrophoregram()
+{
+  QAction *a = qobject_cast<QAction *>(sender());
+
+  if (a == nullptr)
+    return;
+
+  QVariant formatTag = a->data();
+  if (!formatTag.isValid())
+    return;
+
+  emit loadElectrophoregram(formatTag.toString());
 }
 
 void EvalMainWindow::onActionSaveDataTable()
