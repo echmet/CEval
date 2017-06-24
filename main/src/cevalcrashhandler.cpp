@@ -30,7 +30,7 @@ public:
     CrashEvent *evt = new CrashEvent(m_handler);
 
     if (m_handler->mainThreadCrashed()) {
-      /* Let then know that I have been stiff
+      /* Let them know that I have been stiff
          and smiling 'till the crash */
       CEvalCrashHandler::s_catcher->executeEmergency();
 
