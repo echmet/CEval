@@ -133,7 +133,8 @@ void EvalMainWindow::makeSupportedFileFormatsActions()
 #endif // Q_OS_LINUX
 
   connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
-  ui->menuFile->insertAction(ui->actionExit, a);
+  ui->menuFile->insertAction(ui->actionLoad_data_table, a);
+  m_loadEFGActions.push_back(a);
   }
 
 }
@@ -211,18 +212,18 @@ void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode
   case DataAccumulatorMsgs::ProgramMode::EVALUATION:
     m_exportHyperbolaFitMenu->menuAction()->setVisible(false);
     m_exportEvaluationMenu->menuAction()->setVisible(true);
-    ui->actionLoad_ChemStation_file->setVisible(true);
-    ui->menuLoad_comma_separated_file->menuAction()->setVisible(true);
     ui->actionLoad_data_table->setVisible(false);
     ui->actionSave_data_table->setVisible(false);
+    for (QAction *a : m_loadEFGActions)
+      a->setVisible(true);
     break;
   case DataAccumulatorMsgs::ProgramMode::HYPERBOLA_FIT:
     m_exportEvaluationMenu->menuAction()->setVisible(false);
     m_exportHyperbolaFitMenu->menuAction()->setVisible(true);
-    ui->actionLoad_ChemStation_file->setVisible(false);
-    ui->menuLoad_comma_separated_file->menuAction()->setVisible(false);
     ui->actionLoad_data_table->setVisible(true);
     ui->actionSave_data_table->setVisible(true);
+    for (QAction *a : m_loadEFGActions)
+      a->setVisible(false);
     break;
   }
 }

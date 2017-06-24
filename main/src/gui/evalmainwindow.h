@@ -33,6 +33,7 @@ private:
   QwtPlot *m_plot;
   QSplitter *m_upmostSplitter;
   QSplitter *m_controlsSplitter;
+  QVector<QAction *> m_loadEFGActions;
   MainControlsWidget *m_mainControlsWidget;
   NumberFormatDialog *m_numberFormatDialog;
 

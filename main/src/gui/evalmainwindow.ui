@@ -22,23 +22,13 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>27</height>
+     <height>23</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>Fi&amp;le</string>
     </property>
-    <widget class="QMenu" name="menuLoad_comma_separated_file">
-     <property name="title">
-      <string>Load &amp;text data</string>
-     </property>
-     <addaction name="actionCsv_from_file"/>
-     <addaction name="actionCsv_from_clipboard"/>
-    </widget>
-    <addaction name="actionLoad_ChemStation_file"/>
-    <addaction name="menuLoad_comma_separated_file"/>
-    <addaction name="actionLoad_NetCDF_file"/>
     <addaction name="separator"/>
     <addaction name="actionLoad_data_table"/>
     <addaction name="actionSave_data_table"/>
@@ -133,7 +123,7 @@
   </action>
   <action name="actionLoad_NetCDF_file">
    <property name="text">
-    <string>Load NetCDF file</string>
+    <string>Load &amp;NetCDF file</string>
    </property>
   </action>
  </widget>
