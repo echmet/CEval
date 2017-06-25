@@ -14,7 +14,7 @@ public:
   explicit LocalSocketClient();
   virtual ~LocalSocketClient();
 
-  virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag) override;
+  virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath) override;
   virtual bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats) override;
 
 private:

@@ -91,7 +91,7 @@ bool LocalSocketClient::connectSocket()
   return true;
 }
 
-bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag)
+bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath)
 {
   if (!reconnectIfNeeded())
     return false;
@@ -106,14 +106,25 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag)
   QByteArray formatTagBA = formatTag.toUtf8();
   IPCSockLoadDataRequestDescriptor reqLdrHdr;
   initRequest(reqLdrHdr, IPCSockRequestType::REQUEST_LOAD_DATA_DESCRIPTOR);
-  reqLdrHdr.mode = IPCSocketLoadDataMode::IPCS_LOAD_INTERACTIVE;
   reqLdrHdr.tagLength = formatTagBA.size();
-  reqLdrHdr.filePathLength = 0;
+
+  QByteArray hintPathBA = hintPath.toUtf8();
+  if (hintPath.length() > 0) {
+    reqLdrHdr.mode = IPCSocketLoadDataMode::IPCS_LOAD_HINT;
+    reqLdrHdr.filePathLength = hintPathBA.size();
+  } else {
+    reqLdrHdr.mode = IPCSocketLoadDataMode::IPCS_LOAD_INTERACTIVE;
+    reqLdrHdr.filePathLength = 0;
+  }
 
   if (!sendPacket(reqLdrHdr))
     FAIL(m_socket);
   if (!sendBlock(formatTagBA))
     FAIL(m_socket);
+  if (reqLdrHdr.filePathLength > 0) {
+    if (!sendBlock(hintPathBA))
+      FAIL(m_socket);
+  }
 
 
   QByteArray respLdrHdrBA;
@@ -299,7 +310,7 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
 bool LocalSocketClient::waitForData(const int size)
 {
   while (m_socket->bytesAvailable() < size) {
-    if (m_socket->state() != QLocalSocket::ConnectingState)
+    if (m_socket->state() != QLocalSocket::ConnectedState)
       return false;
 
     m_socket->waitForReadyRead(100);

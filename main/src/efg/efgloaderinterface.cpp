@@ -1,5 +1,7 @@
 #include "efgloaderinterface.h"
 #include "efgloaderwatcher.h"
+#include <QDir>
+#include <QFileInfo>
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"
@@ -18,6 +20,7 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   try {
     m_ipcClient = new efg::DBusClient();
+    return;
   } catch (std::exception &ex) {
     qWarning() << "Cannot connect to D-Bus(" << ex.what() << "), falling back to local socket";
     m_ipcClient = nullptr;
@@ -38,15 +41,28 @@ EFGLoaderInterface::~EFGLoaderInterface()
 
 void EFGLoaderInterface::loadData(const QString &formatTag)
 {
+  QString hintPath;
   efg::IPCClient::NativeDataVec ndVec;
 
   if (m_ipcClient == nullptr)
     return;
 
-  m_ipcClient->loadData(ndVec, formatTag);
+  if (m_lastPathsMap.contains(formatTag))
+    hintPath = m_lastPathsMap[formatTag];
+  else
+    hintPath = "";
 
-  for (auto &nd : ndVec)
-    emit onDataLoaded(nd.data, nd.path, nd.name);
+  if (!m_ipcClient->loadData(ndVec, formatTag, hintPath))
+    return;
+
+  if (ndVec.size() > 0) {
+    m_lastPathsMap[formatTag] = [](const QString &path) {
+      return QFileInfo(path).dir().absolutePath();
+    }(ndVec.at(0).path);
+
+    for (auto &nd : ndVec)
+      emit onDataLoaded(nd.data, nd.path, nd.name);
+  }
 }
 
 EFGLoaderInterface & EFGLoaderInterface::instance()

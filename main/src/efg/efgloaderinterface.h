@@ -2,6 +2,7 @@
 #define EFGLOADERINTERFACE_H
 
 #include <QObject>
+#include <QMap>
 #include <memory>
 #include "efgtypes.h"
 
@@ -23,6 +24,7 @@ private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
 
   efg::IPCClient *m_ipcClient;
+  QMap<QString, QString> m_lastPathsMap;
   efg::EFGLoaderWatcher *m_watcher;
 
   static std::unique_ptr<EFGLoaderInterface> s_me;

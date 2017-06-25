@@ -32,9 +32,14 @@ DBusClient::DBusClient() : IPCClient()
   }
 }
 
-bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag)
+bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath)
 {
-  QDBusReply<IPCDBusDataPack> reply = m_iface->call("loadData", formatTag);
+  QDBusReply<IPCDBusDataPack> reply;
+
+  if (hintPath == "")
+    reply = m_iface->call("loadData", formatTag);
+  else
+    reply = m_iface->call("loadDataHint", formatTag, hintPath);
 
   if (!reply.isValid()) {
     qDebug() << reply.error().name() << reply.error().message();
