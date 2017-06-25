@@ -4,6 +4,7 @@
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"
 #endif // ENABLE_IPC_INTERFACE_DBUS
+#include "localsocketclient.h"
 
 #include <QDebug>
 
@@ -23,6 +24,12 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   }
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
+  try {
+    m_ipcClient = new efg::LocalSocketClient();
+  } catch (std::exception &ex) {
+    qWarning() << "Cannot connect to IPC socket(" << ex.what() << "). Electrophoregram loading will not be available";
+    m_ipcClient = nullptr;
+  }
 }
 
 EFGLoaderInterface::~EFGLoaderInterface()

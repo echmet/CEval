@@ -30,7 +30,8 @@ unix {
 
 linux {
     DEFINES += CRASHHANDLING_LINUX
-    DEFINES += ENABLE_IPC_INTERFACE_DBUS
+    #DEFINES += ENABLE_IPC_INTERFACE_DBUS
+    #CONFIG += ipc_dbus
 }
 
 !win32-msvc2015 {
@@ -166,9 +167,9 @@ SOURCES += src/main.cpp \
     src/netcdffileloader.cpp \
     src/efg/efgloaderwatcher.cpp \
     src/efg/efgloaderinterface.cpp \
-    src/efg/dbusclient.cpp \
     src/efg/efgtypes.cpp \
-    src/efg/ipcclient.cpp
+    src/efg/ipcclient.cpp \
+    src/efg/localsocketclient.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -363,9 +364,17 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/netcdffileloader.h \
     src/efg/efgloaderwatcher.h \
     src/efg/efgloaderinterface.h \
-    src/efg/dbusclient.h \
     src/efg/efgtypes.h \
-    src/efg/ipcclient.h
+    src/efg/ipcclient.h \
+    src/efg/localsocketclient.h
+
+ipc_dbus {
+    SOURCES += \
+        src/efg/dbusclient.cpp \
+
+    HEADERS += \
+        src/efg/dbusclient.h \
+}
 
 FORMS    += src/gui/evalmainwindow.ui \
     src/gui/maincontrolswidget.ui \

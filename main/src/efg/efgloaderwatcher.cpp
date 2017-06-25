@@ -16,16 +16,19 @@ EFGLoaderWatcher::EFGLoaderWatcher(QObject *parent) :
   QObject(parent)
 {
   const QString curPath = QDir::currentPath();
+  const QString execPath = curPath + "/" + s_EFGLoaderBinaryName;
+
+  qDebug() << execPath;
 
   m_efgLoader = new QProcess(this);
-  m_efgLoader->setProgram(curPath + "/" + s_EFGLoaderBinaryName);
+  m_efgLoader->setProgram(execPath);
 
   connect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
   connect(m_efgLoader, &QProcess::started, this, &EFGLoaderWatcher::onEFGLoaderStarted);
 
   m_efgLoader->start();
-  if (!m_efgLoader->waitForStarted())
-    throw std::runtime_error("Cannot start EFGLoader");
+  if (!m_efgLoader->waitForStarted(5000))
+    throw std::runtime_error(QString("Cannot start EFGLoader, error code %1").arg(m_efgLoader->error()).toUtf8().data());
 }
 
 EFGLoaderWatcher::~EFGLoaderWatcher()

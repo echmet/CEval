@@ -164,6 +164,10 @@ int main(int argc, char *argv[])
     w = new EvalMainWindow(nullptr);
     dac = new DataAccumulator(w->plot(), nullptr);
     updater = new SoftwareUpdater(nullptr);
+  } catch (std::exception &ex) {
+    QMessageBox::critical(nullptr, QObject::tr("Initialization"), QString(QObject::tr("Unable to allocate basic data structures\n%1")).arg(ex.what()));
+    aRet = EXIT_FAILURE;
+    goto out;
   } catch (...) {
     QMessageBox::critical(nullptr, QObject::tr("Initialization"), QObject::tr("Unable to allocate basic data structures"));
     aRet = EXIT_FAILURE;

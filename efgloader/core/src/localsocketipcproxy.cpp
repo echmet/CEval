@@ -18,7 +18,6 @@
     } \
   }
 
-
 #define WRITE_CHECKED(socket, payload) \
   do { \
     qint64 __r = socket->write(payload); \
@@ -52,10 +51,13 @@ bool CHECK_SIG(const P &packet, const R requestType)
 void reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QString &message)
 {
   IPCSockResponseHeader resp;
+  QByteArray messageRaw(message.toUtf8());
+
   INIT_RESPONSE(resp, rtype, IPCS_FAILURE);
+  resp.errorLength = messageRaw.size();
 
   WRITE_CHECKED_RAW(socket, resp);
-  WRITE_CHECKED(socket, message.toUtf8());
+  WRITE_CHECKED(socket, messageRaw);
   socket->waitForBytesWritten();
 }
 
@@ -78,9 +80,6 @@ bool readBlock(QLocalSocket *socket, QByteArray &buffer, qint64 size)
   return true;
 }
 
-
-const char *LocalSocketIPCProxy::s_socketPath = "cevalloader";
-
 LocalSocketIPCProxy::LocalSocketIPCProxy(DataLoader *loader, QObject *parent) :
   IPCProxy(loader, parent)
 {
@@ -88,8 +87,8 @@ LocalSocketIPCProxy::LocalSocketIPCProxy(DataLoader *loader, QObject *parent) :
 
   connect(m_server, &QLocalServer::newConnection, this ,&LocalSocketIPCProxy::onNewConnection);
 
-  m_server->removeServer(s_socketPath);
-  m_server->listen(s_socketPath);
+  m_server->removeServer(IPCS_SOCKET_NAME);
+  m_server->listen(IPCS_SOCKET_NAME);
 }
 
 LocalSocketIPCProxy::~LocalSocketIPCProxy()

@@ -28,8 +28,6 @@ private:
 
   QLocalServer *m_server;
 
-  static const char *s_socketPath;
-
 private slots:
   void onNewConnection();
 

@@ -192,7 +192,7 @@ class IPCDBusSupportedFileFormatVec : public QVector<IPCDBusSupportedFileFormat>
     return argument;
   }
 };
-Q_DECLARE_METATYPE(IPCDBusSupportedFileFormatVec);
+Q_DECLARE_METATYPE(IPCDBusSupportedFileFormatVec)
 
 class DBusMetyTypesRegistrator {
 public:
@@ -218,6 +218,7 @@ public:
 #include <stdint.h>
 
 #define IPCS_PACKET_MAGIC 0x091E
+#define IPCS_SOCKET_NAME "cevalefgloader"
 
 enum IPCSockRequestType {
   REQUEST_SUPPORTED_FORMATS = 0x1,
