@@ -3,23 +3,26 @@
   <interface name="dataloader.loader">
     <method name="loadData">
       <arg name="formatTag" type="s" direction="in" />
+      <arg name="loadOption" type="i" direction="in" />
       <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="loadDataHint">
       <arg name="formatTag" type="s" direction="in" />
       <arg name="hint" type="s" direction="in" />
+      <arg name="loadOption" type="i" direction="in" />
       <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="loadDataFile">
       <arg name="formatTag" type="s" direction="in" />
       <arg name="filePath" type="s" direction="in" />
+      <arg name="loadOption" type="i" direction="in" />
       <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="supportedFileFormats">
-      <arg name="supportedFileFormats" type="a(ss)" direction="out" />
+      <arg name="supportedFileFormats" type="a(sssa(s))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusSupportedFileFormatVec" />
     </method>
   </interface>

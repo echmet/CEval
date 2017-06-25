@@ -15,9 +15,9 @@ class HPCSSUPPORTSHARED_EXPORT HPCSSupport : public LoaderBackend
 {
 public:
   virtual Identifier identifier() const override;
-  virtual std::vector<Data> load() override;
-  virtual std::vector<Data> loadHint(const std::string &hintPath) override;
-  virtual std::vector<Data> loadPath(const std::string &path) override;
+  virtual std::vector<Data> load(const int option) override;
+  virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) override;
+  virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
 
   static HPCSSupport *instance();
 

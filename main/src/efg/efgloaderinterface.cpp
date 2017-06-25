@@ -39,7 +39,7 @@ EFGLoaderInterface::~EFGLoaderInterface()
 {
 }
 
-void EFGLoaderInterface::loadData(const QString &formatTag)
+void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)
 {
   QString hintPath;
   efg::IPCClient::NativeDataVec ndVec;
@@ -52,7 +52,7 @@ void EFGLoaderInterface::loadData(const QString &formatTag)
   else
     hintPath = "";
 
-  if (!m_ipcClient->loadData(ndVec, formatTag, hintPath))
+  if (!m_ipcClient->loadData(ndVec, formatTag, hintPath, loadOption))
     return;
 
   if (ndVec.size() > 0) {

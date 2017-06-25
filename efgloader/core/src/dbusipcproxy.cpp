@@ -43,23 +43,28 @@ void DBusIPCProxy::onSupportedFileFormats(IPCDBusSupportedFileFormatVec &support
   const QVector<FileFormatInfo> fileFormatInfoVec = m_loader->supportedFileFormats();
 
   for (const auto &ffi : fileFormatInfoVec) {
-    supportedFileFormats.push_back(IPCDBusSupportedFileFormat{ffi.longDescription, ffi.shortDescription, ffi.tag});
+    IPCDBusLoadOptionsVec dbusLoadOpts;
+
+    for (const QString &s : ffi.loadOptions)
+      dbusLoadOpts.push_back(s);
+
+    supportedFileFormats.push_back(IPCDBusSupportedFileFormat{ffi.longDescription, ffi.shortDescription, ffi.tag, dbusLoadOpts});
   }
 }
 
-void DBusIPCProxy::onLoadData(IPCDBusDataPack &pack, const QString &formatTag, const DBusInterface::LoadMode mode, const QString &modeParam)
+void DBusIPCProxy::onLoadData(IPCDBusDataPack &pack, const QString &formatTag, const DBusInterface::LoadMode mode, const QString &modeParam, const int loadOption)
 {
   DataLoader::LoadedPack result;
 
   switch (mode) {
   case DBusInterface::LoadMode::INTERACTIVE:
-    result = m_loader->loadData(formatTag);
+    result = m_loader->loadData(formatTag, loadOption);
     break;
   case DBusInterface::LoadMode::HINT:
-    result = m_loader->loadDataHint(formatTag, modeParam);
+    result = m_loader->loadDataHint(formatTag, modeParam, loadOption);
     break;
   case DBusInterface::LoadMode::FILE:
-    result = m_loader->loadDataPath(formatTag, modeParam);
+    result = m_loader->loadDataPath(formatTag, modeParam, loadOption);
     break;
   }
 

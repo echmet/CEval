@@ -1,6 +1,7 @@
 #ifndef EFGTYPES_H
 #define EFGTYPES_H
 
+#include <QMap>
 #include <QPointF>
 #include <QString>
 #include <QVector>
@@ -25,11 +26,12 @@ private:
 class EFGSupportedFileFormat {
 public:
   explicit EFGSupportedFileFormat();
-  explicit EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag);
+  explicit EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag, const QMap<int, QString> &loadOptions);
 
   const QString longDescription;
   const QString shortDescription;
   const QString formatTag;
+  const QMap<int, QString> loadOptions;
 };
 
 #endif // EFGTYPES_H

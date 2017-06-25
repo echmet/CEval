@@ -230,13 +230,13 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
   DataLoader::LoadedPack result;
   switch (reqDesc->mode) {
   case IPCSocketLoadDataMode::IPCS_LOAD_INTERACTIVE:
-    result = m_loader->loadData(formatTag);
+    result = m_loader->loadData(formatTag, reqDesc->loadOption);
     break;
   case IPCSocketLoadDataMode::IPCS_LOAD_HINT:
-    result = m_loader->loadDataHint(formatTag, path);
+    result = m_loader->loadDataHint(formatTag, path, reqDesc->loadOption);
     break;
   case IPCSocketLoadDataMode::IPCS_LOAD_FILE:
-    result = m_loader->loadDataPath(formatTag, path);
+    result = m_loader->loadDataPath(formatTag, path, reqDesc->loadOption);
     break;
   }
 
@@ -322,6 +322,10 @@ void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
     desc.longDescriptionLength = longDescription.size();
     desc.shortDescriptionLength = shortDescription.size();
     desc.tagLength = tag.size();
+    if (ffi.loadOptions.size() > 1)
+      desc.loadOptionsLength = ffi.loadOptions.size();
+    else
+      desc.loadOptionsLength = 0;
 
     /* Send the response descriptor */
     WRITE_CHECKED_RAW(socket, desc);
@@ -330,6 +334,19 @@ void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
     WRITE_CHECKED(socket, longDescription);
     WRITE_CHECKED(socket, shortDescription);
     WRITE_CHECKED(socket, tag);
+
+    if (ffi.loadOptions.size() > 1) {
+      for (const QString &option : ffi.loadOptions) {
+        IPCSockLoadOptionDescriptor loDesc;
+        INIT_RESPONSE(loDesc, IPCSockResponseType::RESPONSE_LOAD_OPTION_DESCRIPTOR, IPCS_SUCCESS);
+
+        QByteArray optionBA = option.toUtf8();
+        loDesc.optionLength = optionBA.size();
+        WRITE_CHECKED_RAW(socket, loDesc);
+
+        WRITE_CHECKED(socket, optionBA);
+      }
+    }
   }
   socket->waitForBytesWritten();
 }

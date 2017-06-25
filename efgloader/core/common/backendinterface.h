@@ -36,9 +36,9 @@ class LoaderBackend {
 public:
   virtual ~LoaderBackend();
   virtual Identifier identifier() const = 0;
-  virtual std::vector<Data> load() = 0;
-  virtual std::vector<Data> loadHint(const std::string &hintPath) = 0;
-  virtual std::vector<Data> loadPath(const std::string &path) = 0;
+  virtual std::vector<Data> load(const int option) = 0;
+  virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) = 0;
+  virtual std::vector<Data> loadPath(const std::string &path, const int option) = 0;
 };
 
 typedef LoaderBackend *(*BackendInitializer)();

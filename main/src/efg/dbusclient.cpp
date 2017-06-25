@@ -3,7 +3,7 @@
 #include <QtDBus/QDBusConnectionInterface>
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
-#include <QTime>
+#include <QThread>
 #include "../../../efgloader/core/common/ipcinterface.h"
 
 #include <QDebug>
@@ -15,11 +15,11 @@ DBusClient::DBusClient() : IPCClient()
   DBusMetyTypesRegistrator::registerAll();
   QDBusConnection conn = QDBusConnection::sessionBus();
 
-  QTime waitFrom = QTime::currentTime();
+  int ctr = 0;
   while (!conn.interface()->isServiceRegistered(DBUS_SERVICE_NAME)) {
-    QTime now = QTime::currentTime();
+    QThread::msleep(500);
 
-    if (waitFrom.msecsTo(now) > 5000)
+    if (ctr++ > 5)
       throw std::runtime_error("D-Bus service is not available");
   }
 
@@ -32,14 +32,14 @@ DBusClient::DBusClient() : IPCClient()
   }
 }
 
-bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath)
+bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)
 {
   QDBusReply<IPCDBusDataPack> reply;
 
   if (hintPath == "")
-    reply = m_iface->call("loadData", formatTag);
+    reply = m_iface->call("loadData", formatTag, loadOption);
   else
-    reply = m_iface->call("loadDataHint", formatTag, hintPath);
+    reply = m_iface->call("loadDataHint", formatTag, hintPath, loadOption);
 
   if (!reply.isValid()) {
     qDebug() << reply.error().name() << reply.error().message();
@@ -79,8 +79,14 @@ bool DBusClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &supported
   if (!reply.isValid())
     return false;
 
-  for (const auto &sff : reply.value())
-    supportedFormats.push_back(EFGSupportedFileFormat{sff.longDescription, sff.shortDescription, sff.tag});
+  for (const auto &sff : reply.value()) {
+    QMap<int, QString> loadOptions;
+
+    for (int idx = 0; idx < sff.loadOptions.size(); idx++)
+      loadOptions[idx] = sff.loadOptions.at(idx);
+
+    supportedFormats.push_back(EFGSupportedFileFormat{sff.longDescription, sff.shortDescription, sff.tag, loadOptions});
+  }
 
   return true;
 }

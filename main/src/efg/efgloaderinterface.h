@@ -95,7 +95,7 @@ signals:
   void onDataLoaded(std::shared_ptr<EFGData> &data, const QString &path, const QString &name);
 
 public slots:
-  void loadData(const QString &formatTag);
+  void loadData(const QString &formatTag, const int loadOption);
 };
 
 #endif // EFGLOADERINTERFACE_H

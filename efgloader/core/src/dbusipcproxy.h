@@ -22,7 +22,7 @@ private:
 
 private slots:
   void onSupportedFileFormats(IPCDBusSupportedFileFormatVec &supportedFileFormats);
-  void onLoadData(IPCDBusDataPack &pack, const QString &formatTag, const DBusInterface::LoadMode loadMode, const QString &modeParam);
+  void onLoadData(IPCDBusDataPack &pack, const QString &formatTag, const DBusInterface::LoadMode loadMode, const QString &modeParam, const int loadOption);
 };
 
 #endif // USE_INTERFACE_DBUS

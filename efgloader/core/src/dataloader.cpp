@@ -8,28 +8,32 @@
 FileFormatInfo::FileFormatInfo() :
   longDescription(""),
   shortDescription(""),
-  tag("")
+  tag(""),
+  loadOptions(QVector<QString>{})
 {
 }
 
-FileFormatInfo::FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag) :
+FileFormatInfo::FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag, const QVector<QString> &loadOptions) :
   longDescription(longDescription),
   shortDescription(shortDescription),
-  tag(tag)
+  tag(tag),
+  loadOptions(loadOptions)
 {
 }
 
 FileFormatInfo::FileFormatInfo(const FileFormatInfo &other) :
   longDescription(other.longDescription),
   shortDescription(other.shortDescription),
-  tag(other.tag)
+  tag(other.tag),
+  loadOptions(other.loadOptions)
 {
 }
 
 FileFormatInfo::FileFormatInfo(FileFormatInfo &&other) :
   longDescription(std::move(other.longDescription)),
   shortDescription(std::move(other.shortDescription)),
-  tag(std::move(other.tag))
+  tag(std::move(other.tag)),
+  loadOptions(std::move(other.loadOptions))
 {
 }
 
@@ -38,6 +42,7 @@ FileFormatInfo & FileFormatInfo::operator=(const FileFormatInfo &other)
   const_cast<QString&>(longDescription) = other.longDescription;
   const_cast<QString&>(shortDescription) = other.shortDescription;
   const_cast<QString&>(tag) = other.tag;
+  const_cast<QVector<QString>&>(loadOptions) = other.loadOptions;
 
   return *this;
 }
@@ -132,13 +137,13 @@ void DataLoader::initializePlugin(const QString &pluginPath)
 
 
 
-DataLoader::LoadedPack DataLoader::loadData(const QString &formatTag) const
+DataLoader::LoadedPack DataLoader::loadData(const QString &formatTag, const int mode) const
 {
   if (!checkTag(formatTag))
     return makeErrorPack(QString("Invalid format tag %1").arg(formatTag));
 
   backend::LoaderBackend *instance = m_backendInstances[formatTag];
-  std::vector<backend::Data> pdVec = instance->load();
+  std::vector<backend::Data> pdVec = instance->load(mode);
 
   if (pdVec.size() < 1)
     return makeErrorPack("No data was loaded");
@@ -146,13 +151,13 @@ DataLoader::LoadedPack DataLoader::loadData(const QString &formatTag) const
   return package(pdVec);
 }
 
-std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataHint(const QString &formatTag, const QString &hintPath) const
+std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataHint(const QString &formatTag, const QString &hintPath, const int mode) const
 {
   if (!checkTag(formatTag))
     return makeErrorPack(QString("Invalid format tag %1").arg(formatTag));
 
   backend::LoaderBackend *instance = m_backendInstances[formatTag];
-  std::vector<backend::Data> pdVec = instance->loadHint(hintPath.toStdString());
+  std::vector<backend::Data> pdVec = instance->loadHint(hintPath.toStdString(), mode);
 
   if (pdVec.size() < 1)
     return makeErrorPack("No data was loaded");
@@ -160,13 +165,13 @@ std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataHint(const QStr
   return package(pdVec);
 }
 
-std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataPath(const QString &formatTag, const QString &path) const
+std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataPath(const QString &formatTag, const QString &path, const int mode) const
 {
   if (!checkTag(formatTag))
     return makeErrorPack(QString("Invalid format tag %1").arg(formatTag));
 
   backend::LoaderBackend *instance = m_backendInstances[formatTag];
-  std::vector<backend::Data> pdVec = instance->loadPath(path.toStdString());
+  std::vector<backend::Data> pdVec = instance->loadPath(path.toStdString(), mode);
 
   if (pdVec.size() < 1)
     return makeErrorPack("No data was loaded");
@@ -236,7 +241,15 @@ QVector<FileFormatInfo> DataLoader::supportedFileFormats() const
 
   for (const auto &item : m_backendInstances) {
     backend::Identifier ident = item->identifier();
-    vec.append(FileFormatInfo{QString::fromStdString(ident.longDescription), QString::fromStdString(ident.shortDescription), QString::fromStdString(ident.tag)});
+    QVector<QString> loadOptions;
+
+    for (const std::string &s : ident.loadOptions)
+      loadOptions.push_back(QString::fromStdString(s));
+
+    vec.push_back(FileFormatInfo{QString::fromStdString(ident.longDescription),
+                                 QString::fromStdString(ident.shortDescription),
+                                 QString::fromStdString(ident.tag),
+                                 loadOptions});
   }
 
   return vec;

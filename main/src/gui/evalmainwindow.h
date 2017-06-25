@@ -48,7 +48,7 @@ private:
 signals:
   void adjustPlotAppearance();
   void exportAction(const DataAccumulatorMsgs::ExportAction action);
-  void loadElectrophoregram(const QString &formatTag);
+  void loadElectrophoregram(const QString &formatTag, const int loadOption);
   void loadDataTable();
   void saveDataTable();
   void testExporter();

@@ -91,7 +91,7 @@ bool LocalSocketClient::connectSocket()
   return true;
 }
 
-bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath)
+bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)
 {
   if (!reconnectIfNeeded())
     return false;
@@ -106,6 +106,7 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
   QByteArray formatTagBA = formatTag.toUtf8();
   IPCSockLoadDataRequestDescriptor reqLdrHdr;
   initRequest(reqLdrHdr, IPCSockRequestType::REQUEST_LOAD_DATA_DESCRIPTOR);
+  reqLdrHdr.loadOption = loadOption;
   reqLdrHdr.tagLength = formatTagBA.size();
 
   QByteArray hintPathBA = hintPath.toUtf8();
@@ -301,7 +302,25 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
     if (!readBlock(tagBA, sfrDesc->tagLength))
       FAIL(m_socket);
 
-    supportedFormats.push_back(EFGSupportedFileFormat(QString::fromUtf8(longDescriptionBA), QString::fromUtf8(shortDescriptionBA), QString::fromUtf8(tagBA)));
+    QMap<int, QString> loadOptions;
+    if (sfrDesc->loadOptionsLength > 1) {
+      for (uint32_t ctr = 0; ctr < sfrDesc->loadOptionsLength; ctr++) {
+        QByteArray loDescBA;
+        const IPCSockLoadOptionDescriptor *loDesc = readPacket<IPCSockLoadOptionDescriptor>(loDescBA);
+        if (loDesc == nullptr)
+          FAIL(m_socket);
+        if (!checkSignature(loDesc, IPCSockResponseType::RESPONSE_LOAD_OPTION_DESCRIPTOR))
+          FAIL(m_socket);
+
+        QByteArray loadOptionBA;
+        if (!readBlock(loadOptionBA, loDesc->optionLength))
+          FAIL(m_socket);
+
+        loadOptions[ctr] = QString::fromUtf8(loadOptionBA);
+      }
+    }
+
+    supportedFormats.push_back(EFGSupportedFileFormat(QString::fromUtf8(longDescriptionBA), QString::fromUtf8(shortDescriptionBA), QString::fromUtf8(tagBA), loadOptions));
   }
 
   if (item != respHdr->items)

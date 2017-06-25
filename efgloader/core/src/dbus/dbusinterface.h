@@ -23,13 +23,13 @@ public:
   virtual ~DBusInterface();
 
 public slots:
-  IPCDBusDataPack loadData(const QString &formatTag);
-  IPCDBusDataPack loadDataHint(const QString &formatTag, const QString &hint);
-  IPCDBusDataPack loadDataFile(const QString &formatTag, const QString &filePath);
+  IPCDBusDataPack loadData(const QString &formatTag, const int loadOption);
+  IPCDBusDataPack loadDataHint(const QString &formatTag, const QString &hint, const int loadOption);
+  IPCDBusDataPack loadDataFile(const QString &formatTag, const QString &filePath, const int loadOption);
   IPCDBusSupportedFileFormatVec supportedFileFormats();
 
 signals:
-  void loadDataForwarder(IPCDBusDataPack &pack, const QString &formatTag, const LoadMode mode, const QString &modeParam);
+  void loadDataForwarder(IPCDBusDataPack &pack, const QString &formatTag, const LoadMode mode, const QString &modeParam, const int loadOption);
   void supportedFileFormatsForwarder(IPCDBusSupportedFileFormatVec &supportedFileFormats);
 };
 

@@ -9,29 +9,29 @@ DBusInterface::~DBusInterface()
 {
 }
 
-IPCDBusDataPack DBusInterface::loadData(const QString &formatTag)
+IPCDBusDataPack DBusInterface::loadData(const QString &formatTag, const int loadOption)
 {
   IPCDBusDataPack pack;
 
-  emit loadDataForwarder(pack, formatTag, LoadMode::INTERACTIVE, "");
+  emit loadDataForwarder(pack, formatTag, LoadMode::INTERACTIVE, "", loadOption);
 
   return pack;
 }
 
-IPCDBusDataPack DBusInterface::loadDataHint(const QString &formatTag, const QString &hint)
+IPCDBusDataPack DBusInterface::loadDataHint(const QString &formatTag, const QString &hint, const int loadOption)
 {
   IPCDBusDataPack pack;
 
-  emit loadDataForwarder(pack, formatTag, LoadMode::HINT, hint);
+  emit loadDataForwarder(pack, formatTag, LoadMode::HINT, hint, loadOption);
 
   return pack;
 }
 
-IPCDBusDataPack DBusInterface::loadDataFile(const QString &formatTag, const QString &filePath)
+IPCDBusDataPack DBusInterface::loadDataFile(const QString &formatTag, const QString &filePath, const int loadOption)
 {
   IPCDBusDataPack pack;
 
-  emit loadDataForwarder(pack, formatTag, LoadMode::FILE, filePath);
+  emit loadDataForwarder(pack, formatTag, LoadMode::FILE, filePath, loadOption);
 
   return pack;
 }

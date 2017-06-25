@@ -96,8 +96,9 @@ bool HPCSSupport::isDirectoryUsable(const QString &path) const
   return (dir.exists() && dir.isReadable());
 }
 
-std::vector<Data> HPCSSupport::load()
+std::vector<Data> HPCSSupport::load(const int option)
 {
+  Q_UNUSED(option);
   int ret;
 
   if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
@@ -132,18 +133,19 @@ std::vector<Data> HPCSSupport::load()
   return dataVec;
 }
 
-std::vector<Data> HPCSSupport::loadHint(const std::string &hintPath)
+std::vector<Data> HPCSSupport::loadHint(const std::string &hintPath, const int option)
 {
   const QString qHintPath(hintPath.c_str());
 
   if (isDirectoryUsable(qHintPath))
     m_lastChemStationPath = qHintPath;
 
-  return load();
+  return load(option);
 }
 
-std::vector<Data> HPCSSupport::loadPath(const std::string &path)
+std::vector<Data> HPCSSupport::loadPath(const std::string &path, const int option)
 {
+  Q_UNUSED(option);
   Data d = loadChemStationFileSingle(QString::fromStdString(path));
 
   return std::vector<Data>{d};

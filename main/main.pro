@@ -366,7 +366,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/efg/efgloaderinterface.h \
     src/efg/efgtypes.h \
     src/efg/ipcclient.h \
-    src/efg/localsocketclient.h
+    src/efg/localsocketclient.h \
+    src/gui/efgloadinfo.h
 
 ipc_dbus {
     SOURCES += \

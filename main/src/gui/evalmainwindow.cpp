@@ -10,6 +10,7 @@
 #include "numberformatdialog.h"
 #include "../doubletostringconvertor.h"
 #include "../witchcraft.h"
+#include "efgloadinfo.h"
 #include <QMessageBox>
 
 EvalMainWindow::EvalMainWindow(QWidget *parent) :
@@ -116,6 +117,27 @@ void EvalMainWindow::makeExportMenus()
 
 void EvalMainWindow::makeSupportedFileFormatsActions()
 {
+  auto itemTitle = [](const QString &s) {
+    return QString("Load %1 file").arg(s);
+  };
+  auto addAction = [this](const EFGLoadInfo &info, const QString &title, QMenu *m, QAction *before) {
+    QAction *a = new QAction(title, this);
+    a->setData(QVariant::fromValue<EFGLoadInfo>(info));
+    connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
+
+    if (before != nullptr)
+      m->insertAction(ui->actionLoad_data_table, a);
+    else
+      m->addAction(a);
+
+    m_loadEFGActions.push_back(a);
+    #ifdef Q_OS_LINUX
+    a->setIcon(QIcon::fromTheme("document-open"));
+    #else
+    a->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    #endif // Q_OS_LINUX
+  };
+
   QVector<EFGSupportedFileFormat> supportedFormats;
   const bool ok = EFGLoaderInterface::instance().supportedFileFormats(supportedFormats);
 
@@ -123,20 +145,16 @@ void EvalMainWindow::makeSupportedFileFormatsActions()
     return;
 
   for (const EFGSupportedFileFormat &sff : supportedFormats) {
-    QAction *a = new QAction(QString("Load %1 file").arg(sff.shortDescription), this);
-    a->setData(sff.formatTag);
+    if (sff.loadOptions.size() > 1) {
+      QMenu *m = new QMenu(itemTitle(sff.shortDescription), this);
 
-#ifdef Q_OS_LINUX
-  a->setIcon(QIcon::fromTheme("document-open"));
-#else
-  a->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-#endif // Q_OS_LINUX
+      for (auto it = sff.loadOptions.cbegin(); it != sff.loadOptions.cend(); it++)
+        addAction(EFGLoadInfo{sff.formatTag, it.key()}, QString("From %1").arg(it.value()), m, nullptr);
 
-  connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
-  ui->menuFile->insertAction(ui->actionLoad_data_table, a);
-  m_loadEFGActions.push_back(a);
+      ui->menuFile->insertMenu(ui->actionLoad_data_table, m);
+    } else
+      addAction(EFGLoadInfo{sff.formatTag, 0}, itemTitle(sff.shortDescription), ui->menuFile, ui->actionLoad_data_table);
   }
-
 }
 
 void EvalMainWindow::onActionAbout()
@@ -183,11 +201,13 @@ void EvalMainWindow::onActionLoadElectrophoregram()
   if (a == nullptr)
     return;
 
-  QVariant formatTag = a->data();
-  if (!formatTag.isValid())
+  QVariant info = a->data();
+  if (!info.canConvert<EFGLoadInfo>())
     return;
 
-  emit loadElectrophoregram(formatTag.toString());
+  EFGLoadInfo infoVal = info.value<EFGLoadInfo>();
+
+  emit loadElectrophoregram(infoVal.formatTag, infoVal.loadOption);
 }
 
 void EvalMainWindow::onActionSaveDataTable()

@@ -40,13 +40,15 @@ EFGData &EFGData::operator=(const EFGData &other)
 EFGSupportedFileFormat::EFGSupportedFileFormat() :
   longDescription(""),
   shortDescription(""),
-  formatTag("")
+  formatTag(""),
+  loadOptions(QMap<int, QString>())
 {
 }
 
-EFGSupportedFileFormat::EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag) :
+EFGSupportedFileFormat::EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag, const QMap<int, QString> &loadOptions) :
   longDescription(longDescription),
   shortDescription(shortDescription),
-  formatTag(formatTag)
+  formatTag(formatTag),
+  loadOptions(loadOptions)
 {
 }

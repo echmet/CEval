@@ -138,11 +138,39 @@ public:
 };
 Q_DECLARE_METATYPE(IPCDBusDataPack)
 
+class IPCDBusLoadOptionsVec : public QVector<QString>
+{
+  friend QDBusArgument & operator<<(QDBusArgument &argument, const IPCDBusLoadOptionsVec &vec)
+  {
+    argument.beginArray(qMetaTypeId<QString>());
+    for (const auto &item : vec)
+      argument << item;
+    argument.endArray();
+
+    return argument;
+  }
+
+  friend const  QDBusArgument & operator>>(const QDBusArgument &argument, IPCDBusLoadOptionsVec &vec)
+  {
+    argument.beginArray();
+    while (!argument.atEnd()) {
+      QString d;
+      argument >> d;
+      vec.append(d);
+    }
+    argument.endArray();
+
+    return argument;
+  }
+};
+Q_DECLARE_METATYPE(IPCDBusLoadOptionsVec)
+
 class IPCDBusSupportedFileFormat {
 public:
   QString longDescription;
   QString shortDescription;
   QString tag;
+  IPCDBusLoadOptionsVec loadOptions;
 
   friend QDBusArgument & operator<<(QDBusArgument &argument, const IPCDBusSupportedFileFormat &format)
   {
@@ -209,6 +237,8 @@ public:
     qDBusRegisterMetaType<IPCDBusDataVec>();
     qRegisterMetaType<IPCDBusDataPack>("IPCDBusDataPack");
     qDBusRegisterMetaType<IPCDBusDataPack>();
+    qRegisterMetaType<IPCDBusLoadOptionsVec>("IPCDBusLoadOptionsVec");
+    qDBusRegisterMetaType<IPCDBusLoadOptionsVec>();
     qRegisterMetaType<IPCDBusSupportedFileFormat>("IPCDBusSupportedFileFormat");
     qDBusRegisterMetaType<IPCDBusSupportedFileFormat>();
     qRegisterMetaType<IPCDBusSupportedFileFormatVec>("IPCDBusSupportedFileFormatVec");
@@ -238,13 +268,14 @@ enum IPCSockResponseType {
   RESPONSE_SUPPORTED_FORMAT_HEADER = 0x1,
   RESPONSE_LOAD_DATA_HEADER = 0x2,
   RESPONSE_SUPPORTED_FORMAT_DESCRIPTOR = 0x3,
-  RESPONSE_LOAD_DATA_DESCRIPTOR = 0x4
+  RESPONSE_LOAD_DATA_DESCRIPTOR = 0x4,
+  RESPONSE_LOAD_OPTION_DESCRIPTOR = 0x5
 };
 
 enum IPCSocketLoadDataMode {
-  IPCS_LOAD_INTERACTIVE,
-  IPCS_LOAD_HINT,
-  IPCS_LOAD_FILE
+  IPCS_LOAD_INTERACTIVE = 0x1,
+  IPCS_LOAD_HINT = 0x2,
+  IPCS_LOAD_FILE = 0x3
 };
 
 struct __attribute__((packed)) IPCSockRequestHeader {
@@ -266,6 +297,7 @@ struct __attribute__((packed)) IPCSockLoadDataRequestDescriptor {
   uint8_t requestType;
   uint8_t mode;
 
+  int32_t loadOption;
   uint32_t tagLength;
   uint32_t filePathLength;
 };
@@ -278,6 +310,15 @@ struct __attribute__((packed)) IPCSockSupportedFormatResponseDescriptor {
   uint32_t longDescriptionLength;
   uint32_t shortDescriptionLength;
   uint32_t tagLength;
+  uint32_t loadOptionsLength;
+};
+
+struct __attribute__((packed)) IPCSockLoadOptionDescriptor {
+  uint16_t magic;
+  uint8_t responseType;
+  uint8_t status;
+
+  uint32_t optionLength;
 };
 
 struct __attribute__((packed)) IPCSockLoadDataResponseDescriptor {

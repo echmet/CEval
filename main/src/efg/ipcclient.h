@@ -22,7 +22,7 @@ public:
 
   explicit IPCClient();
   virtual ~IPCClient();
-  virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath) = 0;
+  virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption) = 0;
   virtual bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats) = 0;
 
 };

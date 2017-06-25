@@ -9,7 +9,7 @@
 class FileFormatInfo {
 public:
   explicit FileFormatInfo();
-  explicit FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag);
+  explicit FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag, const QVector<QString> &loadOptions);
   FileFormatInfo(const FileFormatInfo &other);
   FileFormatInfo(FileFormatInfo &&other);
 
@@ -18,6 +18,7 @@ public:
   const QString longDescription;
   const QString shortDescription;
   const QString tag;
+  const QVector<QString> loadOptions;
 };
 
 class Data {
@@ -50,9 +51,9 @@ public:
   typedef std::tuple<std::vector<Data>, bool ,QString> LoadedPack;
 
   explicit DataLoader(QObject *parent = nullptr);
-  std::tuple<std::vector<Data>, bool, QString> loadData(const QString &formatTag) const;
-  std::tuple<std::vector<Data>, bool, QString> loadDataHint(const QString &formatTag, const QString &hintPath) const;
-  std::tuple<std::vector<Data>, bool, QString> loadDataPath(const QString &formatTag, const QString &path) const;
+  std::tuple<std::vector<Data>, bool, QString> loadData(const QString &formatTag, const int mode) const;
+  std::tuple<std::vector<Data>, bool, QString> loadDataHint(const QString &formatTag, const QString &hintPath, const int mode) const;
+  std::tuple<std::vector<Data>, bool, QString> loadDataPath(const QString &formatTag, const QString &path, const int mode) const;
   QVector<FileFormatInfo> supportedFileFormats() const;
 
 private:
