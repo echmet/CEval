@@ -5,11 +5,12 @@
 
 namespace backend {
 
+HPCSSupport *HPCSSupport::s_me{nullptr};
+Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
+
 LoaderBackend::~LoaderBackend()
 {
 }
-
-Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
 
 HPCSSupport::HPCSSupport() :
   m_defaultPathsToTry([]() {
@@ -31,6 +32,10 @@ HPCSSupport::HPCSSupport() :
   }())
 {
   m_loadChemStationDataDlg = new LoadChemStationDataDialog{};
+}
+
+HPCSSupport::~HPCSSupport()
+{
 }
 
 std::string HPCSSupport::chemStationTypeToString(const ChemStationFileLoader::Type type)
@@ -86,7 +91,10 @@ Identifier HPCSSupport::identifier() const
 
 HPCSSupport * HPCSSupport::instance()
 {
-  return new HPCSSupport{};
+  if (s_me == nullptr)
+    s_me = new HPCSSupport{};
+
+  return s_me;
 }
 
 bool HPCSSupport::isDirectoryUsable(const QString &path) const
@@ -192,7 +200,6 @@ void HPCSSupport::loadChemStationFileWholeDirectory(std::vector<Data> &dataVec, 
   for (const QString &filePath : files)
     dataVec.emplace_back(loadChemStationFileSingle(filePath));
 }
-
 
 LoaderBackend * initialize()
 {

@@ -23,6 +23,7 @@ public:
 
 private:
   HPCSSupport();
+  ~HPCSSupport();
   std::string chemStationTypeToString(const ChemStationFileLoader::Type type);
   QString defaultPath() const;
   bool isDirectoryUsable(const QString &path) const;
@@ -35,6 +36,7 @@ private:
   QSize m_lastChemStationDlgSize;
   QString m_lastChemStationPath;
 
+  static HPCSSupport *s_me;
   static Identifier s_identifier;
 };
 
@@ -42,6 +44,6 @@ extern "C" {
   HPCSSUPPORTSHARED_EXPORT LoaderBackend * initialize();
 }
 
-} // namespace plugin
+} // namespace backend
 
 #endif // HPCSSUPPORT_H

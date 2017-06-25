@@ -1,0 +1,12 @@
+#ifndef CSVSUPPORT_GLOBAL_H
+#define CSVSUPPORT_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(CSVSUPPORT_LIBRARY)
+#  define CSVSUPPORTSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define CSVSUPPORTSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // CSVSUPPORT_GLOBAL_H

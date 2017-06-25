@@ -178,6 +178,7 @@ public:
     argument << format.longDescription;
     argument << format.shortDescription;
     argument << format.tag;
+    argument << format.loadOptions;
     argument.endStructure();
 
     return argument;
@@ -189,6 +190,7 @@ public:
     argument >> format.longDescription;
     argument >> format.shortDescription;
     argument >> format.tag;
+    argument >> format.loadOptions;
     argument.endStructure();
 
     return argument;

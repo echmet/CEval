@@ -1,4 +1,5 @@
 TEMPLATE = subdirs
 
-SUBDIRS += core plugins/HPCSSupport
+SUBDIRS += core plugins/HPCSSupport \
+    plugins/CSVSupport
 
