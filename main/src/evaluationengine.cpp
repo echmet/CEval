@@ -95,7 +95,6 @@ const double EvaluationEngine::s_defaultHvlEpsilon = 1.0e-9;
 const int EvaluationEngine::s_defaultHvlDigits = 50;
 const int EvaluationEngine::s_defaultHvlIterations = 60;
 
-const QString EvaluationEngine::DATAFILELOADER_SETTINGS_TAG("DataFileLoader");
 const QString EvaluationEngine::HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG("HVLFitOptions-DisableAutoFit");
 const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-ShowFitStats");
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DELIMTIER_TAG("ClipboardExporter-Delimiter");
@@ -2446,7 +2445,6 @@ AbstractMapperModel<double, EvaluationResultsItems::Floating> *EvaluationEngine:
 QVariant EvaluationEngine::saveUserSettings() const
 {
   EMT::StringVariantMap map = StandardPlotContextSettingsHandler::saveUserSettings(*m_plotCtx.get(), seriesIndex(Series::LAST_INDEX));
-  //map[DATAFILELOADER_SETTINGS_TAG] = m_dataFileLoader->saveUserSettings();
   map[HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT);
   map[HVLFITOPTIONS_SHOW_FIT_STATS_TAG] = m_hvlFitOptionsValues.at(HVLFitOptionsItems::Boolean::SHOW_FIT_STATS);
   map[CLIPBOARDEXPORTER_DELIMTIER_TAG] = m_ctcDelimiter;

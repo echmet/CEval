@@ -11,10 +11,14 @@
 #include <QDebug>
 
 std::unique_ptr<EFGLoaderInterface> EFGLoaderInterface::s_me(nullptr);
+const QString EFGLoaderInterface::LAST_FILE_PATHS_SETTINGS_TAG("LastFilePaths");
 
 EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   QObject(parent)
 {
+  qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
+  qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
+
   m_watcher = new efg::EFGLoaderWatcher(this);
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
@@ -71,6 +75,27 @@ EFGLoaderInterface & EFGLoaderInterface::instance()
     s_me = std::unique_ptr<EFGLoaderInterface>(new EFGLoaderInterface());
 
   return *s_me;
+}
+
+void EFGLoaderInterface::loadUserSettings(const QVariant &settings)
+{
+  if (!settings.canConvert<TagPathPackVec>())
+    return;
+
+  for (const auto &p : settings.value<TagPathPackVec>())
+    m_lastPathsMap[p.tag] = p.path;
+}
+
+QVariant EFGLoaderInterface::saveUserSettings()
+{
+  TagPathPackVec vec;
+
+  for (auto it = m_lastPathsMap.begin(); it != m_lastPathsMap.end(); it++)
+    vec.push_back(TagPathPack{it.key(), it.value()});
+
+  QVariant v = QVariant::fromValue<TagPathPackVec>(vec);
+
+  return v;
 }
 
 bool EFGLoaderInterface::supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats)

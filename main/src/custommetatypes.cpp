@@ -89,5 +89,5 @@ void EMT::registerAll()
 {
   qRegisterMetaTypeStreamOperators<DataExporter::Globals::DataArrangement>("DataArrangement");
   qRegisterMetaTypeStreamOperators<SeriesSettingsMap>("SeriesSettingsMap");
-  qRegisterMetaType<UpdateCheckResults>();
+  qRegisterMetaType<UpdateCheckResults>("UpdateCheckResults");
 }

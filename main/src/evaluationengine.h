@@ -373,7 +373,6 @@ private:
   static const int s_defaultHvlDigits;
   static const int s_defaultHvlIterations;
 
-  static const QString DATAFILELOADER_SETTINGS_TAG;
   static const QString HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG;
   static const QString HVLFITOPTIONS_SHOW_FIT_STATS_TAG;
   static const QString CLIPBOARDEXPORTER_DELIMTIER_TAG;

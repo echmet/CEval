@@ -6,6 +6,7 @@
 #include "globals.h"
 #include "hvlcalculator.h"
 #include "softwareupdater.h"
+#include "efg/efgloaderinterface.h"
 #include <QApplication>
 #include <QMessageBox>
 #include <QSettings>
@@ -22,6 +23,7 @@
 
 
 static const QString DAC_SETTINGS_TAG("DataAccumulator");
+static const QString EFG_LOADER_INTERFACE_SETTINGS_TAG("EFGLoaderInterface");
 static const QString NUM_FORMAT_SETTINGS_TAG("NumFormat");
 static const QString SOFTWARE_UPDATER_SETTINGS_TAG("SoftwareUpdater");
 static const QString ROOT_SETTINGS_TAG("Root");
@@ -49,6 +51,9 @@ void loadUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 
   if (rootMap.contains(SOFTWARE_UPDATER_SETTINGS_TAG))
     updater->loadUserSettings(rootMap[SOFTWARE_UPDATER_SETTINGS_TAG]);
+
+  if (rootMap.contains(EFG_LOADER_INTERFACE_SETTINGS_TAG))
+    EFGLoaderInterface::instance().loadUserSettings(rootMap[EFG_LOADER_INTERFACE_SETTINGS_TAG]);
 }
 
 #if defined(Q_OS_UNIX)
@@ -127,6 +132,7 @@ void saveUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
   map.insert(DAC_SETTINGS_TAG, dac->saveUserSettings());
   map.insert(NUM_FORMAT_SETTINGS_TAG, DoubleToStringConvertor::saveUserSettings());
   map.insert(SOFTWARE_UPDATER_SETTINGS_TAG, updater->saveUserSettings());
+  map.insert(EFG_LOADER_INTERFACE_SETTINGS_TAG, EFGLoaderInterface::instance().saveUserSettings());
 
   s.setValue(ROOT_SETTINGS_TAG, map);
 }

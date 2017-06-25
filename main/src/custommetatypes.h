@@ -1,5 +1,5 @@
-#ifndef CUSTOMMETATYPES
-#define CUSTOMMETATYPES
+#ifndef CUSTOMMETATYPES_H
+#define CUSTOMMETATYPES_H
 
 #include <QMap>
 #include <QVariant>
@@ -10,12 +10,11 @@ public:
   typedef QMap<int, QMap<QString, QVariant>> SeriesSettingsMap;
 
   static void registerAll();
-
 };
 
 Q_DECLARE_METATYPE(EMT::StringVariantMap)
 Q_DECLARE_METATYPE(EMT::SeriesSettingsMap)
 
 
-#endif // CUSTOMMETATYPES
+#endif // CUSTOMMETATYPES_H
 
