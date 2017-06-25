@@ -4,11 +4,11 @@
 #include <QObject>
 #include <QDataStream>
 #include <QMap>
+#include <QMetaType>
 #include <QVector>
 #include <memory>
 #include "efgtypes.h"
 
-#include <QMetaType>
 
 #include "ipcclient.h"
 

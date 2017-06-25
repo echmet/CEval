@@ -8,8 +8,6 @@
 #endif // ENABLE_IPC_INTERFACE_DBUS
 #include "localsocketclient.h"
 
-#include <QDebug>
-
 std::unique_ptr<EFGLoaderInterface> EFGLoaderInterface::s_me(nullptr);
 const QString EFGLoaderInterface::LAST_FILE_PATHS_SETTINGS_TAG("LastFilePaths");
 
@@ -26,7 +24,6 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
     m_ipcClient = new efg::DBusClient();
     return;
   } catch (std::exception &ex) {
-    qWarning() << "Cannot connect to D-Bus(" << ex.what() << "), falling back to local socket";
     m_ipcClient = nullptr;
   }
 #endif // ENABLE_IPC_INTERFACE_DBUS
@@ -34,7 +31,6 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   try {
     m_ipcClient = new efg::LocalSocketClient();
   } catch (std::exception &ex) {
-    qWarning() << "Cannot connect to IPC socket(" << ex.what() << "). Electrophoregram loading will not be available";
     m_ipcClient = nullptr;
   }
 }
