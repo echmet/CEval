@@ -25,11 +25,11 @@ private:
 class EFGSupportedFileFormat {
 public:
   explicit EFGSupportedFileFormat();
-  explicit EFGSupportedFileFormat(const QString formatTag, const QString longDescription, const QString shortDescription);
+  explicit EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag);
 
-  const QString formatTag;
   const QString longDescription;
   const QString shortDescription;
+  const QString formatTag;
 };
 
 #endif // EFGTYPES_H

@@ -9,7 +9,7 @@ LoaderBackend::~LoaderBackend()
 {
 }
 
-Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "HPCS"};
+Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
 
 HPCSSupport::HPCSSupport() :
   m_defaultPathsToTry([]() {

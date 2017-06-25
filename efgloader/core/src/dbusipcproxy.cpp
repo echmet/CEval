@@ -43,11 +43,7 @@ void DBusIPCProxy::onSupportedFileFormats(IPCDBusSupportedFileFormatVec &support
   const QVector<FileFormatInfo> fileFormatInfoVec = m_loader->supportedFileFormats();
 
   for (const auto &ffi : fileFormatInfoVec) {
-    IPCDBusSupportedFileFormat sff{};
-    sff.description = ffi.description;
-    sff.tag = ffi.tag;
-
-    supportedFileFormats.append(sff);
+    supportedFileFormats.push_back(IPCDBusSupportedFileFormat{ffi.longDescription, ffi.shortDescription, ffi.tag});
   }
 }
 

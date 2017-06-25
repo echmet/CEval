@@ -67,7 +67,6 @@ class TagPathPackVec : public QVector<TagPathPack> {
 
     return in;
   }
-
 };
 Q_DECLARE_METATYPE(TagPathPackVec)
 

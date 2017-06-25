@@ -290,15 +290,18 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
     if ((!checkSignature(sfrDesc, IPCSockResponseType::RESPONSE_SUPPORTED_FORMAT_DESCRIPTOR)) || sfrDesc->status != IPCS_SUCCESS)
       FAIL(m_socket);
 
-    QByteArray descriptionBA;
+    QByteArray longDescriptionBA;
+    QByteArray shortDescriptionBA;
     QByteArray tagBA;
 
-    if (!readBlock(descriptionBA, sfrDesc->descriptionLength))
+    if (!readBlock(longDescriptionBA, sfrDesc->longDescriptionLength))
+      FAIL(m_socket);
+    if (!readBlock(shortDescriptionBA, sfrDesc->shortDescriptionLength))
       FAIL(m_socket);
     if (!readBlock(tagBA, sfrDesc->tagLength))
       FAIL(m_socket);
 
-    supportedFormats.push_back(EFGSupportedFileFormat(QString::fromUtf8(tagBA), QString::fromUtf8(descriptionBA), QString::fromUtf8(tagBA)));
+    supportedFormats.push_back(EFGSupportedFileFormat(QString::fromUtf8(longDescriptionBA), QString::fromUtf8(shortDescriptionBA), QString::fromUtf8(tagBA)));
   }
 
   if (item != respHdr->items)

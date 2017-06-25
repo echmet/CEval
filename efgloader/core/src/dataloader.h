@@ -9,13 +9,14 @@
 class FileFormatInfo {
 public:
   explicit FileFormatInfo();
-  explicit FileFormatInfo(const QString &description, const QString &tag);
+  explicit FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag);
   FileFormatInfo(const FileFormatInfo &other);
   FileFormatInfo(FileFormatInfo &&other);
 
   FileFormatInfo & operator=(const FileFormatInfo &other);
 
-  const QString description;
+  const QString longDescription;
+  const QString shortDescription;
   const QString tag;
 };
 

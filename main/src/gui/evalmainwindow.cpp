@@ -123,7 +123,7 @@ void EvalMainWindow::makeSupportedFileFormatsActions()
     return;
 
   for (const EFGSupportedFileFormat &sff : supportedFormats) {
-    QAction *a = new QAction(QString("Load %1").arg(sff.formatTag), this);
+    QAction *a = new QAction(QString("Load %1 file").arg(sff.shortDescription), this);
     a->setData(sff.formatTag);
 
 #ifdef Q_OS_LINUX

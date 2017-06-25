@@ -38,15 +38,15 @@ EFGData &EFGData::operator=(const EFGData &other)
 }
 
 EFGSupportedFileFormat::EFGSupportedFileFormat() :
-  formatTag(""),
   longDescription(""),
-  shortDescription("")
+  shortDescription(""),
+  formatTag("")
 {
 }
 
-EFGSupportedFileFormat::EFGSupportedFileFormat(const QString formatTag, const QString longDescription, const QString shortDescription) :
-  formatTag(formatTag),
+EFGSupportedFileFormat::EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag) :
   longDescription(longDescription),
-  shortDescription(shortDescription)
+  shortDescription(shortDescription),
+  formatTag(formatTag)
 {
 }

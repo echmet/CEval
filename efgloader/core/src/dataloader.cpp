@@ -6,32 +6,37 @@
 #include <iostream>
 
 FileFormatInfo::FileFormatInfo() :
-  description(""),
+  longDescription(""),
+  shortDescription(""),
   tag("")
 {
 }
 
-FileFormatInfo::FileFormatInfo(const QString &description, const QString &tag) :
-  description(description),
+FileFormatInfo::FileFormatInfo(const QString &longDescription, const QString &shortDescription, const QString &tag) :
+  longDescription(longDescription),
+  shortDescription(shortDescription),
   tag(tag)
 {
 }
 
 FileFormatInfo::FileFormatInfo(const FileFormatInfo &other) :
-  description(other.description),
+  longDescription(other.longDescription),
+  shortDescription(other.shortDescription),
   tag(other.tag)
 {
 }
 
 FileFormatInfo::FileFormatInfo(FileFormatInfo &&other) :
-  description(std::move(other.description)),
+  longDescription(std::move(other.longDescription)),
+  shortDescription(std::move(other.shortDescription)),
   tag(std::move(other.tag))
 {
 }
 
 FileFormatInfo & FileFormatInfo::operator=(const FileFormatInfo &other)
 {
-  const_cast<QString&>(description) = other.description;
+  const_cast<QString&>(longDescription) = other.longDescription;
+  const_cast<QString&>(shortDescription) = other.shortDescription;
   const_cast<QString&>(tag) = other.tag;
 
   return *this;
@@ -115,7 +120,7 @@ void DataLoader::initializePlugin(const QString &pluginPath)
 
   backend::Identifier ident = instance->identifier();
 
-  std::cerr << ident.description << ", " << ident.tag << std::endl;
+  std::cerr << ident.longDescription << ", " << ident.tag << std::endl;
 
   QString tag = QString::fromStdString(ident.tag);
 
@@ -231,7 +236,7 @@ QVector<FileFormatInfo> DataLoader::supportedFileFormats() const
 
   for (const auto &item : m_backendInstances) {
     backend::Identifier ident = item->identifier();
-    vec.append(FileFormatInfo{QString::fromStdString(ident.description), QString::fromStdString(ident.tag)});
+    vec.append(FileFormatInfo{QString::fromStdString(ident.longDescription), QString::fromStdString(ident.shortDescription), QString::fromStdString(ident.tag)});
   }
 
   return vec;

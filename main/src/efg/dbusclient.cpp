@@ -80,7 +80,7 @@ bool DBusClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &supported
     return false;
 
   for (const auto &sff : reply.value())
-    supportedFormats.push_back(EFGSupportedFileFormat(sff.tag, sff.description, sff.tag));
+    supportedFormats.push_back(EFGSupportedFileFormat{sff.longDescription, sff.shortDescription, sff.tag});
 
   return true;
 }

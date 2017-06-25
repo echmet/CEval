@@ -140,13 +140,15 @@ Q_DECLARE_METATYPE(IPCDBusDataPack)
 
 class IPCDBusSupportedFileFormat {
 public:
-  QString description;
+  QString longDescription;
+  QString shortDescription;
   QString tag;
 
   friend QDBusArgument & operator<<(QDBusArgument &argument, const IPCDBusSupportedFileFormat &format)
   {
     argument.beginStructure();
-    argument << format.description;
+    argument << format.longDescription;
+    argument << format.shortDescription;
     argument << format.tag;
     argument.endStructure();
 
@@ -156,7 +158,8 @@ public:
   friend const QDBusArgument & operator>>(const QDBusArgument &argument, IPCDBusSupportedFileFormat &format)
   {
     argument.beginStructure();
-    argument >> format.description;
+    argument >> format.longDescription;
+    argument >> format.shortDescription;
     argument >> format.tag;
     argument.endStructure();
 
@@ -272,7 +275,8 @@ struct __attribute__((packed)) IPCSockSupportedFormatResponseDescriptor {
   uint8_t responseType;
   uint8_t status;
 
-  uint32_t descriptionLength;
+  uint32_t longDescriptionLength;
+  uint32_t shortDescriptionLength;
   uint32_t tagLength;
 };
 

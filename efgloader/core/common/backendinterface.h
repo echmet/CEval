@@ -20,12 +20,16 @@ public:
 
 class Identifier {
 public:
-  explicit Identifier(const std::string &description, const std::string &tag) :
-    description(description),
-    tag(tag)
+  explicit Identifier(const std::string &longDescription, const std::string &shortDescription, const std::string &tag, const std::vector<std::string> &loadOptions) :
+    longDescription(longDescription),
+    shortDescription(shortDescription),
+    tag(tag),
+    loadOptions(loadOptions)
   {}
-  const std::string description;
+  const std::string longDescription;
+  const std::string shortDescription;
   const std::string tag;
+  const std::vector<std::string> loadOptions;
 };
 
 class LoaderBackend {

@@ -315,17 +315,20 @@ void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
     IPCSockSupportedFormatResponseDescriptor desc;
     INIT_RESPONSE(desc, IPCSockResponseType::RESPONSE_SUPPORTED_FORMAT_DESCRIPTOR, IPCS_SUCCESS);
 
-    QByteArray description = ffi.description.toUtf8();
+    QByteArray longDescription = ffi.longDescription.toUtf8();
+    QByteArray shortDescription = ffi.shortDescription.toUtf8();
     QByteArray tag = ffi.tag.toUtf8();
 
-    desc.descriptionLength = description.size();
+    desc.longDescriptionLength = longDescription.size();
+    desc.shortDescriptionLength = shortDescription.size();
     desc.tagLength = tag.size();
 
     /* Send the response descriptor */
     WRITE_CHECKED_RAW(socket, desc);
 
     /* Send the actual payload */
-    WRITE_CHECKED(socket, description);
+    WRITE_CHECKED(socket, longDescription);
+    WRITE_CHECKED(socket, shortDescription);
     WRITE_CHECKED(socket, tag);
   }
   socket->waitForBytesWritten();
