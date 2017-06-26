@@ -45,7 +45,5 @@ FORMS += \
 
 DESTDIR = ../../../efgbackends
 
+include($$PWD/HPCSSupport.pri)
 
-HPCSPATH = "/home/madcat/Devel/ECHMET/libHPCS-bin"
-INCLUDEPATH += "$$HPCSPATH/include"
-unix|win32: LIBS += -L"$$HPCSPATH/lib" -lHPCS

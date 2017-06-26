@@ -33,7 +33,5 @@ HEADERS += \
 
 DESTDIR = ../../../efgbackends
 
-NETCDFPATH = /home/madcat/Devel/NetCDF-bin/
-INCLUDEPATH += "$$NETCDFPATH/include"
+include($$PWD/NetCDFSupport.pri)
 
-LIBS += -L"$$NETCDFPATH/lib/" -lnetcdf
