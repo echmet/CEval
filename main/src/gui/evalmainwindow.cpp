@@ -152,6 +152,7 @@ void EvalMainWindow::makeSupportedFileFormatsActions()
         addAction(EFGLoadInfo{sff.formatTag, it.key()}, QString("From %1").arg(it.value()), m, nullptr);
 
       ui->menuFile->insertMenu(ui->actionLoad_data_table, m);
+      m_loadEFGActions.push_back(m->menuAction());
     } else
       addAction(EFGLoadInfo{sff.formatTag, 0}, itemTitle(sff.shortDescription), ui->menuFile, ui->actionLoad_data_table);
   }
