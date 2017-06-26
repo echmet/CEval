@@ -92,6 +92,11 @@ DataLoader::DataLoader(QObject *parent) :
     throw std::runtime_error{"Cannot load backends"};
 }
 
+DataLoader::~DataLoader()
+{
+  releasePlugins();
+}
+
 bool DataLoader::checkTag(const QString &tag) const
 {
   return m_backendInstances.contains(tag);
@@ -104,14 +109,14 @@ void DataLoader::initializePlugin(const QString &pluginPath)
     return;
   }
 
-  QLibrary plugin(pluginPath);
+  QLibrary backend(pluginPath);
 
-  if (!plugin.load()) {
+  if (!backend.load()) {
     std::cerr << "Could not load plugin" << std::endl;
     return;
   }
 
-  backend::BackendInitializer initializer = (backend::BackendInitializer) plugin.resolve("initialize");
+  backend::BackendInitializer initializer = reinterpret_cast<backend::BackendInitializer>(backend.resolve("initialize"));
   if (initializer == nullptr) {
     std::cerr << "Could not resolve initializer symbol" << std::endl;
     return;
@@ -233,6 +238,12 @@ DataLoader::LoadedPack DataLoader::package(std::vector<backend::Data> &vec) cons
   }
 
   return makePack(packageVec, true);
+}
+
+void DataLoader::releasePlugins()
+{
+  for (auto &backend : m_backendInstances)
+    backend->destroy();
 }
 
 QVector<FileFormatInfo> DataLoader::supportedFileFormats() const

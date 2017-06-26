@@ -3,12 +3,13 @@
 #include <QtDBus/QDBusConnectionInterface>
 #include <QtDBus/QDBusInterface>
 #include <QtDBus/QDBusReply>
+#include <QMessageBox>
 #include <QThread>
 #include "../../../efgloader/core/common/ipcinterface.h"
 
-#include <QDebug>
-
 namespace efg {
+
+const int DBusClient::DEFAULT_TIMEOUT(600000);
 
 DBusClient::DBusClient() : IPCClient()
 {
@@ -30,6 +31,8 @@ DBusClient::DBusClient() : IPCClient()
     m_iface = nullptr;
     throw std::runtime_error(QString("%1: %2").arg(err.name()).arg(err.message()).toUtf8().data());
   }
+
+  m_iface->setTimeout(DEFAULT_TIMEOUT);
 }
 
 bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)
@@ -42,17 +45,16 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
     reply = m_iface->call("loadDataHint", formatTag, hintPath, loadOption);
 
   if (!reply.isValid()) {
-    qDebug() << reply.error().name() << reply.error().message();
+    QMessageBox::warning(nullptr, QObject::tr("No reply"),
+                         QString(QObject::tr("CEval did not receive a reply from the data loader process. As a result no new data has been loaded. The exact error was:\n\n%1\n%2")).
+                         arg(reply.error().name()).arg(reply.error().message()));
+
     return false;
   }
 
   const IPCDBusDataPack &pack = reply.value();
 
-  qDebug() << pack.success << pack.error;
-
   for (const IPCDBusData &data : pack.data) {
-    qDebug() << data.name << data.path << data.xDescription << data.yDescription << data.xUnit << data.yUnit;
-
     QVector<QPointF> nativeDatapoints = [](const QVector<IPCDBusDatapoint> &dpts) {
       QVector<QPointF> ndpts;
 

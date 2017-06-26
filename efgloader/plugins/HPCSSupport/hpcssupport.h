@@ -15,6 +15,7 @@ class HPCSSUPPORTSHARED_EXPORT HPCSSupport : public LoaderBackend
 {
 public:
   virtual Identifier identifier() const override;
+  virtual void destroy() override;
   virtual std::vector<Data> load(const int option) override;
   virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) override;
   virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
@@ -23,7 +24,7 @@ public:
 
 private:
   HPCSSupport();
-  ~HPCSSupport();
+  virtual ~HPCSSupport();
   std::string chemStationTypeToString(const ChemStationFileLoader::Type type);
   QString defaultPath() const;
   bool isDirectoryUsable(const QString &path) const;

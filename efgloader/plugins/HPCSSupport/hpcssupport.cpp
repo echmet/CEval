@@ -36,6 +36,7 @@ HPCSSupport::HPCSSupport() :
 
 HPCSSupport::~HPCSSupport()
 {
+  delete m_loadChemStationDataDlg;
 }
 
 std::string HPCSSupport::chemStationTypeToString(const ChemStationFileLoader::Type type)
@@ -84,6 +85,11 @@ QString HPCSSupport::defaultPath() const
   return "";
 }
 
+void HPCSSupport::destroy()
+{
+  delete s_me;
+}
+
 Identifier HPCSSupport::identifier() const
 {
   return s_identifier;
@@ -91,8 +97,13 @@ Identifier HPCSSupport::identifier() const
 
 HPCSSupport * HPCSSupport::instance()
 {
-  if (s_me == nullptr)
-    s_me = new HPCSSupport{};
+  if (s_me == nullptr) {
+    try {
+      s_me = new HPCSSupport{};
+    } catch (...) {
+      s_me = nullptr;
+    }
+  }
 
   return s_me;
 }

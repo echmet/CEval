@@ -34,11 +34,13 @@ public:
 
 class LoaderBackend {
 public:
-  virtual ~LoaderBackend() = 0;
+  virtual void destroy() = 0;
   virtual Identifier identifier() const = 0;
   virtual std::vector<Data> load(const int option) = 0;
   virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) = 0;
   virtual std::vector<Data> loadPath(const std::string &path, const int option) = 0;
+protected:
+  virtual ~LoaderBackend() = 0;
 };
 
 typedef LoaderBackend *(*BackendInitializer)();

@@ -228,9 +228,4 @@ LoaderBackend * initialize()
   return CSVSupport::instance();
 }
 
-void destroy()
-{
-  CSVSupport::destroy();
-}
-
 } // namespace backend

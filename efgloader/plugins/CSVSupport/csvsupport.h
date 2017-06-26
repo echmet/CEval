@@ -13,16 +13,16 @@ class LoadCsvFileDialog;
 class CSVSUPPORTSHARED_EXPORT CSVSupport : public LoaderBackend {
 public:
   virtual Identifier identifier() const override;
+  virtual void destroy() override;
   virtual std::vector<Data> load(const int option) override;
   virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) override;
   virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
 
   static CSVSupport *instance();
-  static void destroy();
 
 private:
   CSVSupport();
-  ~CSVSupport();
+  virtual ~CSVSupport();
   std::vector<Data> loadCsvFromClipboard();
   std::vector<Data> loadCsvFromFile(const std::string &sourcePath);
   std::vector<Data> loadCsvFromFileInternal(const QStringList &files);
@@ -35,7 +35,6 @@ private:
 
 extern "C" {
   CSVSUPPORTSHARED_EXPORT LoaderBackend * initialize();
-  CSVSUPPORTSHARED_EXPORT void destroy();
 }
 
 } // namespace backend

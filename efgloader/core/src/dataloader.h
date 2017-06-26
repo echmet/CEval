@@ -51,6 +51,7 @@ public:
   typedef std::tuple<std::vector<Data>, bool ,QString> LoadedPack;
 
   explicit DataLoader(QObject *parent = nullptr);
+  ~DataLoader();
   std::tuple<std::vector<Data>, bool, QString> loadData(const QString &formatTag, const int mode) const;
   std::tuple<std::vector<Data>, bool, QString> loadDataHint(const QString &formatTag, const QString &hintPath, const int mode) const;
   std::tuple<std::vector<Data>, bool, QString> loadDataPath(const QString &formatTag, const QString &path, const int mode) const;
@@ -63,6 +64,7 @@ private:
   LoadedPack makeErrorPack(const QString &error) const;
   LoadedPack makePack(const std::vector<Data> &data, const bool status, const QString &message = "") const;
   LoadedPack package(std::vector<backend::Data> &vec) const;
+  void releasePlugins();
 
   QMap<QString, backend::LoaderBackend *> m_backendInstances;
 

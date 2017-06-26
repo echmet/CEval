@@ -21,6 +21,8 @@ public:
 
 private:
   QDBusInterface *m_iface;
+
+  static const int DEFAULT_TIMEOUT;
 };
 
 } // namespace efg
