@@ -23,9 +23,9 @@ void DBusClient::connectToInterface()
 
   int ctr = 0;
   while (!conn.interface()->isServiceRegistered(DBUS_SERVICE_NAME)) {
-    QThread::msleep(500);
+    QThread::msleep(100);
 
-    if (ctr++ > 5)
+    if (ctr++ > 24)
       throw std::runtime_error("D-Bus service is not available");
   }
 

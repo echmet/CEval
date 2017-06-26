@@ -80,7 +80,7 @@ void LocalSocketClient::connectToInterface()
 
 bool LocalSocketClient::connectSocket()
 {
- const int max = 10;
+ const int max = 24;
   int ctr = 0;
   while (m_socket->state() != QLocalSocket::ConnectedState && ctr < max) {
      m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
