@@ -20,7 +20,7 @@ EFGLoaderWatcher::EFGLoaderWatcher(QObject *parent) :
 
   qDebug() << execPath;
 
-  m_efgLoader = new QProcess(this);
+  m_efgLoader = new QProcess();
   m_efgLoader->setProgram(execPath);
 
   connect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
@@ -36,7 +36,6 @@ EFGLoaderWatcher::~EFGLoaderWatcher()
   if (m_efgLoader->state() == QProcess::Running) {
     disconnect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
     m_efgLoader->terminate();
-    m_efgLoader->waitForFinished();
   }
 }
 

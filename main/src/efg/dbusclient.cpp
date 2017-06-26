@@ -11,7 +11,12 @@ namespace efg {
 
 const int DBusClient::DEFAULT_TIMEOUT(600000);
 
-DBusClient::DBusClient() : IPCClient()
+DBusClient::DBusClient() : IPCClient(),
+  m_iface(nullptr)
+{
+}
+
+void DBusClient::connectToInterface()
 {
   DBusMetyTypesRegistrator::registerAll();
   QDBusConnection conn = QDBusConnection::sessionBus();
@@ -33,6 +38,11 @@ DBusClient::DBusClient() : IPCClient()
   }
 
   m_iface->setTimeout(DEFAULT_TIMEOUT);
+}
+
+bool DBusClient::isInterfaceAvailable() const
+{
+  return QDBusConnection::sessionBus().interface()->isServiceRegistered(DBUS_SERVICE_NAME);
 }
 
 bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)

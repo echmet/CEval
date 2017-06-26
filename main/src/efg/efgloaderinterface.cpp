@@ -9,31 +9,49 @@
 #endif // ENABLE_IPC_INTERFACE_DBUS
 #include "localsocketclient.h"
 
+#define TRY_CONNECT(ipcc) \
+  do { \
+    try { \
+      ipcc->connectToInterface(); \
+      return; \
+    } catch (std::exception &) { \
+      delete ipcc; \
+      ipcc = nullptr; \
+    } \
+  } while(false)
+
 std::unique_ptr<EFGLoaderInterface> EFGLoaderInterface::s_me(nullptr);
 const QString EFGLoaderInterface::LAST_FILE_PATHS_SETTINGS_TAG("LastFilePaths");
 
 EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  m_watcher(nullptr)
 {
   qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
   qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
 
+#ifdef ENABLE_IPC_INTERFACE_DBUS
+  m_ipcClient = new efg::DBusClient();
+  if (m_ipcClient->isInterfaceAvailable())
+    TRY_CONNECT(m_ipcClient);
+  else
+    delete m_ipcClient;
+#endif // ENABLE_IPC_INTERFACE_DBUS
+  m_ipcClient = new efg::LocalSocketClient();
+  if (m_ipcClient->isInterfaceAvailable())
+    TRY_CONNECT(m_ipcClient);
+  else
+    delete m_ipcClient;
+
   m_watcher = new efg::EFGLoaderWatcher(this);
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
-  try {
-    m_ipcClient = new efg::DBusClient();
-    return;
-  } catch (std::exception &ex) {
-    m_ipcClient = nullptr;
-  }
+  m_ipcClient = new efg::DBusClient();
+  TRY_CONNECT(m_ipcClient);
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
-  try {
-    m_ipcClient = new efg::LocalSocketClient();
-  } catch (std::exception &ex) {
-    m_ipcClient = nullptr;
-  }
+  m_ipcClient = new efg::LocalSocketClient();
+  TRY_CONNECT(m_ipcClient);
 }
 
 EFGLoaderInterface::~EFGLoaderInterface()

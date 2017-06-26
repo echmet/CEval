@@ -32,9 +32,6 @@ QByteArray wrap(const Packet &p)
 LocalSocketClient::LocalSocketClient() : IPCClient()
 {
   m_socket = new QLocalSocket();
-
-  if (!connectSocket())
-     throw std::runtime_error(QString("IPC socket timeout while waiting for connection (%1)").arg(m_socket->errorString()).toUtf8().data());
 }
 
 LocalSocketClient::~LocalSocketClient()
@@ -75,6 +72,12 @@ bool LocalSocketClient::checkResponse(const Packet *p, const IPCSockResponseType
   return false;
 }
 
+void LocalSocketClient::connectToInterface()
+{
+  if (!connectSocket())
+    throw std::runtime_error(QString("IPC socket timeout while waiting for connection (%1)").arg(m_socket->errorString()).toUtf8().data());
+}
+
 bool LocalSocketClient::connectSocket()
 {
  const int max = 10;
@@ -89,6 +92,12 @@ bool LocalSocketClient::connectSocket()
     return false;
 
   return true;
+}
+
+bool LocalSocketClient::isInterfaceAvailable() const
+{
+  m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
+  return m_socket->waitForConnected(100);
 }
 
 bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)
