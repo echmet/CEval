@@ -114,7 +114,6 @@ void LocalSocketIPCProxy::handleConnection(QLocalSocket *socket)
           return;
       }
     }
-    qDebug() << "Incoming data";
 
     RequestType reqType;
     if (!readHeader(socket, reqType))
@@ -143,10 +142,8 @@ bool LocalSocketIPCProxy::readHeader(QLocalSocket *socket, RequestType &reqType)
 
   const IPCSockRequestHeader *header = (const IPCSockRequestHeader *)(headerRaw.data());
 
-  if (!CHECK_SIG(header)) {
-    qDebug() << "Malformed packet with magic ID" << QString("%1").arg(header->magic, 0, 16);
+  if (!CHECK_SIG(header))
     return false;
-  }
 
   switch (header->requestType) {
   case IPCSockRequestType::REQUEST_SUPPORTED_FORMATS:
@@ -156,7 +153,6 @@ bool LocalSocketIPCProxy::readHeader(QLocalSocket *socket, RequestType &reqType)
     reqType = RequestType::LOAD_DATA;
     break;
   default:
-    qDebug() << "Invalid request type";
     return false;
   }
 
@@ -166,8 +162,6 @@ bool LocalSocketIPCProxy::readHeader(QLocalSocket *socket, RequestType &reqType)
 void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
 {
   static const qint64 REQ_DESC_SIZE = sizeof(IPCSockLoadDataRequestDescriptor);
-  qDebug() << "Loading data";
-
   QString formatTag;
   QString path;
 
@@ -198,8 +192,6 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     return;
   }
   formatTag = QString::fromUtf8(tagRaw);
-
-  qDebug() << "Requested format tag:" << formatTag;
 
   switch (reqDesc->mode) {
   case IPCSocketLoadDataMode::IPCS_LOAD_FILE:
@@ -301,8 +293,6 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
 
 void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
 {
-  qDebug() << "Returning supported file types";
-
   const QVector<FileFormatInfo> ffiVec = m_loader->supportedFileFormats();
 
   IPCSockResponseHeader responseHeader;

@@ -104,33 +104,29 @@ bool DataLoader::checkTag(const QString &tag) const
 
 void DataLoader::initializePlugin(const QString &pluginPath)
 {
-  if (!QLibrary::isLibrary(pluginPath)) {
-    std::cerr << "File " << pluginPath.toStdString() << " is not a library\n";
+  if (!QLibrary::isLibrary(pluginPath))
     return;
-  }
 
   QLibrary backend(pluginPath);
 
   if (!backend.load()) {
-    std::cerr << "Could not load plugin" << std::endl;
+    std::cerr << "Could not load plugin " << pluginPath.toStdString() << std::endl;
     return;
   }
 
   backend::BackendInitializer initializer = reinterpret_cast<backend::BackendInitializer>(backend.resolve("initialize"));
   if (initializer == nullptr) {
-    std::cerr << "Could not resolve initializer symbol" << std::endl;
+    std::cerr << "Could not resolve initializer symbol for " << pluginPath.toStdString() << std::endl;
     return;
   }
 
   backend::LoaderBackend *instance = dynamic_cast<backend::LoaderBackend *>(initializer());
   if (instance == nullptr) {
-    std::cerr << "Unable to get LoaderPlugin interface";
+    std::cerr << "Unable to get LoaderPlugin interface for " << pluginPath.toStdString() << std::endl;
     return;
   }
 
   backend::Identifier ident = instance->identifier();
-
-  std::cerr << ident.longDescription << ", " << ident.tag << std::endl;
 
   QString tag = QString::fromStdString(ident.tag);
 

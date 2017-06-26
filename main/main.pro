@@ -161,7 +161,6 @@ SOURCES += src/main.cpp \
     src/crashhandling/crashhandlerlinux_stacktrace.cpp \
     src/gui/hvlestimateinprogressdialog.cpp \
     src/math/hvlestimate.cpp \
-    src/netcdffileloader.cpp \
     src/efg/efgloaderwatcher.cpp \
     src/efg/efgloaderinterface.cpp \
     src/efg/efgtypes.cpp \
@@ -355,7 +354,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlerlinux.h \
     src/crashhandling/rawmemblock.h \
     src/gui/hvlestimateinprogressdialog.h \
-    src/netcdffileloader.h \
     src/efg/efgloaderwatcher.h \
     src/efg/efgloaderinterface.h \
     src/efg/efgtypes.h \
