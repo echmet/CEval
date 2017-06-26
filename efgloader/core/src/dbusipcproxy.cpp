@@ -74,8 +74,9 @@ void DBusIPCProxy::onLoadData(IPCDBusDataPack &pack, const QString &formatTag, c
   } else {
     pack.success = true;
 
-    IPCDBusData dd;
     for (const Data &d : std::get<0>(result)) {
+      IPCDBusData dd;
+
       dd.name = d.name;
       dd.path = d.path;
       dd.xDescription = d.xDescription;
