@@ -40,11 +40,6 @@ HEADERS += \
     chemstationfileinfomodel.h \
     chemstationfileloader.h
 
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
-
 FORMS += \
     loadchemstationdatadialog.ui
 

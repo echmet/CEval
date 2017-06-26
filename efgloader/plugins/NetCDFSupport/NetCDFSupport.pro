@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets
+QT       += core gui widgets
 
 TARGET = NetCDFSupport
 TEMPLATE = lib

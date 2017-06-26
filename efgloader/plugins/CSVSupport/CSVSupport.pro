@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += widgets
+QT       += core gui widgets
 
 TARGET = CSVSupport
 TEMPLATE = lib
@@ -21,11 +21,6 @@ HEADERS += csvsupport.h\
     csvfileloader.h \
     malformedcsvfiledialog.h \
     loadcsvfiledialog.h
-
-unix {
-    target.path = /usr/lib
-    INSTALLS += target
-}
 
 FORMS += \
     malformedcsvfiledialog.ui \
