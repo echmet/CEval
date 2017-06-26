@@ -2,8 +2,6 @@
 #include <QDir>
 #include <QMessageBox>
 
-#include <QDebug>
-
 namespace efg {
 
 #ifdef Q_OS_WIN
@@ -17,8 +15,6 @@ EFGLoaderWatcher::EFGLoaderWatcher(QObject *parent) :
 {
   const QString curPath = QDir::currentPath();
   const QString execPath = curPath + "/" + s_EFGLoaderBinaryName;
-
-  qDebug() << execPath;
 
   m_efgLoader = new QProcess();
   m_efgLoader->setProgram(execPath);
@@ -48,13 +44,10 @@ void EFGLoaderWatcher::onEFGLoaderFinished(int exitCode, QProcess::ExitStatus ex
 
 void EFGLoaderWatcher::onEFGLoaderStarted()
 {
-  qDebug() << "EFGLoader started";
 }
 
 void EFGLoaderWatcher::restartEFGLoader()
 {
-  qWarning() << "EFG loader has crashed, restarting";
-
   int ret = QMessageBox::question(nullptr, tr("EFGLoader"), tr("Aieee..., it looks like the process responsible for loading electophoregram data has crashed.\n"
                                                                "CEval can try to restart the process and resume operation. If the process is not restarted,"
                                                                "you will not be able to load any new electrophoregrams\n\n"
