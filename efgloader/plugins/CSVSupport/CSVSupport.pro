@@ -29,7 +29,6 @@ unix {
 
 FORMS += \
     malformedcsvfiledialog.ui \
-    malformedcsvfiledialog.ui \
     loadcsvfiledialog.ui
 
 DESTDIR = ../../../efgbackends
