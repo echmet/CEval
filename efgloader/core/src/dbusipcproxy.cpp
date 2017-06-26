@@ -1,12 +1,9 @@
 #include "dbusipcproxy.h"
 #include "dbus/dbusinterface.h"
 #include "dbus/DBusInterfaceAdaptor.h"
-//#include "dbus/DBusLoaderInterface.h"
 #include "dataloader.h"
 #include <QtDBus/QDBusConnection>
 #include <QtDBus/QDBusConnectionInterface>
-
-#include <iostream>
 
 DBusIPCProxy::DBusIPCProxy(DataLoader *loader, QObject *parent) :
   IPCProxy(loader, parent)
@@ -27,8 +24,6 @@ DBusIPCProxy::DBusIPCProxy(DataLoader *loader, QObject *parent) :
 
   connect(m_interface, &DBusInterface::loadDataForwarder, this, &DBusIPCProxy::onLoadData);
   connect(m_interface, &DBusInterface::supportedFileFormatsForwarder, this, &DBusIPCProxy::onSupportedFileFormats);
-
-  std::cout << "D-Bus interface up and running" << std::endl;
 }
 
 DBusIPCProxy::~DBusIPCProxy()
