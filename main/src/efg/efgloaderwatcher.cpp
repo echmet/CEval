@@ -16,11 +16,11 @@ EFGLoaderWatcher::EFGLoaderWatcher(QObject *parent) :
 {
   const QString curPath = QDir::currentPath();
   const QString execPath = curPath + "/" + s_EFGLoaderBinaryName;
-  const Q_PID mainProcPid = QCoreApplication::applicationPid();
+  const qlonglong mainProcPid = QCoreApplication::applicationPid();
 
   m_efgLoader = new QProcess();
   m_efgLoader->setProgram(execPath);
-  m_efgLoader->setArguments({ QString::number(mainProcPid)});
+  m_efgLoader->setArguments({ QString::number(mainProcPid) });
 
   connect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
   connect(m_efgLoader, &QProcess::started, this, &EFGLoaderWatcher::onEFGLoaderStarted);

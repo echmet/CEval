@@ -250,6 +250,14 @@ public:
 
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
+#ifdef CEVAL_COMPILER_MSVC
+  #define PACKED_STRUCT \
+    __pragma(pack()) struct
+#elif defined CEVAL_COMPILER_GCC_LIKE
+  #define PACKED_STRUCT \
+    struct  __attribute__((packed))
+#endif
+
 #include <stdint.h>
 
 #define IPCS_PACKET_MAGIC 0x091E
@@ -280,12 +288,12 @@ enum IPCSocketLoadDataMode {
   IPCS_LOAD_FILE = 0x3
 };
 
-struct __attribute__((packed)) IPCSockRequestHeader {
+PACKED_STRUCT IPCSockRequestHeader {
   uint16_t magic;
   uint8_t requestType;
 };
 
-struct __attribute__((packed)) IPCSockResponseHeader {
+PACKED_STRUCT IPCSockResponseHeader {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -294,7 +302,7 @@ struct __attribute__((packed)) IPCSockResponseHeader {
   uint32_t errorLength;
 };
 
-struct __attribute__((packed)) IPCSockLoadDataRequestDescriptor {
+PACKED_STRUCT IPCSockLoadDataRequestDescriptor {
   uint16_t magic;
   uint8_t requestType;
   uint8_t mode;
@@ -304,7 +312,7 @@ struct __attribute__((packed)) IPCSockLoadDataRequestDescriptor {
   uint32_t filePathLength;
 };
 
-struct __attribute__((packed)) IPCSockSupportedFormatResponseDescriptor {
+PACKED_STRUCT IPCSockSupportedFormatResponseDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -315,7 +323,7 @@ struct __attribute__((packed)) IPCSockSupportedFormatResponseDescriptor {
   uint32_t loadOptionsLength;
 };
 
-struct __attribute__((packed)) IPCSockLoadOptionDescriptor {
+PACKED_STRUCT IPCSockLoadOptionDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -323,7 +331,7 @@ struct __attribute__((packed)) IPCSockLoadOptionDescriptor {
   uint32_t optionLength;
 };
 
-struct __attribute__((packed)) IPCSockLoadDataResponseDescriptor {
+PACKED_STRUCT IPCSockLoadDataResponseDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -337,7 +345,7 @@ struct __attribute__((packed)) IPCSockLoadDataResponseDescriptor {
   uint32_t datapointsLength;
 };
 
-struct __attribute__((packed)) IPCSockDatapoint {
+PACKED_STRUCT IPCSockDatapoint {
   double x;
   double y;
 };

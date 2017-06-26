@@ -1,5 +1,4 @@
 #include <QApplication>
-#include <QProcess>
 #include <QTimer>
 #include <iostream>
 #include "dataloader.h"
@@ -11,10 +10,15 @@
   #include "localsocketipcproxy.h"
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  #define _PID_T qint64
   #include <errno.h>
   #include <signal.h>
   #include <unistd.h>
-#endif
+#elif defined Q_OS_WIN
+  #define _PID_T DWORD
+  #include <Windows.h>
+#endif // Q_OS_
+
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
 void catchSIGTERM()
@@ -37,6 +41,7 @@ void catchSIGTERM()
 }
 #endif
 
+
 IPCProxy * provisionIPCInterface(DataLoader *loader)
 {
 #ifdef ENABLE_IPC_INTERFACE_DBUS
@@ -52,7 +57,7 @@ IPCProxy * provisionIPCInterface(DataLoader *loader)
 void watchForMainProcess(QTimer *&timer, const char *pidStr)
 {
   bool ok;
-  Q_PID pid = QString(pidStr).trimmed().toLongLong(&ok);
+  _PID_T pid = QString(pidStr).trimmed().toLongLong(&ok);
 
   if (!ok)
     return;
@@ -73,10 +78,23 @@ void watchForMainProcess(QTimer *&timer, const char *pidStr)
       QApplication::quit();
     }
   });
-#endif
+#elif defined Q_OS_WIN
+  HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+  if (hProcess == NULL)
+      return;
+
+  QObject::connect(timer, &QTimer::timeout, [timer, hProcess]() {
+    DWORD exitCode = 0;
+    BOOL bRet = GetExitCodeProcess(hProcess, &exitCode);
+    if (bRet == FALSE || exitCode != STILL_ACTIVE) {
+      timer->stop();
+      QApplication::quit();
+    }
+  });
 
   timer->start();
 }
+#endif // Q_OS_
 
 int main(int argc, char *argv[])
 {
@@ -93,7 +111,8 @@ int main(int argc, char *argv[])
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
   catchSIGTERM();
-#endif
+#elif defined Q_OS_WIN
+#endif // Q_OS_
 
   try {
     proxy = provisionIPCInterface(&loader);

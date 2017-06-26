@@ -8,6 +8,8 @@ QT       += core gui widgets
 
 TARGET = CSVSupport
 TEMPLATE = lib
+CONFIG += dll
+
 
 DEFINES += CSVSUPPORT_LIBRARY
 
