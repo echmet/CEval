@@ -4,7 +4,11 @@
 #include "../../core/common/backendinterface.h"
 #include "csvsupport_global.h"
 
+class QStringList;
+
 namespace backend {
+
+class LoadCsvFileDialog;
 
 class CSVSUPPORTSHARED_EXPORT CSVSupport : public LoaderBackend {
 public:
@@ -14,9 +18,16 @@ public:
   virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
 
   static CSVSupport *instance();
+  static void destroy();
 
 private:
   CSVSupport();
+  ~CSVSupport();
+  std::vector<Data> loadCsvFromClipboard();
+  std::vector<Data> loadCsvFromFile(const std::string &sourcePath);
+  std::vector<Data> loadCsvFromFileInternal(const QStringList &files);
+
+  LoadCsvFileDialog *m_loadCsvFileDlg;
 
   static CSVSupport *s_me;
   static Identifier s_identifier;
@@ -24,6 +35,7 @@ private:
 
 extern "C" {
   CSVSUPPORTSHARED_EXPORT LoaderBackend * initialize();
+  CSVSUPPORTSHARED_EXPORT void destroy();
 }
 
 } // namespace backend

@@ -91,8 +91,6 @@ SOURCES += src/main.cpp \
     src/plotcontextlimited.cpp \
     src/evaluatedpeaksmodel.cpp \
     src/evaluatedpeakswidgetconnector.cpp \
-    src/csvfileloader.cpp \
-    src/gui/loadcsvfiledialog.cpp \
     src/commonparameterswidgetconnector.cpp \
     src/helpers.cpp \
     src/hvlcalculator.cpp \
@@ -163,7 +161,6 @@ SOURCES += src/main.cpp \
     src/crashhandling/crashhandlerlinux_stacktrace.cpp \
     src/gui/hvlestimateinprogressdialog.cpp \
     src/math/hvlestimate.cpp \
-    src/gui/malformedcsvfiledialog.cpp \
     src/netcdffileloader.cpp \
     src/efg/efgloaderwatcher.cpp \
     src/efg/efgloaderinterface.cpp \
@@ -276,8 +273,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/math/mystd/mem/copy/guard.hpp \
     src/math/mystd/mem/copy/noguard.h \
     src/math/mystd/mem/copy/noguard.hpp \
-    src/csvfileloader.h \
-    src/gui/loadcsvfiledialog.h \
     src/commonparameterswidgetconnector.h \
     src/hvlcalculator.h \
     src/stringmappermodel.h \
@@ -360,7 +355,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/crashhandling/crashhandlerlinux.h \
     src/crashhandling/rawmemblock.h \
     src/gui/hvlestimateinprogressdialog.h \
-    src/gui/malformedcsvfiledialog.h \
     src/netcdffileloader.h \
     src/efg/efgloaderwatcher.h \
     src/efg/efgloaderinterface.h \
@@ -384,7 +378,6 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/loadchemstationdatadialog.ui \
     src/gui/evaluatedpeakswidget.ui \
     src/gui/selectpeakdialog.ui \
-    src/gui/loadcsvfiledialog.ui \
     src/gui/addpeakdialog.ui \
     src/gui/numberformatdialog.ui \
     src/gui/hvlfitinprogressdialog.ui \
@@ -405,8 +398,7 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/hyperbolafitwidget.ui \
     src/gui/registerinhyperbolafitdialog.ui \
     src/gui/registerinhyperbolafitwidget.ui \
-    src/gui/hvlestimateinprogressdialog.ui \
-    src/gui/malformedcsvfiledialog.ui
+    src/gui/hvlestimateinprogressdialog.ui
 
 unix {
     LIBS += -ldl

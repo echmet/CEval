@@ -4,6 +4,8 @@
 #include <QDialog>
 #include <QStandardItemModel>
 
+namespace backend {
+
 namespace Ui {
 class LoadCsvFileDialog;
 }
@@ -65,5 +67,7 @@ private slots:
   void onLoadClicked();
 
 };
+
+} // namespace backend
 
 #endif // LOADCSVFILEDIALOG_H

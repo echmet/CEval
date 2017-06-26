@@ -2,6 +2,7 @@
 #include "efgloaderwatcher.h"
 #include <QDir>
 #include <QFileInfo>
+#include <QVariant>
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"

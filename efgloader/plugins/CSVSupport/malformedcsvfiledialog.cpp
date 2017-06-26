@@ -1,6 +1,8 @@
 #include "malformedcsvfiledialog.h"
 #include "ui_malformedcsvfiledialog.h"
 
+namespace backend {
+
 const QString MalformedCsvFileDialog::POSSIBLY_INCORRECT_SETTINGS_MSG = tr("The selected file does not appear to have the desired format.\n"
                                                                            "Check that delimiter and decimal separator are set correctly");
 const QString MalformedCsvFileDialog::BAD_DELIMITER_MSG = tr("Invalid delimiter on line %1. Data will be incomplete");
@@ -42,3 +44,5 @@ void MalformedCsvFileDialog::onOkClicked()
 {
   accept();
 }
+
+} // namespace backend

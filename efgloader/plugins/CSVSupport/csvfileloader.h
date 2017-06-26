@@ -7,6 +7,8 @@
 
 class QTextStream;
 
+namespace backend {
+
 class CsvFileLoader
 {
 public:
@@ -26,17 +28,16 @@ public:
 
   class Data {
   public:
-    Data(const QVector<QPointF> &data, const QString &xType, const QString &yType);
+    Data(std::vector<std::tuple<double, double>> &&data, const QString &xType, const QString &yType);
     Data();
     bool isValid() const;
     Data &operator=(const Data &other);
 
-    const QVector<QPointF> data;
+    const std::vector<std::tuple<double, double>> data;
     const QString xType;
     const QString yType;
   private:
     bool m_valid;
-
   };
 
   class Parameters {
@@ -57,7 +58,6 @@ public:
     const QString encodingId;
     const bool readBom;
     const bool isValid;
-
   };
 
   CsvFileLoader() = delete;
@@ -71,7 +71,8 @@ private:
   static Data readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
                          const int xColumn, const int yColumn,
                          const bool hasHeader, const int linesToSkip);
-
 };
+
+} // namespace backend
 
 #endif // CSVFILELOADER_H

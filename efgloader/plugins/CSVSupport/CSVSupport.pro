@@ -13,12 +13,14 @@ DEFINES += CSVSUPPORT_LIBRARY
 
 SOURCES += csvsupport.cpp \
     csvfileloader.cpp \
-    malformedcsvfiledialog.cpp
+    malformedcsvfiledialog.cpp \
+    loadcsvfiledialog.cpp
 
 HEADERS += csvsupport.h\
         csvsupport_global.h \
     csvfileloader.h \
-    malformedcsvfiledialog.h
+    malformedcsvfiledialog.h \
+    loadcsvfiledialog.h
 
 unix {
     target.path = /usr/lib
@@ -26,6 +28,8 @@ unix {
 }
 
 FORMS += \
-    malformedcsvfiledialog.ui
+    malformedcsvfiledialog.ui \
+    malformedcsvfiledialog.ui \
+    loadcsvfiledialog.ui
 
 DESTDIR = ../../../efgbackends

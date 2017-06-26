@@ -3,6 +3,8 @@
 
 #include <QDialog>
 
+namespace backend {
+
 namespace Ui {
 class MalformedCsvFileDialog;
 }
@@ -31,7 +33,8 @@ private:
 
 private slots:
   void onOkClicked();
-
 };
+
+} //namespace backend
 
 #endif // MALFORMEDCSVFILEDIALOG_H

@@ -7,6 +7,8 @@
 #include <QTextStream>
 #include "malformedcsvfiledialog.h"
 
+namespace backend {
+
 const QMap<QString, CsvFileLoader::Encoding> CsvFileLoader::SUPPORTED_ENCODINGS = { {"ISO-8859-1", CsvFileLoader::Encoding("ISO-8859-1", QByteArray(), "ISO-8859-1 (Latin 1)") },
                                                                                     {"ISO-8859-2", CsvFileLoader::Encoding("ISO-8859-2", QByteArray(), "ISO-8859-2 (Latin 2)") },
                                                                                     { "windows-1250", CsvFileLoader::Encoding("windows-1250", QByteArray(), "Windows-1250 (cp1250)") },
@@ -52,7 +54,7 @@ CsvFileLoader::Encoding &CsvFileLoader::Encoding::operator=(const CsvFileLoader:
   return *this;
 }
 
-CsvFileLoader::Data::Data(const QVector<QPointF> &data, const QString &xType, const QString &yType) :
+CsvFileLoader::Data::Data(std::vector<std::tuple<double, double> > &&data, const QString &xType, const QString &yType) :
   data(data),
   xType(xType),
   yType(yType),
@@ -61,7 +63,7 @@ CsvFileLoader::Data::Data(const QVector<QPointF> &data, const QString &xType, co
 }
 
 CsvFileLoader::Data::Data() :
-  data(QVector<QPointF>()),
+  data(std::vector<std::tuple<double, double>>()),
   xType(""),
   yType(""),
   m_valid(false)
@@ -70,7 +72,7 @@ CsvFileLoader::Data::Data() :
 
 CsvFileLoader::Data &CsvFileLoader::Data::operator=(const Data &other)
 {
-  const_cast<QVector<QPointF>&>(data) = other.data;
+  const_cast<std::vector<std::tuple<double, double>>&>(data) = other.data;
   const_cast<QString&>(xType) = other.yType;
   const_cast<QString&>(yType) = other.yType;
   const_cast<bool&>(m_valid) = other.m_valid;
@@ -184,7 +186,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
                                               const int xColumn, const int yColumn,
                                               const bool hasHeader, const int linesToSkip)
 {
-  QVector<QPointF> points;
+  std::vector<std::tuple<double, double>> points;
   QString xType;
   QString yType;
   QStringList lines;
@@ -247,7 +249,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
   for (int idx = linesRead; idx < lines.size(); idx++) {
     QStringList values;
-    qreal x, y;
+    double x, y;
     bool ok;
     QString *s;
     QLocale cLoc(QLocale::C);
@@ -256,40 +258,42 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     values = line.split(delimiter);
     if (values.size() < highColumn) {
       showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
-      return Data(points, xType, yType);
+      return Data(std::move(points), xType, yType);
     }
 
     s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
-      return Data(points, xType, yType);
+      return Data(std::move(points), xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
       showMalformedFileError(MalformedCsvFileDialog::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
-      return Data(points, xType, yType);
+      return Data(std::move(points), xType, yType);
     }
 
     s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
       showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
-      return Data(points, xType, yType);
+      return Data(std::move(points), xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
       showMalformedFileError(MalformedCsvFileDialog::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
-      return Data(points, xType, yType);
+      return Data(std::move(points), xType, yType);
     }
 
-    points.append(QPointF(x, y));
+    points.emplace_back(std::make_tuple(x, y));
     linesRead++;
   }
 
-  return Data(points, xType, yType);
+  return Data(std::move(points), xType, yType);
 }
+
+} // namespace backend

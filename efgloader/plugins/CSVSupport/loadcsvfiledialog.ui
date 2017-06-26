@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>LoadCsvFileDialog</class>
- <widget class="QDialog" name="LoadCsvFileDialog">
+ <class>backend::LoadCsvFileDialog</class>
+ <widget class="QDialog" name="backend::LoadCsvFileDialog">
   <property name="geometry">
    <rect>
     <x>0</x>
