@@ -60,7 +60,7 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
 
       ndpts.resize(dpts.size());
       for (const IPCDBusDatapoint &dp : dpts)
-        ndpts.append(QPointF(dp.x, dp.y));
+        ndpts.push_back(QPointF{dp.x, dp.y});
 
       return ndpts;
     }(data.datapoints);
@@ -68,7 +68,7 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
     auto ndd = std::shared_ptr<EFGData>(new EFGData(nativeDatapoints,
                                                     data.xDescription, data.xUnit,
                                                     data.yDescription, data.yUnit));
-    ndVec.append(NativeData(ndd, data.path, data.name));
+    ndVec.push_back(NativeData{ndd, data.path, data.name});
   }
 
   return true;
