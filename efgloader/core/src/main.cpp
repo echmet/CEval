@@ -1,13 +1,38 @@
 #include <QApplication>
 #include <iostream>
 #include "dataloader.h"
-
 #include "ipcproxy.h"
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   #include "dbusipcproxy.h"
 #endif // ENABLE_IPC_INTERFACE_DBUS
   #include "localsocketipcproxy.h"
+
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  #include <signal.h>
+  #include <unistd.h>
+#endif
+
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+void catchSIGTERM()
+{
+  auto handler = [](int sig) -> void {
+    qDebug() << "SIGTERM caught";
+    QApplication::quit();
+  };
+
+    sigset_t blocking_mask;
+    sigemptyset(&blocking_mask);
+    sigaddset(&blocking_mask, SIGTERM);
+
+    struct sigaction sa;
+    sa.sa_handler = handler;
+    sa.sa_mask    = blocking_mask;
+    sa.sa_flags   = 0;
+
+    sigaction(SIGTERM, &sa, nullptr);
+}
+#endif
 
 IPCProxy * provisionIPCInterface(DataLoader *loader)
 {
@@ -28,6 +53,10 @@ int main(int argc, char *argv[])
   IPCProxy *proxy;
 
   a.setQuitOnLastWindowClosed(false); /* We want our plugins to be able use Qt GUI and not kill us when they close their UI elements */
+
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  catchSIGTERM();
+#endif
 
   try {
     proxy = provisionIPCInterface(&loader);
