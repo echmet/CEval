@@ -1,4 +1,6 @@
 #include <QApplication>
+#include <QProcess>
+#include <QTimer>
 #include <iostream>
 #include "dataloader.h"
 #include "ipcproxy.h"
@@ -9,6 +11,7 @@
   #include "localsocketipcproxy.h"
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  #include <errno.h>
   #include <signal.h>
   #include <unistd.h>
 #endif
@@ -17,7 +20,7 @@
 void catchSIGTERM()
 {
   auto handler = [](int sig) -> void {
-    qDebug() << "SIGTERM caught";
+    Q_UNUSED(sig);
     QApplication::quit();
   };
 
@@ -46,11 +49,45 @@ IPCProxy * provisionIPCInterface(DataLoader *loader)
   return new LocalSocketIPCProxy{loader};
 }
 
+void watchForMainProcess(QTimer *&timer, const char *pidStr)
+{
+  bool ok;
+  Q_PID pid = QString(pidStr).trimmed().toLongLong(&ok);
+
+  if (!ok)
+    return;
+
+  timer = new QTimer{};
+
+  timer->setInterval(1000);
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  QObject::connect(timer, &QTimer::timeout, [timer, pid]() {
+    int ret = kill(pid, 0);
+
+    if (ret == 0)
+      return;
+    if (ret == -1 && errno == EPERM)
+        return;
+    else {
+      timer->stop();
+      QApplication::quit();
+    }
+  });
+#endif
+
+  timer->start();
+}
+
 int main(int argc, char *argv[])
 {
   QApplication a{argc, argv};
   DataLoader loader{};
   IPCProxy *proxy;
+  QTimer *timer = nullptr;
+
+
+  if (argc > 1)
+    watchForMainProcess(timer, argv[1]);
 
   a.setQuitOnLastWindowClosed(false); /* We want our plugins to be able use Qt GUI and not kill us when they close their UI elements */
 
@@ -67,6 +104,10 @@ int main(int argc, char *argv[])
   }
 
   int ret = a.exec();
+
+  if (timer != nullptr && timer->isActive())
+    timer->stop();
+  delete timer;
 
   delete proxy;
 
