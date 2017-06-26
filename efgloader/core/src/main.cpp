@@ -91,10 +91,10 @@ void watchForMainProcess(QTimer *&timer, const char *pidStr)
       QApplication::quit();
     }
   });
+#endif // Q_OS_
 
   timer->start();
 }
-#endif // Q_OS_
 
 int main(int argc, char *argv[])
 {
