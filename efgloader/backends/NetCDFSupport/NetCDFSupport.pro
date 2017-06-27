@@ -34,5 +34,7 @@ HEADERS += \
 
 DESTDIR = ../../../efgbackends
 
+win32: LIBS += -luser32
+
 include($$PWD/NetCDFSupport.pri)
 
