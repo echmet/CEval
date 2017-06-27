@@ -27,19 +27,19 @@ void catchTermination()
 {
   auto handler = [](int sig) -> void {
     Q_UNUSED(sig);
-    QApplication::quit();
+    QMetaObject::invokeMethod(QApplication::instance(), "quit", Qt::QueuedConnection);
   };
 
-    sigset_t blocking_mask;
-    sigemptyset(&blocking_mask);
-    sigaddset(&blocking_mask, SIGTERM);
+  sigset_t blocking_mask;
+  sigemptyset(&blocking_mask);
+  sigaddset(&blocking_mask, SIGTERM);
 
-    struct sigaction sa;
-    sa.sa_handler = handler;
-    sa.sa_mask    = blocking_mask;
-    sa.sa_flags   = 0;
+  struct sigaction sa;
+  sa.sa_handler = handler;
+  sa.sa_mask    = blocking_mask;
+  sa.sa_flags   = 0;
 
-    sigaction(SIGTERM, &sa, nullptr);
+  sigaction(SIGTERM, &sa, nullptr);
 }
 #elif defined Q_OS_WIN
 class WindowsEventFilter : public QAbstractNativeEventFilter {

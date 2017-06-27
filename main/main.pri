@@ -6,10 +6,10 @@
 # BOOSTPATH variable is supposed to point to
 # a directory that contains a "boost" subdirectory
 # with the boost libraries.
-HVLPATH = "C:/Building/ECHMET/HVL_MT-bin"
-BOOSTPATH = "C:/Building/boost_1_63_0"
-QWTPATH = "C:/Building/Qwt-6.1.3-msvc-bin"
-EIGENPATH = "C:/Building/eigen-3.3.3"
+HVLPATH = "/home/echmet/Devel/HVL_MT-bin"
+BOOSTPATH = "/home/echmet/Devel/CEval/includes"
+QWTPATH = "/home/echmet/Devel/qwt-6.1-bin"
+EIGENPATH = "/home/echmet/Devel/eigen-3.3.3"
 INCLUDEPATH += "$$HPCSPATH/include"
 INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
@@ -19,7 +19,7 @@ DEPENDPATH += $$HPCSPATH
 include("$$QWTPATH/features/qwt.prf")
 
 # Adjust the path to the libHPCS library as needed.
-unix|win32: LIBS += -L"$$HVLPATH/lib" -llibhvl_mt
+unix|win32: LIBS += -L"$$HVLPATH/lib" -lhvl_mt
 unix: LIBS += -lpthread
 
 # Development version

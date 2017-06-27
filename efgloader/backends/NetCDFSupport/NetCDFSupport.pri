@@ -1,4 +1,4 @@
-NETCDFPATH = "C:/Building/netCDF 4.4.1.1"
+NETCDFPATH = "/home/echmet/Devel/NetCDF-bin/"
 INCLUDEPATH += "$$NETCDFPATH/include"
 
 LIBS += -L"$$NETCDFPATH/lib/" -lnetcdf

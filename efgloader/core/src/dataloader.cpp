@@ -10,7 +10,7 @@
   #define DYNAMIC_LIB_SUFFIX ".dll"
 #elif defined Q_OS_MACOS
   #define DYNAMIC_LIB_SUFFIX ".dylib"
-#endif Q_OS_
+#endif // Q_OS_
 
 
 FileFormatInfo::FileFormatInfo() :
