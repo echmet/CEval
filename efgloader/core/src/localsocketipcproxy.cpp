@@ -12,11 +12,9 @@
 
 #ifdef Q_OS_WIN
   #define FINALIZE(socket) \
-    do { \
-      if (!socket->waitForBytesWritten()) \
-        return false; \
-      return socket->flush(); \
-    } while(false)
+    if (socket->bytesToWrite()) \
+      return socket->waitForBytesWritten(); \
+    return true;
 #else
    #define FINALIZE(socket) \
      return socket->waitForBytesWritten()
@@ -37,22 +35,19 @@
   }
 
 #define WRITE_CHECKED(socket, payload) \
-  do { \
-    qint64 __r = socket->write(payload); \
-    if (socket->state() != QLocalSocket::ConnectedState || __r < payload.size()) { \
-      qWarning() << "Failed to send payload:" << socket->errorString(); \
-      return false; \
-    } \
-  } while (false)
+  if (!writeSegmented(socket, payload.data(), payload.size())) { \
+    qWarning() << "Failed to send payload:" << socket->errorString(); \
+    return false; \
+  }
 
 #define WRITE_CHECKED_RAW(socket, payload) \
-  if (socket->write((const char *)&payload, sizeof(payload)) < static_cast<qint64>(sizeof(payload))) { \
+  if (!writeSegmented(socket, (const char*)&payload, static_cast<qint64>(sizeof(payload)))) { \
     qWarning() << "Failed to send raw payload:" << socket->errorString(); \
     return false; \
   }
 
 #define WRITE_RAW(socket, payload) \
-  socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload)));
+  writeSegmented(socket, (const char*)&payload, static_cast<qint64>(sizeof(payload)))
 
 template <typename P>
 bool checkSig(const P &packet)
@@ -64,6 +59,28 @@ template <typename P, typename R>
 bool checkSig(const P &packet, const R requestType)
 {
   return checkSig(packet) && packet->requestType == requestType;
+}
+
+bool writeSegmented(QLocalSocket *socket, const char *payload, const qint64 bytesToWrite)
+{
+#ifdef Q_OS_WIN
+  qint64 written = 0;
+
+  while (written < bytesToWrite) {
+    const qint64 writeMax = (bytesToWrite - written) > 2048 ? 2048 : (bytesToWrite - written);
+    const qint64 w = socket->write(payload + written, writeMax);
+    if (w < 1)
+      return false;
+    written += w;
+
+    if (!socket->waitForBytesWritten())
+      return false;
+  }
+
+  return true;
+#else
+  return socket->write(payload, bytesToWrite);
+#endif // Q_OS_WIN
 }
 
 bool isSocketAlive(QLocalSocket *socket)
