@@ -95,8 +95,13 @@ bool LocalSocketClient::connectSocket()
   int ctr = 0;
   while (m_socket->state() != QLocalSocket::ConnectedState && ctr < max) {
      m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
-     m_socket->waitForConnected(1000);
+     if (m_socket->waitForConnected(1000))
+       return true;
+#ifdef Q_OS_WIN
+     QThread::msleep(1000); /* waitForConnected() does not block on Windows */
+#else
      QThread::msleep(100);
+#endif // Q_OS_WIN
      ctr++;
   }
   if (ctr >= max)
@@ -108,6 +113,9 @@ bool LocalSocketClient::connectSocket()
 bool LocalSocketClient::isInterfaceAvailable() const
 {
   m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
+#ifdef Q_OS_WIN
+     QThread::msleep(100); /* Insert a mandatory delay here since waitForConnected() does not block on Windows */
+#endif // Q_OS_WIN
   return m_socket->waitForConnected(100);
 }
 
