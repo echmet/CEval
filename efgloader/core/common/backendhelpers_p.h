@@ -24,7 +24,9 @@ public:
       return;
 
     SetWindowPos(hWnd, HWND_TOPMOST, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, 0);
-  #endif
+  #else
+    Q_UNUSED(widget)
+  #endif // Q_OS_
   }
 };
 
