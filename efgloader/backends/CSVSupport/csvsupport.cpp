@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include "csvfileloader.h"
 #include "loadcsvfiledialog.h"
+#include "../../core/common/backendhelpers_p.h"
 
 namespace backend {
 
@@ -158,6 +159,7 @@ std::vector<Data> CSVSupport::loadCsvFromFile(const std::string &sourcePath)
   QStringList files;
   QFileDialog openDlg(nullptr, QObject::tr("Pick a text data file"), QString::fromStdString(sourcePath));
 
+  BackendHelpers::showWindowOnTop(&openDlg);
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
   openDlg.setFileMode(QFileDialog::ExistingFiles);
 

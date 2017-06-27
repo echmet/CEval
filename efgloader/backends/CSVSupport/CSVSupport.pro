@@ -29,3 +29,5 @@ FORMS += \
     loadcsvfiledialog.ui
 
 DESTDIR = ../../../efgbackends
+
+win32: LIBS += -luser32

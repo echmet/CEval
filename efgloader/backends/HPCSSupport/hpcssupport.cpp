@@ -2,6 +2,7 @@
 #include <QFile>
 #include <QMessageBox>
 #include "loadchemstationdatadialog.h"
+#include "../../core/common/backendhelpers_p.h"
 
 namespace backend {
 
@@ -128,7 +129,9 @@ std::vector<Data> HPCSSupport::load(const int option)
 
   m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
 
+  BackendHelpers::showWindowOnTop(m_loadChemStationDataDlg);
   ret = m_loadChemStationDataDlg->exec();
+
   m_lastChemStationDlgSize = m_loadChemStationDataDlg->size();
 
   if (ret != QDialog::Accepted)

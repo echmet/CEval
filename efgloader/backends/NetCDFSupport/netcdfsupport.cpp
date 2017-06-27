@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "netcdffileloader.h"
+#include "../../core/common/backendhelpers_p.h"
 
 namespace backend {
 
@@ -74,6 +75,7 @@ std::vector<Data> NetCDFSupport::loadInternal(const QString &path)
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
   openDlg.setFileMode(QFileDialog::ExistingFiles);
 
+  BackendHelpers::showWindowOnTop(&openDlg);
   if  (openDlg.exec() != QDialog::Accepted)
     return std::vector<Data>();
 

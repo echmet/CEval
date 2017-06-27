@@ -31,6 +31,7 @@ HEADERS += \
     src/dataloader.h \
     src/ipcproxy.h \
     src/localsocketipcproxy.h \
+    common/backendhelpers_p.h
 
 ipc_dbus {
     SOURCES += \
