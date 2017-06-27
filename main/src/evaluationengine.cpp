@@ -1633,7 +1633,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   clipboard->setText(out);
 }
 
-void EvaluationEngine::onDataLoaded(std::shared_ptr<EFGData> &data, QString fileID, QString fileName)
+void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, QString fileID, QString fileName)
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();

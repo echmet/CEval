@@ -8,9 +8,9 @@
 #include <QVector>
 #include <memory>
 #include "efgtypes.h"
-
-
 #include "ipcclient.h"
+
+class QThread;
 
 namespace efg {
   class EFGLoaderWatcher;
@@ -75,10 +75,12 @@ class EFGLoaderInterface : public QObject
   Q_OBJECT
 public:
   ~EFGLoaderInterface();
-  static EFGLoaderInterface & instance();
   void loadUserSettings(const QVariant &settings);
   QVariant saveUserSettings();
   bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats);
+
+  static void initialize();
+  static EFGLoaderInterface & instance();
 
 private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
@@ -86,13 +88,14 @@ private:
   efg::IPCClient *m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
   efg::EFGLoaderWatcher *m_watcher;
+  QThread *m_myThread;
 
   static std::unique_ptr<EFGLoaderInterface> s_me;
 
   static const QString LAST_FILE_PATHS_SETTINGS_TAG;
 
 signals:
-  void onDataLoaded(std::shared_ptr<EFGData> &data, const QString &path, const QString &name);
+  void onDataLoaded(EFGDataSharedPtr data, const QString &path, const QString &name);
 
 public slots:
   void loadData(const QString &formatTag, const int loadOption);

@@ -156,6 +156,8 @@ int main(int argc, char *argv[])
                                      "output in an event of unhandled internal error."));
   }
 
+  EFGLoaderInterface::initialize();
+
   setOpenMPThreads();
 
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);

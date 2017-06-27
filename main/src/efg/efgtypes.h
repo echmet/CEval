@@ -2,14 +2,16 @@
 #define EFGTYPES_H
 
 #include <QMap>
+#include <QMetaType>
 #include <QPointF>
 #include <QString>
 #include <QVector>
+#include <memory>
 
 class EFGData {
 public:
-  explicit EFGData(const QVector<QPointF> data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit);
   explicit EFGData();
+  explicit EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit);
   explicit EFGData(const EFGData &other);
   bool isValid() const;
   EFGData &operator=(const EFGData &other);
@@ -33,5 +35,8 @@ public:
   const QString formatTag;
   const QMap<int, QString> loadOptions;
 };
+
+typedef std::shared_ptr<EFGData> EFGDataSharedPtr;
+Q_DECLARE_METATYPE(EFGDataSharedPtr)
 
 #endif // EFGTYPES_H

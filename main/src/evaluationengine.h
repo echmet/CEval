@@ -444,7 +444,7 @@ public slots:
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
 
 private slots:
-  void onDataLoaded(std::shared_ptr<EFGData> &data, QString fileID, QString fileName);
+  void onDataLoaded(EFGDataSharedPtr data, QString fileID, QString fileName);
   void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow);

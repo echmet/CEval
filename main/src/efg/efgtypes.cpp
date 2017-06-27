@@ -1,17 +1,17 @@
 #include "efgtypes.h"
 
-EFGData::EFGData(const QVector<QPointF> data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
+EFGData::EFGData() :
+  m_valid(false)
+{
+}
+
+EFGData::EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
   data(data),
   xType(xType),
   xUnit(xUnit),
   yType(yType),
   yUnit(yUnit),
   m_valid(true)
-{
-}
-
-EFGData::EFGData() :
-  m_valid(false)
 {
 }
 

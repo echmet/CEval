@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
+#include <QThread>
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"
@@ -29,6 +30,12 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 {
   qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
   qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
+  qRegisterMetaType<EFGDataSharedPtr>("EFGDataSharedPtr");
+
+  m_myThread = new QThread();
+  moveToThread(m_myThread);
+  m_myThread->start();
+
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   m_ipcClient = new efg::DBusClient();
@@ -56,6 +63,9 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 
 EFGLoaderInterface::~EFGLoaderInterface()
 {
+  m_myThread->quit();
+  m_myThread->wait();
+  delete m_myThread;
 }
 
 void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)
@@ -84,10 +94,15 @@ void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption
   }
 }
 
+void EFGLoaderInterface::initialize()
+{
+  s_me = std::unique_ptr<EFGLoaderInterface>(new EFGLoaderInterface());
+}
+
 EFGLoaderInterface & EFGLoaderInterface::instance()
 {
   if (s_me == nullptr)
-    s_me = std::unique_ptr<EFGLoaderInterface>(new EFGLoaderInterface());
+    throw std::runtime_error("EFGLoaderInterface not initialized");
 
   return *s_me;
 }
