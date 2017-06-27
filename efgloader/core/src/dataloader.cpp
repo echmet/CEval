@@ -2,8 +2,16 @@
 #include "common/backendinterface.h"
 #include <QDir>
 #include <QLibrary>
-
 #include <iostream>
+
+#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
+  #define DYNAMIC_LIB_SUFFIX ".so"
+#elif defined Q_OS_WIN
+  #define DYNAMIC_LIB_SUFFIX ".dll"
+#elif defined Q_OS_MACOS
+  #define DYNAMIC_LIB_SUFFIX ".dylib"
+#endif Q_OS_
+
 
 FileFormatInfo::FileFormatInfo() :
   longDescription(""),
@@ -190,7 +198,7 @@ bool DataLoader::loadPlugins()
   QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
 
   for (const QString &s : files) {
-    if (!s.endsWith(".so"))
+    if (!s.endsWith(DYNAMIC_LIB_SUFFIX))
       continue;
 
     QString symlinkPath = QFile(s).symLinkTarget();
