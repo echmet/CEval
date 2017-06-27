@@ -55,15 +55,15 @@
   socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload)));
 
 template <typename P>
-bool CHECK_SIG(const P &packet)
+bool checkSig(const P &packet)
 {
   return packet->magic == IPCS_PACKET_MAGIC;
 }
 
 template <typename P, typename R>
-bool CHECK_SIG(const P &packet, const R requestType)
+bool checkSig(const P &packet, const R requestType)
 {
-  return CHECK_SIG(packet) && packet->requestType == requestType;
+  return checkSig(packet) && packet->requestType == requestType;
 }
 
 bool isSocketAlive(QLocalSocket *socket)
@@ -172,7 +172,7 @@ bool LocalSocketIPCProxy::readHeader(QLocalSocket *socket, RequestType &reqType)
 
   const IPCSockRequestHeader *header = (const IPCSockRequestHeader *)(headerRaw.data());
 
-  if (!CHECK_SIG(header))
+  if (!checkSig(header))
     return false;
 
   switch (header->requestType) {
@@ -204,7 +204,7 @@ bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     return false;
   }
   reqDesc = (IPCSockLoadDataRequestDescriptor *)reqDescRaw.data();
-  if (!CHECK_SIG(reqDesc, REQUEST_LOAD_DATA_DESCRIPTOR)) {
+  if (!checkSig(reqDesc, REQUEST_LOAD_DATA_DESCRIPTOR)) {
     qWarning() << "Invalid load data descriptor signature";
     return false;
   }
