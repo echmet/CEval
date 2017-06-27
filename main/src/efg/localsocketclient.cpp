@@ -17,7 +17,7 @@
 #else
   #define FINALIZE(socket) \
     return true
-#endif Q_OS_WIN
+#endif // Q_OS_WIN
 
 #define WAIT_FOR_WRITTEN(socket) \
   do { \
