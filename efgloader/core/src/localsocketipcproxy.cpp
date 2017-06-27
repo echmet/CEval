@@ -52,7 +52,7 @@
   }
 
 #define WRITE_RAW(socket, payload) \
-  return socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload))) == sizeof(payload);
+  socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload)));
 
 template <typename P>
 bool CHECK_SIG(const P &packet)
@@ -86,7 +86,7 @@ bool reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QS
 
   WRITE_CHECKED_RAW(socket, resp);
   WRITE_CHECKED(socket, messageRaw);
-  return socket->waitForBytesWritten();
+  FINALIZE(socket);
 }
 
 bool readBlock(QLocalSocket *socket, QByteArray &buffer, qint64 size)
@@ -273,8 +273,7 @@ bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     WRITE_RAW(socket, respHeader);
 
     socket->write(error);
-    socket->waitForBytesWritten();
-    return true;
+    FINALIZE(socket);
   }
 
   const std::vector<Data> &data = std::get<0>(result);
