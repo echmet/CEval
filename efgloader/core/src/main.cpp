@@ -17,11 +17,13 @@
 #elif defined Q_OS_WIN
   #define _PID_T DWORD
   #include <Windows.h>
+  #include <QAbstractEventDispatcher>
+  #include <QAbstractNativeEventFilter>
 #endif // Q_OS_
 
 
 #if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
-void catchSIGTERM()
+void catchTermination()
 {
   auto handler = [](int sig) -> void {
     Q_UNUSED(sig);
@@ -39,7 +41,30 @@ void catchSIGTERM()
 
     sigaction(SIGTERM, &sa, nullptr);
 }
-#endif
+#elif defined Q_OS_WIN
+class WindowsEventFilter : public QAbstractNativeEventFilter {
+  bool nativeEventFilter(const QByteArray &eventType, void *message, long *result);
+};
+
+bool WindowsEventFilter::nativeEventFilter(const QByteArray &eventType, void *message, long *result) {
+  Q_UNUSED(eventType);
+  Q_UNUSED(result);
+
+  MSG* msg = (MSG*)(message);
+  if((msg->message == WM_CLOSE) && (msg->hwnd == 0)){
+    QMetaObject::invokeMethod(QApplication::instance(), "quit", Qt::QueuedConnection);
+    return true;
+  }
+
+  return false;
+}
+
+void catchTermination()
+{
+  QCoreApplication::eventDispatcher()->installNativeEventFilter(new WindowsEventFilter());
+}
+
+#endif // Q_OS_
 
 
 IPCProxy * provisionIPCInterface(DataLoader *loader)
@@ -108,11 +133,7 @@ int main(int argc, char *argv[])
     watchForMainProcess(timer, argv[1]);
 
   a.setQuitOnLastWindowClosed(false); /* We want our plugins to be able use Qt GUI and not kill us when they close their UI elements */
-
-#if defined(Q_OS_UNIX) || defined(Q_OS_LINUX)
-  catchSIGTERM();
-#elif defined Q_OS_WIN
-#endif // Q_OS_
+  catchTermination();
 
   try {
     proxy = provisionIPCInterface(&loader);
