@@ -8,6 +8,17 @@
     return false; \
   } while (false)
 
+#ifdef Q_OS_WIN
+  #define FINALIZE(socket) \
+    do { \
+      socket->close(); \
+      return true; \
+    } while (false)
+#else
+  #define FINALIZE(socket) \
+    return true
+#endif Q_OS_WIN
+
 #define WAIT_FOR_WRITTEN(socket) \
   do { \
     if (!socket->waitForBytesWritten()) \
@@ -207,7 +218,7 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
     ndVec.push_back(NativeData(efgData, QString::fromUtf8(pathBA), QString::fromUtf8(nameBA)));
   }
 
-  return true;
+  FINALIZE(m_socket);
 }
 
 bool LocalSocketClient::readBlock(QByteArray &buffer, const int size)
@@ -289,7 +300,7 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
   }
 
   if (respHdr->items < 1)
-    return true;
+    FINALIZE(m_socket);
 
   int32_t item;
   for (item = 0; item < respHdr->items; item++) {
@@ -335,7 +346,7 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
   if (item != respHdr->items)
     m_socket->close();
 
-  return true;
+  FINALIZE(m_socket);
 }
 
 bool LocalSocketClient::waitForData(const int size)

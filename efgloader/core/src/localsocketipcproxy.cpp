@@ -2,8 +2,26 @@
 #include "../common/ipcinterface.h"
 #include <QLocalServer>
 #include <QLocalSocket>
-
 #include <QDebug>
+
+#ifdef Q_OS_WIN
+  #define HANDLING_TIMEOUT 2500
+#else
+  #define HANDLING_TIMEOUT 250
+#endif // Q_OS_WIN
+
+#ifdef Q_OS_WIN
+  #define FINALIZE(socket) \
+    do { \
+      if (!socket->waitForBytesWritten()) \
+        return false; \
+      return socket->flush(); \
+    } while(false)
+#else
+   #define FINALIZE(socket) \
+     return socket->waitForBytesWritten()
+#endif // Q_OS_WIN
+
 
 #define INIT_RESPONSE(packet, rtype, s) \
   packet.magic = IPCS_PACKET_MAGIC; \
@@ -14,7 +32,7 @@
   if (!socket->bytesAvailable()) { \
     if (!socket->waitForReadyRead(1000)) { \
       qWarning() << "Timed out while waiting for data block"; \
-      return; \
+      return false; \
     } \
   }
 
@@ -23,18 +41,18 @@
     qint64 __r = socket->write(payload); \
     if (socket->state() != QLocalSocket::ConnectedState || __r < payload.size()) { \
       qWarning() << "Failed to send payload:" << socket->errorString(); \
-      return; \
+      return false; \
     } \
   } while (false)
 
 #define WRITE_CHECKED_RAW(socket, payload) \
   if (socket->write((const char *)&payload, sizeof(payload)) < static_cast<qint64>(sizeof(payload))) { \
     qWarning() << "Failed to send raw payload:" << socket->errorString(); \
-    return; \
+    return false; \
   }
 
 #define WRITE_RAW(socket, payload) \
-  socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload)))
+  return socket->write((const char*)&payload, static_cast<qint64>(sizeof(payload))) == sizeof(payload);
 
 template <typename P>
 bool CHECK_SIG(const P &packet)
@@ -48,7 +66,17 @@ bool CHECK_SIG(const P &packet, const R requestType)
   return CHECK_SIG(packet) && packet->requestType == requestType;
 }
 
-void reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QString &message)
+bool isSocketAlive(QLocalSocket *socket)
+{
+#ifdef Q_OS_WIN
+  Q_UNUSED(socket);
+  return false; /* There is something horribly broken on Windows, we have to renegotiate the socket every time. */
+#else
+  return socket->error() == QLocalSocket::SocketTimeoutError;
+#endif // Q_OS_WIN
+}
+
+bool reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QString &message)
 {
   IPCSockResponseHeader resp;
   QByteArray messageRaw(message.toUtf8());
@@ -58,7 +86,7 @@ void reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QS
 
   WRITE_CHECKED_RAW(socket, resp);
   WRITE_CHECKED(socket, messageRaw);
-  socket->waitForBytesWritten();
+  return socket->waitForBytesWritten();
 }
 
 bool readBlock(QLocalSocket *socket, QByteArray &buffer, qint64 size)
@@ -100,15 +128,15 @@ void LocalSocketIPCProxy::onNewConnection()
   QLocalSocket *socket = m_server->nextPendingConnection();
 
   handleConnection(socket);
+  socket->close();
 }
 
 void LocalSocketIPCProxy::handleConnection(QLocalSocket *socket)
 {
-
   while (true) {
     if (!socket->bytesAvailable()) {
-      if (!socket->waitForReadyRead(1000)) {
-        if (socket->error() == QLocalSocket::SocketTimeoutError)
+      if (!socket->waitForReadyRead(HANDLING_TIMEOUT)) {
+        if (isSocketAlive(socket))
           continue;
         else
           return;
@@ -121,10 +149,12 @@ void LocalSocketIPCProxy::handleConnection(QLocalSocket *socket)
 
     switch (reqType) {
     case RequestType::SUPPORTED_FORMATS:
-      respondSupportedFormats(socket);
+      if (!respondSupportedFormats(socket))
+        return;
       break;
     case RequestType::LOAD_DATA:
-      respondLoadData(socket);
+      if (!respondLoadData(socket))
+       return;
       break;
     }
   };
@@ -159,7 +189,7 @@ bool LocalSocketIPCProxy::readHeader(QLocalSocket *socket, RequestType &reqType)
   return true;
 }
 
-void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
+bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
 {
   static const qint64 REQ_DESC_SIZE = sizeof(IPCSockLoadDataRequestDescriptor);
   QString formatTag;
@@ -171,17 +201,17 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
   QByteArray reqDescRaw;
   if (!readBlock(socket, reqDescRaw, REQ_DESC_SIZE)) {
     qWarning() << "Cannot read load data descriptor";
-    return;
+    return false;
   }
   reqDesc = (IPCSockLoadDataRequestDescriptor *)reqDescRaw.data();
   if (!CHECK_SIG(reqDesc, REQUEST_LOAD_DATA_DESCRIPTOR)) {
     qWarning() << "Invalid load data descriptor signature";
-    return;
+    return false;
   }
   if (reqDesc->tagLength < 1) {
     qWarning() << "Invalid length of formatTag";
     reportError(socket, RESPONSE_LOAD_DATA_HEADER, "Invalid length of formatTag");
-    return;
+    return false;
   }
 
   /* Read tag */
@@ -189,7 +219,7 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
   QByteArray tagRaw;
   if (!readBlock(socket, tagRaw, reqDesc->tagLength)) {
     qWarning() << "Cannot read format tag";
-    return;
+    return false;
   }
   formatTag = QString::fromUtf8(tagRaw);
 
@@ -202,13 +232,13 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
       QByteArray pathRaw;
       if (!readBlock(socket, pathRaw, reqDesc->filePathLength)) {
         qWarning() << "Cannot read file path";
-        return;
+        return false;
       }
 
       path = QString::fromUtf8(pathRaw);
     } else {
       reportError(socket, RESPONSE_LOAD_DATA_HEADER, "Invalid file path length");
-      return;
+      return false;
     }
   }
     break;
@@ -216,7 +246,7 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     break;
   default:
     reportError(socket, RESPONSE_LOAD_DATA_HEADER, "Invalid load mode");
-    return;
+    return false;
   }
 
   DataLoader::LoadedPack result;
@@ -244,7 +274,7 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
 
     socket->write(error);
     socket->waitForBytesWritten();
-    return;
+    return true;
   }
 
   const std::vector<Data> &data = std::get<0>(result);
@@ -288,10 +318,10 @@ void LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
      WRITE_CHECKED_RAW(socket, respDp);
    }
   }
-  socket->waitForBytesWritten();
+  FINALIZE(socket);
 }
 
-void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
+bool LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
 {
   const QVector<FileFormatInfo> ffiVec = m_loader->supportedFileFormats();
 
@@ -338,5 +368,5 @@ void LocalSocketIPCProxy::respondSupportedFormats(QLocalSocket *socket)
       }
     }
   }
-  socket->waitForBytesWritten();
+  FINALIZE(socket);
 }

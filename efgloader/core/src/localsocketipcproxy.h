@@ -23,8 +23,8 @@ private:
 
   void handleConnection(QLocalSocket *socket);
   bool readHeader(QLocalSocket *socket, RequestType &reqType);
-  void respondLoadData(QLocalSocket *socket);
-  void respondSupportedFormats(QLocalSocket *socket);
+  bool respondLoadData(QLocalSocket *socket);
+  bool respondSupportedFormats(QLocalSocket *socket);
 
   QLocalServer *m_server;
 
