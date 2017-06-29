@@ -2,7 +2,6 @@
 #include "ui_evalmainwindow.h"
 #include "aboutdialog.h"
 #include "checkforupdatedialog.h"
-#include "../efg/efgloaderinterface.h"
 #include "../evaluationparametersitems.h"
 #include "../evalmainwindowconnector.h"
 #include "../helpers.h"
@@ -46,8 +45,6 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   m_exportEvaluationMenu->menuAction()->setVisible(false);
 
   setWindowTitle(Globals::VERSION_STRING());
-
-  makeSupportedFileFormatsActions();
 
 #ifdef Q_OS_LINUX
   ui->actionLoad_data_table->setIcon(QIcon::fromTheme("document-open"));
@@ -113,49 +110,6 @@ void EvalMainWindow::makeExportMenus()
   a = new QAction("Whole peak to clipboard", this);
   connect(a, &QAction::triggered, this, &EvalMainWindow::onActionWholePeakToClipboard);
   m_exportEvaluationMenu->addAction(a);
-}
-
-void EvalMainWindow::makeSupportedFileFormatsActions()
-{
-  auto itemTitle = [](const QString &s) {
-    return QString("Load %1 file").arg(s);
-  };
-  auto addAction = [this](const EFGLoadInfo &info, const QString &title, QMenu *m, QAction *before) {
-    QAction *a = new QAction(title, this);
-    a->setData(QVariant::fromValue<EFGLoadInfo>(info));
-    connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
-
-    if (before != nullptr)
-      m->insertAction(ui->actionLoad_data_table, a);
-    else
-      m->addAction(a);
-
-    m_loadEFGActions.push_back(a);
-    #ifdef Q_OS_LINUX
-    a->setIcon(QIcon::fromTheme("document-open"));
-    #else
-    a->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
-    #endif // Q_OS_LINUX
-  };
-
-  QVector<EFGSupportedFileFormat> supportedFormats;
-  const bool ok = EFGLoaderInterface::instance().supportedFileFormats(supportedFormats);
-
-  if (!ok)
-    return;
-
-  for (const EFGSupportedFileFormat &sff : supportedFormats) {
-    if (sff.loadOptions.size() > 1) {
-      QMenu *m = new QMenu(itemTitle(sff.shortDescription), this);
-
-      for (auto it = sff.loadOptions.cbegin(); it != sff.loadOptions.cend(); it++)
-        addAction(EFGLoadInfo{sff.formatTag, it.key()}, QString("From %1").arg(it.value()), m, nullptr);
-
-      ui->menuFile->insertMenu(ui->actionLoad_data_table, m);
-      m_loadEFGActions.push_back(m->menuAction());
-    } else
-      addAction(EFGLoadInfo{sff.formatTag, 0}, itemTitle(sff.shortDescription), ui->menuFile, ui->actionLoad_data_table);
-  }
 }
 
 void EvalMainWindow::onActionAbout()
@@ -246,6 +200,43 @@ void EvalMainWindow::onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode
     for (QAction *a : m_loadEFGActions)
       a->setVisible(false);
     break;
+  }
+}
+
+void EvalMainWindow::onSupportedFileFormatsRetrieved(EFGSupportedFileFormatVec supportedFormats)
+{
+  auto itemTitle = [](const QString &s) {
+    return QString("Load %1 file").arg(s);
+  };
+  auto addAction = [this](const EFGLoadInfo &info, const QString &title, QMenu *m, QAction *before) {
+    QAction *a = new QAction(title, this);
+    a->setData(QVariant::fromValue<EFGLoadInfo>(info));
+    connect(a, &QAction::triggered, this, &EvalMainWindow::onActionLoadElectrophoregram);
+
+    if (before != nullptr)
+      m->insertAction(ui->actionLoad_data_table, a);
+    else
+      m->addAction(a);
+
+    m_loadEFGActions.push_back(a);
+    #ifdef Q_OS_LINUX
+    a->setIcon(QIcon::fromTheme("document-open"));
+    #else
+    a->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
+    #endif // Q_OS_LINUX
+  };
+
+  for (const EFGSupportedFileFormat &sff : supportedFormats) {
+    if (sff.loadOptions.size() > 1) {
+      QMenu *m = new QMenu(itemTitle(sff.shortDescription), this);
+
+      for (auto it = sff.loadOptions.cbegin(); it != sff.loadOptions.cend(); it++)
+        addAction(EFGLoadInfo{sff.formatTag, it.key()}, QString("From %1").arg(it.value()), m, nullptr);
+
+      ui->menuFile->insertMenu(ui->actionLoad_data_table, m);
+      m_loadEFGActions.push_back(m->menuAction());
+    } else
+      addAction(EFGLoadInfo{sff.formatTag, 0}, itemTitle(sff.shortDescription), ui->menuFile, ui->actionLoad_data_table);
   }
 }
 

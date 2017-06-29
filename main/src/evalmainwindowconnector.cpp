@@ -1,6 +1,7 @@
 #include "evalmainwindowconnector.h"
 #include "gui/evalmainwindow.h"
 #include "dataaccumulator.h"
+#include "efg/efgloaderinterface.h"
 
 void EvalMainWindowConnector::connectAll(QObject *anonWidget, QObject *anonDac)
 {
@@ -11,6 +12,7 @@ void EvalMainWindowConnector::connectAll(QObject *anonWidget, QObject *anonDac)
 
   QObject::connect(w, &EvalMainWindow::adjustPlotAppearance, dac, &DataAccumulator::onAdjustPlotAppearance);
   QObject::connect(w, &EvalMainWindow::exportAction, dac, &DataAccumulator::onExportAction);
+  QObject::connect(&EFGLoaderInterface::instance(), &EFGLoaderInterface::supportedFileFormatsRetrieved, w, &EvalMainWindow::onSupportedFileFormatsRetrieved, Qt::QueuedConnection);
   QObject::connect(dac, &DataAccumulator::programModeChanged, w, &EvalMainWindow::onProgramModeChanged);
 }
 

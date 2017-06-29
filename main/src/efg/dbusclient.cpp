@@ -40,7 +40,7 @@ void DBusClient::connectToInterface()
   m_iface->setTimeout(DEFAULT_TIMEOUT);
 }
 
-bool DBusClient::isInterfaceAvailable() const
+bool DBusClient::isInterfaceAvailable()
 {
   return QDBusConnection::sessionBus().interface()->isServiceRegistered(DBUS_SERVICE_NAME);
 }

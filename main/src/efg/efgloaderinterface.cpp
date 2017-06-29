@@ -14,7 +14,7 @@
   do { \
     try { \
       ipcc->connectToInterface(); \
-      return; \
+      return true; \
     } catch (std::exception &) { \
       delete ipcc; \
       ipcc = nullptr; \
@@ -31,12 +31,28 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
   qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
   qRegisterMetaType<EFGDataSharedPtr>("EFGDataSharedPtr");
+  qRegisterMetaType<EFGSupportedFileFormatVec>("EFGSupportedFileFormatVec");
+
+  if (!bringUpIPCInterface())
+    throw std::runtime_error("No interface to use to talk to EFGLoader is available.");
 
   m_myThread = new QThread();
   moveToThread(m_myThread);
   m_myThread->start();
+}
 
+EFGLoaderInterface::~EFGLoaderInterface()
+{
+  m_myThread->quit();
+  if (!m_myThread->wait(5000))
+    m_myThread->terminate();
 
+  delete m_myThread;
+  delete m_watcher;
+}
+
+bool EFGLoaderInterface::bringUpIPCInterface()
+{
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   m_ipcClient = new efg::DBusClient();
   if (m_ipcClient->isInterfaceAvailable())
@@ -46,7 +62,7 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 #endif // ENABLE_IPC_INTERFACE_DBUS
   m_ipcClient = new efg::LocalSocketClient();
   if (m_ipcClient->isInterfaceAvailable())
-    TRY_CONNECT(m_ipcClient);
+    return true; /* Socket will be created from the slot */
   else
     delete m_ipcClient;
 
@@ -58,17 +74,8 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
   m_ipcClient = new efg::LocalSocketClient();
-  TRY_CONNECT(m_ipcClient);
-}
 
-EFGLoaderInterface::~EFGLoaderInterface()
-{
-  m_myThread->quit();
-  if (!m_myThread->wait(5000))
-    m_myThread->terminate();
-
-  delete m_myThread;
-  delete m_watcher;
+  return true;
 }
 
 void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)
@@ -119,6 +126,21 @@ void EFGLoaderInterface::loadUserSettings(const QVariant &settings)
     m_lastPathsMap[p.tag] = p.path;
 }
 
+void EFGLoaderInterface::retrieveSupportedFileFormats()
+{
+  QMetaObject::invokeMethod(this, "retrieveSupportedFileFormatsInternal", Qt::QueuedConnection);
+}
+
+void EFGLoaderInterface::retrieveSupportedFileFormatsInternal()
+{
+  EFGSupportedFileFormatVec supportedFormats;
+  if (m_ipcClient == nullptr)
+    return;
+
+  if (m_ipcClient->supportedFileFormats(supportedFormats))
+    emit supportedFileFormatsRetrieved(supportedFormats);
+}
+
 QVariant EFGLoaderInterface::saveUserSettings()
 {
   TagPathPackVec vec;
@@ -131,10 +153,3 @@ QVariant EFGLoaderInterface::saveUserSettings()
   return v;
 }
 
-bool EFGLoaderInterface::supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats)
-{
-  if (m_ipcClient == nullptr)
-    return false;
-
-  return m_ipcClient->supportedFileFormats(supportedFormats);
-}

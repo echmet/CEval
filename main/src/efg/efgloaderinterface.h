@@ -70,20 +70,23 @@ class TagPathPackVec : public QVector<TagPathPack> {
 };
 Q_DECLARE_METATYPE(TagPathPackVec)
 
+typedef QVector<EFGSupportedFileFormat> EFGSupportedFileFormatVec;
+
 class EFGLoaderInterface : public QObject
 {
   Q_OBJECT
 public:
   ~EFGLoaderInterface();
   void loadUserSettings(const QVariant &settings);
+  void retrieveSupportedFileFormats();
   QVariant saveUserSettings();
-  bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats);
 
   static void initialize();
   static EFGLoaderInterface & instance();
 
 private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
+  bool bringUpIPCInterface();
 
   efg::IPCClient *m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
@@ -96,9 +99,14 @@ private:
 
 signals:
   void onDataLoaded(EFGDataSharedPtr data, const QString &path, const QString &name);
+  void supportedFileFormatsRetrieved(EFGSupportedFileFormatVec supportedFormats);
 
 public slots:
   void loadData(const QString &formatTag, const int loadOption);
+
+private slots:
+  void retrieveSupportedFileFormatsInternal();
+
 };
 
 #endif // EFGLOADERINTERFACE_H

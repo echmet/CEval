@@ -17,7 +17,7 @@ public:
   virtual ~DBusClient();
 
   virtual void connectToInterface() override;
-  virtual bool isInterfaceAvailable() const override;
+  virtual bool isInterfaceAvailable() override;
   virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption) override;
   virtual bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats) override;
 

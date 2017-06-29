@@ -40,9 +40,9 @@ QByteArray wrap(const Packet &p)
   return QByteArray(reinterpret_cast<const char *>(&p), sizeof(p));
 }
 
-LocalSocketClient::LocalSocketClient() : IPCClient()
+LocalSocketClient::LocalSocketClient() : IPCClient(),
+  m_socket(nullptr)
 {
-  m_socket = new QLocalSocket();
 }
 
 LocalSocketClient::~LocalSocketClient()
@@ -91,8 +91,12 @@ void LocalSocketClient::connectToInterface()
 
 bool LocalSocketClient::connectSocket()
 {
- const int max = 24;
+  const int max = 24;
   int ctr = 0;
+
+  if (m_socket == nullptr)
+    m_socket = new QLocalSocket();
+
   while (m_socket->state() != QLocalSocket::ConnectedState && ctr < max) {
      m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
      if (m_socket->waitForConnected(1000))
@@ -110,13 +114,23 @@ bool LocalSocketClient::connectSocket()
   return true;
 }
 
-bool LocalSocketClient::isInterfaceAvailable() const
+bool LocalSocketClient::isInterfaceAvailable()
 {
+  bool ifaceAvailable;
+
+  m_socket = new QLocalSocket();
   m_socket->connectToServer(QString(IPCS_SOCKET_NAME));
 #ifdef Q_OS_WIN
      QThread::msleep(100); /* Insert a mandatory delay here since waitForConnected() does not block on Windows */
 #endif // Q_OS_WIN
-  return m_socket->waitForConnected(100);
+  ifaceAvailable = m_socket->waitForConnected(100);
+
+  /* We need to recreate the socket from the EFGLoader event queue in order to
+   * have it assigned to the correct thread */
+  delete m_socket;
+  m_socket = nullptr;
+
+  return ifaceAvailable;
 }
 
 bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption)
@@ -261,6 +275,9 @@ const Packet * LocalSocketClient::readPacket(QByteArray &buffer)
 
 bool LocalSocketClient::reconnectIfNeeded()
 {
+  if (m_socket == nullptr)
+    return connectSocket();
+
   if (m_socket->state() != QLocalSocket::ConnectedState) {
     if (!connectSocket())
       return false;

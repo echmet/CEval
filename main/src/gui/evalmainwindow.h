@@ -6,6 +6,7 @@
 #include <QDataWidgetMapper>
 #include <QSplitter>
 #include "../dataaccumulatormsgs.h"
+#include "../efg/efgloaderinterface.h"
 #include "maincontrolswidget.h"
 #include "qwt_plot.h"
 
@@ -43,18 +44,19 @@ private:
 
   void closeEvent(QCloseEvent *ev) override;
   void makeExportMenus();
-  void makeSupportedFileFormatsActions();
 
 signals:
   void adjustPlotAppearance();
   void exportAction(const DataAccumulatorMsgs::ExportAction action);
   void loadElectrophoregram(const QString &formatTag, const int loadOption);
   void loadDataTable();
+  void requestSupportedFileFormats();
   void saveDataTable();
   void testExporter();
 
 public slots:
   void onProgramModeChanged(const DataAccumulatorMsgs::ProgramMode mode);
+  void onSupportedFileFormatsRetrieved(EFGSupportedFileFormatVec supportedFormats);
 
 private slots:
   void onActionAbout();
@@ -68,7 +70,6 @@ private slots:
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
   void onActionWholePeakToClipboard();
-
 };
 
 #endif // EVALMAINWINDOW_H

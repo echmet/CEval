@@ -197,6 +197,7 @@ int main(int argc, char *argv[])
 
   updater->checkAutomatically();
   w->connectToSoftwareUpdater(updater);
+  EFGLoaderInterface::instance().retrieveSupportedFileFormats();
 
   aRet =  a.exec();
 
