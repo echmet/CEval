@@ -50,7 +50,7 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   else
     delete m_ipcClient;
 
-  m_watcher = new efg::EFGLoaderWatcher(this);
+  m_watcher = new efg::EFGLoaderWatcher();
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   m_ipcClient = new efg::DBusClient();
@@ -66,6 +66,7 @@ EFGLoaderInterface::~EFGLoaderInterface()
   m_myThread->quit();
   m_myThread->wait();
   delete m_myThread;
+  delete m_watcher;
 }
 
 void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)
