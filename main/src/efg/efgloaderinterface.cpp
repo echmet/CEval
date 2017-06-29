@@ -64,7 +64,9 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
 EFGLoaderInterface::~EFGLoaderInterface()
 {
   m_myThread->quit();
-  m_myThread->wait();
+  if (!m_myThread->wait(5000))
+    m_myThread->terminate();
+
   delete m_myThread;
   delete m_watcher;
 }
