@@ -101,6 +101,12 @@ public:
   QAbstractItemModel *windowUnitsModel();
 
 private:
+  enum class DataLockState : int {
+    FREE,
+    LOCKED_FOR_DATA_MODIFICATION,
+    LOCKED_FOR_OPERATION
+  };
+
   enum class Series : int {
     SIG,
     PEAK_HEIGHT,
@@ -137,6 +143,25 @@ private:
     const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
     const EvaluationParametersItems::ComboShowWindow showWindow;
     const EvaluationParametersItems::ComboWindowUnits windowUnits;
+
+  };
+
+  /* NOTE: This is *NOT* a thread synchronization mechanism - do not use it as such!
+     This only prevents slots executing from the same event queue from messing up
+     the data storage. */
+  class DataAccessLocker {
+  public:
+    DataAccessLocker(DataLockState *lockState);
+    ~DataAccessLocker();
+
+    bool lockForDataModification();
+    bool lockForOperation();
+
+  private:
+    bool lock(const DataLockState lockTo);
+
+    DataLockState *m_lockState;
+    DataLockState m_releaseToState;
 
   };
 
@@ -255,6 +280,7 @@ private:
   void fullViewUpdate();
   void initClipboardExporter();
   bool initDataExporter();
+  bool isContextAccessible(DataAccessLocker &locker);
   bool isContextValid() const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr);
@@ -297,6 +323,7 @@ private:
   void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderContext &afContext, const bool updatePeak = false);
 
   /* All data contexts */
+  DataLockState m_dataLockState;
   QMap<QString, std::shared_ptr<DataContext>> m_allDataContexts;
   std::shared_ptr<DataContext> m_currentDataContext;
   QString m_currentDataContextKey;

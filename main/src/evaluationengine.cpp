@@ -174,6 +174,43 @@ EvaluationEngine::AssistedFinderContext & EvaluationEngine::AssistedFinderContex
   return *this;
 }
 
+EvaluationEngine::DataAccessLocker::DataAccessLocker(DataLockState *lockState) :
+  m_lockState(lockState)
+{
+}
+
+EvaluationEngine::DataAccessLocker::~DataAccessLocker()
+{
+  *m_lockState = m_releaseToState;
+}
+
+bool EvaluationEngine::DataAccessLocker::lockForDataModification()
+{
+  return lock(DataLockState::LOCKED_FOR_DATA_MODIFICATION);
+}
+
+bool EvaluationEngine::DataAccessLocker::lockForOperation()
+{
+  return lock(DataLockState::LOCKED_FOR_OPERATION);
+}
+
+bool EvaluationEngine::DataAccessLocker::lock(const DataLockState lockTo)
+{
+  if (*m_lockState == DataLockState::FREE) {
+    *m_lockState = lockTo;
+    m_releaseToState = DataLockState::FREE;
+    return true;
+  }
+
+  if (*m_lockState == lockTo) {
+    m_releaseToState = lockTo;
+    return true;
+  }
+
+  m_releaseToState = *m_lockState;
+  return false;
+}
+
 const EvaluationEngine::PeakContext &EvaluationEngine::StoredPeak::peak() const
 {
   return m_peakCtx;
@@ -212,6 +249,7 @@ EvaluationEngine::EvaluationContext &EvaluationEngine::EvaluationContext::operat
 }
 
 EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent) : QObject(parent),
+  m_dataLockState(DataLockState::FREE),
   m_userInteractionState(UserInteractionState::FINDING_PEAK),
   m_commonParamsEngine(commonParamsEngine),
   m_evaluationAutoValues(s_defaultEvaluationAutoValues),
@@ -489,7 +527,8 @@ QAbstractItemModel *EvaluationEngine::baselineModel()
 
 void EvaluationEngine::beginManualIntegration(const QPointF &from, const bool snap)
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   m_manualPeakSnapFrom = snap;
@@ -761,7 +800,8 @@ MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHv
 
   results[HVLFitResultsItems::Floating::HVL_EPSILON] = s_defaultHvlEpsilon;
 
-  if (!isContextValid()) {
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker)) {
     *ok = false;
     return results;
   }
@@ -929,10 +969,11 @@ QAbstractItemModel *EvaluationEngine::exporterSchemesModel()
 
 void EvaluationEngine::findPeakAssisted()
 {
+  DataAccessLocker locker(&this->m_dataLockState);
   SelectPeakDialog dialog;
   std::shared_ptr<PeakFinderResults> fr;
 
-  if (!isContextValid())
+  if (!isContextAccessible(locker))
     return;
 
   switch (m_userInteractionState) {
@@ -974,7 +1015,8 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
   /* Erase the provisional baseline */
   m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
 
-  if (!isContextValid()) {
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker)) {
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
     m_plotCtx->replot();
     return;
@@ -1080,7 +1122,8 @@ void EvaluationEngine::findPeakPreciseBoundaries()
 {
   std::shared_ptr<PeakFinderResults> fr;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (m_currentDataContext->data->data.length() == 0)
@@ -1193,6 +1236,14 @@ AbstractMapperModel<double, HVLFitResultsItems::Floating> *EvaluationEngine::hvl
 AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *EvaluationEngine::hvlFitOptionsModel()
 {
   return &m_hvlFitOptionsModel;
+}
+
+bool EvaluationEngine::isContextAccessible(DataAccessLocker &locker)
+{
+  if (!locker.lockForOperation())
+    return false;
+
+  return isContextValid();
 }
 
 bool EvaluationEngine::isContextValid() const
@@ -1426,7 +1477,8 @@ AbstractMapperModel<double, EvaluationParametersItems::Floating> *EvaluationEngi
 
 void EvaluationEngine::onAddPeak()
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   m_addPeakDlg->setInformation(m_commonParamsEngine->numValue(CommonParametersItems::Floating::SELECTOR),
@@ -1480,6 +1532,10 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
 
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!locker.lockForDataModification())
+    return;
+
   if (m_allDataContexts.size() == 0)
     return;
   else {
@@ -1512,7 +1568,8 @@ void EvaluationEngine::onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier 
 
 void EvaluationEngine::onCommonParametersChanged()
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   drawEofMarker();
@@ -1584,7 +1641,8 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   QTextStream toCopy(&out, QIODevice::WriteOnly);
   QChar delimiter;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (m_ctcDelimiter == "\\t")
@@ -1637,6 +1695,10 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, QString fileID, QStri
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
+
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!locker.lockForDataModification())
+    return;
 
   /* Empty file ID, file is coming from a temporary storage such as clipboard */
   if (fileID.compare("") == 0) {
@@ -1723,7 +1785,8 @@ void EvaluationEngine::onDoHvlFit()
 {
   bool ok;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> results = doHvlFit(m_currentPeak.finderResults,
@@ -1761,6 +1824,10 @@ void EvaluationEngine::onEvaluationFileSwitched(const int idx)
 {
   QVariant var;
   QString key;
+
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!locker.lockForDataModification())
+    return;
 
   if (m_allDataContexts.size() == 0)
     return;
@@ -1800,7 +1867,8 @@ void EvaluationEngine::onExportScheme()
   DataExporter::AbstractExporterBackend *backend = nullptr;
   uint32_t exportOpts = 0;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   const DataExporter::Scheme *s = m_dataExporter.scheme(m_currentDataExporterSchemeId);
@@ -1941,7 +2009,8 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
 {
   Q_UNUSED(cursor)
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
@@ -1974,7 +2043,8 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
 {
   QAction *trig;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   switch (m_userInteractionState) {
@@ -2006,7 +2076,8 @@ void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const 
 {
   bool ok;
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (!index.isValid())
@@ -2037,7 +2108,8 @@ void EvaluationEngine::onProvisionalPeakSelected(const QModelIndex index, const 
 
 void EvaluationEngine::onReadEof()
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (!m_currentPeak.finderResults->isValid())
@@ -2052,7 +2124,8 @@ void EvaluationEngine::onReadEof()
 
 void EvaluationEngine::onRegisterPeakInHyperbolaFit(const QModelIndex &idx)
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (!idx.isValid())
@@ -2095,7 +2168,8 @@ void EvaluationEngine::onRegisterPeakInHyperbolaFit(const QModelIndex &idx)
 
 void EvaluationEngine::onRenamePeak(const QModelIndex &idx)
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (!idx.isValid())
@@ -2120,7 +2194,8 @@ void EvaluationEngine::onRenamePeak(const QModelIndex &idx)
 
 void EvaluationEngine::onReplotHvl()
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (!m_currentPeak.finderResults->isValid())
@@ -2164,6 +2239,13 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
   if (!m_allDataContexts.contains(m_currentDataContextKey))
     return;
 
+  if (m_exportOnFileLeftEnabled)
+    onExportScheme();
+
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!locker.lockForDataModification())
+    return;
+
   DataMap::ConstIterator cit = m_allDataContexts.find(m_currentDataContextKey);
 
   switch (dir) {
@@ -2179,8 +2261,6 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
     break;
   }
 
-  if (m_exportOnFileLeftEnabled)
-    onExportScheme();
 
   switchEvaluationContext(cit.key());
 
@@ -2508,7 +2588,8 @@ void EvaluationEngine::setEofTime(const QPointF &point)
 {
   const double tEof = point.x();
 
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
     return;
 
   if (tEof < 0 || tEof >= m_currentDataContext->data->data.back().x())
@@ -2674,9 +2755,10 @@ void EvaluationEngine::switchEvaluationContext(const QString &key)
 
 void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit)
 {
+  DataAccessLocker locker(&this->m_dataLockState);
   int length;
 
-  if (!isContextValid())
+  if (!isContextAccessible(locker))
     return;
 
   if (m_currentDataContext->data == nullptr)
@@ -2734,7 +2816,9 @@ void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWi
 
 double EvaluationEngine::timeStep(const int fromIdx, const int toIdx)
 {
-  if (!isContextValid())
+  DataAccessLocker locker(&this->m_dataLockState);
+
+  if (!isContextAccessible(locker))
     return 1.0;
 
   if (m_currentDataContext->data == nullptr)
