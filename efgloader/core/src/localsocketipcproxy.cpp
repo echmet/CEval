@@ -64,10 +64,11 @@ bool checkSig(const P &packet, const R requestType)
 bool writeSegmented(QLocalSocket *socket, const char *payload, const qint64 bytesToWrite)
 {
 #ifdef Q_OS_WIN
+  const qint64 MAX_SEGMENT_SIZE = 4095;
   qint64 written = 0;
 
   while (written < bytesToWrite) {
-    const qint64 writeMax = (bytesToWrite - written) > 2048 ? 2048 : (bytesToWrite - written);
+    const qint64 writeMax = (bytesToWrite - written) > MAX_SEGMENT_SIZE ? MAX_SEGMENT_SIZE : (bytesToWrite - written);
     const qint64 w = socket->write(payload + written, writeMax);
     if (w < 1)
       return false;
