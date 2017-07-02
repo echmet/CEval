@@ -8,7 +8,7 @@ const int Globals::VERSION_MIN = 6;
 const QString Globals::VERSION_REV = "g";
 
 const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\xC3\xBD", "pavel.dubsky@natur.cuni.cz"),
-                                                            Globals::DeveloperID("Magda \xC3\x96rd\xC3\xB6gov\xC3\xA1", "magda.ordogova@natur.cuni.cz"),
+                                                            Globals::DeveloperID("Magda Dovhunov\xC3\xA1", "magda.ordogova@natur.cuni.cz"),
                                                             Globals::DeveloperID("Michal Mal\xC3\xBD", "malymi@natur.cuni.cz")
                                                           };
 
