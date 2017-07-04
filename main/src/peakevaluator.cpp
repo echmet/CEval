@@ -6,7 +6,7 @@
 #include <QMessageBox>
 #include <QVector>
 
-const double PeakEvaluator::Sqrt1_8log2 = sqrt(1.0 / (8.0 * log(2.0)));
+const double PeakEvaluator::Sqrt1_8log2 = std::sqrt(1.0 / (8.0 * std::log(2.0)));
 
 PeakEvaluator::Parameters::Parameters(const QVector<QPointF> &data) :
   data(data)
