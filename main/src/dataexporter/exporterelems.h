@@ -88,8 +88,8 @@ private:
 
 };
 
-typedef QMap<QString, ExportableRoot *> ExportablesMap;
-typedef QMap<QString, SelectedExportable *> SelectedExportablesMap;
+typedef QHash<QString, ExportableRoot *> ExportablesMap;
+typedef QHash<QString, SelectedExportable *> SelectedExportablesMap;
 
 class SchemeBaseRoot {
 public:
