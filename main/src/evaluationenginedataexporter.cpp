@@ -77,6 +77,10 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "Sigma (m)", SIGMA_MET);
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "N", N);
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "HETP", N_H);
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_APEX));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_APEX));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_CENTROID));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_CENTROID));
 
   auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
@@ -86,16 +90,21 @@ void EvaluationEngine::initClipboardExporter()
 
     int blockCtr = 0;
     for (const DataExporter::SelectedExportable *se : seMap) {
-      backend.addCell(new Cell(se->displayName + " left", "", Cell::SINGLE), blockCtr, 0);
-      backend.addCell(new Cell(se->displayName + " right", "", Cell::SINGLE), blockCtr, 1);
-      backend.addCell(new Cell(se->displayName + " full", "", Cell::SINGLE), blockCtr, 2);
+      if (se->value(exportee).canConvert<PeakDimsTuple>()) {
+        PeakDimsTuple dims = se->value(exportee).value<PeakDimsTuple>();
 
-      blockCtr++;
+        backend.addCell(new Cell(se->displayName + " left", "", Cell::SINGLE), blockCtr, 0);
+        backend.addCell(new Cell(se->displayName + " right", "", Cell::SINGLE), blockCtr, 1);
+        backend.addCell(new Cell(se->displayName + " full", "", Cell::SINGLE), blockCtr, 2);
 
-      PeakDimsTuple dims = se->value(exportee).value<PeakDimsTuple>();
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.left), "", Cell::SINGLE), blockCtr, 0);
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.right), "", Cell::SINGLE), blockCtr, 1);
-      backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.full), "", Cell::SINGLE), blockCtr, 2);
+        blockCtr++;
+
+        backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.left), "", Cell::SINGLE), blockCtr, 0);
+        backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.right), "", Cell::SINGLE), blockCtr, 1);
+        backend.addCell(new Cell(DoubleToStringConvertor::convert(dims.full), "", Cell::SINGLE), blockCtr, 2);
+      } else if (se->value(exportee).canConvert<double>()) {
+        backend.addCell(new Cell(se->displayName, DoubleToStringConvertor::convert(se->value(exportee).toDouble())), blockCtr, 0);
+      }
 
       blockCtr++;
     }
@@ -141,6 +150,10 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Sigma (m)", 3);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "N", 4);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "HETP", 5);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (apex)", 6);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (apex)", 7);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (centroid)", 8);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (centroid)", 9);
 
   m_ctcEofScheme = new DataExporter::Scheme("EOF", seEof, m_ctcEofSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
   m_ctcHvlScheme = new DataExporter::Scheme("HVL", seHvl, m_ctcHvlSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
