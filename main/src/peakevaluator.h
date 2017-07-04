@@ -61,6 +61,7 @@ public:
     double peakHeightBaseline;
 
     double peakArea;
+    QVector<QPointF> baselineCorrectedPeak;
 
     double widthHalfLeft;
     double widthHalfRight;
@@ -82,6 +83,11 @@ public:
     double nHLeft;
     double nHRight;
     double nHFull;
+
+    double varianceApex;
+    double varianceCentroid;
+    double sigmaApex;
+    double sigmaCentroid;
 
     double HVL_width005;
     double HVL_width005Left;
@@ -111,7 +117,9 @@ public:
   static Results estimateHvl(const Results &ir, const Parameters &p);
 
 private:
-\
+  static void calculateArea(Results &r, const Parameters &p);
+  static void calculateVariances(Results &r, const Parameters &p);
+
   static const double Sqrt1_8log2;
 
 };

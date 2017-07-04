@@ -37,6 +37,10 @@ public:
     N_H_LEFT,
     N_H_RIGHT,
     N_H_FULL,
+    VARIANCE_APEX,
+    VARIANCE_CENTROID,
+    SIGMA_APEX,
+    SIGMA_CENTROID,
     LAST_INDEX
   };
 

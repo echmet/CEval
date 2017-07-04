@@ -1449,6 +1449,10 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::PEAK_HEIGHT] = er.peakHeight;
   resultsValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = er.peakHeightBaseline;
   resultsValues[EvaluationResultsItems::Floating::PEAK_AREA] = er.peakArea;
+  resultsValues[EvaluationResultsItems::Floating::VARIANCE_APEX] = er.varianceApex;
+  resultsValues[EvaluationResultsItems::Floating::VARIANCE_CENTROID] = er.varianceCentroid;
+  resultsValues[EvaluationResultsItems::Floating::SIGMA_APEX] = er.sigmaApex;
+  resultsValues[EvaluationResultsItems::Floating::SIGMA_CENTROID] = er.sigmaCentroid;
 
   return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues);
 }
@@ -2417,7 +2421,6 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     HVL_a1 = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
     HVL_a2 = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_A2);
     HVL_a3 = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_A3);
-    er.peakArea = srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_AREA);
     hvlEpsilon = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
     hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);

@@ -39,6 +39,53 @@ void PeakEvaluator::Results::validateHvl()
   m_isHvlValid = true;
 }
 
+void PeakEvaluator::calculateArea(Results &r, const Parameters &p)
+{
+  /* Subtracting baseline */
+  r.baselineCorrectedPeak.reserve(p.toIndex - p.fromIndex + 1);
+  for (int i = p.fromIndex; i <= p.toIndex; i++)
+    r.baselineCorrectedPeak.push_back(QPointF(p.data.at(i).x(), p.data[i].y() - (r.baselineSlope * p.data[i].x() + r.baselineIntercept)));
+
+  r.peakArea = 0.0;
+  for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++)
+    r.peakArea += ((r.baselineCorrectedPeak.at(idx).y() + r.baselineCorrectedPeak.at(idx - 1).y()) / 2.0) * (p.data.at(idx + p.fromIndex).x() - p.data.at(idx - 1 + p.fromIndex).x());
+}
+
+void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
+{
+  auto variance = [&r, &p](const double moment) {
+    double result = 0.0;
+
+    for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++) {
+      const QPointF &dataPt = r.baselineCorrectedPeak.at(idx);
+      const double dx = dataPt.x() - r.baselineCorrectedPeak.at(idx - 1).x();
+
+      result += dataPt.y() * std::pow(dataPt.x() - moment, 2) * dx;
+    }
+
+    return result / r.peakArea;
+  };
+
+  const double centroid = [&r, &p] {
+    double result = 0.0;
+
+    for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++) {
+      const QPointF &dataPt = r.baselineCorrectedPeak.at(idx);
+      const double dx = dataPt.x() - r.baselineCorrectedPeak.at(idx - 1).x();
+
+      result += dataPt.y() * dataPt.x() * dx;
+    }
+
+    return result / r.peakArea;
+  }();
+
+  r.varianceApex = variance(r.peakX);
+  r.varianceCentroid = variance(centroid);
+  r.sigmaApex = std::sqrt(r.varianceApex);
+  r.sigmaCentroid = std::sqrt(r.varianceCentroid);
+}
+
+
 PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Parameters &p)
 {
   static auto isInputValid = [](const Parameters &p) {
@@ -54,28 +101,17 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     return r;
   }
 
-  QVector<double> peak_subtracted;
-
-  /* Subtracting baseline */
-  peak_subtracted.reserve(p.toIndex - p.fromIndex + 1);
-  for (int i = p.fromIndex; i <= p.toIndex; i++)
-    peak_subtracted.push_back(Data[i].y() - (r.baselineSlope * Data[i].x() + r.baselineIntercept));
-
-  r.peakArea = 0.0;
-  for (int idx = 1; idx < peak_subtracted.size(); idx++)
-    r.peakArea += ((peak_subtracted.at(idx) + peak_subtracted.at(idx - 1)) / 2.0) * (Data.at(idx + p.fromIndex).x() - Data.at(idx - 1 + p.fromIndex).x());
-
   /* Height (5 %) */
   int i_w005, j_w005;
 
   /* TODO: Peak base search should probably take the baseline noise into account */
   const int centerIndex = ir.peakIndex - p.fromIndex;
 
-  for (i_w005 = centerIndex; i_w005 > 0 && std::abs(peak_subtracted.at(i_w005)) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
+  for (i_w005 = centerIndex; i_w005 > 0 && std::abs(r.baselineCorrectedPeak.at(i_w005).y()) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
 
   double width005Left = r.peakX - Data.at(i_w005 + p.fromIndex).x();
 
-  for (j_w005 = centerIndex; j_w005 < peak_subtracted.size() && std::abs(peak_subtracted.at(j_w005)) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
+  for (j_w005 = centerIndex; j_w005 < r.baselineCorrectedPeak.size() && std::abs(r.baselineCorrectedPeak.at(j_w005).y()) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
 
   double width005Right = Data.at(j_w005 + p.fromIndex).x() - r.peakX;
 
@@ -298,6 +334,9 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
     r.vP /= 1.0e-3;
   if (std::isfinite(r.vP_Eff))
     r.vP_Eff /= 1.0e-3;
+
+  calculateArea(r, p);
+  calculateVariances(r, p);
 
   r.validate();
 
