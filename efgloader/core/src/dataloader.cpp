@@ -12,6 +12,7 @@
   #define DYNAMIC_LIB_SUFFIX ".dylib"
 #endif // Q_OS_
 
+#define BACKENDS_DIRECTORY "efgbackends"
 
 FileFormatInfo::FileFormatInfo() :
   longDescription(""),
@@ -96,8 +97,7 @@ Data::Data(const QString &path, const QString &name, const QString &xDescription
 DataLoader::DataLoader(QObject *parent) :
   QObject(parent)
 {
-  if (!loadPlugins())
-    throw std::runtime_error{"Cannot load backends"};
+  loadPlugins();
 }
 
 DataLoader::~DataLoader()
@@ -192,8 +192,8 @@ std::tuple<std::vector<Data>, bool, QString> DataLoader::loadDataPath(const QStr
 bool DataLoader::loadPlugins()
 {
   QDir dir = QDir::current();
-  if (!dir.cd("efgbackends"))
-    return false;
+  if (!dir.cd(BACKENDS_DIRECTORY))
+    throw std::runtime_error{"Cannot access \"" BACKENDS_DIRECTORY  "\" directory"};
 
   QStringList files = dir.entryList(QDir::Files | QDir::NoDotAndDotDot);
 
@@ -207,6 +207,9 @@ bool DataLoader::loadPlugins()
     else
       initializePlugin(dir.filePath(s));
   }
+
+  if (m_backendInstances.size() < 1)
+    throw std::runtime_error{"No backends are available"};
 
   return true;
 }

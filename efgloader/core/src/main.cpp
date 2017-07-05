@@ -1,4 +1,5 @@
 #include <QApplication>
+#include <QMessageBox>
 #include <QTimer>
 #include <iostream>
 #include "dataloader.h"
@@ -124,10 +125,8 @@ void watchForMainProcess(QTimer *&timer, const char *pidStr)
 int main(int argc, char *argv[])
 {
   QApplication a{argc, argv};
-  DataLoader loader{};
   IPCProxy *proxy;
   QTimer *timer = nullptr;
-
 
   if (argc > 1)
     watchForMainProcess(timer, argv[1]);
@@ -136,20 +135,32 @@ int main(int argc, char *argv[])
   catchTermination();
 
   try {
-    proxy = provisionIPCInterface(&loader);
-  } catch (std::exception &ex) {
-    std::cerr << "Cannot start CEval data loader: " << ex.what() << std::endl;
+    DataLoader loader{};
+
+    try {
+      proxy = provisionIPCInterface(&loader);
+    } catch (std::exception &ex) {
+      std::cerr << "Cannot start CEval data loader: " << ex.what() << std::endl;
+
+      return EXIT_FAILURE;
+    }
+
+    int ret = a.exec();
+
+    if (timer != nullptr && timer->isActive())
+      timer->stop();
+    delete timer;
+
+    delete proxy;
+
+    return ret;
+  } catch (std::runtime_error &ex) {
+    QMessageBox msg{QMessageBox::Critical, QObject::tr("Cannot start CEvalEFGLoader"), ex.what(), QMessageBox::Ok};
+    QObject::connect(&msg, &QMessageBox::finished, qApp, &QApplication::quit);
+
+    msg.show();
+    a.exec();
 
     return EXIT_FAILURE;
   }
-
-  int ret = a.exec();
-
-  if (timer != nullptr && timer->isActive())
-    timer->stop();
-  delete timer;
-
-  delete proxy;
-
-  return ret;
 }
