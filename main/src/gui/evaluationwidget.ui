@@ -619,7 +619,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-470</y>
+            <y>-501</y>
             <width>742</width>
             <height>1033</height>
            </rect>
@@ -2165,7 +2165,11 @@ padding-right: 2em;</string>
                  </widget>
                 </item>
                 <item row="2" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_centroidX"/>
+                 <widget class="FloatingValueLineEdit" name="qle_centroidX">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>
