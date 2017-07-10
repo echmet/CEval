@@ -1453,6 +1453,7 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::VARIANCE_CENTROID] = er.varianceCentroid;
   resultsValues[EvaluationResultsItems::Floating::SIGMA_APEX] = er.sigmaApex;
   resultsValues[EvaluationResultsItems::Floating::SIGMA_CENTROID] = er.sigmaCentroid;
+  resultsValues[EvaluationResultsItems::Floating::CENTROID_X] = er.centroidX;
 
   return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues);
 }

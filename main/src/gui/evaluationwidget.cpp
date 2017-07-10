@@ -401,6 +401,7 @@ void EvaluationWidget::setEvaluationResultsModel(AbstractMapperModel<double, Eva
   m_evaluationResultsMapper->addMapping(ui->qle_varianceCentroid, model->indexFromItem(EvaluationResultsItems::Floating::VARIANCE_CENTROID));
   m_evaluationResultsMapper->addMapping(ui->qle_sigmaApex, model->indexFromItem(EvaluationResultsItems::Floating::SIGMA_APEX));
   m_evaluationResultsMapper->addMapping(ui->qle_sigmaCentroid, model->indexFromItem(EvaluationResultsItems::Floating::SIGMA_CENTROID));
+  m_evaluationResultsMapper->addMapping(ui->qle_centroidX, model->indexFromItem(EvaluationResultsItems::Floating::CENTROID_X));
   m_evaluationResultsMapper->toFirst();
 }
 

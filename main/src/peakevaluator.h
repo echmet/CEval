@@ -84,6 +84,7 @@ public:
     double nHRight;
     double nHFull;
 
+    double centroidX;
     double varianceApex;
     double varianceCentroid;
     double sigmaApex;

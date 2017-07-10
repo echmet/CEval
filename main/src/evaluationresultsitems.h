@@ -41,6 +41,7 @@ public:
     VARIANCE_CENTROID,
     SIGMA_APEX,
     SIGMA_CENTROID,
+    CENTROID_X,
     LAST_INDEX
   };
 

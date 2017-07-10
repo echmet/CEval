@@ -83,6 +83,7 @@ void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
   r.varianceCentroid = variance(centroid);
   r.sigmaApex = std::sqrt(r.varianceApex);
   r.sigmaCentroid = std::sqrt(r.varianceCentroid);
+  r.centroidX = centroid;
 }
 
 
