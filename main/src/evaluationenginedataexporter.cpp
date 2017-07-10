@@ -81,6 +81,7 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_APEX));
   MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_CENTROID));
   MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_CENTROID));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Centroid at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::CENTROID_X));
 
   auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
@@ -154,6 +155,7 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (apex)", 7);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (centroid)", 8);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (centroid)", 9);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Centroid at X", 10);
 
   m_ctcEofScheme = new DataExporter::Scheme("EOF", seEof, m_ctcEofSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
   m_ctcHvlScheme = new DataExporter::Scheme("HVL", seHvl, m_ctcHvlSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
