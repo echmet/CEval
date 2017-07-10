@@ -88,6 +88,8 @@ const QString EvaluationEngine::s_serieHVLTitle = QString(QObject::tr("HVL"));
 const QString EvaluationEngine::s_serieBaselineFromTitle = QString(QObject::tr("Baseline from"));
 const QString EvaluationEngine::s_serieBaselineToTitle = QString(QObject::tr("Baseline from"));
 const QString EvaluationEngine::s_serieProvisionalBaseline = QString(QObject::tr("Provisional baseline"));
+const QString EvaluationEngine::s_serieA1Param = QString(QObject::tr("a1 parameter"));
+const QString EvaluationEngine::s_seriePeakCentroid = QString(QObject::tr("Peak centroid"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
@@ -503,6 +505,12 @@ void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
   if (!m_plotCtx->addSerie(seriesIndex(Series::PROV_BASELINE), s_serieProvisionalBaseline, SerieProperties::VisualStyle(QPen(QBrush(QColor(23, 73, 255), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieProvisionalBaseline));
 
+  if (!m_plotCtx->addSerie(seriesIndex(Series::A1_PARAM), s_serieA1Param, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieA1Param));
+
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_CENTROID), s_seriePeakCentroid, SerieProperties::VisualStyle(QPen(QBrush(QColor(44, 167, 17), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakCentroid));
+
   connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
@@ -595,6 +603,8 @@ void EvaluationEngine::clearPeakPlots()
   m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_FROM));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::A1_PARAM));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_CENTROID));
 
   m_plotCtx->replot();
 }
@@ -895,7 +905,8 @@ void EvaluationEngine::displayCurrentPeak()
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
-                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
+                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::CENTROID_X));
   setEvaluationResults(m_currentPeak);
   displayAssistedFinderData(m_currentPeak.afContext);
 }
@@ -2286,7 +2297,8 @@ void EvaluationEngine::onUnhighlightProvisionalPeak()
 
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                                          const double widthHalfLeft, const double widthHalfRight,
-                                         const double peakHeight, const double peakHeightBaseline)
+                                         const double peakHeight, const double peakHeightBaseline,
+                                         const double centroidX)
 {
   /* Draw the baseline */
   {
@@ -2330,8 +2342,15 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     }
   }
 
-  /* HVL estimate */
+  /* HVL curve */
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), m_currentPeak.hvlPlot);
+
+  /* Visual representation of HVL a1 parameter */
+  {
+    const double a1 = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::A1_PARAM), { QPointF(a1, peakHeight),
+                                                                QPointF(a1, peakHeight - peakHeightBaseline) });
+  }
 
   /* Mark the beginning and the end of the peak */
   {
@@ -2347,6 +2366,9 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     m_plotCtx->setSerieSamples(seriesIndex(Series::BASELINE_FROM), blFrom);
     m_plotCtx->setSerieSamples(seriesIndex(Series::BASELINE_TO), blTo);
   }
+
+  /* Mark the peak X centroid */
+  m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_CENTROID), { QPointF(centroidX, peakHeight - peakHeightBaseline), QPointF(centroidX, peakHeight) });
 
   m_plotCtx->replot();
 }
@@ -2518,6 +2540,13 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
 
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
 
+  {
+    const double yFrom = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT);
+    const double yTo = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT) - m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL);
+    m_plotCtx->setSerieSamples(seriesIndex(Series::A1_PARAM), { QPointF(a1, yFrom),
+                                                                QPointF(a1, yTo) });
+  }
+
   m_plotCtx->replot();
 }
 
@@ -2663,7 +2692,8 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
-                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL));
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::CENTROID_X));
 
   return true;
 }

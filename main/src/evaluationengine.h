@@ -120,6 +120,8 @@ private:
     BASELINE_FROM,
     BASELINE_TO,
     PROV_BASELINE,
+    A1_PARAM,
+    PEAK_CENTROID,
     LAST_INDEX
   };
 
@@ -301,7 +303,8 @@ private:
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
-                         const double peakHeight, const double peakHeightBaseline);
+                         const double peakHeight, const double peakHeightBaseline,
+                         const double centroidX);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
   PeakContext processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr,
                                const AssistedFinderContext &afContext, const bool updateCurrentPeak, const bool doHvlFitRq,
@@ -393,6 +396,8 @@ private:
   static const QString s_serieBaselineFromTitle;
   static const QString s_serieBaselineToTitle;
   static const QString s_serieProvisionalBaseline;
+  static const QString s_serieA1Param;
+  static const QString s_seriePeakCentroid;
 
   static const QString s_emptyCtxKey;
 
