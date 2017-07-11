@@ -235,7 +235,7 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
     }
 
     auto efgData = std::shared_ptr<EFGData>(new EFGData(nativeDatapoints,
-                                                        QString::fromUtf8(xDescBA), QString::fromUtf8(yUnitBA),
+                                                        QString::fromUtf8(xDescBA), QString::fromUtf8(xUnitBA),
                                                         QString::fromUtf8(yDescBA), QString::fromUtf8(yUnitBA)));
     ndVec.push_back(NativeData(efgData, QString::fromUtf8(pathBA), QString::fromUtf8(nameBA)));
   }
