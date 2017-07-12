@@ -79,9 +79,9 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_EXPORTABLE_DIMS(peakDims, EvaluationEngine, "HETP", N_H);
   MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_APEX));
   MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_APEX));
-  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_CENTROID));
-  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (centroid)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_CENTROID));
-  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Centroid at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::CENTROID_X));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Variance (mean)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_MEAN));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "\xCF\x83 (mean)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MEAN));
+  MAKE_EXPORTABLE(peakDims, EvaluationEngine, "Mean at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::MEAN_X));
 
   auto peakDimsExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;
@@ -153,9 +153,9 @@ void EvaluationEngine::initClipboardExporter()
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "HETP", 5);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (apex)", 6);
   MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (apex)", 7);
-  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (centroid)", 8);
-  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (centroid)", 9);
-  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Centroid at X", 10);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Variance (mean)", 8);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "\xCF\x83 (mean)", 9);
+  MAKE_SELECTED_EXPORTABLE_CTC(peakDims, sePeakDims, "Mean at X", 10);
 
   m_ctcEofScheme = new DataExporter::Scheme("EOF", seEof, m_ctcEofSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);
   m_ctcHvlScheme = new DataExporter::Scheme("HVL", seHvl, m_ctcHvlSchemeBase, DataExporter::Globals::DataArrangement::VERTICAL);

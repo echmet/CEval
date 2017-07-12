@@ -2098,7 +2098,7 @@ padding-right: 2em;</string>
                 <item row="1" column="0">
                  <widget class="QLabel" name="ql_varianceCentroid">
                   <property name="text">
-                   <string>Variance (centroid)</string>
+                   <string>Variance (mean)</string>
                   </property>
                  </widget>
                 </item>
@@ -2122,7 +2122,7 @@ padding-right: 2em;</string>
                 <item row="1" column="2">
                  <widget class="QLabel" name="ql_sigmaCentroid">
                   <property name="text">
-                   <string>σ (centroid)</string>
+                   <string>σ (mean)</string>
                   </property>
                  </widget>
                 </item>
@@ -2160,7 +2160,7 @@ padding-right: 2em;</string>
                 <item row="2" column="0">
                  <widget class="QLabel" name="label">
                   <property name="text">
-                   <string>Centroid at X</string>
+                   <string>Mean at X</string>
                   </property>
                  </widget>
                 </item>

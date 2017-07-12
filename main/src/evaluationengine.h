@@ -121,7 +121,7 @@ private:
     BASELINE_TO,
     PROV_BASELINE,
     A1_PARAM,
-    PEAK_CENTROID,
+    PEAK_MEAN,
     LAST_INDEX
   };
 
@@ -397,7 +397,7 @@ private:
   static const QString s_serieBaselineToTitle;
   static const QString s_serieProvisionalBaseline;
   static const QString s_serieA1Param;
-  static const QString s_seriePeakCentroid;
+  static const QString s_seriePeakMean;
 
   static const QString s_emptyCtxKey;
 

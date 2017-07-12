@@ -89,7 +89,7 @@ const QString EvaluationEngine::s_serieBaselineFromTitle = QString(QObject::tr("
 const QString EvaluationEngine::s_serieBaselineToTitle = QString(QObject::tr("Baseline from"));
 const QString EvaluationEngine::s_serieProvisionalBaseline = QString(QObject::tr("Provisional baseline"));
 const QString EvaluationEngine::s_serieA1Param = QString(QObject::tr("a1 parameter"));
-const QString EvaluationEngine::s_seriePeakCentroid = QString(QObject::tr("Peak centroid"));
+const QString EvaluationEngine::s_seriePeakMean = QString(QObject::tr("Peak mean"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
@@ -508,8 +508,8 @@ void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
   if (!m_plotCtx->addSerie(seriesIndex(Series::A1_PARAM), s_serieA1Param, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieA1Param));
 
-  if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_CENTROID), s_seriePeakCentroid, SerieProperties::VisualStyle(QPen(QBrush(QColor(44, 167, 17), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
-    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakCentroid));
+  if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_MEAN), s_seriePeakMean, SerieProperties::VisualStyle(QPen(QBrush(QColor(44, 167, 17), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakMean));
 
   connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
@@ -604,7 +604,7 @@ void EvaluationEngine::clearPeakPlots()
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_FROM));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::A1_PARAM));
-  m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_CENTROID));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_MEAN));
 
   m_plotCtx->replot();
 }
@@ -906,7 +906,7 @@ void EvaluationEngine::displayCurrentPeak()
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
-                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::CENTROID_X));
+                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::MEAN_X));
   setEvaluationResults(m_currentPeak);
   displayAssistedFinderData(m_currentPeak.afContext);
 }
@@ -1461,10 +1461,10 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = er.peakHeightBaseline;
   resultsValues[EvaluationResultsItems::Floating::PEAK_AREA] = er.peakArea;
   resultsValues[EvaluationResultsItems::Floating::VARIANCE_APEX] = er.varianceApex;
-  resultsValues[EvaluationResultsItems::Floating::VARIANCE_CENTROID] = er.varianceCentroid;
+  resultsValues[EvaluationResultsItems::Floating::VARIANCE_MEAN] = er.varianceMean;
   resultsValues[EvaluationResultsItems::Floating::SIGMA_APEX] = er.sigmaApex;
-  resultsValues[EvaluationResultsItems::Floating::SIGMA_CENTROID] = er.sigmaCentroid;
-  resultsValues[EvaluationResultsItems::Floating::CENTROID_X] = er.centroidX;
+  resultsValues[EvaluationResultsItems::Floating::SIGMA_MEAN] = er.sigmaMean;
+  resultsValues[EvaluationResultsItems::Floating::MEAN_X] = er.meanX;
 
   return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues);
 }
@@ -2368,7 +2368,7 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
   }
 
   /* Mark the peak X centroid */
-  m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_CENTROID), { QPointF(centroidX, peakHeight - peakHeightBaseline), QPointF(centroidX, peakHeight) });
+  m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_MEAN), { QPointF(centroidX, peakHeight - peakHeightBaseline), QPointF(centroidX, peakHeight) });
 
   m_plotCtx->replot();
 }
@@ -2693,7 +2693,7 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
-                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::CENTROID_X));
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::MEAN_X));
 
   return true;
 }

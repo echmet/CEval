@@ -66,7 +66,7 @@ void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
     return result / r.peakArea;
   };
 
-  const double centroid = [&r, &p] {
+  const double mean = [&r, &p] {
     double result = 0.0;
 
     for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++) {
@@ -80,10 +80,10 @@ void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
   }();
 
   r.varianceApex = variance(r.peakX);
-  r.varianceCentroid = variance(centroid);
+  r.varianceMean = variance(mean);
   r.sigmaApex = std::sqrt(r.varianceApex);
-  r.sigmaCentroid = std::sqrt(r.varianceCentroid);
-  r.centroidX = centroid;
+  r.sigmaMean= std::sqrt(r.varianceMean);
+  r.meanX = mean;
 }
 
 

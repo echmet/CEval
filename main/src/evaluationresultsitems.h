@@ -38,10 +38,10 @@ public:
     N_H_RIGHT,
     N_H_FULL,
     VARIANCE_APEX,
-    VARIANCE_CENTROID,
+    VARIANCE_MEAN,
     SIGMA_APEX,
-    SIGMA_CENTROID,
-    CENTROID_X,
+    SIGMA_MEAN,
+    MEAN_X,
     LAST_INDEX
   };
 

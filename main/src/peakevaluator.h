@@ -84,11 +84,11 @@ public:
     double nHRight;
     double nHFull;
 
-    double centroidX;
+    double meanX;
     double varianceApex;
-    double varianceCentroid;
+    double varianceMean;
     double sigmaApex;
-    double sigmaCentroid;
+    double sigmaMean;
 
     double HVL_width005;
     double HVL_width005Left;
