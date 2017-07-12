@@ -21,6 +21,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
 
   ui->qle_hvlDigits->setDisabled(ui->qcb_hvlAutoDigits->checkState() == Qt::Checked);
 
+  ui->qtabw_evaluation->setTabEnabled(2, false); /* HACK: Forcibly disable data export by making its controls inaccessible */
+
   connect(ui->qpb_defaultFinderParameters, &QPushButton::clicked, this, &EvaluationWidget::onDefaultFinderParametersClicked);
   connect(ui->qcbox_baselineAlgorithm, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onBaselineComboBoxChanged);
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);
