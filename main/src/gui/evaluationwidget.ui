@@ -622,9 +622,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>0</y>
+            <y>-582</y>
             <width>742</width>
-            <height>1033</height>
+            <height>1170</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2161,7 +2161,7 @@ padding-right: 2em;</string>
                  </widget>
                 </item>
                 <item row="2" column="0">
-                 <widget class="QLabel" name="label">
+                 <widget class="QLabel" name="ql_meanAtX">
                   <property name="text">
                    <string>Mean at X</string>
                   </property>
@@ -2169,6 +2169,68 @@ padding-right: 2em;</string>
                 </item>
                 <item row="2" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_centroidX">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="title">
+              <string>HVL extrapolation</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QCheckBox" name="qcb_enableHvlExtrapolation">
+                <property name="text">
+                 <string>Enable HVL extrapolation</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <layout class="QGridLayout" name="gridLayout_8">
+                <item row="0" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlExtrSigmaMean">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="ql_hvlExtrSignaMean">
+                  <property name="text">
+                   <string>σ (mean)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlExtrVarianceMean">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="ql_hvlExtrVarianceMean">
+                  <property name="text">
+                   <string>Variance (mean)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="ql_hvlExtrMeanAtX">
+                  <property name="text">
+                   <string>Mean at X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlExtrMeanAtX">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
