@@ -122,6 +122,7 @@ private:
     PROV_BASELINE,
     A1_PARAM,
     PEAK_MEAN,
+    HVL_EXTRAPOLATED,
     LAST_INDEX
   };
 
@@ -191,12 +192,23 @@ private:
                          const AssistedFinderContext &afContext,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const double baselineSlope, const double baselineIntercept,
-                         const QVector<QPointF> &hvlPlot);
+                         const QVector<QPointF> &hvlPlot,
+                         const QVector<QPointF> &hvlPlotExtrapolated);
+    explicit PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+                         const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                         const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                         const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                         const AssistedFinderContext &afContext,
+                         const std::shared_ptr<PeakFinderResults::Result> &finderResults,
+                         const double baselineSlope, const double baselineIntercept,
+                         QVector<QPointF> &&hvlPlot,
+                         QVector<QPointF> &&hvlPlotExtrapolated);
     PeakContext(const PeakContext &other);
     void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
                        const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitBooleanValues);
-    void updateHvlPlot(const QVector<QPointF> &plot);
+    void updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated);
+    void updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
@@ -207,8 +219,10 @@ private:
     const double baselineSlope;
     const double baselineIntercept;
     const QVector<QPointF> hvlPlot;
+    const QVector<QPointF> hvlPlotExtrapolated;
 
     PeakContext &operator=(const PeakContext &other);
+    PeakContext &operator=(PeakContext &&other);
   };
 
   class StoredPeak {
@@ -291,7 +305,14 @@ private:
                               const AssistedFinderContext &afContext,
                               const std::shared_ptr<PeakFinderResults::Result>  &fr,
                               const PeakEvaluator::Results &er,
-                              const QVector<QPointF> &hvlPlot) const;
+                              const QVector<QPointF> &hvlPlot,
+                              const QVector<QPointF> &hvlPlotExtrapolated) const;
+  PeakContext makePeakContext(const PeakContextModels &models,
+                              const AssistedFinderContext &afContext,
+                              const std::shared_ptr<PeakFinderResults::Result>  &fr,
+                              const PeakEvaluator::Results &er,
+                              QVector<QPointF> &&hvlPlot,
+                              QVector<QPointF> &&hvlPlotExtrapolated) const;
   PeakContext makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
                               const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues,
                               const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues,
@@ -398,6 +419,7 @@ private:
   static const QString s_serieProvisionalBaseline;
   static const QString s_serieA1Param;
   static const QString s_seriePeakMean;
+  static const QString s_serieHVLExtrapolated;
 
   static const QString s_emptyCtxKey;
 

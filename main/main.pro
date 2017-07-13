@@ -168,7 +168,8 @@ SOURCES += src/main.cpp \
     src/efg/efgloaderinterface.cpp \
     src/efg/efgtypes.cpp \
     src/efg/ipcclient.cpp \
-    src/efg/localsocketclient.cpp
+    src/efg/localsocketclient.cpp \
+    src/hvlextrapolator.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -362,7 +363,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/efg/efgtypes.h \
     src/efg/ipcclient.h \
     src/efg/localsocketclient.h \
-    src/gui/efgloadinfo.h
+    src/gui/efgloadinfo.h \
+    src/hvlextrapolator.h
 
 ipc_dbus {
     SOURCES += \

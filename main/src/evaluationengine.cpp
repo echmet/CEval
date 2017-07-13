@@ -8,6 +8,7 @@
 #include "custommetatypes.h"
 #include "helpers.h"
 #include "hvlcalculator.h"
+#include "hvlextrapolator.h"
 #include "manualpeakfinder.h"
 #include "standardplotcontextsettingshandler.h"
 #include "witchcraft.h"
@@ -22,6 +23,8 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextStream>
+
+#include <QDebug>
 
 const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SLOPE_WINDOW */
                                                                      true, /* NOISE */
@@ -90,6 +93,7 @@ const QString EvaluationEngine::s_serieBaselineToTitle = QString(QObject::tr("Ba
 const QString EvaluationEngine::s_serieProvisionalBaseline = QString(QObject::tr("Provisional baseline"));
 const QString EvaluationEngine::s_serieA1Param = QString(QObject::tr("a1 parameter"));
 const QString EvaluationEngine::s_seriePeakMean = QString(QObject::tr("Peak mean"));
+const QString EvaluationEngine::s_serieHVLExtrapolated = QString(QObject::tr("HVL extrapolated"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
@@ -511,6 +515,9 @@ void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
   if (!m_plotCtx->addSerie(seriesIndex(Series::PEAK_MEAN), s_seriePeakMean, SerieProperties::VisualStyle(QPen(QBrush(QColor(44, 167, 17), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_seriePeakMean));
 
+  if (!m_plotCtx->addSerie(seriesIndex(Series::HVL_EXTRAPOLATED), s_serieHVLExtrapolated, SerieProperties::VisualStyle(QPen(QBrush(QColor(154, 31, 144), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieHVLExtrapolated));
+
   connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
@@ -605,6 +612,7 @@ void EvaluationEngine::clearPeakPlots()
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE_TO));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::A1_PARAM));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_MEAN));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED));
 
   m_plotCtx->replot();
 }
@@ -922,7 +930,7 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      AssistedFinderContext(m_evaluationAutoValues, m_evaluationBooleanValues, m_evaluationFloatingValues,
                                            m_baselineAlgorithm, m_showWindow, m_windowUnit),
                      std::make_shared<PeakFinderResults::Result>(),
-                     0.0, 0.0, QVector<QPointF>());
+                     0.0, 0.0, QVector<QPointF>(), QVector<QPointF>());
 }
 
 void EvaluationEngine::displayAssistedFinderData(const AssistedFinderContext &afContext)
@@ -1208,7 +1216,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlBooleanValues()),
                      AssistedFinderContext(),
                      std::make_shared<PeakFinderResults::Result>(),
-                     0.0, 0.0, QVector<QPointF>());
+                     0.0, 0.0, QVector<QPointF>(), QVector<QPointF>());
 }
 
 void EvaluationEngine::fullViewUpdate()
@@ -1398,14 +1406,30 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
                                                                 const AssistedFinderContext &afContext,
                                                                 const std::shared_ptr<PeakFinderResults::Result> &fr,
                                                                 const PeakEvaluator::Results &er,
-                                                                const QVector<QPointF> &hvlPlot) const
+                                                                const QVector<QPointF> &hvlPlot, const QVector<QPointF> &hvlPlotExtrapolated) const
 {
   return PeakContext(models.resultsValues,
                      models.hvlValues, models.hvlFitIntValues, models.hvlFitBooleanValues,
                      afContext,
                      fr,
                      er.baselineSlope, er.baselineIntercept,
-                     hvlPlot);
+                     hvlPlot,
+                     hvlPlotExtrapolated);
+}
+
+EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContextModels &models,
+                                                                const AssistedFinderContext &afContext,
+                                                                const std::shared_ptr<PeakFinderResults::Result> &fr,
+                                                                const PeakEvaluator::Results &er,
+                                                                QVector<QPointF> &&hvlPlot, QVector<QPointF> &&hvlPlotExtrapolated) const
+{
+  return PeakContext(models.resultsValues,
+                     models.hvlValues, models.hvlFitIntValues, models.hvlFitBooleanValues,
+                     afContext,
+                     fr,
+                     er.baselineSlope, er.baselineIntercept,
+                     hvlPlot,
+                     hvlPlotExtrapolated);
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
@@ -1418,7 +1442,8 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const MappedVect
                      oldPeak.afContext,
                      oldPeak.finderResults,
                      oldPeak.baselineSlope, oldPeak.baselineIntercept,
-                     oldPeak.hvlPlot);
+                     oldPeak.hvlPlot,
+                     oldPeak.hvlPlotExtrapolated);
 }
 
 EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
@@ -2370,6 +2395,9 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
   /* Mark the peak X centroid */
   m_plotCtx->setSerieSamples(seriesIndex(Series::PEAK_MEAN), { QPointF(centroidX, peakHeight - peakHeightBaseline), QPointF(centroidX, peakHeight) });
 
+  /* Extrapolated HVL curve */
+  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED), m_currentPeak.hvlPlotExtrapolated);
+
   m_plotCtx->replot();
 }
 
@@ -2518,10 +2546,24 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues = srcCtx.hvlFitIntValues;
   hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
 
+  QVector<QPointF> hvlPlotEx = HVLExtrapolator::extrapolate(er.baselineSlope, er.baselineIntercept,
+                               er.peakHeightBaseline, timeStep(0, m_currentDataContext->data->data.length() - 1),
+                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
+                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A1),
+                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
+                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
+                               hvlPlot,
+                               hvlDigits
+                               );
+
+
+  qDebug() << hvlPlotEx;
   const PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
                                                                 hvlResults,
                                                                 hvlFitIntValues, srcCtx.hvlFitBooleanValues),
-                                          afContext, fr, er, hvlPlot);
+                                          afContext, fr, er,
+                                          std::move(hvlPlot), std::move(hvlPlotEx));
+
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
@@ -2536,9 +2578,10 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
                                             );
 
   HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
-  m_currentPeak.updateHvlPlot(vec);
+  m_currentPeak.updateHvlPlot(vec, QVector<QPointF>());
 
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
+  m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED), m_currentPeak.hvlPlotExtrapolated);
 
   {
     const double yFrom = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT);
