@@ -2546,18 +2546,23 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues = srcCtx.hvlFitIntValues;
   hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
 
-  QVector<QPointF> hvlPlotEx = HVLExtrapolator::extrapolate(er.baselineSlope, er.baselineIntercept,
-                               er.peakHeightBaseline, timeStep(0, m_currentDataContext->data->data.length() - 1),
-                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
-                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A1),
-                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
-                               hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
-                               hvlPlot,
-                               hvlDigits
-                               );
+  QVector<QPointF> hvlPlotEx;
 
+  if (true /*m_extrapolateHvl*/) {
+    hvlPlotEx = HVLExtrapolator::extrapolate(er.baselineSlope, er.baselineIntercept,
+                                             er.peakHeightBaseline, timeStep(0, m_currentDataContext->data->data.length() - 1),
+                                             hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
+                                             hvlResults.at(HVLFitResultsItems::Floating::HVL_A1),
+                                             hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
+                                             hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
+                                             hvlPlot,
+                                             hvlDigits);
+    hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = HVLExtrapolator::varianceFromExtrapolated(er.baselineSlope, er.baselineIntercept,
+                                                                                                                    hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
+                                                                                                                    hvlPlotEx);
+  } else
+    hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = 0.0;
 
-  qDebug() << hvlPlotEx;
   const PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
                                                                 hvlResults,
                                                                 hvlFitIntValues, srcCtx.hvlFitBooleanValues),
@@ -2578,10 +2583,23 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
                                             );
 
   HVLCalculator::applyBaseline(vec, m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept);
-  m_currentPeak.updateHvlPlot(vec, QVector<QPointF>());
+
+  QVector<QPointF> hvlPlotEx;
+  double hvlPlotExVariance = 0.0;
+  if (true /*m_extrapolateHvl*/) {
+    hvlPlotEx = HVLExtrapolator::extrapolate(m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept,
+                                             m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
+                                             timeStep(0, m_currentDataContext->data->data.length() - 1),
+                                             a0, a1, a2, a3,
+                                             vec,
+                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
+    hvlPlotExVariance = HVLExtrapolator::varianceFromExtrapolated(m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept, a0, hvlPlotEx);
+  }
 
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED), m_currentPeak.hvlPlotExtrapolated);
+
+  m_currentPeak.updateHvlPlot(std::move(vec), std::move(hvlPlotEx), hvlPlotExVariance);
 
   {
     const double yFrom = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT);

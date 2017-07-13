@@ -17,6 +17,9 @@ public:
                                       const double a0, const double a1, const double a2, const double a3, const QVector<QPointF> &hvlPlot,
                                       const int hvlPrecision, const double tolerance = 1.0);
 
+  static double varianceFromExtrapolated(const double baselineSlope, const double baselineIntercept,
+                                         const double a0,
+                                         const QVector<QPointF> &plot);
 
 };
 

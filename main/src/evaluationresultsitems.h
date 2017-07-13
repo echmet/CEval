@@ -59,6 +59,7 @@ public:
     HVL_EPSILON,
     HVL_TUSP,
     HVL_U_EFF_A1,
+    HVL_EXTRAPOLATED_VARIANCE,
     LAST_INDEX
   };
 

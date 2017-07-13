@@ -73,16 +73,18 @@ void EvaluationEngine::PeakContext::updateHvlData(const MappedVectorWrapper<doub
   const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitBooleanValues) = inHvlFitBooleanValues;
 }
 
-void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated)
+void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated, const double extrapolatedVariance)
 {
   const_cast<QVector<QPointF>&>(hvlPlot) = plot;
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = plotExtrapolated;
+  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = extrapolatedVariance;
 }
 
-void EvaluationEngine::PeakContext::updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated)
+void EvaluationEngine::PeakContext::updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated, const double extrapolatedVariance)
 {
   const_cast<QVector<QPointF>&>(hvlPlot) = plot;
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = plotExtrapolated;
+  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = extrapolatedVariance;
 }
 
 EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const PeakContext &other)

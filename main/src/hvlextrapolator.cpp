@@ -40,3 +40,50 @@ QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const 
 
   return extrapolatedHvlPlot;
 }
+
+double HVLExtrapolator::varianceFromExtrapolated(const double baselineSlope, const double baselineIntercept,
+                                                 const double a0,
+                                                 const QVector<QPointF> &plot)
+{
+  QVector<QPointF> blCorrPlot = [baselineSlope, baselineIntercept, &plot]() {
+    QVector<QPointF> nPlot;
+
+    nPlot.reserve(plot.size());
+
+    for (const QPointF &pt : plot) {
+      const double baselineY = baselineSlope * pt.x() + baselineIntercept;
+
+      nPlot.push_back(QPointF(pt.x(), pt.y() - baselineY));
+    }
+
+    return nPlot;
+  }();
+
+  auto variance = [&blCorrPlot, a0](const double moment) {
+    double result = 0.0;
+
+    for (int idx = 1; idx < blCorrPlot.size(); idx++) {
+      const QPointF &dataPt = blCorrPlot.at(idx);
+      const double dx = dataPt.x() - blCorrPlot.at(idx - 1).x();
+
+      result += dataPt.y() * std::pow(dataPt.x() - moment, 2) * dx;
+    }
+
+    return result / a0;
+  };
+
+  const double mean = [&blCorrPlot, a0] {
+    double result = 0.0;
+
+    for (int idx = 1; idx < blCorrPlot.size(); idx++) {
+      const QPointF &dataPt = blCorrPlot.at(idx);
+      const double dx = dataPt.x() - blCorrPlot.at(idx - 1).x();
+
+      result += dataPt.y() * dataPt.x() * dx;
+    }
+
+    return result / a0;
+  }();
+
+  return variance(mean);
+}
