@@ -2180,7 +2180,7 @@ padding-right: 2em;</string>
             </widget>
            </item>
            <item>
-            <widget class="QGroupBox" name="groupBox">
+            <widget class="CollapsibleGroupBox" name="groupBox">
              <property name="title">
               <string>HVL extrapolation</string>
              </property>
