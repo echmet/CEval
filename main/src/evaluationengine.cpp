@@ -2571,7 +2571,9 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                              hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
                                              hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
                                              hvlPlot,
-                                             hvlDigits);
+                                             hvlDigits,
+                                             m_hvlExtrapolationFloatingValues.at(HVLExtrapolationParametersItems::Floating::TOLERANCE)
+                                             );
 
     if (hvlPlotEx.size() == 0)
       QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performec.\n"
@@ -2619,7 +2621,9 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
                                              timeStep(0, m_currentDataContext->data->data.length() - 1),
                                              a0, a1, a2, a3,
                                              vec,
-                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
+                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
+                                             m_hvlExtrapolationFloatingValues.at(HVLExtrapolationParametersItems::Floating::TOLERANCE)
+                                             );
     if (hvlPlotEx.size() == 0)
       QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performec.\n"
                                                                       "Check the input parameters and try again."));
