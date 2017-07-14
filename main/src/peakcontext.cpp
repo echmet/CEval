@@ -73,18 +73,24 @@ void EvaluationEngine::PeakContext::updateHvlData(const MappedVectorWrapper<doub
   const_cast<MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>&>(hvlFitBooleanValues) = inHvlFitBooleanValues;
 }
 
-void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated, const double extrapolatedVariance)
+void EvaluationEngine::PeakContext::clearHvlExtrapolation()
 {
-  const_cast<QVector<QPointF>&>(hvlPlot) = plot;
-  const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = plotExtrapolated;
-  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = extrapolatedVariance;
+  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = 0.0;
+  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = 0.0;
+  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = 0.0;
+  const_cast<QVector<QPointF>&>(hvlPlotExtrapolated).clear();
 }
 
-void EvaluationEngine::PeakContext::updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated, const double extrapolatedVariance)
+void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated)
 {
   const_cast<QVector<QPointF>&>(hvlPlot) = plot;
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = plotExtrapolated;
-  const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = extrapolatedVariance;
+}
+
+void EvaluationEngine::PeakContext::updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated)
+{
+  const_cast<QVector<QPointF>&>(hvlPlot) = plot;
+  const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = plotExtrapolated;
 }
 
 EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const PeakContext &other)

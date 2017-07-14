@@ -206,11 +206,12 @@ private:
                          QVector<QPointF> &&hvlPlot,
                          QVector<QPointF> &&hvlPlotExtrapolated);
     PeakContext(const PeakContext &other);
+    void clearHvlExtrapolation();
     void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
                        const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitBooleanValues);
-    void updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated = QVector<QPointF>(), const double extrapolatedVariance = 0.0);
-    void updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated, const double extrapolatedVariance);
+    void updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated = QVector<QPointF>());
+    void updateHvlPlot(QVector<QPointF> &&plot, QVector<QPointF> &&plotExtrapolated);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;

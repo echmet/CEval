@@ -2066,6 +2066,10 @@ void EvaluationEngine::onPeakSwitched(const QModelIndex &idx)
 
   m_currentPeakIdx = row;
   m_currentPeak = m_allPeaks.at(row).peak();
+
+  if (!m_hvlExtrapolationBooleanValues.at(HVLExtrapolationParametersItems::Boolean::ENABLE))
+    m_currentPeak.clearHvlExtrapolation();
+
   setPeakContext(m_currentPeak);
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
@@ -2647,7 +2651,7 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED), hvlPlotEx);
 
-  m_currentPeak.updateHvlPlot(std::move(vec), std::move(hvlPlotEx), r.variance);
+  m_currentPeak.updateHvlPlot(std::move(vec), std::move(hvlPlotEx));
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = r.variance;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = r.sigma;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = r.mean;
