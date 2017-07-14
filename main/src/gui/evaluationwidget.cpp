@@ -269,6 +269,8 @@ void EvaluationWidget::setClipboardDataArrangementModel(QAbstractItemModel *mode
 void EvaluationWidget::setDefaultState()
 {
   emit evaluationSetDefault(EvaluationEngineMsgs::Default::FINDER_PARAMETERS);
+
+  on_qcb_enableHvlExtrapolation_clicked(ui->qcb_enableHvlExtrapolation->isChecked());
 }
 
 void EvaluationWidget::setEvaluationParametersAutoModel(AbstractMapperModel<bool, EvaluationParametersItems::Auto> *model)
@@ -314,7 +316,7 @@ void EvaluationWidget::setEvaluationHvlExtrapolationModels(std::tuple<AbstractMa
   AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *m_floating = std::get<1>(models);
 
   m_evaluationHvlExtrapolationFloatingMapper->setModel(m_floating);
-  m_evaluationHvlExtrapolationFloatingMapper->addMapping(ui->qle_baselineCloseness, m_floating->indexFromItem(HVLExtrapolationParametersItems::Floating::TOLERANCE));
+  m_evaluationHvlExtrapolationFloatingMapper->addMapping(ui->qle_hvlExtrBaselineCloseness, m_floating->indexFromItem(HVLExtrapolationParametersItems::Floating::TOLERANCE));
   m_evaluationHvlExtrapolationFloatingMapper->toFirst();
 }
 
@@ -445,4 +447,12 @@ void EvaluationWidget::setExporterBackendsModel(QAbstractItemModel *model)
 void EvaluationWidget::setExporterSchemesModel(QAbstractItemModel *model)
 {
   ui->qcbox_schemes->setModel(model);
+}
+
+void EvaluationWidget::on_qcb_enableHvlExtrapolation_clicked(bool checked)
+{
+  ui->qle_hvlExtrBaselineCloseness->setEnabled(checked);
+  ui->qle_hvlExtrMeanAtX->setEnabled(checked);
+  ui->qle_hvlExtrSigmaMean->setEnabled(checked);
+  ui->qle_hvlExtrVarianceMean->setEnabled(checked);
 }

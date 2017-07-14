@@ -99,6 +99,7 @@ private slots:
   void onWindowUnitsComboBoxChanged(int idx);
   void onEvaluationAutoModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onDefaultFinderParametersClicked();
+  void on_qcb_enableHvlExtrapolation_clicked(bool checked);
 };
 
 #endif // EVALUATIONWIDGET_H
