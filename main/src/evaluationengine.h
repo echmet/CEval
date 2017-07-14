@@ -125,6 +125,7 @@ private:
     A1_PARAM,
     PEAK_MEAN,
     HVL_EXTRAPOLATED,
+    HVL_EXTRAPOLATED_BASELINE,
     LAST_INDEX
   };
 
@@ -427,6 +428,7 @@ private:
   static const QString s_serieA1Param;
   static const QString s_seriePeakMean;
   static const QString s_serieHVLExtrapolated;
+  static const QString s_serieHVLExtrapolatedBaseline;
 
   static const QString s_emptyCtxKey;
 

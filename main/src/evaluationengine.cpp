@@ -94,6 +94,7 @@ const QString EvaluationEngine::s_serieProvisionalBaseline = QString(QObject::tr
 const QString EvaluationEngine::s_serieA1Param = QString(QObject::tr("a1 parameter"));
 const QString EvaluationEngine::s_seriePeakMean = QString(QObject::tr("Peak mean"));
 const QString EvaluationEngine::s_serieHVLExtrapolated = QString(QObject::tr("HVL extrapolated"));
+const QString EvaluationEngine::s_serieHVLExtrapolatedBaseline = QString(QObject::tr("HVL extrapolated baseline"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
@@ -523,6 +524,9 @@ void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
   if (!m_plotCtx->addSerie(seriesIndex(Series::HVL_EXTRAPOLATED), s_serieHVLExtrapolated, SerieProperties::VisualStyle(QPen(QBrush(QColor(154, 31, 144), Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieHVLExtrapolated));
 
+  if (!m_plotCtx->addSerie(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE), s_serieHVLExtrapolatedBaseline, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieHVLExtrapolated));
+
   connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
@@ -618,6 +622,7 @@ void EvaluationEngine::clearPeakPlots()
   m_plotCtx->clearSerieSamples(seriesIndex(Series::A1_PARAM));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_MEAN));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE));
 
   m_plotCtx->replot();
 }
@@ -2005,6 +2010,7 @@ void EvaluationEngine::onHvlExtrapolationToggled(const bool enabled)
                                     HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN);
 
     m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED));
+    m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE));
     m_plotCtx->replot();
   }
 }
@@ -2429,6 +2435,9 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 
   /* Extrapolated HVL curve */
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED), m_currentPeak.hvlPlotExtrapolated);
+  if (!m_currentPeak.hvlPlotExtrapolated.empty())
+    m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE), { m_currentPeak.hvlPlotExtrapolated.front(),
+                                                                                 m_currentPeak.hvlPlotExtrapolated.back()});
 
   m_plotCtx->replot();
 }
@@ -2655,6 +2664,10 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = r.variance;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = r.sigma;
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = r.mean;
+
+  if (!m_currentPeak.hvlPlotExtrapolated.empty())
+    m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE), { m_currentPeak.hvlPlotExtrapolated.front(),
+                                                                                 m_currentPeak.hvlPlotExtrapolated.back()});
 
   {
     const double yFrom = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT);
