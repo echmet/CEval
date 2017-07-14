@@ -491,6 +491,7 @@ public slots:
   void onExportFileOnLeftToggled(const bool enabled);
   void onExportScheme();
   void onFindPeaks();
+  void onHvlExtrapolationToggled(const bool enabled);
   void onManageExporterScheme();
   void onNoEofStateChanged(const bool noEof);
   void onPeakSwitched(const QModelIndex &idx);

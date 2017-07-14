@@ -44,6 +44,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   QObject::connect(w, &EvaluationWidget::findPeaks, e, &EvaluationEngine::onFindPeaks);
   QObject::connect(mw, &EvalMainWindow::loadElectrophoregram , &EFGLoaderInterface::instance(), &EFGLoaderInterface::loadData);
   QObject::connect(w, &EvaluationWidget::doHvlFit, e, &EvaluationEngine::onDoHvlFit);
+  QObject::connect(w, &EvaluationWidget::hvlExtrapolationToggled, e, &EvaluationEngine::onHvlExtrapolationToggled);
   QObject::connect(w, &EvaluationWidget::replotHvl, e, &EvaluationEngine::onReplotHvl);
   QObject::connect(w, &EvaluationWidget::copyToClipboard, e, &EvaluationEngine::onCopyToClipboard);
   QObject::connect(w, &EvaluationWidget::configureExporterBackend, e, &EvaluationEngine::onConfigureExporterBackend);

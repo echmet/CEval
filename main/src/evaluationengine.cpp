@@ -1995,6 +1995,19 @@ void EvaluationEngine::onFindPeaks()
   findPeakAssisted();
 }
 
+void EvaluationEngine::onHvlExtrapolationToggled(const bool enabled)
+{
+  if (!enabled) {
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = 0.0;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = 0.0;
+    m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = 0.0;
+    m_hvlFitModel.notifyDataChanged(HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE,
+                                    HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN);
+
+    m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED));
+    m_plotCtx->replot();
+  }
+}
 
 void EvaluationEngine::onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)
 {

@@ -68,6 +68,7 @@ signals:
   void exportScheme();
   void exporterSchemeChanged(const QModelIndex &idx);
   void findPeaks();
+  void hvlExtrapolationToggled(const bool enabled);
   void manageExporterSchemes();
   void replotHvl();
 

@@ -455,4 +455,6 @@ void EvaluationWidget::on_qcb_enableHvlExtrapolation_clicked(bool checked)
   ui->qle_hvlExtrMeanAtX->setEnabled(checked);
   ui->qle_hvlExtrSigmaMean->setEnabled(checked);
   ui->qle_hvlExtrVarianceMean->setEnabled(checked);
+
+  emit hvlExtrapolationToggled(checked);
 }
