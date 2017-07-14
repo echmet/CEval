@@ -2572,12 +2572,18 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                              hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
                                              hvlPlot,
                                              hvlDigits);
-    HVLExtrapolator::Result r = HVLExtrapolator::varianceFromExtrapolated(er.baselineSlope, er.baselineIntercept,
-                                                                          hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
-                                                                          hvlPlotEx);
-    hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = r.variance;
-    hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = r.sigma;
-    hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = r.mean;
+
+    if (hvlPlotEx.size() == 0)
+      QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performec.\n"
+                                                                      "Check the input parameters and try again."));
+    else {
+      HVLExtrapolator::Result r = HVLExtrapolator::varianceFromExtrapolated(er.baselineSlope, er.baselineIntercept,
+                                                                            hvlResults.at(HVLFitResultsItems::Floating::HVL_A0),
+                                                                            hvlPlotEx);
+      hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = r.variance;
+      hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = r.sigma;
+      hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = r.mean;
+    }
   } else {
     hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE] = 0.0;
     hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = 0.0;
@@ -2614,7 +2620,11 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
                                              a0, a1, a2, a3,
                                              vec,
                                              m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS));
-    r = HVLExtrapolator::varianceFromExtrapolated(m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept, a0, hvlPlotEx);
+    if (hvlPlotEx.size() == 0)
+      QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performec.\n"
+                                                                      "Check the input parameters and try again."));
+    else
+      r = HVLExtrapolator::varianceFromExtrapolated(m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept, a0, hvlPlotEx);
   }
 
   m_plotCtx->setSerieSamples(seriesIndex(Series::HVL), vec);

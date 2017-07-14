@@ -341,6 +341,8 @@ void EvaluationWidget::setEvaluationHvlFitModel(AbstractMapperModel<double, HVLF
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlTUSP, model->indexFromItem(HVLFitResultsItems::Floating::HVL_TUSP));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlA1Mobility, model->indexFromItem(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
   m_evaluationHvlFitMapper->addMapping(ui->qle_hvlExtrVarianceMean, model->indexFromItem(HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_VARIANCE));
+  m_evaluationHvlFitMapper->addMapping(ui->qle_hvlExtrSigmaMean, model->indexFromItem(HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA));
+  m_evaluationHvlFitMapper->addMapping(ui->qle_hvlExtrMeanAtX, model->indexFromItem(HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN));
   m_evaluationHvlFitMapper->toFirst();
 }
 

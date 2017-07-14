@@ -10,6 +10,9 @@ QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const 
   HVLLibWrapper hvlWrapper(hvlPrecision);
   QVector<QPointF> extrapolatedHvlPlot;
 
+  if (tolerance <= 0.0)
+    return QVector<QPointF>();
+
   const double threshold = std::abs(peakHeight * tolerance / 100.0);
 
   auto extrapolatingFunc = [&](const double initialX, std::function<double (const double)> xShifter) {
