@@ -88,6 +88,8 @@ public:
   QAbstractItemModel *evaluatedPeaksModel();
   QAbstractItemModel *exporterBackendsModel();
   QAbstractItemModel *exporterSchemesModel();
+  std::tuple<AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *, AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *>
+  hvlExtrapolatorModels();
   AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitBooleanModel();
   AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
   AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
@@ -378,6 +380,8 @@ private:
   MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> m_hvlFitBooleanValues;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> m_hvlFitValues;
   MappedVectorWrapper<bool, HVLFitOptionsItems::Boolean> m_hvlFitOptionsValues;
+  MappedVectorWrapper<bool, HVLExtrapolationParametersItems::Boolean> m_hvlExtrapolationBooleanValues;
+  MappedVectorWrapper<double, HVLExtrapolationParametersItems::Floating> m_hvlExtrapolationFloatingValues;
 
   ComboBoxModel<EvaluationParametersItems::ComboBaselineAlgorithm> m_baselineAlgorithmModel;
   EvaluatedPeaksModel m_evaluatedPeaksModel;
@@ -392,6 +396,8 @@ private:
   BooleanMapperModel<HVLFitParametersItems::Boolean> m_hvlFitBooleanModel;
   FloatingMapperModel<HVLFitResultsItems::Floating> m_hvlFitModel;
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
+  BooleanMapperModel<HVLExtrapolationParametersItems::Boolean> m_hvlExtrapolationBooleanModel;
+  FloatingMapperModel<HVLExtrapolationParametersItems::Floating> m_hvlExtrapolationFloatingModel;
 
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;

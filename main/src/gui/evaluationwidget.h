@@ -26,6 +26,7 @@ public:
   void setClipboardDataArrangementModel(QAbstractItemModel *model);
   void setDefaultState();
   void setEvaluationBaselineModel(QAbstractItemModel *model);
+  void setEvaluationHvlExtrapolationModels(std::tuple<AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *, AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *> models);
   void setEvaluationHvlBooleanModel(AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *model);
   void setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLFitParametersItems::Int> *model);
   void setEvaluationHvlFitModel(AbstractMapperModel<double, HVLFitResultsItems::Floating> *model);
@@ -45,6 +46,8 @@ private:
   QDataWidgetMapper *m_evaluationParametersBooleanMapper;
   QDataWidgetMapper *m_evaluationParametersFloatingMapper;
   QDataWidgetMapper *m_evaluationResultsMapper;
+  QDataWidgetMapper *m_evaluationHvlExtrapolationBooleanMapper;
+  QDataWidgetMapper *m_evaluationHvlExtrapolationFloatingMapper;
   QDataWidgetMapper *m_evaluationHvlFitBooleanMapper;
   QDataWidgetMapper *m_evaluationHvlFitIntMapper;
   QDataWidgetMapper *m_evaluationHvlFitMapper;

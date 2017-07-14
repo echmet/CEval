@@ -126,5 +126,18 @@ public:
 
 };
 
+class HVLExtrapolationParametersItems {
+public:
+  enum class Boolean {
+    ENABLE,
+    LAST_INDEX
+  };
+
+  enum class Floating {
+    TOLERANCE,
+    LAST_INDEX
+  };
+};
+
 #endif // EVALUATIONPARAMETERSITEMS_H
 

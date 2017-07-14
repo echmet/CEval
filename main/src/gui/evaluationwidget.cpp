@@ -14,6 +14,8 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationHvlFitIntMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitMapper = new QDataWidgetMapper(this);
   m_evaluationHvlFitOptionsMapper = new QDataWidgetMapper(this);
+  m_evaluationHvlExtrapolationBooleanMapper = new QDataWidgetMapper(this);
+  m_evaluationHvlExtrapolationFloatingMapper = new QDataWidgetMapper(this);
 
   m_evaluationResultsMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
@@ -299,6 +301,21 @@ void EvaluationWidget::setEvaluationHvlBooleanModel(AbstractMapperModel<bool, HV
   m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA3Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A3));
   m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlAutoDigits, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS));
   m_evaluationHvlFitBooleanMapper->toFirst();
+}
+
+void EvaluationWidget::setEvaluationHvlExtrapolationModels(std::tuple<AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *, AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *> models)
+{
+  AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *m_boolean = std::get<0>(models);
+
+  m_evaluationHvlExtrapolationBooleanMapper->setModel(m_boolean);
+  m_evaluationHvlExtrapolationBooleanMapper->addMapping(ui->qcb_enableHvlExtrapolation, m_boolean->indexFromItem(HVLExtrapolationParametersItems::Boolean::ENABLE));
+  m_evaluationHvlExtrapolationBooleanMapper->toFirst();
+
+  AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *m_floating = std::get<1>(models);
+
+  m_evaluationHvlExtrapolationFloatingMapper->setModel(m_floating);
+  m_evaluationHvlExtrapolationFloatingMapper->addMapping(ui->qle_baselineCloseness, m_floating->indexFromItem(HVLExtrapolationParametersItems::Floating::TOLERANCE));
+  m_evaluationHvlExtrapolationFloatingMapper->toFirst();
 }
 
 void EvaluationWidget::setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLFitParametersItems::Int> *model)

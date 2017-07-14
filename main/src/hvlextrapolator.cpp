@@ -1,4 +1,5 @@
 #include "hvlextrapolator.h"
+#include <cmath>
 
 QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const double baselineIntercept,
                                               const double peakHeight,
@@ -41,7 +42,7 @@ QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const 
   return extrapolatedHvlPlot;
 }
 
-double HVLExtrapolator::varianceFromExtrapolated(const double baselineSlope, const double baselineIntercept,
+HVLExtrapolator::Result HVLExtrapolator::varianceFromExtrapolated(const double baselineSlope, const double baselineIntercept,
                                                  const double a0,
                                                  const QVector<QPointF> &plot)
 {
@@ -85,5 +86,7 @@ double HVLExtrapolator::varianceFromExtrapolated(const double baselineSlope, con
     return result / a0;
   }();
 
-  return variance(mean);
+  const double var = variance(mean);
+
+  return { var, std::sqrt(var), mean };
 }
