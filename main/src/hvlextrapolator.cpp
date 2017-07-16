@@ -1,5 +1,6 @@
 #include "hvlextrapolator.h"
 #include <cmath>
+#include <functional>
 
 QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const double baselineIntercept,
                                               const double peakHeight,
