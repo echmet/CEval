@@ -3,6 +3,7 @@
 #include "math/functions.h"
 #include "math/hvlestimate.h"
 #include <limits>
+#include <tuple>
 #include <QMessageBox>
 #include <QVector>
 
@@ -92,38 +93,98 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
   static auto isInputValid = [](const Parameters &p) {
     return p.data.length() > 1 && p.fromIndex >= 0 && p.toIndex > p.fromIndex && p.toIndex < p.data.length();
   };
-  const QVector<QPointF> &Data = p.data;
+
+  static auto calculateKQ = [](const QPointF &left, const QPointF &right) {
+    const double k = (right.y() - left.y()) / (right.x() - left.x());
+    const double q = left.y() - k * left.x();
+
+    return std::make_tuple(k, q);
+  };
+
+  static auto extrapolateEdge = [](const double blK, double blQ, const double h,
+                                   const QPointF &left, const QPointF &right) {
+    const std::tuple<double, double> peakKQ = calculateKQ(left, right);
+    const double pkK = std::get<0>(peakKQ);
+    const double pkQ = std::get<1>(peakKQ);
+    blQ += h * 0.05;
+
+    const double x = (pkQ - blQ) / (blK - pkK);
+
+    return x;
+  };
+
   Results r = ir;
 
   if (!isInputValid(p)) {
     QMessageBox::warning(nullptr, QObject::tr("Evaluation error"), QString(QObject::tr("Some of the evaluation parameters are not valid, peak area and HVL estimation values"
                                                                                        " cannot be calculated\n\n"
-                                                                                       "Data length: %1, tAi: %2, tBi: %3")).arg(Data.length()).arg(p.fromIndex).arg(p.toIndex));
+                                                                                       "Data length: %1, tAi: %2, tBi: %3")).arg(p.data.length()).arg(p.fromIndex).arg(p.toIndex));
     return r;
   }
 
   /* Height (5 %) */
-  int i_w005, j_w005;
+  int left_w005 = -1;
+  int right_w005 = -1;
 
   /* TODO: Peak base search should probably take the baseline noise into account */
-  const int centerIndex = ir.peakIndex - p.fromIndex;
+  auto isAtBorder = [&ir](const double yVal) {
+    return std::abs(yVal) <= std::abs(0.05 * ir.peakHeightBaseline);
+  };
 
-  for (i_w005 = centerIndex; i_w005 > 0 && std::abs(r.baselineCorrectedPeak.at(i_w005).y()) >= std::abs(0.05 * r.peakHeightBaseline); --i_w005);
+  const int maximumIndex = ir.peakIndex - p.fromIndex;
+  /* Check that we have an actual peak, meaning that its maximum
+   * must not be at neither of the ends of the given signal slice.
+     TODO: This should take noise in to account to be effective. */
+  if (maximumIndex == 0 || maximumIndex == r.baselineCorrectedPeak.size() - 1) {
+    QMessageBox box(QMessageBox::Warning, QObject::tr("HVL evaluation error"), QObject::tr("Selected signal does not resemble a peak"));
+    box.exec();
 
-  double width005Left = r.peakX - Data.at(i_w005 + p.fromIndex).x();
+    return r;
+  }
 
-  for (j_w005 = centerIndex; j_w005 < r.baselineCorrectedPeak.size() && std::abs(r.baselineCorrectedPeak.at(j_w005).y()) >= std::abs(0.05 * r.peakHeightBaseline); ++j_w005);
+  for (int idx = maximumIndex; idx >= 0; idx--) {
+    if (isAtBorder(r.baselineCorrectedPeak.at(idx).y())) {
+      left_w005 = idx;
+      break;
+    }
+  }
 
-  double width005Right = Data.at(j_w005 + p.fromIndex).x() - r.peakX;
+  for (int idx = maximumIndex; idx < r.baselineCorrectedPeak.size(); idx++) {
+    if (isAtBorder(r.baselineCorrectedPeak.at(idx).y())) {
+      right_w005 = idx;
+      break;
+    }
+  }
+
+  double left005x;
+  double right005x;
+
+  if (left_w005 == -1) {
+    left005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
+                               QPointF(p.fromX, p.data.at(p.fromIndex).y()),
+                               QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()));
+  } else
+    left005x = p.data.at(left_w005 + p.fromIndex).x();
+
+  if (right_w005 == -1) {
+    right005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
+                                QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()),
+                                QPointF(p.toX, p.data.at(p.toIndex).y()));
+  } else
+    right005x = p.data.at(right_w005 + p.fromIndex).x();
+
+
+  double width005Left = r.peakX - left005x;
+  double width005Right = right005x - r.peakX;
 
   r.HVL_width005 = width005Left + width005Right;
   r.HVL_width005Left = width005Left;
   r.HVL_width005Right = width005Right;
 
-  r.seriesAOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.baselineSlope * Data[i_w005].x() + r.baselineIntercept));
-  r.seriesATwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
-  r.seriesBOne.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline * Data[i_w005].x() + r.baselineIntercept));
-  r.seriesBTwo.push_back(QPointF(Data[i_w005 + p.fromIndex].x(), r.peakHeightBaseline));
+  r.seriesAOne.push_back(QPointF(left005x, r.baselineSlope * left005x + r.baselineIntercept));
+  r.seriesATwo.push_back(QPointF(left005x, r.peakHeightBaseline));
+  r.seriesBOne.push_back(QPointF(left005x, r.peakHeightBaseline * left005x + r.baselineIntercept));
+  r.seriesBTwo.push_back(QPointF(left005x, r.peakHeightBaseline));
 
   /* HVL Estimation */
   r.HVL_tP = r.peakX;
