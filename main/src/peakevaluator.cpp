@@ -7,6 +7,38 @@
 #include <QMessageBox>
 #include <QVector>
 
+QVector<QPointF> correctForBaseline(const int fromIdx, const int toIdx,
+                                    const double blK, const double blQ,
+                                    const QVector<QPointF> &data)
+{
+  QVector<QPointF> blCorrected;
+  blCorrected.reserve(toIdx - fromIdx + 1);
+  for (int idx = fromIdx; idx < toIdx; idx++) {
+    const double x = data.at(idx).x();
+    const double y = data.at(idx).y();
+
+    blCorrected.push_back(QPointF(x, y - (blK * x + blQ)));
+  }
+
+  return blCorrected;
+}
+
+double calculateArea(const QVector<QPointF> &data)
+{
+  double peakArea = 0.0;
+
+  for (int idx = 1; idx < data.size(); idx++) {
+    const double xL = data.at(idx - 1).x();
+    const double yL = data.at(idx - 1).y();
+    const double xR = data.at(idx).x();
+    const double yR = data.at(idx).y();
+
+    peakArea += ((yL + yR) / 2.0) * (xR - xL);
+  }
+
+  return peakArea;
+}
+
 const double PeakEvaluator::Sqrt1_8log2 = std::sqrt(1.0 / (8.0 * std::log(2.0)));
 
 PeakEvaluator::Parameters::Parameters(const QVector<QPointF> &data) :
@@ -38,18 +70,6 @@ void PeakEvaluator::Results::validate()
 void PeakEvaluator::Results::validateHvl()
 {
   m_isHvlValid = true;
-}
-
-void PeakEvaluator::calculateArea(Results &r, const Parameters &p)
-{
-  /* Subtracting baseline */
-  r.baselineCorrectedPeak.reserve(p.toIndex - p.fromIndex + 1);
-  for (int i = p.fromIndex; i <= p.toIndex; i++)
-    r.baselineCorrectedPeak.push_back(QPointF(p.data.at(i).x(), p.data[i].y() - (r.baselineSlope * p.data[i].x() + r.baselineIntercept)));
-
-  r.peakArea = 0.0;
-  for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++)
-    r.peakArea += ((r.baselineCorrectedPeak.at(idx).y() + r.baselineCorrectedPeak.at(idx - 1).y()) / 2.0) * (p.data.at(idx + p.fromIndex).x() - p.data.at(idx - 1 + p.fromIndex).x());
 }
 
 void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
@@ -113,6 +133,35 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     return x;
   };
 
+  static auto extrapolateA0 = [](const double fromX, const double toX,
+                                 const double blK, const double blQ,
+                                 const QVector<QPointF> &data) {
+    int fromIdx = -1;
+    int toIdx = -1;
+
+    int idx;
+    for (idx = 0; idx < data.size(); idx++) {
+      const double x = data.at(idx).x();
+      if (x >= fromX) {
+        fromIdx = idx;
+        break;
+      }
+    }
+    for (; idx < data.size(); idx++) {
+      const double x = data.at(idx).x();
+      if (x >= toX) {
+        toIdx = idx;
+        break;
+      }
+    }
+
+    if (fromIdx == -1 || toIdx == -1)
+      throw std::runtime_error("Cannot find extrapolated peak boundaries");
+
+    const QVector<QPointF> blCorrected = correctForBaseline(fromIdx, toIdx, blK, blQ, data);
+    return calculateArea(blCorrected);
+  };
+
   Results r = ir;
 
   if (!isInputValid(p)) {
@@ -158,11 +207,13 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
 
   double left005x;
   double right005x;
+  bool useExtrapolateA0 = false;
 
   if (left_w005 == -1) {
     left005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
                                QPointF(p.fromX, p.data.at(p.fromIndex).y()),
                                QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()));
+    useExtrapolateA0 = true;
   } else
     left005x = p.data.at(left_w005 + p.fromIndex).x();
 
@@ -170,6 +221,7 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     right005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
                                 QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()),
                                 QPointF(p.toX, p.data.at(p.toIndex).y()));
+    useExtrapolateA0 = true;
   } else
     right005x = p.data.at(right_w005 + p.fromIndex).x();
 
@@ -197,6 +249,14 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
 
   echmet::HVLCore::Coefficients HVL_coefficients = echmet::HVLCore::Coefficients::Calculate(r.peakArea, r.HVL_tP, r.widthHalfFull, r.HVL_tUSP);
 
+  if (useExtrapolateA0) {
+    try {
+      r.HVL_a0 = extrapolateA0(left005x, right005x, r.baselineSlope, r.baselineIntercept, p.data);
+    } catch (std::runtime_error &) {
+      r.HVL_a0 = r.peakArea;
+    }
+  } else
+    r.HVL_a0 = r.peakArea;
   r.HVL_a1 = HVL_coefficients.a1;
   r.HVL_a2 = HVL_coefficients.a2;
   r.HVL_a3 = HVL_coefficients.a3d;
@@ -397,7 +457,8 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   if (std::isfinite(r.vP_Eff))
     r.vP_Eff /= 1.0e-3;
 
-  calculateArea(r, p);
+  r.baselineCorrectedPeak = correctForBaseline(p.fromIndex, p.toIndex, r.baselineSlope, r.baselineIntercept, p.data);
+  r.peakArea = calculateArea(r.baselineCorrectedPeak);
   calculateVariances(r, p);
 
   r.validate();

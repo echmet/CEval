@@ -2519,7 +2519,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     hvlTUsp = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP);
   } else {
     er = PeakEvaluator::estimateHvl(er, ep);
-    HVL_a0 = er.peakArea;
+    HVL_a0 = er.HVL_a0;
     HVL_a1 = er.HVL_a1;
     HVL_a2 = er.HVL_a2;
     HVL_a3 = er.HVL_a3;

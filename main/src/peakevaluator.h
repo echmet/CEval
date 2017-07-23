@@ -99,6 +99,7 @@ public:
     double HVL_width;
     double HVL_widthLeft;
     double HVL_widthRight;
+    double HVL_a0;
     double HVL_a1;
     double HVL_a2;
     double HVL_a3;
@@ -118,7 +119,6 @@ public:
   static Results estimateHvl(const Results &ir, const Parameters &p);
 
 private:
-  static void calculateArea(Results &r, const Parameters &p);
   static void calculateVariances(Results &r, const Parameters &p);
 
   static const double Sqrt1_8log2;
