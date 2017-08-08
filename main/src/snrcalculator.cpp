@@ -80,6 +80,10 @@ SNRCalculator::Results SNRCalculator::calculate(const QVector<QPointF> &data, co
     throw std::runtime_error(QObject::tr("Invalid value of standard error amplifier").toUtf8());
 
   calculateBaselineParameters(k ,q, fromIdx, toIdx, data, from, to);
+
+  if (toIdx - fromIdx < 2)
+    throw std::runtime_error(QObject::tr("At least two datapoints are required to calculate baseline sigma").toUtf8());
+
   sigma = calculateBaselineSigma(data, fromIdx, toIdx, k, q);
   snr = signalMagnitude / (sigma * sigmaAmplifier);
 
