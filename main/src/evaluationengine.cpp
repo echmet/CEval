@@ -10,6 +10,7 @@
 #include "hvlcalculator.h"
 #include "hvlextrapolator.h"
 #include "manualpeakfinder.h"
+#include "snrcalculator.h"
 #include "standardplotcontextsettingshandler.h"
 #include "witchcraft.h"
 #include "dataexporter/backends/textexporterbackend.h"
@@ -95,12 +96,14 @@ const QString EvaluationEngine::s_serieA1Param = QString(QObject::tr("a1 paramet
 const QString EvaluationEngine::s_seriePeakMean = QString(QObject::tr("Peak mean"));
 const QString EvaluationEngine::s_serieHVLExtrapolated = QString(QObject::tr("HVL extrapolated"));
 const QString EvaluationEngine::s_serieHVLExtrapolatedBaseline = QString(QObject::tr("HVL extrapolated baseline"));
+const QString EvaluationEngine::s_serieNoiseBaseline = QString(QObject::tr("Noise baseline"));
 
 const QString EvaluationEngine::s_emptyCtxKey = "";
 
 const double EvaluationEngine::s_defaultHvlEpsilon = 1.0e-9;
 const int EvaluationEngine::s_defaultHvlDigits = 50;
 const int EvaluationEngine::s_defaultHvlIterations = 60;
+const int EvaluationEngine::s_defaultSNRAmplifier = 6;
 
 const QString EvaluationEngine::HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG("HVLFitOptions-DisableAutoFit");
 const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-ShowFitStats");
@@ -226,11 +229,14 @@ const EvaluationEngine::PeakContext &EvaluationEngine::StoredPeak::peak() const
 EvaluationEngine::PeakContextModels::PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                                                        const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                                       const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues) :
+                                                       const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                                       const MappedVectorWrapper<double, SNRItems::Floating> &snrValues
+                                                       ) :
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
-  hvlFitBooleanValues(hvlFitBooleanValues)
+  hvlFitBooleanValues(hvlFitBooleanValues),
+  snrValues(snrValues)
 {
 }
 
@@ -320,7 +326,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_evaluationAutoModel.setUnderlyingData(m_evaluationAutoValues.pointer());
   m_evaluationBooleanModel.setUnderlyingData(m_evaluationBooleanValues.pointer());
   m_evaluationFloatingModel.setUnderlyingData(m_evaluationFloatingValues.pointer());
-
   m_baselineAlgorithm = EvaluationParametersItems::ComboBaselineAlgorithm::SLOPE;
   m_showWindow = EvaluationParametersItems::ComboShowWindow::NONE;
   m_windowUnit = EvaluationParametersItems::ComboWindowUnits::MINUTES;
@@ -346,6 +351,9 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlExtrapolationBooleanModel.setUnderlyingData(m_hvlExtrapolationBooleanValues.pointer());
   m_hvlExtrapolationFloatingModel.setUnderlyingData(m_hvlExtrapolationFloatingValues.pointer());
 
+  m_snrFloatingValues[SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER] = s_defaultSNRAmplifier;
+  m_snrFloatingModel.setUnderlyingData(m_snrFloatingValues.pointer());
+
   connect(&EFGLoaderInterface::instance(), &EFGLoaderInterface::onDataLoaded, this, &EvaluationEngine::onDataLoaded);
 
   connect(&m_hvlFitModel, &FloatingMapperModel<HVLFitResultsItems::Floating>::dataChanged, this, &EvaluationEngine::onHvlResultsModelChanged);
@@ -367,9 +375,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 EvaluationEngine::~EvaluationEngine()
 {
   delete m_addPeakDlg;
-  delete m_findPeakMenu;
-  delete m_manualIntegrationMenu;
-  delete m_postProcessMenu;
   delete m_dataExporterBackendsModel;
   delete m_dataExporterFileDlg;
   delete m_specifyPeakBoundsDlg;
@@ -527,6 +532,9 @@ void EvaluationEngine::assignContext(std::shared_ptr<PlotContextLimited> ctx)
   if (!m_plotCtx->addSerie(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE), s_serieHVLExtrapolatedBaseline, SerieProperties::VisualStyle(QPen(QBrush(Qt::red, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
     QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieHVLExtrapolated));
 
+  if (!m_plotCtx->addSerie(seriesIndex(Series::NOISE_BASELINE), s_serieNoiseBaseline, SerieProperties::VisualStyle(QPen(QBrush(Qt::blue, Qt::SolidPattern), PlotContextLimited::DEFAULT_SERIES_WIDTH, Qt::DashLine))))
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Cannot create serie for %1 plot. The serie will not be displayed.")).arg(s_serieNoiseBaseline));
+
   connect(m_plotCtx.get(), &PlotContextLimited::pointHovered, this, &EvaluationEngine::onPlotPointHovered);
   connect(m_plotCtx.get(), &PlotContextLimited::pointSelected, this, &EvaluationEngine::onPlotPointSelected);
 
@@ -569,6 +577,19 @@ void EvaluationEngine::beginManualIntegration(const QPointF &from, const bool sn
   m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION;
 }
 
+void EvaluationEngine::beginSetNoiseReferenceBaseline(const QPointF &from)
+{
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!isContextAccessible(locker))
+    return;
+
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::NOISE_BASELINE));
+
+  m_noiseReferenceBaselineFrom = from;
+
+  m_userInteractionState = UserInteractionState::NOISE_REFERENCE_BL_SETTING;
+}
+
 AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *EvaluationEngine::booleanValuesModel()
 {
   return &m_evaluationBooleanModel;
@@ -609,6 +630,51 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
     return std::numeric_limits<double>::infinity();
 }
 
+bool EvaluationEngine::calculateSNR(PeakContext &ctx, MappedVectorWrapper<double, SNRItems::Floating> &snrValues, const QPointF &from, const QPointF &to)
+{
+  const double blHeight = ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL);
+  const double stdErrAmp = snrValues.at(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER);
+
+  try {
+    SNRCalculator::Results r = SNRCalculator::calculate(m_currentDataContext->data->data, from, to, blHeight, stdErrAmp);
+
+    snrValues[SNRItems::Floating::BASELINE_STANDARD_ERROR] = r.stdErr;
+    snrValues[SNRItems::Floating::SIGNAL_TO_NOISE_RATIO] = r.snr;
+
+    ctx.setNoise(r.from, r.to, snrValues);
+  } catch (std::runtime_error &ex) {
+    QMessageBox errBox(QMessageBox::Warning, tr("Cannot calcualte Signal-to-Noise ratio"), ex.what());
+
+    errBox.exec();
+    return false;
+  }
+
+  return true;
+}
+
+void EvaluationEngine::calculateSNRTriggered(const SetNoiseReferenceBaselineActions &action, const QPointF &to)
+{
+  QPointF realTo;
+
+  m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_BASELINE));
+
+  if (to.x() < m_noiseReferenceBaselineFrom.x()) {
+    realTo = m_noiseReferenceBaselineFrom;
+    m_noiseReferenceBaselineFrom = to;
+  } else
+    realTo = to;
+
+  if (action == SetNoiseReferenceBaselineActions::FINISH) {
+    if (calculateSNR(m_currentPeak, m_snrFloatingValues, m_noiseReferenceBaselineFrom, realTo)) {
+      m_snrFloatingModel.notifyDataChanged(SNRItems::Floating::BASELINE_STANDARD_ERROR, SNRItems::Floating::SIGNAL_TO_NOISE_RATIO);
+      m_plotCtx->setSerieSamples(seriesIndex(Series::NOISE_BASELINE), {m_currentPeak.noiseFrom, m_currentPeak.noiseTo});
+    }
+  }
+
+  m_plotCtx->replot();
+}
+
 void EvaluationEngine::clearPeakPlots()
 {
   m_plotCtx->clearSerieSamples(seriesIndex(Series::BASELINE));
@@ -623,6 +689,7 @@ void EvaluationEngine::clearPeakPlots()
   m_plotCtx->clearSerieSamples(seriesIndex(Series::PEAK_MEAN));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED));
   m_plotCtx->clearSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE));
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::NOISE_BASELINE));
 
   m_plotCtx->replot();
 }
@@ -636,123 +703,142 @@ void EvaluationEngine::createContextMenus() noexcept(false)
 {
   QAction *a;
 
-  m_findPeakMenu = new QMenu;
-  m_manualIntegrationMenu = new QMenu;
-  m_postProcessMenu = new QMenu;
+  m_findPeakMenu = std::unique_ptr<QMenu>(new QMenu);
+  m_manualIntegrationMenu = std::unique_ptr<QMenu>(new QMenu);
+  m_postProcessMenu = std::unique_ptr<QMenu>(new QMenu);
+  m_setNoiseReferenceBaselineMenu = std::unique_ptr<QMenu>(new QMenu);
 
   /* Create Find peak menu */
 
-  a = new QAction(tr("Peak from here"), m_findPeakMenu);
+  a = new QAction(tr("Peak from here"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE));
   m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Peak from here (snap to signal)"), m_findPeakMenu);
+  a = new QAction(tr("Peak from here (snap to signal)"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::PEAK_FROM_HERE_SIGSNAP));
   m_findPeakMenu->addAction(a);
 
   m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Specify precise peak boundaries"), m_findPeakMenu);
+  a = new QAction(tr("Specify precise peak boundaries"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SPECIFY_PEAK_BOUNDARIES));
   m_findPeakMenu->addAction(a);
 
   m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Set noise reference point"), m_findPeakMenu);
+  a = new QAction(tr("Set noise reference point"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::NOISE_REF_POINT));
   m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Set slope reference point"), m_findPeakMenu);
+  a = new QAction(tr("Set slope reference point"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SLOPE_REF_POINT));
   m_findPeakMenu->addAction(a);
 
   m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Set EOF time"), m_findPeakMenu);
+  a = new QAction(tr("Set EOF time"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_EOF_TIME));
   m_findPeakMenu->addAction(a);
 
   m_findPeakMenu->addSeparator();
 
-  a = new QAction(tr("Set axis titles"), m_findPeakMenu);
+  a = new QAction(tr("Set axis titles"), m_findPeakMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SET_AXIS_TITLES));
   m_findPeakMenu->addAction(a);
 
-  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu);
+  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<FindPeakMenuActions>(FindPeakMenuActions::SCALE_PLOT_TO_FIT));
   m_findPeakMenu->addAction(a);
 
   /* Create Manual integration menu */
 
-  a = new QAction(tr("Peak to here"), m_manualIntegrationMenu);
+  a = new QAction(tr("Peak to here"), m_manualIntegrationMenu.get());
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH));
   m_manualIntegrationMenu->addAction(a);
 
-  a = new QAction(tr("Peak to here (snap to signal)"), m_manualIntegrationMenu);
+  a = new QAction(tr("Peak to here (snap to signal)"), m_manualIntegrationMenu.get());
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::FINISH_SIGSNAP));
   m_manualIntegrationMenu->addAction(a);
 
   m_manualIntegrationMenu->addSeparator();
 
-  a = new QAction(tr("Cancel"), m_manualIntegrationMenu);
+  a = new QAction(tr("Cancel"), m_manualIntegrationMenu.get());
   a->setData(QVariant::fromValue<ManualIntegrationMenuActions>(ManualIntegrationMenuActions::CANCEL));
   m_manualIntegrationMenu->addAction(a);
 
   /* Create Post process menu */
 
-  a = new QAction(tr("New peak from here"), m_postProcessMenu);
+  a = new QAction(tr("New peak from here"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::NEW_PEAK_FROM));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("New peak from here (snap to signal)"), m_postProcessMenu);
+  a = new QAction(tr("New peak from here (snap to signal)"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::NEW_PEAK_FROM_SIGSNAP));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("New peak with specific boundaries"), m_postProcessMenu);
+  a = new QAction(tr("New peak with specific boundaries"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SPECIFY_PEAK_BOUNDARIES));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Move peak beginning here"), m_postProcessMenu);
+  a = new QAction(tr("Move peak beginning here"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Move peak beginning here (snap to signal)"), m_postProcessMenu);
+  a = new QAction(tr("Move peak beginning here (snap to signal)"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Move peak end here"), m_postProcessMenu);
+  a = new QAction(tr("Move peak end here"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_TO));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Move peak end here (snap to signal)"), m_postProcessMenu);
+  a = new QAction(tr("Move peak end here (snap to signal)"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::MOVE_PEAK_TO_SIGSNAP));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Deselect peak"), m_postProcessMenu);
+  a = new QAction(tr("Deselect peak"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::DESELECT_PEAK));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Set EOF time"), m_postProcessMenu);
+  a = new QAction(tr("Set EOF time"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_EOF_TIME));
   m_postProcessMenu->addAction(a);
 
   m_postProcessMenu->addSeparator();
 
-  a = new QAction(tr("Set axis titles"), m_postProcessMenu);
+  a = new QAction(tr("Set axis titles"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_AXIS_TITLES));
   m_postProcessMenu->addAction(a);
 
-  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu);
+  a = new QAction(tr("Scale plot axes to fit"), m_postProcessMenu.get());
   a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SCALE_PLOT_TO_FIT));
   m_postProcessMenu->addAction(a);
+
+  m_postProcessMenu->addSeparator();
+
+  a = new QAction(tr("Set noise reference baseline"), m_postProcessMenu.get());
+  a->setData(QVariant::fromValue<PostProcessMenuActions>(PostProcessMenuActions::SET_NOISE_REF_BL));
+  m_postProcessMenu->addAction(a);
+
+  /* Create noise reference baselie menu */
+
+  a = new QAction(tr("Noise reference baseline to here"), m_setNoiseReferenceBaselineMenu.get());
+  a->setData(QVariant::fromValue<SetNoiseReferenceBaselineActions>(SetNoiseReferenceBaselineActions::FINISH));
+  m_setNoiseReferenceBaselineMenu->addAction(a);
+
+  m_setNoiseReferenceBaselineMenu->addSeparator();
+
+  a = new QAction(tr("Cancel"), m_setNoiseReferenceBaselineMenu.get());
+  a->setData(QVariant::fromValue<SetNoiseReferenceBaselineActions>(SetNoiseReferenceBaselineActions::CANCEL));
+  m_setNoiseReferenceBaselineMenu->addAction(a);
 }
 
 bool EvaluationEngine::createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name)
@@ -815,6 +901,15 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   return def;
 }
 
+QVector<double> EvaluationEngine::defaultSnrValues() const
+{
+  QVector<double> def;
+  def.resize(m_snrFloatingModel.indexFromItem(SNRItems::Floating::LAST_INDEX));
+
+  def[m_snrFloatingModel.indexFromItem(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER)] = s_defaultSNRAmplifier;
+
+  return def;
+}
 MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                                                                                      const double estA0, const double estA1, const double estA2, const double estA3,
                                                                                      const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
@@ -924,7 +1019,8 @@ void EvaluationEngine::displayCurrentPeak()
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
                     m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
-                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::MEAN_X));
+                    m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::MEAN_X),
+                    m_currentPeak.noiseFrom, m_currentPeak.noiseTo);
   setEvaluationResults(m_currentPeak);
   displayAssistedFinderData(m_currentPeak.afContext);
 }
@@ -937,6 +1033,7 @@ EvaluationEngine::PeakContext EvaluationEngine::duplicatePeakContext() const noe
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      m_hvlFitIntValues,
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlBooleanValues()),
+                     MappedVectorWrapper<double, SNRItems::Floating>(defaultSnrValues()),
                      AssistedFinderContext(m_evaluationAutoValues, m_evaluationBooleanValues, m_evaluationFloatingValues,
                                            m_baselineAlgorithm, m_showWindow, m_windowUnit),
                      std::make_shared<PeakFinderResults::Result>(),
@@ -1012,6 +1109,8 @@ void EvaluationEngine::findPeakAssisted()
   case UserInteractionState::MANUAL_PEAK_INTEGRATION:
     return;
   case UserInteractionState::FINDING_PEAK:
+    break;
+  case UserInteractionState::NOISE_REFERENCE_BL_SETTING:
     break;
   }
 
@@ -1224,6 +1323,7 @@ EvaluationEngine::PeakContext EvaluationEngine::freshPeakContext() const noexcep
                      MappedVectorWrapper<double, HVLFitResultsItems::Floating>(emptyHvlValues()),
                      MappedVectorWrapper<int, HVLFitParametersItems::Int>(defaultHvlIntValues()),
                      MappedVectorWrapper<bool, HVLFitParametersItems::Boolean>(defaultHvlBooleanValues()),
+                     MappedVectorWrapper<double, SNRItems::Floating>(defaultSnrValues()),
                      AssistedFinderContext(),
                      std::make_shared<PeakFinderResults::Result>(),
                      0.0, 0.0, QVector<QPointF>(), QVector<QPointF>());
@@ -1238,6 +1338,7 @@ void EvaluationEngine::fullViewUpdate()
   m_hvlFitModel.notifyAllDataChanged();
   m_hvlFitBooleanModel.notifyAllDataChanged();
   m_hvlFitIntModel.notifyAllDataChanged();
+  m_snrFloatingModel.notifyAllDataChanged();
 
   emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::WINDOW_UNITS,
                                                                    EvaluationParametersItems::index(m_windowUnit)));
@@ -1427,6 +1528,7 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
 {
   return PeakContext(models.resultsValues,
                      models.hvlValues, models.hvlFitIntValues, models.hvlFitBooleanValues,
+                     models.snrValues,
                      afContext,
                      fr,
                      er.baselineSlope, er.baselineIntercept,
@@ -1442,6 +1544,7 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
 {
   return PeakContext(models.resultsValues,
                      models.hvlValues, models.hvlFitIntValues, models.hvlFitBooleanValues,
+                     models.snrValues,
                      afContext,
                      fr,
                      er.baselineSlope, er.baselineIntercept,
@@ -1449,24 +1552,28 @@ EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const PeakContex
                      hvlPlotExtrapolated);
 }
 
-EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
-                                                                const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues,
-                                                                const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues,
-                                                                const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues,
+EvaluationEngine::PeakContext EvaluationEngine::makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+                                                                const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                                                                const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                                                                const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                                                const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                                                                 const PeakContext &oldPeak) const
 {
-  return PeakContext(resultsValues, hvlValues, hvlFitIntValues, hvlFitBooleanValues,
+  return PeakContext(resultsValues, hvlValues, hvlFitIntValues, hvlFitBooleanValues, snrValues,
                      oldPeak.afContext,
                      oldPeak.finderResults,
                      oldPeak.baselineSlope, oldPeak.baselineIntercept,
                      oldPeak.hvlPlot,
-                     oldPeak.hvlPlotExtrapolated);
+                     oldPeak.hvlPlotExtrapolated,
+                     oldPeak.noiseFrom,
+                     oldPeak.noiseTo);
 }
 
 EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er,
                                                                             const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlResults,
                                                                             const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues) const
+                                                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                                                            const MappedVectorWrapper<double, SNRItems::Floating> &snrValues) const
 {
   MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
 
@@ -1508,14 +1615,14 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::SIGMA_MEAN] = er.sigmaMean;
   resultsValues[EvaluationResultsItems::Floating::MEAN_X] = er.meanX;
 
-  return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues);
+  return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues, snrValues);
 }
 
 void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point)
 {
   switch (action) {
   case ManualIntegrationMenuActions::CANCEL:
-    m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
+    m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_BASELINE));
     m_userInteractionState = UserInteractionState::FINDING_PEAK;
     m_plotCtx->replot();
     break;
@@ -2089,22 +2196,35 @@ void EvaluationEngine::onPlotPointHovered(const QPointF &point, const QPoint &cu
   if (!isContextAccessible(locker))
     return;
 
-  if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION) {
+  if (m_userInteractionState == UserInteractionState::MANUAL_PEAK_INTEGRATION || m_userInteractionState == UserInteractionState::NOISE_REFERENCE_BL_SETTING) {
     QVector<QPointF> line;
     double fx;
     double tx;
     double fy;
     double ty;
-    if (m_manualPeakFrom.x() < point.x()) {
-      fx = m_manualPeakFrom.x();
+
+    const QPointF &from = [this]() {
+      switch (m_userInteractionState) {
+      case UserInteractionState::MANUAL_PEAK_INTEGRATION:
+        return m_manualPeakFrom;
+      case UserInteractionState::NOISE_REFERENCE_BL_SETTING:
+        return m_noiseReferenceBaselineFrom;
+      default:
+        return QPointF(0.0, 0.0);
+      }
+    }();
+
+
+    if (from.x() < point.x()) {
+      fx = from.x();
       tx = point.x();
-      fy = m_manualPeakFrom.y();
+      fy = from.y();
       ty = point.y();
     } else {
       fx = point.x();
-      tx = m_manualPeakFrom.x();
+      tx = from.x();
       fy = point.y();
-      ty = m_manualPeakFrom.y();
+      ty = from.y();
     }
 
     line.push_back(QPointF(fx, fy));
@@ -2144,6 +2264,13 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
       return;
 
     postProcessMenuTriggered(trig->data().value<PostProcessMenuActions>(), point);
+    break;
+  case UserInteractionState::NOISE_REFERENCE_BL_SETTING:
+    trig = m_setNoiseReferenceBaselineMenu->exec(cursor);
+    if (trig == nullptr)
+      return;
+
+    calculateSNRTriggered(trig->data().value<SetNoiseReferenceBaselineActions>(), point);
     break;
   }
 }
@@ -2361,7 +2488,8 @@ void EvaluationEngine::onUnhighlightProvisionalPeak()
 void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                                          const double widthHalfLeft, const double widthHalfRight,
                                          const double peakHeight, const double peakHeightBaseline,
-                                         const double centroidX)
+                                         const double centroidX,
+                                         const QPointF &noiseFrom, const QPointF &noiseTo)
 {
   /* Draw the baseline */
   {
@@ -2439,6 +2567,8 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
     m_plotCtx->setSerieSamples(seriesIndex(Series::HVL_EXTRAPOLATED_BASELINE), { m_currentPeak.hvlPlotExtrapolated.front(),
                                                                                  m_currentPeak.hvlPlotExtrapolated.back()});
 
+  m_plotCtx->setSerieSamples(seriesIndex(Series::NOISE_BASELINE), {noiseFrom, noiseTo});
+
   m_plotCtx->replot();
 }
 
@@ -2481,6 +2611,8 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
   case PostProcessMenuActions::SCALE_PLOT_TO_FIT:
     m_plotCtx->scaleToFit();
     return;
+  case PostProcessMenuActions::SET_NOISE_REF_BL:
+    beginSetNoiseReferenceBaseline(point);
     break;
   }
 }
@@ -2618,12 +2750,17 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     hvlResults[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = 0.0;
   }
 
-  const PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
-                                                                hvlResults,
-                                                                hvlFitIntValues, srcCtx.hvlFitBooleanValues),
-                                          afContext, fr, er,
-                                          std::move(hvlPlot), std::move(hvlPlotEx));
+  PeakContext ctx = makePeakContext(makePeakContextModels(fr, er,
+                                                          hvlResults,
+                                                          hvlFitIntValues, srcCtx.hvlFitBooleanValues,
+                                                          srcCtx.snrValues),
+                                    afContext, fr, er,
+                                    std::move(hvlPlot), std::move(hvlPlotEx));
 
+  if (updateCurrentPeak && srcCtx.hasNoise())
+    calculateSNR(ctx,
+                 const_cast<MappedVectorWrapper<double, SNRItems::Floating>&>(srcCtx.snrValues),
+                 srcCtx.noiseFrom, srcCtx.noiseTo);
 
   m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
@@ -2795,6 +2932,9 @@ void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
   m_hvlFitModel.notifyAllDataChanged();
   m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS, HVLFitParametersItems::Int::DIGITS);
 
+  m_snrFloatingValues = ctx.snrValues;
+  m_snrFloatingModel.notifyAllDataChanged();
+
   connect(&m_hvlFitModel, &FloatingMapperModel<HVLFitResultsItems::Floating>::dataChanged, this, &EvaluationEngine::onHvlResultsModelChanged);
 }
 
@@ -2809,6 +2949,8 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
   m_evaluationBooleanValues = ctx.afContext.afBoolValues;
   m_evaluationFloatingValues = ctx.afContext.afFloatingValues;
 
+  m_snrFloatingValues = ctx.snrValues;
+
   m_windowUnit = ctx.afContext.windowUnits;
   m_showWindow = ctx.afContext.showWindow;
   m_baselineAlgorithm = ctx.afContext.baselineAlgorithm;
@@ -2822,7 +2964,8 @@ bool EvaluationEngine::setPeakContext(const PeakContext &ctx)
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT),
                       m_resultsNumericValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL),
-                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::MEAN_X));
+                      m_resultsNumericValues.at(EvaluationResultsItems::Floating::MEAN_X),
+                      ctx.noiseFrom, ctx.noiseTo);
 
   return true;
 }
@@ -2865,6 +3008,11 @@ void EvaluationEngine::showSetAxisTitlesDialog()
   }
 }
 
+AbstractMapperModel<double, SNRItems::Floating> *EvaluationEngine::snrModel()
+{
+  return &m_snrFloatingModel;
+}
+
 QAbstractItemModel *EvaluationEngine::showWindowModel()
 {
   return &m_showWindowModel;
@@ -2898,6 +3046,7 @@ void EvaluationEngine::storeCurrentPeak()
                                                           m_hvlFitValues,
                                                           m_hvlFitIntValues,
                                                           m_hvlFitBooleanValues,
+                                                          m_snrFloatingValues,
                                                           m_currentPeak));
 }
 

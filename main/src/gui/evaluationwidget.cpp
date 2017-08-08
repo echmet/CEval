@@ -16,6 +16,7 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   m_evaluationHvlFitOptionsMapper = new QDataWidgetMapper(this);
   m_evaluationHvlExtrapolationBooleanMapper = new QDataWidgetMapper(this);
   m_evaluationHvlExtrapolationFloatingMapper = new QDataWidgetMapper(this);
+  m_snrMapper = new QDataWidgetMapper(this);
 
   m_evaluationResultsMapper->setSubmitPolicy(QDataWidgetMapper::ManualSubmit);
 
@@ -447,6 +448,17 @@ void EvaluationWidget::setExporterBackendsModel(QAbstractItemModel *model)
 void EvaluationWidget::setExporterSchemesModel(QAbstractItemModel *model)
 {
   ui->qcbox_schemes->setModel(model);
+}
+
+void EvaluationWidget::setSNRModel(AbstractMapperModel<double, SNRItems::Floating> *model)
+{
+  m_snrMapper->setModel(model);
+  m_snrMapper->setItemDelegate(&m_floatingMapperDelegate);
+
+  m_snrMapper->addMapping(ui->qle_SNRbaselineStdErr, model->indexFromItem(SNRItems::Floating::BASELINE_STANDARD_ERROR));
+  m_snrMapper->addMapping(ui->qle_SNRsnr, model->indexFromItem(SNRItems::Floating::SIGNAL_TO_NOISE_RATIO));
+  m_snrMapper->addMapping(ui->qle_SNRstdErrAmplifier, model->indexFromItem(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER));
+  m_snrMapper->toFirst();
 }
 
 void EvaluationWidget::on_qcb_enableHvlExtrapolation_clicked(bool checked)

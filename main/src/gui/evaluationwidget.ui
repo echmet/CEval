@@ -622,9 +622,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-669</y>
+            <y>-777</y>
             <width>742</width>
-            <height>1201</height>
+            <height>1309</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -2245,6 +2245,57 @@ padding-right: 2em;</string>
                 </item>
                 <item row="0" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_hvlExtrBaselineCloseness"/>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="CollapsibleGroupBox" name="qbp_signalToNoiseRatio">
+             <property name="title">
+              <string>Signal to noise ratio</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <layout class="QGridLayout" name="gridLayout_10">
+                <item row="0" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_SNRbaselineStdErr">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="0">
+                 <widget class="QLabel" name="ql_SNRbaselineSigma">
+                  <property name="text">
+                   <string>Baseline standard error</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="0" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_SNRstdErrAmplifier"/>
+                </item>
+                <item row="0" column="2">
+                 <widget class="QLabel" name="ql_SNRamplifier">
+                  <property name="text">
+                   <string>Standard error amplifier</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="ql_SNRsnr">
+                  <property name="text">
+                   <string>SNR</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_SNRsnr">
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
                 </item>
                </layout>
               </item>

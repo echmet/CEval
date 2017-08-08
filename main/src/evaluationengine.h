@@ -66,14 +66,22 @@ public:
     DESELECT_PEAK,
     SET_AXIS_TITLES,
     SET_EOF_TIME,
-    SCALE_PLOT_TO_FIT
+    SCALE_PLOT_TO_FIT,
+    SET_NOISE_REF_BL,
   };
   Q_ENUM(PostProcessMenuActions)
+
+  enum class SetNoiseReferenceBaselineActions {
+    FINISH,
+    CANCEL
+  };
+  Q_ENUM(SetNoiseReferenceBaselineActions)
 
   enum class UserInteractionState {
     FINDING_PEAK,
     MANUAL_PEAK_INTEGRATION,
-    PEAK_POSTPROCESSING
+    PEAK_POSTPROCESSING,
+    NOISE_REFERENCE_BL_SETTING
   };
   Q_ENUM(UserInteractionState)
 
@@ -98,6 +106,7 @@ public:
   void loadUserSettings(const QVariant &settings);
   AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
   AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
+  AbstractMapperModel<double, SNRItems::Floating> *snrModel();
   QVariant saveUserSettings() const;
   QAbstractItemModel *showWindowModel();
   QAbstractItemModel *windowUnitsModel();
@@ -126,6 +135,7 @@ private:
     PEAK_MEAN,
     HVL_EXTRAPOLATED,
     HVL_EXTRAPOLATED_BASELINE,
+    NOISE_BASELINE,
     LAST_INDEX
   };
 
@@ -176,12 +186,14 @@ private:
     explicit PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                                const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues);
+                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                               const MappedVectorWrapper<double, SNRItems::Floating> &snrValues);
 
     const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
     const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
     const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
     const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues;
+    const MappedVectorWrapper<double, SNRItems::Floating> snrValues;
 
   };
 
@@ -192,22 +204,30 @@ private:
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                         const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                          const AssistedFinderContext &afContext,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const double baselineSlope, const double baselineIntercept,
                          const QVector<QPointF> &hvlPlot,
-                         const QVector<QPointF> &hvlPlotExtrapolated);
+                         const QVector<QPointF> &hvlPlotExtrapolated,
+                         const QPointF &noiseFrom = QPointF(),
+                         const QPointF &noiseTo = QPointF());
     explicit PeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
                          const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                          const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                         const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                          const AssistedFinderContext &afContext,
                          const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                          const double baselineSlope, const double baselineIntercept,
                          QVector<QPointF> &&hvlPlot,
-                         QVector<QPointF> &&hvlPlotExtrapolated);
+                         QVector<QPointF> &&hvlPlotExtrapolated,
+                         const QPointF &noiseFrom = QPointF(),
+                         const QPointF &noiseTo = QPointF());
     PeakContext(const PeakContext &other);
     void clearHvlExtrapolation();
+    bool hasNoise() const;
+    void setNoise(const QPointF &_noiseFrom, const QPointF &_noiseTo, MappedVectorWrapper<double, SNRItems::Floating> &_snrValues);
     void updateHvlData(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &inHvlValues,
                        const MappedVectorWrapper<int, HVLFitParametersItems::Int> &inHvlFitIntValues,
                        const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &inHvlFitBooleanValues);
@@ -224,6 +244,10 @@ private:
     const double baselineIntercept;
     const QVector<QPointF> hvlPlot;
     const QVector<QPointF> hvlPlotExtrapolated;
+
+    const MappedVectorWrapper<double, SNRItems::Floating> snrValues;
+    const QPointF noiseFrom;
+    const QPointF noiseTo;
 
     PeakContext &operator=(const PeakContext &other);
     PeakContext &operator=(PeakContext &&other);
@@ -270,7 +294,10 @@ private:
   void activateCurrentDataContext();
   void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
   void beginManualIntegration(const QPointF &from, const bool snap);
+  void beginSetNoiseReferenceBaseline(const QPointF &from);
   double calculateA1Mobility(const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues, const CommonParametersEngine::Context &commonCtx);
+  bool calculateSNR(PeakContext &ctx, MappedVectorWrapper<double, SNRItems::Floating> &snrValue, const QPointF &from, const QPointF &to);
+  void calculateSNRTriggered(const SetNoiseReferenceBaselineActions &action, const QPointF &to);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);
   bool createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name);
@@ -278,6 +305,7 @@ private:
   EvaluationContext currentEvaluationContext() const;
   QVector<bool> defaultHvlBooleanValues() const;
   QVector<int> defaultHvlIntValues() const;
+  QVector<double> defaultSnrValues() const;
   void displayAssistedFinderData(const AssistedFinderContext &afContext);
   void displayCurrentPeak();
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
@@ -317,19 +345,22 @@ private:
                               const PeakEvaluator::Results &er,
                               QVector<QPointF> &&hvlPlot,
                               QVector<QPointF> &&hvlPlotExtrapolated) const;
-  PeakContext makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues,
-                              const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues,
-                              const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues,
-                              const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues,
+  PeakContext makePeakContext(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+                              const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                              const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                              const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                              const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                               const PeakContext &oldPeak) const;
   PeakContextModels makePeakContextModels(const std::shared_ptr<PeakFinderResults::Result> &fr, const PeakEvaluator::Results &er, const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlResults,
                                           const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues) const;
+                                          const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                          const MappedVectorWrapper<double, SNRItems::Floating> &snrValues) const;
   void manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point);
   void plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults::Result> &fr, const double peakX,
                          const double widthHalfLeft, const double widthHalfRight,
                          const double peakHeight, const double peakHeightBaseline,
-                         const double centroidX);
+                         const double centroidX,
+                         const QPointF &noiseFrom, const QPointF &noiseTo);
   void postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point);
   PeakContext processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr,
                                const AssistedFinderContext &afContext, const bool updateCurrentPeak, const bool doHvlFitRq,
@@ -361,11 +392,13 @@ private:
   int m_currentPeakIdx;
 
   AddPeakDialog *m_addPeakDlg;
-  QMenu *m_findPeakMenu;
-  QMenu *m_manualIntegrationMenu;
-  QMenu *m_postProcessMenu;
+  std::unique_ptr<QMenu> m_findPeakMenu;
+  std::unique_ptr<QMenu> m_manualIntegrationMenu;
+  std::unique_ptr<QMenu> m_postProcessMenu;
+  std::unique_ptr<QMenu> m_setNoiseReferenceBaselineMenu;
   UserInteractionState m_userInteractionState;
 
+  QPointF m_noiseReferenceBaselineFrom;
   QPointF m_manualPeakFrom;
   bool m_manualPeakSnapFrom;
 
@@ -384,6 +417,7 @@ private:
   MappedVectorWrapper<bool, HVLFitOptionsItems::Boolean> m_hvlFitOptionsValues;
   MappedVectorWrapper<bool, HVLExtrapolationParametersItems::Boolean> m_hvlExtrapolationBooleanValues;
   MappedVectorWrapper<double, HVLExtrapolationParametersItems::Floating> m_hvlExtrapolationFloatingValues;
+  MappedVectorWrapper<double, SNRItems::Floating> m_snrFloatingValues;
 
   ComboBoxModel<EvaluationParametersItems::ComboBaselineAlgorithm> m_baselineAlgorithmModel;
   EvaluatedPeaksModel m_evaluatedPeaksModel;
@@ -400,6 +434,7 @@ private:
   BooleanMapperModel<HVLFitOptionsItems::Boolean> m_hvlFitOptionsModel;
   BooleanMapperModel<HVLExtrapolationParametersItems::Boolean> m_hvlExtrapolationBooleanModel;
   FloatingMapperModel<HVLExtrapolationParametersItems::Floating> m_hvlExtrapolationFloatingModel;
+  FloatingMapperModel<SNRItems::Floating> m_snrFloatingModel;
 
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>> s_windowUnitsValues;
   static const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>> s_baselineAlgorithmValues;
@@ -429,12 +464,14 @@ private:
   static const QString s_seriePeakMean;
   static const QString s_serieHVLExtrapolated;
   static const QString s_serieHVLExtrapolatedBaseline;
+  static const QString s_serieNoiseBaseline;
 
   static const QString s_emptyCtxKey;
 
   static const double s_defaultHvlEpsilon;
   static const int s_defaultHvlDigits;
   static const int s_defaultHvlIterations;
+  static const int s_defaultSNRAmplifier;
 
   static const QString HVLFITOPTIONS_DISABLE_AUTO_FIT_TAG;
   static const QString HVLFITOPTIONS_SHOW_FIT_STATS_TAG;

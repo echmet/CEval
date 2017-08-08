@@ -169,7 +169,8 @@ SOURCES += src/main.cpp \
     src/efg/efgtypes.cpp \
     src/efg/ipcclient.cpp \
     src/efg/localsocketclient.cpp \
-    src/hvlextrapolator.cpp
+    src/hvlextrapolator.cpp \
+    src/snrcalculator.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -364,7 +365,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/efg/ipcclient.h \
     src/efg/localsocketclient.h \
     src/gui/efgloadinfo.h \
-    src/hvlextrapolator.h
+    src/hvlextrapolator.h \
+    src/snrcalculator.h
 
 ipc_dbus {
     SOURCES += \

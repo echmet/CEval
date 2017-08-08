@@ -67,5 +67,16 @@ public:
 
 };
 
+class SNRItems
+{
+public:
+  enum class Floating {
+    BASELINE_STANDARD_ERROR,
+    SIGNAL_TO_NOISE_RATIO,
+    INPUT_STANDARD_ERROR_AMPLIFIER,
+    LAST_INDEX
+  };
+};
+
 #endif // EVALUATIONRESULTSITEMS_H
 

@@ -39,6 +39,7 @@ public:
   void setEvaluationWindowUnitsModel(QAbstractItemModel *model);
   void setExporterBackendsModel(QAbstractItemModel *model);
   void setExporterSchemesModel(QAbstractItemModel *model);
+  void setSNRModel(AbstractMapperModel<double, SNRItems::Floating> *model);
 
 private:
   Ui::EvaluationWidget *ui;
@@ -52,6 +53,7 @@ private:
   QDataWidgetMapper *m_evaluationHvlFitIntMapper;
   QDataWidgetMapper *m_evaluationHvlFitMapper;
   QDataWidgetMapper *m_evaluationHvlFitOptionsMapper;
+  QDataWidgetMapper *m_snrMapper;
 
   FloatingValueDelegate m_floatingMapperDelegate;
 

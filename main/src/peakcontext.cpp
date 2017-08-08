@@ -12,10 +12,13 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                           const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                                            const AssistedFinderContext &afContext,
                                            const std::shared_ptr<PeakFinderResults::Result> &finderResults, const double baselineSlope, const double baselineIntercept,
                                            const QVector<QPointF> &hvlPlot,
-                                           const QVector<QPointF> &hvlPlotExtrapolated) :
+                                           const QVector<QPointF> &hvlPlotExtrapolated,
+                                           const QPointF &noiseFrom,
+                                           const QPointF &noiseTo) :
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
@@ -25,7 +28,10 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
   baselineSlope(baselineSlope),
   baselineIntercept(baselineIntercept),
   hvlPlot(hvlPlot),
-  hvlPlotExtrapolated(hvlPlotExtrapolated)
+  hvlPlotExtrapolated(hvlPlotExtrapolated),
+  snrValues(snrValues),
+  noiseFrom(noiseFrom),
+  noiseTo(noiseTo)
 {
 }
 
@@ -33,10 +39,13 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
                                            const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
                                            const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
                                            const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                                           const MappedVectorWrapper<double, SNRItems::Floating> &snrValues,
                                            const AssistedFinderContext &afContext,
                                            const std::shared_ptr<PeakFinderResults::Result> &finderResults, const double baselineSlope, const double baselineIntercept,
                                            QVector<QPointF> &&hvlPlot,
-                                           QVector<QPointF> &&hvlPlotExtrapolated) :
+                                           QVector<QPointF> &&hvlPlotExtrapolated,
+                                           const QPointF &noiseFrom,
+                                           const QPointF &noiseTo) :
   resultsValues(resultsValues),
   hvlValues(hvlValues),
   hvlFitIntValues(hvlFitIntValues),
@@ -46,7 +55,10 @@ EvaluationEngine::PeakContext::PeakContext(const MappedVectorWrapper<double, Eva
   baselineSlope(baselineSlope),
   baselineIntercept(baselineIntercept),
   hvlPlot(hvlPlot),
-  hvlPlotExtrapolated(hvlPlotExtrapolated)
+  hvlPlotExtrapolated(hvlPlotExtrapolated),
+  snrValues(snrValues),
+  noiseFrom(noiseFrom),
+  noiseTo(noiseTo)
 {
 }
 
@@ -60,7 +72,10 @@ EvaluationEngine::PeakContext::PeakContext(const PeakContext &other) :
   baselineSlope(other.baselineSlope),
   baselineIntercept(other.baselineIntercept),
   hvlPlot(other.hvlPlot),
-  hvlPlotExtrapolated(other.hvlPlotExtrapolated)
+  hvlPlotExtrapolated(other.hvlPlotExtrapolated),
+  snrValues(other.snrValues),
+  noiseFrom(other.noiseFrom),
+  noiseTo(other.noiseTo)
 {
 }
 
@@ -79,6 +94,18 @@ void EvaluationEngine::PeakContext::clearHvlExtrapolation()
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_SIGMA] = 0.0;
   const_cast<MappedVectorWrapper<double, HVLFitResultsItems::Floating>&>(hvlValues)[HVLFitResultsItems::Floating::HVL_EXTRAPOLATED_MEAN] = 0.0;
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated).clear();
+}
+
+bool EvaluationEngine::PeakContext::hasNoise() const
+{
+  return !(noiseFrom.isNull() && noiseTo.isNull());
+}
+
+void EvaluationEngine::PeakContext::setNoise(const QPointF &_noiseFrom, const QPointF &_noiseTo, MappedVectorWrapper<double, SNRItems::Floating> &_snrValues)
+{
+  const_cast<QPointF&>(this->noiseFrom) = _noiseFrom;
+  const_cast<QPointF&>(this->noiseTo) = _noiseTo;
+  const_cast<MappedVectorWrapper<double, SNRItems::Floating>&>(this->snrValues) = _snrValues;
 }
 
 void EvaluationEngine::PeakContext::updateHvlPlot(const QVector<QPointF> &plot, const QVector<QPointF> &plotExtrapolated)
@@ -105,6 +132,9 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(const Pe
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = other.hvlPlotExtrapolated;
   const_cast<std::shared_ptr<PeakFinderResults::Result>&>(finderResults) = other.finderResults;
   const_cast<AssistedFinderContext&>(afContext) = other.afContext;
+  const_cast<MappedVectorWrapper<double, SNRItems::Floating>&>(snrValues) = other.snrValues;
+  const_cast<QPointF&>(noiseFrom) = other.noiseFrom;
+  const_cast<QPointF&>(noiseTo) = other.noiseTo;
 
   return *this;
 }
@@ -121,6 +151,9 @@ EvaluationEngine::PeakContext &EvaluationEngine::PeakContext::operator=(PeakCont
   const_cast<QVector<QPointF>&>(hvlPlotExtrapolated) = other.hvlPlotExtrapolated;
   const_cast<std::shared_ptr<PeakFinderResults::Result>&>(finderResults) = other.finderResults;
   const_cast<AssistedFinderContext&>(afContext) = other.afContext;
+  const_cast<MappedVectorWrapper<double, SNRItems::Floating>&>(snrValues) = other.snrValues;
+  const_cast<QPointF&>(noiseFrom) = other.noiseFrom;
+  const_cast<QPointF&>(noiseTo) = other.noiseTo;
 
   return *this;
 }

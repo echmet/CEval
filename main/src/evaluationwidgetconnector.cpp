@@ -32,6 +32,7 @@ void EvaluationWidgetConnector::connectAll(QObject *anonWidget, QObject *anonDac
   w->setEvaluationParametersBooleanModel(e->booleanValuesModel());
   w->setEvaluationParametersFloatingModel(e->floatingValuesModel());
   w->setEvaluationResultsModel(e->resultsValuesModel());
+  w->setSNRModel(e->snrModel());
   w->setEvaluationShowWindowModel(e->showWindowModel());
   w->setEvaluationWindowUnitsModel(e->windowUnitsModel());
   w->setExporterBackendsModel(e->exporterBackendsModel());
