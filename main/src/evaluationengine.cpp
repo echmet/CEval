@@ -351,7 +351,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlExtrapolationBooleanModel.setUnderlyingData(m_hvlExtrapolationBooleanValues.pointer());
   m_hvlExtrapolationFloatingModel.setUnderlyingData(m_hvlExtrapolationFloatingValues.pointer());
 
-  m_snrFloatingValues[SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER] = s_defaultSNRAmplifier;
+  m_snrFloatingValues[SNRItems::Floating::INPUT_SIGMA_AMPLIFIER] = s_defaultSNRAmplifier;
   m_snrFloatingModel.setUnderlyingData(m_snrFloatingValues.pointer());
 
   connect(&EFGLoaderInterface::instance(), &EFGLoaderInterface::onDataLoaded, this, &EvaluationEngine::onDataLoaded);
@@ -633,12 +633,12 @@ double EvaluationEngine::calculateA1Mobility(const MappedVectorWrapper<double, H
 bool EvaluationEngine::calculateSNR(PeakContext &ctx, MappedVectorWrapper<double, SNRItems::Floating> &snrValues, const QPointF &from, const QPointF &to)
 {
   const double blHeight = ctx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL);
-  const double stdErrAmp = snrValues.at(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER);
+  const double stdErrAmp = snrValues.at(SNRItems::Floating::INPUT_SIGMA_AMPLIFIER);
 
   try {
     SNRCalculator::Results r = SNRCalculator::calculate(m_currentDataContext->data->data, from, to, blHeight, stdErrAmp);
 
-    snrValues[SNRItems::Floating::BASELINE_STANDARD_ERROR] = r.stdErr;
+    snrValues[SNRItems::Floating::BASELINE_SIGMA] = r.stdErr;
     snrValues[SNRItems::Floating::SIGNAL_TO_NOISE_RATIO] = r.snr;
 
     ctx.setNoise(r.from, r.to, snrValues);
@@ -667,7 +667,7 @@ void EvaluationEngine::calculateSNRTriggered(const SetNoiseReferenceBaselineActi
 
   if (action == SetNoiseReferenceBaselineActions::FINISH) {
     if (calculateSNR(m_currentPeak, m_snrFloatingValues, m_noiseReferenceBaselineFrom, realTo)) {
-      m_snrFloatingModel.notifyDataChanged(SNRItems::Floating::BASELINE_STANDARD_ERROR, SNRItems::Floating::SIGNAL_TO_NOISE_RATIO);
+      m_snrFloatingModel.notifyDataChanged(SNRItems::Floating::BASELINE_SIGMA, SNRItems::Floating::SIGNAL_TO_NOISE_RATIO);
       m_plotCtx->setSerieSamples(seriesIndex(Series::NOISE_BASELINE), {m_currentPeak.noiseFrom, m_currentPeak.noiseTo});
     }
   }
@@ -906,7 +906,7 @@ QVector<double> EvaluationEngine::defaultSnrValues() const
   QVector<double> def;
   def.resize(m_snrFloatingModel.indexFromItem(SNRItems::Floating::LAST_INDEX));
 
-  def[m_snrFloatingModel.indexFromItem(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER)] = s_defaultSNRAmplifier;
+  def[m_snrFloatingModel.indexFromItem(SNRItems::Floating::INPUT_SIGMA_AMPLIFIER)] = s_defaultSNRAmplifier;
 
   return def;
 }

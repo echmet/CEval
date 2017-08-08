@@ -17,7 +17,7 @@ public:
 
   SNRCalculator() = delete;
 
-  static Results calculate(const QVector<QPointF> &data, const QPointF &from, const QPointF &to, const double signalMagnitude, const double stdErrAmplifier);
+  static Results calculate(const QVector<QPointF> &data, const QPointF &from, const QPointF &to, const double signalMagnitude, const double sigmaAmplifier);
 };
 
 #endif // SNRCALCULATOR_H

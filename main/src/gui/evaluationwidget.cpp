@@ -455,9 +455,9 @@ void EvaluationWidget::setSNRModel(AbstractMapperModel<double, SNRItems::Floatin
   m_snrMapper->setModel(model);
   m_snrMapper->setItemDelegate(&m_floatingMapperDelegate);
 
-  m_snrMapper->addMapping(ui->qle_SNRbaselineStdErr, model->indexFromItem(SNRItems::Floating::BASELINE_STANDARD_ERROR));
+  m_snrMapper->addMapping(ui->qle_SNRbaselineSigma, model->indexFromItem(SNRItems::Floating::BASELINE_SIGMA));
   m_snrMapper->addMapping(ui->qle_SNRsnr, model->indexFromItem(SNRItems::Floating::SIGNAL_TO_NOISE_RATIO));
-  m_snrMapper->addMapping(ui->qle_SNRstdErrAmplifier, model->indexFromItem(SNRItems::Floating::INPUT_STANDARD_ERROR_AMPLIFIER));
+  m_snrMapper->addMapping(ui->qle_SNRsigmaAmplifier, model->indexFromItem(SNRItems::Floating::INPUT_SIGMA_AMPLIFIER));
   m_snrMapper->toFirst();
 }
 

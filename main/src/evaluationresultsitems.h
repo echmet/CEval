@@ -71,9 +71,9 @@ class SNRItems
 {
 public:
   enum class Floating {
-    BASELINE_STANDARD_ERROR,
+    BASELINE_SIGMA,
     SIGNAL_TO_NOISE_RATIO,
-    INPUT_STANDARD_ERROR_AMPLIFIER,
+    INPUT_SIGMA_AMPLIFIER,
     LAST_INDEX
   };
 };
