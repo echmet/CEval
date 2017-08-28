@@ -12,13 +12,13 @@ namespace backend {
  */
 class Data {
 public:
-  std::string name;                                     /*!< Name of the source file */
-  std::string path;                                     /*!< Absolute path to the source file */
-  std::string xDescription;                             /*!< Description (label) of X axis */
-  std::string yDescription;                             /*!< Description (label) of Y axis */
-  std::string xUnit;                                    /*!< Units of data on X axis */
-  std::string yUnit;                                    /*!< Units of data on Y axis */
-  std::vector<std::tuple<double, double>> datapoints;   /*!< [X, Y] tuples of datapoints */
+  const std::string name;                                     /*!< Name of the source file */
+  const std::string path;                                     /*!< Absolute path to the source file */
+  const std::string xDescription;                             /*!< Description (label) of X axis */
+  const std::string yDescription;                             /*!< Description (label) of Y axis */
+  const std::string xUnit;                                    /*!< Units of data on X axis */
+  const std::string yUnit;                                    /*!< Units of data on Y axis */
+  const std::vector<std::tuple<double, double>> datapoints;   /*!< [X, Y] tuples of datapoints */
 };
 
 /*!
@@ -26,12 +26,6 @@ public:
  */
 class Identifier {
 public:
-  explicit Identifier(const std::string &longDescription, const std::string &shortDescription, const std::string &tag, const std::vector<std::string> &loadOptions) :
-    longDescription(longDescription),
-    shortDescription(shortDescription),
-    tag(tag),
-    loadOptions(loadOptions)
-  {}
   const std::string longDescription;            /*!< Human-readable description of the loader backend. This should be as descriptive as possible. */
   const std::string shortDescription;           /*!< Breif description of the loader. The string should be suitable for display in menus and other UI elements. */
   const std::string tag;                        /*! Unique ID tag. */

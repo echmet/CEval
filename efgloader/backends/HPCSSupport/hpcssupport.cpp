@@ -184,17 +184,17 @@ Data HPCSSupport::loadChemStationFileSingle(const QString &path)
   dir.cdUp();
   m_lastChemStationPath = dir.path();
 
-  Data data{};
-
-  data.name = QFileInfo(path).fileName().toStdString();
-  data.path = path.toStdString();
-  data.xDescription = "Time";
-  data.yDescription = chemStationTypeToString(chData.type);
-  data.xUnit = "minute";
-  data.yUnit = chData.yUnits.toStdString();
-
+  std::vector<std::tuple<double, double>> datapoints;
   for (const auto &datapoint : chData.data)
-    data.datapoints.emplace_back(std::make_tuple(datapoint.x(), datapoint.y()));
+    datapoints.emplace_back(std::make_tuple(datapoint.x(), datapoint.y()));
+
+  Data data{QFileInfo(path).fileName().toStdString(),
+            path.toStdString(),
+            "Time",
+            chemStationTypeToString(chData.type),
+            "minute",
+            chData.yUnits.toStdString(),
+            std::move(datapoints)};
 
   return data;
 }

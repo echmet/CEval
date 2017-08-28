@@ -45,7 +45,13 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
   if (file.length() > 0)
     fileName = QFileInfo(file).fileName();
 
-  return Data{fileName.toStdString(), file.toStdString(), xType.toStdString(), yType.toStdString(), xUnit.toStdString(), yUnit.toStdString(), csvData.data};
+  return Data{fileName.toStdString(),
+              file.toStdString(),
+              xType.toStdString(),
+              yType.toStdString(),
+              xUnit.toStdString(),
+              yUnit.toStdString(),
+              std::move(csvData.data)};
 }
 
 CsvFileLoader::Parameters makeCsvLoaderParameters(LoadCsvFileDialog *dlg)
