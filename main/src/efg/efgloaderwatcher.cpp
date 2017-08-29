@@ -36,6 +36,8 @@ EFGLoaderWatcher::~EFGLoaderWatcher()
     disconnect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
     m_efgLoader->terminate();
   }
+
+  delete m_efgLoader;
 }
 
 void EFGLoaderWatcher::onEFGLoaderFinished(int exitCode, QProcess::ExitStatus exitStatus)
