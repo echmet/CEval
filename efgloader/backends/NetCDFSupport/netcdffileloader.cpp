@@ -3,7 +3,7 @@
 #include <exception>
 #include <QString>
 
-#define NC_CHECK(ret, errMsg) if (ret) { nc_close(ncid); throw std::runtime_error(errMsg); }
+#define NC_CHECK(ret, errMsg) if (ret) { nc_close(ncid); throw std::runtime_error{errMsg}; }
 
 namespace backend {
 
@@ -15,17 +15,17 @@ static const char *point_number_dim = "point_number";
 
 std::string attributeToString(const int ncid, const int varid, const char *attrName, const size_t len)
 {
-  std::string sStr;
+  std::string sStr{};
   char *str = new char[len + 1];
 
   int ret = nc_get_att(ncid, varid, attrName, str);
   if (ret) {
      delete [] str;
-     throw std::runtime_error(QString("Cannot read attribute %1").arg(attrName).toUtf8().data());
+     throw std::runtime_error{QString{"Cannot read attribute %1"}.arg(attrName).toUtf8().data()};
   }
 
   str[len] = '\0';
-  sStr = std::string(str);
+  sStr = std::string{str};
   delete [] str;
 
   return sStr;
@@ -41,13 +41,13 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   int scansVarId;
 
   /* output */
-  std::string detectorUnit;
-  std::string retentionUnit;
-  Scans scans;
+  std::string detectorUnit{};
+  std::string retentionUnit{};
+  Scans scans{};
 
   ret = nc_open(path.toUtf8().data(), NC_NOWRITE, &ncid);
   if (ret)
-    throw std::runtime_error("Cannot open datafile");
+    throw std::runtime_error{"Cannot open datafile"};
 
   ret = nc_inq_ncid(ncid, "/", &rootGrpId);
   NC_CHECK(ret, "Cannot get root group ID");
@@ -59,7 +59,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   NC_CHECK(ret, "Attribute \"detector_unit\" not found");
   if (attrType != NC_CHAR) {
     nc_close(ncid);
-    throw std::runtime_error("Unexpected type of attribute \"detector_unit\"");
+    throw std::runtime_error{"Unexpected type of attribute \"detector_unit\""};
   }
   detectorUnit = attributeToString(ncid, NC_GLOBAL, detector_unit_name, attrLen);
 
@@ -67,7 +67,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   NC_CHECK(ret, "Attribute \"detector_unit\" not found");
   if (attrType != NC_CHAR) {
     nc_close(ncid);
-    throw std::runtime_error("Unexpected type of attribute \"retention_unit\"");
+    throw std::runtime_error{"Unexpected type of attribute \"retention_unit\""};
   }
   retentionUnit = attributeToString(ncid, NC_GLOBAL, retention_unit_name, attrLen);
 
@@ -79,7 +79,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   NC_CHECK(ret, "Cannot get dimensions of \"ordinate_values\"");
   if (scansDims < 1) {
     nc_close(ncid);
-    throw std::runtime_error("\"ordinate_values\" has zero dimension");
+    throw std::runtime_error{"\"ordinate_values\" has zero dimension"};
   }
 
   int scansDim = -1;
@@ -88,7 +88,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   if (ret) {
     delete [] scansDimIds;
     nc_close(ncid);
-    throw std::runtime_error("Cannot get dimension IDs for \"ordinate_values\"");
+    throw std::runtime_error{"Cannot get dimension IDs for \"ordinate_values\""};
   }
   for (int idx = 0; idx < scansDims; idx++) {
     const int dimId = scansDimIds[idx];
@@ -98,7 +98,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
     if (ret) {
       delete [] scansDimIds;
       delete [] dimName;
-      throw std::runtime_error("Cannot get dimension name in \"ordinate_values\"");
+      throw std::runtime_error{"Cannot get dimension name in \"ordinate_values\""};
     }
 
     if (strcmp(dimName, point_number_dim) == 0) {
@@ -111,7 +111,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   delete [] scansDimIds;
   if (scansDim == -1) {
     nc_close(ncid);
-    throw std::runtime_error("Cannot get dimension ID");
+    throw std::runtime_error{"Cannot get dimension ID"};
   }
 
   size_t dimLen;
@@ -123,7 +123,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   NC_CHECK(ret, "Cannot check \"ordinate_values\" type");
   if (scansType != NC_FLOAT) {
     nc_close(ncid);
-    throw std::runtime_error("\"ordinate_values\" type is not NC_FLOAT");
+    throw std::runtime_error{"\"ordinate_values\" type is not NC_FLOAT"};
   }
 
   int runtimeVarId;
@@ -136,16 +136,16 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   NC_CHECK(ret, "Cannot reat \"actual_run_time_length\"");
 
   float *theData = new float[dimLen];
-  const size_t from[]= {0};
+  const size_t from[] = {0};
   const size_t to[] = {dimLen};
   ret = nc_get_vara(ncid, scansVarId, from, to, theData);
   if (ret) {
     delete [] theData;
     nc_close(ncid);
-    throw std::runtime_error("Cannot read scans data");
+    throw std::runtime_error{"Cannot read scans data"};
   }
 
-  const float samplingRate = runtime / (float)dimLen;
+  const float samplingRate = runtime / static_cast<float>(dimLen);
 
   for (size_t idx = 0; idx < dimLen; idx++) {
     const float time = samplingRate * idx;
@@ -155,7 +155,7 @@ NetCDFFileLoader::Data NetCDFFileLoader::load(const QString &path)
   delete [] theData;
   nc_close(ncid);
 
-  return Data(std::move(scans), std::move(retentionUnit), std::move(detectorUnit));
+  return Data{std::move(scans), std::move(retentionUnit), std::move(detectorUnit)};
 }
 
 } // namespace backend
