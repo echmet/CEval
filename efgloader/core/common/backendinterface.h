@@ -28,8 +28,8 @@ class Identifier {
 public:
   const std::string longDescription;            /*!< Human-readable description of the loader backend. This should be as descriptive as possible. */
   const std::string shortDescription;           /*!< Breif description of the loader. The string should be suitable for display in menus and other UI elements. */
-  const std::string tag;                        /*! Unique ID tag. */
-  const std::vector<std::string> loadOptions;   /*! Description of each modifier of loading behavior. */
+  const std::string tag;                        /*!< Unique ID tag */
+  const std::vector<std::string> loadOptions;   /*!< Description of each modifier of loading behavior */
 };
 
 class LoaderBackend {
