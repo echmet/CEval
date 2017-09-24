@@ -10,6 +10,8 @@ linux {
     QT += dbus
 }
 
+CONFIG += c++11
+
 TARGET = CEval
 TEMPLATE = app
 

@@ -8,7 +8,7 @@ QT       += core gui widgets
 
 TARGET = NetCDFSupport
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += dll c++11
 
 DEFINES += NETCDFSUPPORT_LIBRARY
 

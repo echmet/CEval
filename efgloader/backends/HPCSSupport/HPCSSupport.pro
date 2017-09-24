@@ -6,10 +6,9 @@
 
 QT += core gui widgets
 
-CONFIG += c++11
 TARGET = HPCSSupport
 TEMPLATE = lib
-CONFIG += dll
+CONFIG += dll c++11
 
 DEFINES += HPCSSUPPORT_LIBRARY
 
