@@ -61,15 +61,15 @@ std::vector<Data> NetCDFSupport::loadPath(const std::string &path, const int opt
     return std::vector<Data>{loadOneFile(QString::fromStdString(path))};
   } catch (std::runtime_error &ex) {
     QMessageBox::warning(nullptr, QObject::tr("Failed to load NetCDF file"), QString(ex.what()));
-    return std::vector<Data>();
+    return std::vector<Data>{};
   }
 }
 
 std::vector<Data> NetCDFSupport::loadInternal(const QString &path)
 {
-  QStringList files;
-  QFileDialog openDlg(nullptr, QObject::tr("Pick a NetCDF file"), path);
-  std::vector<Data> retData;
+  QStringList files{};
+  QFileDialog openDlg{nullptr, QObject::tr("Pick a NetCDF file"), path};
+  std::vector<Data> retData{};
 
   openDlg.setNameFilter("NetCDF file (*.cdf *.CDF)");
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
@@ -77,17 +77,17 @@ std::vector<Data> NetCDFSupport::loadInternal(const QString &path)
 
   BackendHelpers::showWindowOnTop(&openDlg);
   if  (openDlg.exec() != QDialog::Accepted)
-    return std::vector<Data>();
+    return std::vector<Data>{};
 
   files = openDlg.selectedFiles();
   if (files.length() < 1)
-    return std::vector<Data>();
+    return std::vector<Data>{};
 
   for (const QString &filePath : files) {
     try {
       retData.emplace_back(loadOneFile(filePath));
     } catch (std::runtime_error &ex) {
-      QMessageBox::warning(nullptr, QObject::tr("Failed to load NetCDF file"), QString(ex.what()));
+      QMessageBox::warning(nullptr, QObject::tr("Failed to load NetCDF file"), QString{ex.what()});
     }
   }
 
@@ -97,7 +97,7 @@ std::vector<Data> NetCDFSupport::loadInternal(const QString &path)
 Data NetCDFSupport::loadOneFile(const QString &filePath)
 {
   NetCDFFileLoader::Data data = NetCDFFileLoader::load(filePath);
-  QString fileName = QFileInfo(filePath).fileName();
+  QString fileName = QFileInfo{filePath}.fileName();
 
   return Data{fileName.toStdString(), filePath.toStdString(),
               "Time", "Signal",
