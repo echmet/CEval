@@ -1,7 +1,7 @@
 #ifndef CSVSUPPORT_H
 #define CSVSUPPORT_H
 
-#include "../../core/common/backendinterface.h"
+#include "../../efgloader-core/common/backendinterface.h"
 #include "csvsupport_global.h"
 
 class QStringList;

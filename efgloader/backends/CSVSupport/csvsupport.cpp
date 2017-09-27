@@ -3,7 +3,7 @@
 #include <QMessageBox>
 #include "csvfileloader.h"
 #include "loadcsvfiledialog.h"
-#include "../../core/common/backendhelpers_p.h"
+#include "../../efgloader-core/common/backendhelpers_p.h"
 
 namespace backend {
 

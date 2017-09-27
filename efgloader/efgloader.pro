@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 
-SUBDIRS += core backends/HPCSSupport \
+SUBDIRS += efgloader-core \
+    backends/HPCSSupport \
     backends/CSVSupport \
     backends/NetCDFSupport
 

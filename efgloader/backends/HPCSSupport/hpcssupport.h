@@ -2,7 +2,7 @@
 #define HPCSSUPPORT_H
 
 #include "hpcssupport_global.h"
-#include "../../core/common/backendinterface.h"
+#include "../../efgloader-core/common/backendinterface.h"
 #include <QStringList>
 #include <QSize>
 #include "chemstationbatchloader.h"

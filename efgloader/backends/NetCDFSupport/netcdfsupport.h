@@ -2,7 +2,7 @@
 #define NETCDFSUPPORT_H
 
 #include "netcdfsupport_global.h"
-#include "../../core/common/backendinterface.h"
+#include "../../efgloader-core/common/backendinterface.h"
 
 namespace backend {
 

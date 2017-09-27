@@ -2,7 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "netcdffileloader.h"
-#include "../../core/common/backendhelpers_p.h"
+#include "../../efgloader-core/common/backendhelpers_p.h"
 
 namespace backend {
 
