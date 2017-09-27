@@ -22,7 +22,7 @@ public:
 
 private:
   CSVSupport();
-  virtual ~CSVSupport();
+  virtual ~CSVSupport() override;
   std::vector<Data> loadCsvFromClipboard();
   std::vector<Data> loadCsvFromFile(const std::string &sourcePath);
   std::vector<Data> loadCsvFromFileInternal(const QStringList &files);

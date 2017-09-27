@@ -24,7 +24,7 @@ public:
 
 private:
   HPCSSupport();
-  virtual ~HPCSSupport();
+  virtual ~HPCSSupport() override;
   std::string chemStationTypeToString(const ChemStationFileLoader::Type type);
   QString defaultPath() const;
   bool isDirectoryUsable(const QString &path) const;

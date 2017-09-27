@@ -19,7 +19,7 @@ public:
 
 private:
   NetCDFSupport();
-  virtual ~NetCDFSupport();
+  virtual ~NetCDFSupport() override;
   std::vector<Data> loadInternal(const QString &path);
   Data loadOneFile(const QString &path);
 
