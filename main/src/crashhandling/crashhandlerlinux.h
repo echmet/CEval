@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include <semaphore.h>
+#include <ucontext.h>
 
 class CrashHandlerLinux : public CrashHandlerBase
 {
@@ -32,7 +33,7 @@ private:
   public:
     siginfo_t siginfo;                  /* Currently unused */
     pid_t exceptionThreadId;
-    struct ucontext uctx;               /* Currently unused */
+    ucontext_t uctx;                    /* Currently unused */
     struct _libc_fpstate fpuState;
 
   };

@@ -98,7 +98,7 @@ bool CrashHandlerLinux::generateMiniDump(const int signum)
 /* This may run in a compromised context */
 bool CrashHandlerLinux::handleSignal(siginfo_t *siginfo, void *vuctx)
 {
-  struct ucontext *uctx = static_cast<struct ucontext *>(vuctx);
+  ucontext_t *uctx = static_cast<ucontext_t *>(vuctx);
   const bool signalTrusted = siginfo->si_code > 0;
   const bool signalPidTrusted = siginfo->si_code == SI_USER || siginfo->si_code == SI_TKILL;
 

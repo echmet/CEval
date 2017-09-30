@@ -2,7 +2,7 @@
 #define LOCALSOCKETCLIENT_H
 
 #include "ipcclient.h"
-#include "../../../efgloader/core/common/ipcinterface.h"
+#include "../../../efgloader/efgloader-core/common/ipcinterface.h"
 
 class QLocalSocket;
 

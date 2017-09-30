@@ -5,7 +5,7 @@
 #include <QtDBus/QDBusReply>
 #include <QMessageBox>
 #include <QThread>
-#include "../../../efgloader/core/common/ipcinterface.h"
+#include "../../../efgloader/efgloader-core/common/ipcinterface.h"
 
 namespace efg {
 
