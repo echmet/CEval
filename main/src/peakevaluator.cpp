@@ -72,9 +72,9 @@ void PeakEvaluator::Results::validateHvl()
   m_isHvlValid = true;
 }
 
-void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
+void PeakEvaluator::calculateVariances(Results &r)
 {
-  auto variance = [&r, &p](const double moment) {
+  auto variance = [&r](const double moment) {
     double result = 0.0;
 
     for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++) {
@@ -87,7 +87,7 @@ void PeakEvaluator::calculateVariances(Results &r, const Parameters &p)
     return result / r.peakArea;
   };
 
-  const double mean = [&r, &p] {
+  const double mean = [&r] {
     double result = 0.0;
 
     for (int idx = 1; idx < r.baselineCorrectedPeak.size(); idx++) {
@@ -459,7 +459,7 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
 
   r.baselineCorrectedPeak = correctForBaseline(p.fromIndex, p.toIndex, r.baselineSlope, r.baselineIntercept, p.data);
   r.peakArea = calculateArea(r.baselineCorrectedPeak);
-  calculateVariances(r, p);
+  calculateVariances(r);
 
   r.validate();
 

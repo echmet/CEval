@@ -119,7 +119,7 @@ public:
   static Results estimateHvl(const Results &ir, const Parameters &p);
 
 private:
-  static void calculateVariances(Results &r, const Parameters &p);
+  static void calculateVariances(Results &r);
 
   static const double Sqrt1_8log2;
 
