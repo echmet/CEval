@@ -8,7 +8,7 @@
 DBusIPCProxy::DBusIPCProxy(DataLoader *loader, QObject *parent) :
   IPCProxy(loader, parent)
 {
-  DBusMetyTypesRegistrator::registerAll();
+  DBusMetaTypesRegistrator::registerAll();
   QDBusConnection connection = QDBusConnection::sessionBus();
 
   m_interface = new DBusInterface{this};

@@ -18,7 +18,7 @@ DBusClient::DBusClient() : IPCClient(),
 
 void DBusClient::connectToInterface()
 {
-  DBusMetyTypesRegistrator::registerAll();
+  DBusMetaTypesRegistrator::registerAll();
   QDBusConnection conn = QDBusConnection::sessionBus();
 
   int ctr = 0;

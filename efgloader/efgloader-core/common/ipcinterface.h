@@ -227,7 +227,7 @@ class IPCDBusSupportedFileFormatVec : public QVector<IPCDBusSupportedFileFormat>
 };
 Q_DECLARE_METATYPE(IPCDBusSupportedFileFormatVec)
 
-class DBusMetyTypesRegistrator {
+class DBusMetaTypesRegistrator {
 public:
   static void registerAll()
   {
