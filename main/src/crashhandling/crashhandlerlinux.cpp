@@ -21,7 +21,7 @@
 #define sys_prctl(param1, param2, param3, param4, param5) syscall(__NR_prctl, param1, param2, param3, param4, param5)
 #define sys_sigaltstack(newStack, originalStack) syscall(__NR_sigaltstack, newStack, originalStack)
 
-const std::array<int, 6> CrashHandlerLinux::m_handledSignals = { SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, SIGTRAP };
+const std::array<int, 6> CrashHandlerLinux::m_handledSignals = {{ SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, SIGTRAP }};
 
 CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
   CrashHandlerBase(miniDumpPath),
