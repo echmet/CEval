@@ -26,7 +26,7 @@ void DBusClient::connectToInterface()
     QThread::msleep(100);
 
     if (ctr++ > 24)
-      throw std::runtime_error("D-Bus service is not available");
+      throw std::runtime_error{"D-Bus service is not available"};
   }
 
   m_iface = new QDBusInterface(DBUS_SERVICE_NAME, DBUS_OBJECT_PATH, "");
@@ -34,7 +34,7 @@ void DBusClient::connectToInterface()
     QDBusError err = m_iface->lastError();
     delete m_iface;
     m_iface = nullptr;
-    throw std::runtime_error(QString("%1: %2").arg(err.name()).arg(err.message()).toUtf8().data());
+    throw std::runtime_error(QString{"%1: %2"}.arg(err.name()).arg(err.message()).toUtf8().data());
   }
 
   m_iface->setTimeout(DEFAULT_TIMEOUT);
@@ -56,7 +56,7 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
 
   if (!reply.isValid()) {
     QMessageBox::warning(nullptr, QObject::tr("No reply"),
-                         QString(QObject::tr("CEval did not receive a reply from the data loader process. As a result no new data has been loaded. The exact error was:\n\n%1\n%2")).
+                         QString{QObject::tr("CEval did not receive a reply from the data loader process. As a result no new data has been loaded. The exact error was:\n\n%1\n%2")}.
                          arg(reply.error().name()).arg(reply.error().message()));
 
     return false;
@@ -75,9 +75,9 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
       return ndpts;
     }(data.datapoints);
 
-    auto ndd = std::shared_ptr<EFGData>(new EFGData(nativeDatapoints,
+    auto ndd = std::shared_ptr<EFGData>(new EFGData{nativeDatapoints,
                                                     data.xDescription, data.xUnit,
-                                                    data.yDescription, data.yUnit));
+                                                    data.yDescription, data.yUnit});
     ndVec.push_back(NativeData{ndd, data.path, data.name});
   }
 
