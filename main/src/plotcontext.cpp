@@ -289,7 +289,6 @@ void PlotContext::onPointHovered(const QPoint &pos)
 void PlotContext::onPointSelected(const QPointF &pos)
 {
   QPoint cursor = QCursor::pos();
-  m_plot->mapToGlobal(cursor);
 
   emit pointSelected(pos, cursor);
 }
