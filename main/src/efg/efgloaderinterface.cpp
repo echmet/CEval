@@ -81,7 +81,7 @@ bool EFGLoaderInterface::bringUpIPCInterface()
   return true;
 }
 
-DataHash EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData &nd)
+QByteArray EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData &nd)
 {
   QCryptographicHash hash(QCryptographicHash::Sha1);
 
@@ -128,7 +128,7 @@ DataHash EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData &n
    * entities in the future.
    */
 
-  return DataHash(hash.result());
+  return hash.result();
 }
 
 void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)

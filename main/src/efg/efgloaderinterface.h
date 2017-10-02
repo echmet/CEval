@@ -89,7 +89,7 @@ public:
 private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
   bool bringUpIPCInterface();
-  DataHash computeDataHash(const efg::IPCClient::NativeData &nd);
+  QByteArray computeDataHash(const efg::IPCClient::NativeData &nd);
 
   std::unique_ptr<efg::IPCClient> m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
