@@ -98,7 +98,7 @@ const QString EvaluationEngine::s_serieHVLExtrapolated = QString(QObject::tr("HV
 const QString EvaluationEngine::s_serieHVLExtrapolatedBaseline = QString(QObject::tr("HVL extrapolated baseline"));
 const QString EvaluationEngine::s_serieNoiseBaseline = QString(QObject::tr("Noise baseline"));
 
-const QString EvaluationEngine::s_emptyCtxKey = "";
+const DataHash EvaluationEngine::s_emptyCtxKey;
 
 const double EvaluationEngine::s_defaultHvlEpsilon = 1.0e-9;
 const int EvaluationEngine::s_defaultHvlDigits = 50;
@@ -110,10 +110,11 @@ const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DELIMTIER_TAG("ClipboardExporter-Delimiter");
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG("ClipboardExporter-DataArrangement");
 
-EvaluationEngine::DataContext::DataContext(std::shared_ptr<EFGData> data, const QString &name,
+EvaluationEngine::DataContext::DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path,
                                            const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
   data(data),
   name(name),
+  path(path),
   commonContext(commonCtx),
   evaluationContext(evalCtx)
 {
@@ -269,7 +270,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
   m_evaluationFloatingValues(s_defaultEvaluationFloatingValues),
   m_baselineAlgorithmModel(s_baselineAlgorithmValues, this),
-  m_loadedFilesModel(QVector<ComboBoxItem<QString>>(), this),
+  m_loadedFilesModel(QVector<ComboBoxItem<DataHash>>(), this),
   m_showWindowModel(s_showWindowValues, this),
   m_windowUnitsModel(s_windowUnitsValues, this),
   m_dataExporter("EVALUATION_ENGINE_DEXP")
@@ -364,7 +365,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
   m_currentPeakIdx = 0;
   m_allPeaks.push_back(StoredPeak("", freshPeakContext()));
-  m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, s_emptyCtxKey, m_commonParamsEngine->currentContext(),
+  m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", "", m_commonParamsEngine->currentContext(),
                                                                       currentEvaluationContext()));
   m_currentDataContextKey = s_emptyCtxKey;
 
@@ -1385,7 +1386,7 @@ bool EvaluationEngine::isContextAccessible(DataAccessLocker &locker)
 
 bool EvaluationEngine::isContextValid() const
 {
-  return (m_currentDataContextKey.compare(s_emptyCtxKey) == 0) ? false : true;
+  return (m_currentDataContextKey == s_emptyCtxKey) ? false : true;
 }
 
 QAbstractItemModel *EvaluationEngine::loadedFilesModel()
@@ -1706,8 +1707,8 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
   else {
     m_loadedFilesModel.deleteByIdx(idx);
     m_allDataContexts.remove(m_currentDataContextKey);
-    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
-    m_currentDataContextKey = "";
+    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "",  "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
+    m_currentDataContextKey = s_emptyCtxKey;
   }
 
   activateCurrentDataContext();
@@ -1856,7 +1857,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   clipboard->setText(out);
 }
 
-void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, QString fileID, QString fileName)
+void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName)
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
@@ -1865,23 +1866,32 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, QString fileID, QStri
   if (!locker.lockForDataModification())
     return;
 
+  if (m_allDataContexts.contains(hash)) {
+    QMessageBox::warning(nullptr, tr("Data exists"), tr("This file is already loaded"));
+    int idx = m_loadedFilesModel.indexByItem(hash);
+    if (idx >= 0) {
+      emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::DATA_FILES, idx));
+      switchEvaluationContext(hash);
+    }
+    return;
+  }
+
   /* Empty file ID, file is coming from a temporary storage such as clipboard */
-  if (fileID.compare("") == 0) {
-    const QStringList &keys = m_allDataContexts.keys();
-    int keyIdx;
+  if (filePath.compare("") == 0) {
+    DataContextMap::ConstIterator cit = m_allDataContexts.cbegin();
     int num = 0;
 
-    for (keyIdx = 0; keyIdx < keys.size(); keyIdx++) {
-      const QString &key = keys.at(keyIdx);
+    for(; cit != m_allDataContexts.cend(); cit++) {
+      const QString &name = (*cit)->path;
 
-      if (key.startsWith("clipboard")) {
-        int idx = key.lastIndexOf("_");
+      if (name.startsWith("clipboard")) {
+        int idx = name.lastIndexOf("_");
 
         if (idx < 0)
           continue;
 
         bool ok;
-        QString numStr = key.mid(idx + 1);
+        QString numStr = name.mid(idx + 1);
         int inum = numStr.toInt(&ok);
 
         if (!ok)
@@ -1892,40 +1902,30 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, QString fileID, QStri
       }
     }
 
-    fileID = QString("clipboard_") + QString::number(num + 1);
-    fileName = fileID;
-  }
-
-  if (m_allDataContexts.contains(fileID)) {
-
-    QMessageBox::warning(nullptr, tr("Data exist"), tr("This file is already loaded"));
-    int idx = m_loadedFilesModel.indexByItem(fileID);
-    if (idx >= 0) {
-      emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::DATA_FILES, idx));
-      switchEvaluationContext(fileID);
-    }
-    return;
+    filePath = QString("clipboard_") + QString::number(num + 1);
+    fileName = filePath;
   }
 
   storeCurrentContext();
 
-  std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, m_commonParamsEngine->currentContext(),
+  std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, filePath,
+                                                                                  m_commonParamsEngine->currentContext(),
                                                                                   freshEvaluationContext()));
 
   try {
-    m_allDataContexts.insert(fileID, ctx);
+    m_allDataContexts.insert(hash, ctx);
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, tr("Data processing error"), tr("Unable to store data in database"));
     return;
   }
 
-  if (!m_loadedFilesModel.appendEntry(ComboBoxItem<QString>(fileID, fileID)))
+  if (!m_loadedFilesModel.appendEntry(ComboBoxItem<DataHash>(filePath, hash)))
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Unable to add new entry to the list of loaded files"));
   else
     emit evaluationFileAdded(m_loadedFilesModel.rowCount() - 1);
 
   m_currentDataContext = ctx;
-  m_currentDataContextKey = fileID;
+  m_currentDataContextKey = hash;
 
   activateCurrentDataContext();
 }
@@ -1988,7 +1988,7 @@ void EvaluationEngine::onDoHvlFit()
 void EvaluationEngine::onEvaluationFileSwitched(const int idx)
 {
   QVariant var;
-  QString key;
+  DataHash key;
 
   DataAccessLocker locker(&this->m_dataLockState);
   if (!locker.lockForDataModification())
@@ -2000,7 +2000,7 @@ void EvaluationEngine::onEvaluationFileSwitched(const int idx)
   var = m_loadedFilesModel.data(m_loadedFilesModel.index(idx, 0), Qt::UserRole + 1);
   if (!var.isValid())
     return;
-  key = var.toString();
+  key = var.value<DataHash>();
 
   switchEvaluationContext(key);
 }
@@ -2440,7 +2440,6 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
 
 void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
 {
-  typedef QMap<QString, std::shared_ptr<DataContext>> DataMap;
 
   if (!m_allDataContexts.contains(m_currentDataContextKey))
     return;
@@ -2452,7 +2451,7 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
   if (!locker.lockForDataModification())
     return;
 
-  DataMap::ConstIterator cit = m_allDataContexts.find(m_currentDataContextKey);
+  DataContextMap::ConstIterator cit = m_allDataContexts.find(m_currentDataContextKey);
 
   switch (dir) {
   case EvaluationEngineMsgs::Traverse::PREVIOUS:
@@ -2472,9 +2471,9 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
 
   for (int idx = 0; idx < m_loadedFilesModel.rowCount(); idx++) {
     const QModelIndex midx = m_loadedFilesModel.index(idx, 0);
-    const QString s = m_loadedFilesModel.data(midx, Qt::UserRole + 1).toString();
+    const DataHash dh(m_loadedFilesModel.data(midx, Qt::UserRole + 1).value<DataHash>());
 
-    if (s == cit.key())
+    if (dh == cit.key())
       emit evaluationFileSwitched(idx);
   }
 }
@@ -3025,7 +3024,7 @@ bool EvaluationEngine::storeCurrentContext()
     storeCurrentPeak();
 
     try {
-      std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name,
+      std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name, m_currentDataContext->path,
                                                                                          m_commonParamsEngine->currentContext(), currentEvaluationContext()));
       m_allDataContexts[m_currentDataContextKey] = oldCtx;
     } catch (std::bad_alloc&) {
@@ -3050,12 +3049,12 @@ void EvaluationEngine::storeCurrentPeak()
                                                           m_currentPeak));
 }
 
-void EvaluationEngine::switchEvaluationContext(const QString &key)
+void EvaluationEngine::switchEvaluationContext(const DataHash &key)
 {
   storeCurrentContext();
 
   if (!m_allDataContexts.contains(key)) {
-    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Data context for key %1 not found!")).arg(key));
+    QMessageBox::warning(nullptr, tr("Runtime error"), QString(tr("Data context for key %1 not found!")).arg(key.toString()));
     return;
   }
 

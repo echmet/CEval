@@ -19,6 +19,7 @@
 #include "peakevaluator.h"
 #include "efg/efgtypes.h"
 #include "gui/addpeakdialog.h"
+#include "datahash.h"
 
 class AddPeakDialog;
 class QFileDialog;
@@ -282,14 +283,16 @@ private:
 
   class DataContext {
   public:
-    DataContext(std::shared_ptr<EFGData> data, const QString &name,
+    DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path,
                 const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx);
 
     std::shared_ptr<EFGData> data;
     QString name;
+    QString path;
     CommonParametersEngine::Context commonContext;
     EvaluationContext evaluationContext;
   };
+  typedef QHash<DataHash, std::shared_ptr<DataContext>> DataContextMap;
 
   void activateCurrentDataContext();
   void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
@@ -376,16 +379,16 @@ private:
   void setPeakFinderParameters(const double maxX);
   bool storeCurrentContext();
   void storeCurrentPeak();
-  void switchEvaluationContext(const QString &key);
+  void switchEvaluationContext(const DataHash &key);
   void switchWindowUnit(const EvaluationParametersItems::ComboWindowUnits unit);
   double timeStep(const int fromIdx = 0, const int toIdx = 1);
   void walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderResults::Result>> &results, const AssistedFinderContext &afContext, const bool updatePeak = false);
 
   /* All data contexts */
   DataLockState m_dataLockState;
-  QMap<QString, std::shared_ptr<DataContext>> m_allDataContexts;
+  DataContextMap m_allDataContexts;
   std::shared_ptr<DataContext> m_currentDataContext;
-  QString m_currentDataContextKey;
+  DataHash m_currentDataContextKey;
   /* Current peaks */
   QVector<StoredPeak> m_allPeaks;
   PeakContext m_currentPeak;
@@ -424,7 +427,7 @@ private:
   BooleanMapperModel<EvaluationParametersItems::Auto> m_evaluationAutoModel;
   BooleanMapperModel<EvaluationParametersItems::Boolean> m_evaluationBooleanModel;
   FloatingMapperModel<EvaluationParametersItems::Floating> m_evaluationFloatingModel;
-  DynamicComboBoxModel<QString> m_loadedFilesModel;
+  DynamicComboBoxModel<DataHash> m_loadedFilesModel;
   ComboBoxModel<EvaluationParametersItems::ComboShowWindow> m_showWindowModel;
   ComboBoxModel<EvaluationParametersItems::ComboWindowUnits> m_windowUnitsModel;
   FloatingMapperModel<EvaluationResultsItems::Floating> m_resultsFloatingModel;
@@ -466,7 +469,7 @@ private:
   static const QString s_serieHVLExtrapolatedBaseline;
   static const QString s_serieNoiseBaseline;
 
-  static const QString s_emptyCtxKey;
+  static const DataHash s_emptyCtxKey;
 
   static const double s_defaultHvlEpsilon;
   static const int s_defaultHvlDigits;
@@ -545,7 +548,7 @@ public slots:
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
 
 private slots:
-  void onDataLoaded(EFGDataSharedPtr data, QString fileID, QString fileName);
+  void onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName);
   void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow);

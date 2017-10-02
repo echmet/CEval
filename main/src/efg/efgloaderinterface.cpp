@@ -1,5 +1,6 @@
 #include "efgloaderinterface.h"
 #include "efgloaderwatcher.h"
+#include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>
 #include <QVariant>
@@ -78,6 +79,37 @@ bool EFGLoaderInterface::bringUpIPCInterface()
   return true;
 }
 
+DataHash computeDataHash(const efg::IPCClient::NativeData &nd)
+{
+  QCryptographicHash hash(QCryptographicHash::Sha1);
+
+  hash.addData(nd.path.toLocal8Bit());
+  hash.addData(nd.data->xType.toLocal8Bit());
+  hash.addData(nd.data->yType.toLocal8Bit());
+  hash.addData(nd.data->xUnit.toLocal8Bit());
+  hash.addData(nd.data->yUnit.toLocal8Bit());
+
+  for (const auto & dp : nd.data->data) {
+    const double x = dp.x();
+    const double y = dp.y();
+    hash.addData(reinterpret_cast<const  char *>(&x), sizeof(qreal));
+    hash.addData(reinterpret_cast<const  char *>(&y), sizeof(qreal));
+  }
+
+  /* NOTE: There is a corner case of a possibly legitimate collision:
+   * If a file containing multiple signal traces contains exactly the same data
+   * multiple times, all but the first occurence of such data will
+   * be rejected by EvaluationEngine. I cannot think of a good way how to
+   * handle this reliably.
+   *
+   * The likelihood of this happening on purpose is quite negligible. I am, however,
+   * leaving this note here in case such data have to be handled as two distictiv
+   * entities in the future.
+   */
+
+  return DataHash(hash.result());
+}
+
 void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption)
 {
   QString hintPath;
@@ -99,8 +131,10 @@ void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption
       return QFileInfo(path).dir().absolutePath();
     }(ndVec.at(0).path);
 
-    for (auto &nd : ndVec)
-      emit onDataLoaded(nd.data, nd.path, nd.name);
+    for (auto &nd : ndVec) {
+      DataHash hash(computeDataHash(nd));
+      emit onDataLoaded(nd.data, hash, nd.path, nd.name);
+    }
   }
 }
 

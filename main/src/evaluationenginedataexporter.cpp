@@ -187,7 +187,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a3", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL S", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL effective mobility", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
-  MAKE_EXPORTABLE_STR(currentPeakExportables, EvaluationEngine, "Datafile", m_currentDataContextKey);
+  MAKE_EXPORTABLE_STR(currentPeakExportables, EvaluationEngine, "Datafile", m_currentDataContext->path);
 
 
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "EOF velocity", resultsValues.at(EvaluationResultsItems::Floating::EOF_VELOCITY));
@@ -209,7 +209,7 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a3", hvlValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL S", hvlValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL effective mobility", hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
-  MAKE_EXPORTABLE_STR(peakListExportables, EvaluationEngine, "Datafile", m_currentDataContextKey);
+  MAKE_EXPORTABLE_STR(peakListExportables, EvaluationEngine, "Datafile", m_currentDataContext->path);
 
   auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
     typedef DataExporter::AbstractExporterBackend::Cell Cell;

@@ -68,7 +68,7 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
     QVector<QPointF> nativeDatapoints = [](const QVector<IPCDBusDatapoint> &dpts) {
       QVector<QPointF> ndpts;
 
-      ndpts.resize(dpts.size());
+      ndpts.reserve(dpts.size());
       for (const IPCDBusDatapoint &dp : dpts)
         ndpts.push_back(QPointF{dp.x, dp.y});
 

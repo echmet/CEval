@@ -228,6 +228,7 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
       FAIL(m_socket);
 
     QVector<QPointF> nativeDatapoints;
+    nativeDatapoints.reserve(ldrDesc->datapointsLength);
     for (uint32_t idx = 0; idx < ldrDesc->datapointsLength; idx++) {
       const IPCSockDatapoint *dp = reinterpret_cast<const IPCSockDatapoint *>(datapoints.data() + (idx * sizeof(IPCSockDatapoint)));
 
