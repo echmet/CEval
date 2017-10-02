@@ -17,7 +17,6 @@
       ipcc->connectToInterface(); \
       return true; \
     } catch (std::exception &) { \
-      delete ipcc; \
       ipcc = nullptr; \
     } \
   } while(false)
@@ -55,26 +54,26 @@ EFGLoaderInterface::~EFGLoaderInterface()
 bool EFGLoaderInterface::bringUpIPCInterface()
 {
 #ifdef ENABLE_IPC_INTERFACE_DBUS
-  m_ipcClient = new efg::DBusClient();
+  m_ipcClient = std::unique_ptr<efg::DBusClient>(new efg::DBusClient());
   if (m_ipcClient->isInterfaceAvailable())
     TRY_CONNECT(m_ipcClient);
   else
-    delete m_ipcClient;
+    m_ipcClient = nullptr;
 #endif // ENABLE_IPC_INTERFACE_DBUS
-  m_ipcClient = new efg::LocalSocketClient();
+  m_ipcClient = std::unique_ptr<efg::LocalSocketClient>(new efg::LocalSocketClient());
   if (m_ipcClient->isInterfaceAvailable())
     return true; /* Socket will be created from the slot */
   else
-    delete m_ipcClient;
+    m_ipcClient = nullptr;
 
   m_watcher = new efg::EFGLoaderWatcher();
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
-  m_ipcClient = new efg::DBusClient();
+  m_ipcClient = std::unique_ptr<efg::DBusClient>(new efg::DBusClient());
   TRY_CONNECT(m_ipcClient);
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
-  m_ipcClient = new efg::LocalSocketClient();
+  m_ipcClient = std::unique_ptr<efg::LocalSocketClient>(new efg::LocalSocketClient());
 
   return true;
 }

@@ -89,7 +89,7 @@ private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
   bool bringUpIPCInterface();
 
-  efg::IPCClient *m_ipcClient;
+  std::unique_ptr<efg::IPCClient> m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
   efg::EFGLoaderWatcher *m_watcher;
   QThread *m_myThread;
