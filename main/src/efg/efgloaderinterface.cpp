@@ -7,8 +7,6 @@
 #include <QVariant>
 #include <QThread>
 
-#include <QDebug>
-
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"
 #endif // ENABLE_IPC_INTERFACE_DBUS
@@ -36,7 +34,6 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   qRegisterMetaType<EFGDataSharedPtr>("EFGDataSharedPtr");
   qRegisterMetaType<EFGSupportedFileFormatVec>("EFGSupportedFileFormatVec");
 
-  qDebug() << std::chrono::system_clock::now().time_since_epoch().count();
   m_randEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
   if (!bringUpIPCInterface())
