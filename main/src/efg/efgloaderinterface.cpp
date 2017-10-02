@@ -1,5 +1,6 @@
 #include "efgloaderinterface.h"
 #include "efgloaderwatcher.h"
+#include <chrono>
 #include <QCryptographicHash>
 #include <QDir>
 #include <QFileInfo>

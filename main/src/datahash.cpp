@@ -13,7 +13,7 @@ DataHash::DataHash(const QByteArray &data)
   if (data.length() != HASH_LENGTH_BYTES)
     throw std::runtime_error("Invalid hash length");
 
-  memccpy(m_data, data.data(), HASH_LENGTH_BYTES, HASH_LENGTH_BYTES);
+  memcpy_s(m_data, HASH_LENGTH_BYTES, data.data(), HASH_LENGTH_BYTES);
 
   m_numHash = 0;
   for (int idx = 0; idx < HASH_LENGTH_BYTES; idx++)
@@ -24,7 +24,7 @@ DataHash::DataHash(const QByteArray &data)
 
 DataHash::DataHash(const DataHash &other)
 {
-  memccpy(m_data, other.m_data, HASH_LENGTH_BYTES, HASH_LENGTH_BYTES);
+  memcpy_s(m_data, HASH_LENGTH_BYTES, other.m_data, HASH_LENGTH_BYTES);
   m_numHash = other.m_numHash;
   m_hexString = other.m_hexString;
 }
@@ -41,7 +41,7 @@ const QString & DataHash::toString() const
 
 DataHash & DataHash::operator=(const DataHash &other)
 {
-  memccpy(m_data, other.m_data, HASH_LENGTH_BYTES, HASH_LENGTH_BYTES);
+  memcpy_s(m_data, HASH_LENGTH_BYTES, other.m_data, HASH_LENGTH_BYTES);
   m_numHash = other.m_numHash;
   m_hexString = other.m_hexString;
 
