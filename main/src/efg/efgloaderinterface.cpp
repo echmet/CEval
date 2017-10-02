@@ -6,6 +6,8 @@
 #include <QVariant>
 #include <QThread>
 
+#include <QDebug>
+
 #ifdef ENABLE_IPC_INTERFACE_DBUS
 #include "dbusclient.h"
 #endif // ENABLE_IPC_INTERFACE_DBUS
@@ -32,6 +34,9 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
   qRegisterMetaType<EFGDataSharedPtr>("EFGDataSharedPtr");
   qRegisterMetaType<EFGSupportedFileFormatVec>("EFGSupportedFileFormatVec");
+
+  qDebug() << std::chrono::system_clock::now().time_since_epoch().count();
+  m_randEngine.seed(std::chrono::system_clock::now().time_since_epoch().count());
 
   if (!bringUpIPCInterface())
     throw std::runtime_error("No interface to use to talk to EFGLoader is available.");
@@ -78,11 +83,30 @@ bool EFGLoaderInterface::bringUpIPCInterface()
   return true;
 }
 
-DataHash computeDataHash(const efg::IPCClient::NativeData &nd)
+DataHash EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData &nd)
 {
   QCryptographicHash hash(QCryptographicHash::Sha1);
 
-  hash.addData(nd.path.toLocal8Bit());
+  const QByteArray pathBA = [this](const QString &path) {
+    if (path.length() > 0)
+      return path.toLocal8Bit();
+    else {
+      /* Generate random 32 bytes */
+      const size_t SZ = sizeof(uint64_t);
+      QByteArray bytes;
+      bytes.resize(32);
+
+      char *rawBytes = bytes.data();
+      for (size_t ctr = 0; ctr < 32 / SZ; ctr++) {
+        uint64_t rand = m_randEngine();
+        memcpy(rawBytes + (ctr * SZ), reinterpret_cast<char *>(&rand), SZ);
+      }
+
+      return bytes;
+    }
+  }(nd.path);
+
+  hash.addData(pathBA);
   hash.addData(nd.data->xType.toLocal8Bit());
   hash.addData(nd.data->yType.toLocal8Bit());
   hash.addData(nd.data->xUnit.toLocal8Bit());

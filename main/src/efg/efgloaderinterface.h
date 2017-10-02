@@ -7,6 +7,7 @@
 #include <QMetaType>
 #include <QVector>
 #include <memory>
+#include <random>
 #include "efgtypes.h"
 #include "ipcclient.h"
 #include "../datahash.h"
@@ -88,11 +89,13 @@ public:
 private:
   explicit EFGLoaderInterface(QObject *parent = nullptr);
   bool bringUpIPCInterface();
+  DataHash computeDataHash(const efg::IPCClient::NativeData &nd);
 
   std::unique_ptr<efg::IPCClient> m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
   efg::EFGLoaderWatcher *m_watcher;
   QThread *m_myThread;
+  std::mt19937_64 m_randEngine;
 
   static std::unique_ptr<EFGLoaderInterface> s_me;
 
