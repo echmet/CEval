@@ -10,7 +10,7 @@
 DataHash::DataHash()
 {
   memset(m_data, 0, HASH_LENGTH_BYTES);
-  m_numHash = 0;
+  m_numHash = qHashBits(m_data, HASH_LENGTH_BYTES);
   m_hexString = QString('0', 2 * HASH_LENGTH_BYTES);
 }
 
@@ -20,11 +20,7 @@ DataHash::DataHash(const QByteArray &data)
     throw std::runtime_error("Invalid hash length");
 
   COPYHASH(data.data());
-
-  m_numHash = 0;
-  for (int idx = 0; idx < HASH_LENGTH_BYTES; idx++)
-    m_numHash += m_data[idx];
-
+  m_numHash = qHashBits(m_data, HASH_LENGTH_BYTES);
   m_hexString = data.toHex();
 }
 
