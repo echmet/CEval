@@ -6,10 +6,10 @@
 # BOOSTPATH variable is supposed to point to
 # a directory that contains a "boost" subdirectory
 # with the boost libraries.
-HVLPATH = "/home/madcat/Devel/ECHMET/HVL_MT-bin"
-BOOSTPATH = "/home/madcat/Devel/ECHMET/CEval/includes"
-QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1.3-bin"
-EIGENPATH = "/home/madcat/Devel/eigen-3.3.3"
+HVLPATH = "/home/echmet/Devel/HVL_MT-bin"
+BOOSTPATH = "/home/echmet/Devel/CEval/includes"
+QWTPATH = "/home/echmet/Devel/qwt-6.1-bin"
+EIGENPATH = "/home/echmet/Devel/eigen-3.3.3"
 INCLUDEPATH += "$$HPCSPATH/include"
 INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
