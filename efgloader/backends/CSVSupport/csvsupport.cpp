@@ -56,6 +56,8 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
 
 CsvFileLoader::Parameters makeCsvLoaderParameters(LoadCsvFileDialog *dlg)
 {
+  BackendHelpers::showWindowOnTop(dlg);
+
   while (true) {
     int dlgRet = dlg->exec();
     if (dlgRet != QDialog::Accepted)
