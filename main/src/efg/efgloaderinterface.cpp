@@ -114,8 +114,8 @@ QByteArray EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData 
   hash.addData(nd.data->yUnit.toLocal8Bit());
 
   for (const auto & dp : nd.data->data) {
-    const double x = dp.x();
-    const double y = dp.y();
+    const qreal x = dp.x();
+    const qreal y = dp.y();
     hash.addData(reinterpret_cast<const  char *>(&x), sizeof(qreal));
     hash.addData(reinterpret_cast<const  char *>(&y), sizeof(qreal));
   }
