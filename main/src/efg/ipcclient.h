@@ -1,13 +1,14 @@
 #ifndef IPCCLIENT_H
 #define IPCCLIENT_H
 
+#include <QObject>
 #include <memory>
 #include "efgtypes.h"
 
 namespace efg {
 
-class IPCClient
-{
+class IPCClient : public QObject {
+  Q_OBJECT
 public:
   class NativeData {
   public:
@@ -26,6 +27,9 @@ public:
   virtual bool isInterfaceAvailable() = 0;
   virtual bool loadData(NativeDataVec &ndVec, const QString &formatTag, const QString &hintPath, const int loadOption) = 0;
   virtual bool supportedFileFormats(QVector<EFGSupportedFileFormat> &supportedFormats) = 0;
+
+signals:
+  void displayWarning(const QString &title, const QString &message);
 };
 
 }

@@ -55,8 +55,8 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
     reply = m_iface->call("loadDataHint", formatTag, hintPath, loadOption);
 
   if (!reply.isValid()) {
-    QMessageBox::warning(nullptr, QObject::tr("No reply"),
-                         QString{QObject::tr("CEval did not receive a reply from the data loader process. As a result no new data has been loaded. The exact error was:\n\n%1\n%2")}.
+    emit displayWarning(QObject::tr("No reply"),
+                        QString(QObject::tr("CEval did not receive a reply from the data loader process. As a result no new data has been loaded. The exact error was:\n\n%1\n%2")).
                          arg(reply.error().name()).arg(reply.error().message()));
 
     return false;

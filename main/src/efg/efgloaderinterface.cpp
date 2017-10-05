@@ -27,6 +27,7 @@ const QString EFGLoaderInterface::LAST_FILE_PATHS_SETTINGS_TAG("LastFilePaths");
 
 EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   QObject(parent),
+  m_guiDisplayer(new efg::GUIDisplayer()),
   m_watcher(nullptr)
 {
   qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
@@ -42,6 +43,8 @@ EFGLoaderInterface::EFGLoaderInterface(QObject *parent) :
   m_myThread = new QThread();
   moveToThread(m_myThread);
   m_myThread->start();
+
+  connect(m_ipcClient.get(), &efg::IPCClient::displayWarning, m_guiDisplayer.get(), &efg::GUIDisplayer::onDisplayWarning, Qt::QueuedConnection);
 }
 
 EFGLoaderInterface::~EFGLoaderInterface()

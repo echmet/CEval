@@ -1,6 +1,7 @@
 #ifndef EFGTYPES_H
 #define EFGTYPES_H
 
+#include <QObject>
 #include <QMap>
 #include <QMetaType>
 #include <QPointF>
@@ -38,5 +39,15 @@ public:
 
 typedef std::shared_ptr<EFGData> EFGDataSharedPtr;
 Q_DECLARE_METATYPE(EFGDataSharedPtr)
+
+namespace efg {
+
+class GUIDisplayer : public QObject {
+  Q_OBJECT
+public slots:
+  void onDisplayWarning(const QString &title, const QString &message);
+};
+
+} // namespace efg
 
 #endif // EFGTYPES_H

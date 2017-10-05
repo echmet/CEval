@@ -1,4 +1,6 @@
 #include "efgtypes.h"
+#include <QMessageBox>
+
 
 EFGData::EFGData() :
   m_valid(false)
@@ -52,3 +54,13 @@ EFGSupportedFileFormat::EFGSupportedFileFormat(const QString &longDescription, c
   loadOptions(loadOptions)
 {
 }
+
+namespace efg {
+
+void GUIDisplayer::onDisplayWarning(const QString &title, const QString &message)
+{
+  QMessageBox msg(QMessageBox::Warning, title, message);
+  msg.exec();
+}
+
+} // namespace efg

@@ -91,6 +91,7 @@ private:
   bool bringUpIPCInterface();
   QByteArray computeDataHash(const efg::IPCClient::NativeData &nd);
 
+  std::unique_ptr<efg::GUIDisplayer> m_guiDisplayer;
   std::unique_ptr<efg::IPCClient> m_ipcClient;
   QMap<QString, QString> m_lastPathsMap;
   efg::EFGLoaderWatcher *m_watcher;
