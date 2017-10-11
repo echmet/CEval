@@ -99,9 +99,9 @@ void UpdateListFetcher::onDataAvailable()
 
   try {
     tRet = parseInternal();
-  } catch (InvalidDocumentStructureException &ex) {
+  } catch (InvalidDocumentStructureException &) {
     tRet = RetCode::E_INVALID_FILE_STRUCTURE;
-  } catch (DuplicitInformationException &ex) {
+  } catch (DuplicitInformationException &) {
     tRet = RetCode::E_INVALID_DATA;
   }
 
