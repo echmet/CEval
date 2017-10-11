@@ -51,5 +51,15 @@ ipc_dbus {
 DISTFILES += \
     src/dbus/dbusinterface.xml
 
-
 DESTDIR = ../../
+
+!win32-msvc2015 {
+    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic"
+} else {
+    QMAKE_LFLAGS_RELEASE += /MAP
+    QMAKE_CFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
+    QMAKE_CXXFLAGS += /openmp
+
+    INCLUDEPATH += $$BOOSTPATH
+}

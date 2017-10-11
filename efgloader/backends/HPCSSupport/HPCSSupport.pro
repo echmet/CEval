@@ -47,5 +47,15 @@ DESTDIR = ../../../efgbackends
 
 win32: LIBS += -luser32
 
-include($$PWD/HPCSSupport.pri)
+!win32-msvc2015 {
+    QMAKE_CXXFLAGS += "-std=c++11 -Wall -Wextra -pedantic"
+} else {
+    QMAKE_LFLAGS_RELEASE += /MAP
+    QMAKE_CFLAGS_RELEASE += /Zi
+    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
+    QMAKE_CXXFLAGS += /openmp
 
+    INCLUDEPATH += $$BOOSTPATH
+}
+
+include($$PWD/HPCSSupport.pri)
