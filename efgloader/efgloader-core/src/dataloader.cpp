@@ -118,7 +118,7 @@ void DataLoader::initializePlugin(const QString &pluginPath)
   QLibrary backend(pluginPath);
 
   if (!backend.load()) {
-    std::cerr << "Could not load plugin " << pluginPath.toStdString() << std::endl;
+    std::cerr << "Could not load plugin " << pluginPath.toStdString() << ", reason: " << backend.errorString().toStdString() << std::endl;
     return;
   }
 
