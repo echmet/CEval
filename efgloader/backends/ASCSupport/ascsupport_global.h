@@ -1,0 +1,12 @@
+#ifndef ASCSUPPORT_GLOBAL_H
+#define ASCSUPPORT_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(ASCSUPPORT_LIBRARY)
+#  define ASCSUPPORTSHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define ASCSUPPORTSHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // ASCSUPPORT_GLOBAL_H
