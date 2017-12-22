@@ -268,7 +268,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_evaluationBooleanValues(s_defaultEvaluationBooleanValues),
   m_evaluationFloatingValues(s_defaultEvaluationFloatingValues),
   m_baselineAlgorithmModel(s_baselineAlgorithmValues, this),
-  m_loadedFilesModel(QVector<ComboBoxItem<DataHash>>(), this),
+  m_loadedFilesModel(),
   m_showWindowModel(s_showWindowValues, this),
   m_windowUnitsModel(s_windowUnitsValues, this),
   m_dataExporter("EVALUATION_ENGINE_DEXP")
@@ -1866,7 +1866,7 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash,
 
   if (m_allDataContexts.contains(hash)) {
     QMessageBox::warning(nullptr, tr("Data exists"), tr("This file is already loaded"));
-    int idx = m_loadedFilesModel.indexByItem(hash);
+    int idx = m_loadedFilesModel.indexByHash(hash);
     if (idx >= 0) {
       emit comboBoxIndexChanged(EvaluationEngineMsgs::ComboBoxNotifier(EvaluationEngineMsgs::ComboBox::DATA_FILES, idx));
       switchEvaluationContext(hash);
@@ -1917,7 +1917,7 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash,
     return;
   }
 
-  if (!m_loadedFilesModel.appendEntry(ComboBoxItem<DataHash>(filePath, hash)))
+  if (!m_loadedFilesModel.appendEntry(FilesComboBoxModel::Item{filePath, data->dataId, hash}))
     QMessageBox::warning(nullptr, tr("Runtime error"), tr("Unable to add new entry to the list of loaded files"));
   else
     emit evaluationFileAdded(m_loadedFilesModel.rowCount() - 1);

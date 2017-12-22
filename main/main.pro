@@ -367,7 +367,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/efgloadinfo.h \
     src/hvlextrapolator.h \
     src/snrcalculator.h \
-    src/datahash.h
+    src/datahash.h \
+    src/filescomboboxmodel.h
 
 ipc_dbus {
     SOURCES += \

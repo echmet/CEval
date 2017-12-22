@@ -5,6 +5,7 @@
 #include "assistedpeakfinder.h"
 #include "booleanmappermodel.h"
 #include "comboboxmodel.h"
+#include "filescomboboxmodel.h"
 #include "commonparametersengine.h"
 #include "dynamiccomboboxmodel.h"
 #include "evaluatedpeaksmodel.h"
@@ -427,7 +428,7 @@ private:
   BooleanMapperModel<EvaluationParametersItems::Auto> m_evaluationAutoModel;
   BooleanMapperModel<EvaluationParametersItems::Boolean> m_evaluationBooleanModel;
   FloatingMapperModel<EvaluationParametersItems::Floating> m_evaluationFloatingModel;
-  DynamicComboBoxModel<DataHash> m_loadedFilesModel;
+  FilesComboBoxModel m_loadedFilesModel;
   ComboBoxModel<EvaluationParametersItems::ComboShowWindow> m_showWindowModel;
   ComboBoxModel<EvaluationParametersItems::ComboWindowUnits> m_windowUnitsModel;
   FloatingMapperModel<EvaluationResultsItems::Floating> m_resultsFloatingModel;
