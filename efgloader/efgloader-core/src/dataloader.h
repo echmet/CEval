@@ -24,17 +24,18 @@ public:
 class Data {
 public:
   explicit Data();
-  explicit Data(const QString &path, const QString &name,
+  explicit Data(const QString &path, const QString &dataId, const QString &name,
                 const QString &xDescription, const QString &yDescription,
                 const QString &xUnit, const QString &yUnit,
                 const QVector<std::tuple<double, double>> &datapoints);
-  explicit Data(const QString &path, const QString &name,
+  explicit Data(const QString &path, const QString &dataId, const QString &name,
                 const QString &xDescription, const QString &yDescription,
                 const QString &xUnit, const QString &yUnit,
                 const QVector<std::tuple<double, double>> &&datapoints);
 
   const bool valid;
   const QString path;
+  const QString dataId;
   const QString name;
   const QString xDescription;
   const QString yDescription;

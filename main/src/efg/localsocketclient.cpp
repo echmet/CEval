@@ -209,8 +209,11 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
     QByteArray yDescBA;
     QByteArray xUnitBA;
     QByteArray yUnitBA;
+    QByteArray dataIdBA;
 
     if (!readDynBlock(nameBA, ldrDesc->nameLength))
+      FAIL(m_socket);
+    if (!readDynBlock(dataIdBA, ldrDesc->dataIdLength))
       FAIL(m_socket);
     if (!readDynBlock(pathBA, ldrDesc->pathLength))
       FAIL(m_socket);
@@ -235,9 +238,10 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
       nativeDatapoints.push_back(QPointF(dp->x, dp->y));
     }
 
-    auto efgData = std::shared_ptr<EFGData>(new EFGData(nativeDatapoints,
+    auto efgData = std::shared_ptr<EFGData>(new EFGData{nativeDatapoints,
                                                         QString::fromUtf8(xDescBA), QString::fromUtf8(xUnitBA),
-                                                        QString::fromUtf8(yDescBA), QString::fromUtf8(yUnitBA)));
+                                                        QString::fromUtf8(yDescBA), QString::fromUtf8(yUnitBA),
+                                                        QString::fromUtf8(dataIdBA)});
     ndVec.push_back(NativeData(efgData, QString::fromUtf8(pathBA), QString::fromUtf8(nameBA)));
   }
 

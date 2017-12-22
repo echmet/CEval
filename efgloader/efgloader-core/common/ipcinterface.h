@@ -41,6 +41,7 @@ Q_DECLARE_METATYPE(IPCDBusDatapoint)
 class IPCDBusData {
 public:
   QString path;
+  QString dataId;
   QString name;
 
   QString xDescription;
@@ -54,6 +55,7 @@ public:
   {
     argument.beginStructure();
     argument << result.path;
+    argument << result.dataId;
     argument << result.name;
     argument << result.xDescription;
     argument << result.yDescription;
@@ -69,6 +71,7 @@ public:
   {
     argument.beginStructure();
     argument >> result.path;
+    argument >> result.dataId;
     argument >> result.name;
     argument >> result.xDescription;
     argument >> result.yDescription;
@@ -337,6 +340,7 @@ PACKED_STRUCT IPCSockLoadDataResponseDescriptor {
   uint8_t status;
 
   uint32_t nameLength;
+  uint32_t dataIdLength;
   uint32_t pathLength;
   uint32_t xDescriptionLength;
   uint32_t yDescriptionLength;

@@ -4,21 +4,21 @@
     <method name="loadData">
       <arg name="formatTag" type="s" direction="in" />
       <arg name="loadOption" type="i" direction="in" />
-      <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
+      <arg name="pack" type="(bsa(sssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="loadDataHint">
       <arg name="formatTag" type="s" direction="in" />
       <arg name="hint" type="s" direction="in" />
       <arg name="loadOption" type="i" direction="in" />
-      <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
+      <arg name="pack" type="(bsa(sssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="loadDataFile">
       <arg name="formatTag" type="s" direction="in" />
       <arg name="filePath" type="s" direction="in" />
       <arg name="loadOption" type="i" direction="in" />
-      <arg name="pack" type="(bsa(ssssssa(dd)))" direction="out" />
+      <arg name="pack" type="(bsa(sssssssa(dd)))" direction="out" />
       <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="IPCDBusDataPack" />
     </method>
     <method name="supportedFileFormats">

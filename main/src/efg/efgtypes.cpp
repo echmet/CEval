@@ -7,12 +7,13 @@ EFGData::EFGData() :
 {
 }
 
-EFGData::EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit) :
+EFGData::EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit, const QString &dataId) :
   data(data),
   xType(xType),
   xUnit(xUnit),
   yType(yType),
   yUnit(yUnit),
+  dataId(dataId),
   m_valid(true)
 {
 }
@@ -23,6 +24,7 @@ EFGData::EFGData(const EFGData &other) :
   xUnit(other.xUnit),
   yType(other.yType),
   yUnit(other.yUnit),
+  dataId(other.dataId),
   m_valid(other.m_valid)
 {
 }
@@ -34,6 +36,7 @@ EFGData &EFGData::operator=(const EFGData &other)
   const_cast<QString&>(xUnit) = other.xUnit;
   const_cast<QString&>(yType) = other.yType;
   const_cast<QString&>(yUnit) = other.xUnit;
+  const_cast<QString&>(dataId) = other.dataId;
   const_cast<bool&>(m_valid) = other.m_valid;
 
   return *this;

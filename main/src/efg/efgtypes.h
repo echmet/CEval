@@ -12,7 +12,7 @@
 class EFGData {
 public:
   explicit EFGData();
-  explicit EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit);
+  explicit EFGData(const QVector<QPointF> &data, const QString &xType, const QString &xUnit, const QString &yType, const QString &yUnit, const QString &dataId);
   explicit EFGData(const EFGData &other);
   bool isValid() const;
   EFGData &operator=(const EFGData &other);
@@ -22,6 +22,7 @@ public:
   QString xUnit;
   QString yType;
   QString yUnit;
+  QString dataId;
 private:
    const bool m_valid;
 };

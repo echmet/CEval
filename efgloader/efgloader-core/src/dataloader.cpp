@@ -59,6 +59,7 @@ FileFormatInfo & FileFormatInfo::operator=(const FileFormatInfo &other)
 Data::Data() :
   valid(false),
   path(""),
+  dataId(""),
   name(""),
   xDescription(""),
   yDescription(""),
@@ -68,10 +69,11 @@ Data::Data() :
 {
 }
 
-Data::Data(const QString &path, const QString &name, const QString &xDescription, const QString &yDescription,
+Data::Data(const QString &path, const QString &dataId, const QString &name, const QString &xDescription, const QString &yDescription,
            const QString &xUnit, const QString &yUnit, const QVector<std::tuple<double, double>> &datapoints) :
   valid(true),
   path(path),
+  dataId(dataId),
   name(name),
   xDescription(xDescription),
   yDescription(yDescription),
@@ -81,10 +83,11 @@ Data::Data(const QString &path, const QString &name, const QString &xDescription
 {
 }
 
-Data::Data(const QString &path, const QString &name, const QString &xDescription, const QString &yDescription,
+Data::Data(const QString &path, const QString &dataId, const QString &name, const QString &xDescription, const QString &yDescription,
            const QString &xUnit, const QString &yUnit, const QVector<std::tuple<double, double> > &&datapoints) :
   valid(true),
   path(path),
+  dataId(dataId),
   name(name),
   xDescription(xDescription),
   yDescription(yDescription),
@@ -234,6 +237,7 @@ DataLoader::LoadedPack DataLoader::package(std::vector<backend::Data> &vec) cons
       datapoints.append(item);
 
     Data d{QString::fromStdString(pd.path),
+           QString::fromStdString(pd.dataId),
            QString::fromStdString(pd.name),
            QString::fromStdString(pd.xDescription),
            QString::fromStdString(pd.yDescription),

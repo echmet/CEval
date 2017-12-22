@@ -189,6 +189,7 @@ Data HPCSSupport::loadChemStationFileSingle(const QString &path)
     datapoints.emplace_back(std::make_tuple(datapoint.x(), datapoint.y()));
 
   Data data{QFileInfo(path).fileName().toStdString(),
+            "",
             path.toStdString(),
             "Time",
             chemStationTypeToString(chData.type),

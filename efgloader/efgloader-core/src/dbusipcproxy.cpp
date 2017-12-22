@@ -73,6 +73,7 @@ void DBusIPCProxy::onLoadData(IPCDBusDataPack &pack, const QString &formatTag, c
       IPCDBusData dd;
 
       dd.name = d.name;
+      dd.dataId = d.dataId;
       dd.path = d.path;
       dd.xDescription = d.xDescription;
       dd.yDescription = d.yDescription;

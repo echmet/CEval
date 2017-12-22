@@ -46,6 +46,7 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
     fileName = QFileInfo(file).fileName();
 
   return Data{fileName.toStdString(),
+              "",
               file.toStdString(),
               xType.toStdString(),
               yType.toStdString(),

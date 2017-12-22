@@ -304,6 +304,7 @@ bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     INIT_RESPONSE(respDesc, IPCSockResponseType::RESPONSE_LOAD_DATA_DESCRIPTOR, IPCS_SUCCESS);
 
     QByteArray nameBytes = item.name.toUtf8();
+    QByteArray dataIdBytes = item.dataId.toUtf8();
     QByteArray pathBytes = item.path.toUtf8();;
     QByteArray xDescBytes = item.xDescription.toUtf8();
     QByteArray yDescBytes = item.yDescription.toUtf8();
@@ -311,6 +312,7 @@ bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
     QByteArray yUnitBytes = item.yUnit.toUtf8();
 
     respDesc.nameLength = nameBytes.size();
+    respDesc.dataIdLength = dataIdBytes.size();
     respDesc.pathLength = pathBytes.size();
     respDesc.xDescriptionLength = xDescBytes.size();
     respDesc.yDescriptionLength = yDescBytes.size();
@@ -320,6 +322,7 @@ bool LocalSocketIPCProxy::respondLoadData(QLocalSocket *socket)
 
     WRITE_CHECKED_RAW(socket, respDesc);
     WRITE_CHECKED(socket, nameBytes);
+    WRITE_CHECKED(socket, dataIdBytes);
     WRITE_CHECKED(socket, pathBytes);
     WRITE_CHECKED(socket, xDescBytes);
     WRITE_CHECKED(socket, yDescBytes);

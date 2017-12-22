@@ -99,7 +99,7 @@ Data NetCDFSupport::loadOneFile(const QString &filePath)
   NetCDFFileLoader::Data data = NetCDFFileLoader::load(filePath);
   QString fileName = QFileInfo{filePath}.fileName();
 
-  return Data{fileName.toStdString(), filePath.toStdString(),
+  return Data{fileName.toStdString(), "", filePath.toStdString(),
               "Time", "Signal",
               std::move(data.xUnits),
               std::move(data.yUnits),

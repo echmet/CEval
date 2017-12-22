@@ -25,8 +25,6 @@
 #include <QMessageBox>
 #include <QTextStream>
 
-#include <QDebug>
-
 const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SLOPE_WINDOW */
                                                                      true, /* NOISE */
                                                                      true, /* SLOPE_REF_POINT */

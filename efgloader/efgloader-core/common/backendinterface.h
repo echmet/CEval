@@ -13,6 +13,7 @@ namespace backend {
 class Data {
 public:
   const std::string name;                                     /*!< Name of the source file */
+  const std::string dataId;                                   /*!< Optional identifier of the data block */
   const std::string path;                                     /*!< Absolute path to the source file */
   const std::string xDescription;                             /*!< Description (label) of X axis */
   const std::string yDescription;                             /*!< Description (label) of Y axis */

@@ -77,7 +77,8 @@ bool DBusClient::loadData(NativeDataVec &ndVec, const QString &formatTag, const 
 
     auto ndd = std::shared_ptr<EFGData>(new EFGData{nativeDatapoints,
                                                     data.xDescription, data.xUnit,
-                                                    data.yDescription, data.yUnit});
+                                                    data.yDescription, data.yUnit,
+                                                    data.dataId});
     ndVec.push_back(NativeData{ndd, data.path, data.name});
   }
 
