@@ -9,7 +9,8 @@
 
 namespace backend {
 
-class ASCContext {
+class ASCContext
+{
 public:
   ASCContext(const std::string &name, const std::string path,
              const size_t nChans, const std::string &&kvDelim, const char valueDelim,
@@ -69,7 +70,8 @@ private:
   const std::string m_what;
 };
 
-class ASCFormatException : public std::exception {
+class ASCFormatException : public std::exception
+{
 public:
   explicit ASCFormatException(const std::string &what) :
     std::exception{},
@@ -127,7 +129,8 @@ protected:
 };
 
 template<typename VT>
-class EntryHandlerMustBePositiveTrait {
+class EntryHandlerMustBePositiveTrait
+{
 protected:
   void validatePositive(const std::vector<VT> &v) const
   {
@@ -143,7 +146,8 @@ protected:
 
 class EntryHandlerSamplingRate : public EntryHandlerEssentalityTrait<true>,
                                         EntryHandlerSizeTrait<-1, double>,
-                                        EntryHandlerMustBePositiveTrait<double> {
+                                        EntryHandlerMustBePositiveTrait<double>
+{
 public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
@@ -178,7 +182,8 @@ private:
   const std::string m_ID;
 };
 
-class EntryHandlerTotalDataPoints : public EntryHandlerEssentalityTrait<true>, EntryHandlerSizeTrait<-1, int32_t> {
+class EntryHandlerTotalDataPoints : public EntryHandlerEssentalityTrait<true>, EntryHandlerSizeTrait<-1, int32_t>
+{
 public:
   typedef std::function<void (std::vector<int32_t>&, const char, const std::string&)> Executor;
 
@@ -207,13 +212,14 @@ public:
   }
 
 private:
-    const Executor m_executor;
-    const std::string m_ID;
+  const Executor m_executor;
+  const std::string m_ID;
 };
 
 class EntryHandlerXAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
                                            EntryHandlerSizeTrait<-1, double>,
-                                           EntryHandlerMustBePositiveTrait<double> {
+                                           EntryHandlerMustBePositiveTrait<double>
+{
 public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
@@ -250,7 +256,8 @@ private:
 
 class EntryHandlerYAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
                                            EntryHandlerSizeTrait<-1, double>,
-                                           EntryHandlerMustBePositiveTrait<double> {
+                                           EntryHandlerMustBePositiveTrait<double>
+{
 public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
@@ -285,7 +292,8 @@ private:
   const std::string m_ID;
 };
 
-class EntryHandlerXAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string> {
+class EntryHandlerXAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
+{
 public:
   typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
 
@@ -318,7 +326,8 @@ private:
   const std::string m_ID;
 };
 
-class EntryHandlerYAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string> {
+class EntryHandlerYAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
+{
 public:
   typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
 
