@@ -13,7 +13,7 @@ class ASCContext
 {
 public:
   ASCContext(const std::string &name, const std::string path,
-             const size_t nChans, const std::string &&kvDelim, const char valueDelim,
+             const size_t nChans, const std::string &kvDelim, const char valueDelim,
              const char dataDecimalPoint) :
     name{name},
     path{path},
