@@ -174,7 +174,7 @@ public:
   }
 
 private:
-  Executor m_executor;
+  const Executor m_executor;
   const std::string m_ID;
 };
 
@@ -207,7 +207,7 @@ public:
   }
 
 private:
-    Executor m_executor;
+    const Executor m_executor;
     const std::string m_ID;
 };
 
@@ -244,7 +244,7 @@ public:
   }
 
 private:
-  Executor m_executor;
+  const Executor m_executor;
   const std::string m_ID;
 };
 
@@ -281,7 +281,7 @@ public:
   }
 
 private:
-  Executor m_executor;
+  const Executor m_executor;
   const std::string m_ID;
 };
 
@@ -314,7 +314,7 @@ public:
   }
 
 private:
-  Executor m_executor;
+  const Executor m_executor;
   const std::string m_ID;
 };
 
@@ -347,7 +347,7 @@ public:
   }
 
 private:
-  Executor m_executor;
+  const Executor m_executor;
   const std::string m_ID;
 };
 
