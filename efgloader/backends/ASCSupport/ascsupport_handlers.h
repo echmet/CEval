@@ -53,6 +53,22 @@ public:
   }
 };
 
+class ASCHandlerException : public std::exception
+{
+public:
+  explicit ASCHandlerException(std::string &&what) noexcept :
+    m_what(what)
+  {}
+
+  const char * what() const noexcept override
+  {
+    return m_what.c_str();
+  }
+
+private:
+  const std::string m_what;
+};
+
 class ASCFormatException : public std::exception {
 public:
   explicit ASCFormatException(const std::string &what) :
@@ -85,60 +101,33 @@ public:
 
 template <int EXPECTED, typename VT>
 class EntryHandlerSizeTrait {
-public:
-  EntryHandlerSizeTrait() = delete;
-  EntryHandlerSizeTrait(const std::string &ID) :
-    m_ID{ID}
-  {
-  }
-
 protected:
   void validateSize(const std::vector<VT> &v) const
   {
     if (v.size() != EXPECTED)
-      throw ASCFormatException{"Unexpected array size of " + m_ID};
+      throw ASCHandlerException{"Unexpected array size"};
   }
-
-private:
-  const std::string m_ID;
 };
 
 template <typename VT>
 class EntryHandlerSizeTrait<-1, VT>
 {
-public:
-  EntryHandlerSizeTrait() = delete;
-  EntryHandlerSizeTrait(const std::string &ID) :
-    m_ID{ID}
-  {
-  }
-
 protected:
   void checkIsSet(const std::vector<VT> &v, const ASCContext &ctx) const
   {
     if (v.size() == ctx.nChans)
-      throw ASCFormatException{"Duplicit definition of " + m_ID};
+      throw ASCHandlerException{"Duplicit definition"};
   }
 
   void validateSize(const std::vector<VT> &v, const ASCContext &ctx) const
   {
     if (v.size() != ctx.nChans)
-      throw ASCFormatException{"Unexpected array size of " + m_ID};
+      throw ASCHandlerException{"Unexpected array size"};
   }
-
-private:
-  const std::string m_ID;
 };
 
 template<typename VT>
 class EntryHandlerMustBePositiveTrait {
-public:
-  EntryHandlerMustBePositiveTrait() = delete;
-  EntryHandlerMustBePositiveTrait(const std::string &ID) :
-    m_ID{ID}
-  {
-  }
-
 protected:
   void validatePositive(const std::vector<VT> &v) const
   {
@@ -148,11 +137,8 @@ protected:
 
   void validatePositive(const VT &v) const
   {
-    if (v <= VT(0)) throw ASCFormatException{"Value in " + m_ID + " array must be positive"};
+    if (v <= VT(0)) throw ASCHandlerException{"Value in array must be positive"};
   }
-
-private:
-  const std::string m_ID;
 };
 
 class EntryHandlerSamplingRate : public EntryHandlerEssentalityTrait<true>,
@@ -162,9 +148,10 @@ public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
   EntryHandlerSamplingRate(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, double>("sampling rate"),
-    EntryHandlerMustBePositiveTrait<double>("sampling rate"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, double>{},
+    EntryHandlerMustBePositiveTrait<double>{},
+    m_executor{executor},
+    m_ID{"sampling rate"}
   {
   }
 
@@ -176,14 +163,19 @@ public:
 
     rates.reserve(ctx.nChans);
     m_executor(rates, ctx.valueDelim, ctx.dataDecimalPoint, entry);
-    validateSize(rates, ctx);
-    validatePositive(rates);
+    try {
+      validateSize(rates, ctx);
+      validatePositive(rates);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.samplingRates = std::move(rates);
   }
 
 private:
   Executor m_executor;
+  const std::string m_ID;
 };
 
 class EntryHandlerTotalDataPoints : public EntryHandlerEssentalityTrait<true>, EntryHandlerSizeTrait<-1, int32_t> {
@@ -191,8 +183,9 @@ public:
   typedef std::function<void (std::vector<int32_t>&, const char, const std::string&)> Executor;
 
   EntryHandlerTotalDataPoints(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, int32_t>("total data points"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, int32_t>{},
+    m_executor{executor},
+    m_ID{"total data points"}
   {
   }
 
@@ -203,14 +196,19 @@ public:
     checkIsSet(ctx.nDatapoints, ctx);
 
     numPoints.reserve(ctx.nChans);
-    m_executor(numPoints, ctx.valueDelim, entry);
-    validateSize(numPoints, ctx);
+    try {
+      m_executor(numPoints, ctx.valueDelim, entry);
+      validateSize(numPoints, ctx);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.nDatapoints = std::move(numPoints);
   }
 
 private:
     Executor m_executor;
+    const std::string m_ID;
 };
 
 class EntryHandlerXAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
@@ -220,9 +218,10 @@ public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
   EntryHandlerXAxisMultiplier(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, double>("x axis multiplier"),
-    EntryHandlerMustBePositiveTrait<double>("x axis multiplier"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, double>{},
+    EntryHandlerMustBePositiveTrait<double>{},
+    m_executor{executor},
+    m_ID{"x axis multiplier"}
   {
   }
 
@@ -234,14 +233,19 @@ public:
 
     multipliers.reserve(ctx.nChans);
     m_executor(multipliers, ctx.valueDelim, ctx.dataDecimalPoint, entry);
-    validateSize(multipliers, ctx);
-    validatePositive(multipliers);
+    try {
+      validateSize(multipliers, ctx);
+      validatePositive(multipliers);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.xAxisMultipliers = std::move(multipliers);
   }
 
 private:
   Executor m_executor;
+  const std::string m_ID;
 };
 
 class EntryHandlerYAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
@@ -251,9 +255,10 @@ public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
   EntryHandlerYAxisMultiplier(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, double>("y axis multiplier"),
-    EntryHandlerMustBePositiveTrait<double>("y axis multiplier"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, double>{},
+    EntryHandlerMustBePositiveTrait<double>{},
+    m_executor{executor},
+    m_ID{"y axis multiplier"}
   {
   }
 
@@ -265,14 +270,19 @@ public:
 
     multipliers.reserve(ctx.nChans);
     m_executor(multipliers, ctx.valueDelim, ctx.dataDecimalPoint, entry);
-    validateSize(multipliers, ctx);
-    validatePositive(multipliers);
+    try {
+      validateSize(multipliers, ctx);
+      validatePositive(multipliers);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.yAxisMultipliers = std::move(multipliers);
   }
 
 private:
   Executor m_executor;
+  const std::string m_ID;
 };
 
 class EntryHandlerXAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string> {
@@ -280,8 +290,9 @@ public:
   typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
 
   EntryHandlerXAxisTitle(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, std::string>("x axis title"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, std::string>{},
+    m_executor{executor},
+    m_ID{"x axis title"}
   {
   }
 
@@ -293,13 +304,18 @@ public:
 
     titles.reserve(ctx.nChans);
     m_executor(titles, ctx.valueDelim, entry);
-    validateSize(titles, ctx);
+    try {
+      validateSize(titles, ctx);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.xAxisTitles = std::move(titles);
   }
 
 private:
   Executor m_executor;
+  const std::string m_ID;
 };
 
 class EntryHandlerYAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string> {
@@ -307,8 +323,9 @@ public:
   typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
 
   EntryHandlerYAxisTitle(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, std::string>("y axis title"),
-    m_executor{executor}
+    EntryHandlerSizeTrait<-1, std::string>{},
+    m_executor{executor},
+    m_ID{"y axis title"}
   {
   }
 
@@ -320,13 +337,18 @@ public:
 
     titles.reserve(ctx.nChans);
     m_executor(titles, ctx.valueDelim, entry);
-    validateSize(titles, ctx);
+    try {
+      validateSize(titles, ctx);
+    } catch (const ASCHandlerException &ex) {
+      throw ASCFormatException(m_ID + std::string{": "} + ex.what());
+    }
 
     ctx.yAxisTitles = std::move(titles);
   }
 
 private:
   Executor m_executor;
+  const std::string m_ID;
 };
 
 typedef std::map<std::string, EntryHandler *> EntryHandlersMap;
