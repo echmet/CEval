@@ -263,7 +263,7 @@ std::istringstream readFile(const std::string &path)
   const off_t len = lseek(fd, 0, SEEK_END);
   lseek(fd, 0, SEEK_SET);
 
-  char *buf = new char[len];
+  char *buf = new char[len + 1];
   if (buf == nullptr) {
     close(fd);
     throw ASCFormatException{"Cannot open file: out of memory"};
@@ -275,6 +275,7 @@ std::istringstream readFile(const std::string &path)
     close(fd);
     throw ASCFormatException{"Cannot open file: unable to read the whole file"};
   }
+  buf[len] = '\0';
 
   close(fd);
   std::istringstream iss{std::string{buf}};
