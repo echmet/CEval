@@ -54,10 +54,10 @@ public:
   }
 };
 
-class ASCHandlerException : public std::exception
+class ASCTraitException : public std::exception
 {
 public:
-  explicit ASCHandlerException(std::string &&what) noexcept :
+  explicit ASCTraitException(std::string &&what) noexcept :
     m_what(what)
   {}
 
@@ -107,7 +107,7 @@ protected:
   void validateSize(const std::vector<VT> &v) const
   {
     if (v.size() != EXPECTED)
-      throw ASCHandlerException{"Unexpected array size"};
+      throw ASCTraitException{"Unexpected array size"};
   }
 };
 
@@ -118,13 +118,13 @@ protected:
   void checkIsSet(const std::vector<VT> &v, const ASCContext &ctx) const
   {
     if (v.size() == ctx.nChans)
-      throw ASCHandlerException{"Duplicit definition"};
+      throw ASCTraitException{"Duplicit definition"};
   }
 
   void validateSize(const std::vector<VT> &v, const ASCContext &ctx) const
   {
     if (v.size() != ctx.nChans)
-      throw ASCHandlerException{"Unexpected array size"};
+      throw ASCTraitException{"Unexpected array size"};
   }
 };
 
@@ -140,7 +140,7 @@ protected:
 
   void validatePositive(const VT &v) const
   {
-    if (v <= VT(0)) throw ASCHandlerException{"Value in array must be positive"};
+    if (v <= VT(0)) throw ASCTraitException{"Value in array must be positive"};
   }
 };
 
@@ -169,7 +169,7 @@ public:
     try {
       validateSize(rates, ctx);
       validatePositive(rates);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
@@ -204,7 +204,7 @@ public:
     try {
       m_executor(numPoints, ctx.valueDelim, entry);
       validateSize(numPoints, ctx);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
@@ -243,7 +243,7 @@ public:
     try {
       validateSize(multipliers, ctx);
       validatePositive(multipliers);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
@@ -282,7 +282,7 @@ public:
     try {
       validateSize(multipliers, ctx);
       validatePositive(multipliers);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
@@ -317,7 +317,7 @@ public:
     m_executor(titles, ctx.valueDelim, entry);
     try {
       validateSize(titles, ctx);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
@@ -352,7 +352,7 @@ public:
     m_executor(titles, ctx.valueDelim, entry);
     try {
       validateSize(titles, ctx);
-    } catch (const ASCHandlerException &ex) {
+    } catch (const ASCTraitException &ex) {
       throw ASCFormatException(ID + std::string{": "} + ex.what());
     }
 
