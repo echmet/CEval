@@ -385,27 +385,27 @@ void EZChrom_AxisTitle(std::vector<std::string> &titles, const char delim, const
 EntryHandlersMap ASCSupport::s_handlers =
 {
   {
-    "sampling rate",
+    EntryHandlerSamplingRate::ID,
     new EntryHandlerSamplingRate(EZChrom_SamplingRate)
   },
   {
-    "total data points",
+    EntryHandlerTotalDataPoints::ID,
     new EntryHandlerTotalDataPoints(EZChrom_TotalDataPoints)
   },
   {
-    "x axis multiplier",
+    EntryHandlerXAxisMultiplier::ID,
     new EntryHandlerXAxisMultiplier(EZChrom_AxisMultiplier)
   },
   {
-    "y axis multiplier",
+    EntryHandlerYAxisMultiplier::ID,
     new EntryHandlerYAxisMultiplier(EZChrom_AxisMultiplier)
   },
   {
-    "x axis title",
+    EntryHandlerXAxisTitle::ID,
     new EntryHandlerXAxisTitle(EZChrom_AxisTitle)
   },
   {
-    "y axis title",
+    EntryHandlerYAxisTitle::ID,
     new EntryHandlerYAxisTitle(EZChrom_AxisTitle)
   }
 
