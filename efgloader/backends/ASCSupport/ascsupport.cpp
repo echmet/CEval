@@ -11,6 +11,17 @@
 #include <QComboBox>
 #include <QLayout>
 
+#if defined Q_OS_UNIX
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <unistd.h>
+  #include <fcntl.h>
+  #include <errno.h>
+  #include <cstring>
+#elif defined Q_OS_WIN
+  #include <Windows.h>
+#endif // Q_OS_
+
 #define KV_DELIM ':'
 
 static const std::string HZ_STR{"Hz"};
@@ -228,7 +239,44 @@ void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list
     reportWarning("Data trace is longer than expected");
 }
 
-std::string readLine(std::ifstream &stream)
+#if defined Q_OS_UNIX
+std::istringstream readFile(const std::string &path)
+{
+  int fd = open(path.c_str(), O_RDONLY);
+  if (fd <= 0) {
+    const std::string errStr{strerror(errno)};
+    throw ASCFormatException{std::string{"Cannot open file: "} + errStr};
+  }
+
+  const off_t len = lseek(fd, 0, SEEK_END);
+  lseek(fd, 0, SEEK_SET);
+
+  char *buf = new char[len];
+  if (buf == nullptr) {
+    close(fd);
+    throw ASCFormatException{"Cannot open file: out of memory"};
+  }
+
+  ssize_t r = read(fd, buf, len);
+  if (r < len) {
+    delete [] buf;
+    close(fd);
+    throw ASCFormatException{"Cannot open file: unable to read the whole file"};
+  }
+
+  close(fd);
+  std::istringstream iss{std::string{buf}};
+
+  delete [] buf;
+
+  return iss;
+}
+#elif defined Q_OS_WIN
+#else
+#error "Unknown platform"
+#endif // Q_OS_
+
+std::string readLine(std::istringstream &stream)
 {
   auto endOfLine = [&stream]() {
     int c = stream.peek();
@@ -496,11 +544,13 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path)
 {
   std::vector<Data> data{};
 
-  std::ifstream inStream{path, std::ios_base::in | std::ios_base::binary};
   std::list<std::string> lines{};
+  std::istringstream inStream{};
 
-  if (!inStream.good()) {
-    reportError("Cannot open data file");
+  try {
+    inStream = readFile(path);
+  } catch (const ASCFormatException &ex) {
+    reportError(ex.what());
     return data;
   }
 
@@ -514,8 +564,6 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path)
     reportError("I/O error while reading ASC file");
     return data;
   }
-
-  inStream.close();
 
   std::list<std::string> header{};
   std::list<std::string> traces{};
