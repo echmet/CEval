@@ -1,5 +1,5 @@
-#ifndef ASC_TR_HANDLERS_H
-#define ASC_TR_HANDLERS_H
+#ifndef ASCSUPPORT_HANDLERS_H
+#define ASCSUPPORT_HANDLERS_H
 
 #include <functional>
 #include <map>
@@ -370,4 +370,4 @@ typedef std::map<std::string, EntryHandler *> EntryHandlersMap;
 
 } // namespace backend
 
-#endif // ASC_TR_HANDLERS_H
+#endif // ASCSUPPORT_HANDLERS_H
