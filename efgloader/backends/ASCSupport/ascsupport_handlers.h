@@ -162,11 +162,11 @@ public:
   {
     std::vector<double> rates{};
 
-    checkIsSet(ctx.samplingRates, ctx);
-
-    rates.reserve(ctx.nChans);
-    m_executor(rates, ctx.valueDelim, ctx.dataDecimalPoint, entry);
     try {
+      checkIsSet(ctx.samplingRates, ctx);
+
+      rates.reserve(ctx.nChans);
+      m_executor(rates, ctx.valueDelim, ctx.dataDecimalPoint, entry);
       validateSize(rates, ctx);
       validatePositive(rates);
     } catch (const ASCTraitException &ex) {
@@ -198,10 +198,10 @@ public:
   {
     std::vector<int32_t> numPoints{};
 
-    checkIsSet(ctx.nDatapoints, ctx);
-
-    numPoints.reserve(ctx.nChans);
     try {
+      checkIsSet(ctx.nDatapoints, ctx);
+
+      numPoints.reserve(ctx.nChans);
       m_executor(numPoints, ctx.valueDelim, entry);
       validateSize(numPoints, ctx);
     } catch (const ASCTraitException &ex) {
@@ -236,20 +236,24 @@ public:
   virtual void process(ASCContext &ctx, const std::string &entry) const override
   {
     std::vector<double> multipliers;
+    auto &data = dataBlock(ctx);
 
-    checkIsSet(ctx.xAxisMultipliers, ctx);
-
-    multipliers.reserve(ctx.nChans);
-    m_executor(multipliers, ctx.valueDelim, ctx.dataDecimalPoint, entry);
     try {
+      checkIsSet(data, ctx);
+
+      multipliers.reserve(ctx.nChans);
+      m_executor(multipliers, ctx.valueDelim, ctx.dataDecimalPoint, entry);
       validateSize(multipliers, ctx);
       validatePositive(multipliers);
     } catch (const ASCTraitException &ex) {
       throw ASCFormatException(id() + std::string{": "} + ex.what());
     }
 
-    ctx.xAxisMultipliers = std::move(multipliers);
+    data = std::move(multipliers);
   }
+
+protected:
+  virtual std::vector<double> & dataBlock(ASCContext &ctx) const noexcept = 0;
 
 private:
   const Executor m_executor;
@@ -265,6 +269,12 @@ public:
   }
 
   static const std::string ID;
+
+private:
+  virtual std::vector<double> & dataBlock(ASCContext &ctx) const noexcept override
+  {
+    return ctx.xAxisMultipliers;
+  }
 };
 const std::string EntryHandlerXAxisMultiplier::ID{"x axis multiplier"};
 
@@ -278,6 +288,12 @@ public:
   }
 
   static const std::string ID;
+
+private:
+  virtual std::vector<double> & dataBlock(ASCContext &ctx) const noexcept override
+  {
+    return ctx.yAxisMultipliers;
+  }
 };
 const std::string EntryHandlerYAxisMultiplier::ID{"y axis multiplier"};
 
@@ -297,19 +313,23 @@ public:
   virtual void process(ASCContext &ctx, const std::string &entry) const override
   {
     std::vector<std::string> titles;
+    auto &data = dataBlock(ctx);
 
-    checkIsSet(ctx.xAxisTitles, ctx);
-
-    titles.reserve(ctx.nChans);
-    m_executor(titles, ctx.valueDelim, entry);
     try {
+      checkIsSet(data, ctx);
+
+      titles.reserve(ctx.nChans);
+      m_executor(titles, ctx.valueDelim, entry);
       validateSize(titles, ctx);
     } catch (const ASCTraitException &ex) {
       throw ASCFormatException(id() + std::string{": "} + ex.what());
     }
 
-    ctx.xAxisTitles = std::move(titles);
+    data = std::move(titles);
   }
+
+protected:
+  virtual std::vector<std::string> & dataBlock(ASCContext &ctx) const noexcept = 0;
 
 private:
   const Executor m_executor;
@@ -325,6 +345,12 @@ public:
   }
 
   static const std::string ID;
+
+private:
+  virtual std::vector<std::string> & dataBlock(ASCContext &ctx) const noexcept override
+  {
+    return ctx.xAxisTitles;
+  }
 };
 const std::string EntryHandlerXAxisTitle::ID{"x axis title"};
 
@@ -338,6 +364,12 @@ public:
   }
 
   static const std::string ID;
+
+private:
+  virtual std::vector<std::string> & dataBlock(ASCContext &ctx) const noexcept override
+  {
+    return ctx.yAxisTitles;
+  }
 };
 const std::string EntryHandlerYAxisTitle::ID{"y axis title"};
 
