@@ -469,7 +469,7 @@ std::vector<std::string> splitDecimal(std::string s, const char delim, const cha
   return segments;
 }
 
-Identifier ASCSupport::s_identifier{"ASC text file (EZChrom format)", "ASC text", "ASC_TR", {}};
+Identifier ASCSupport::s_identifier{"ASC text file (EZChrom format)", "ASC text", "ASC", {}};
 ASCSupport *ASCSupport::s_me{nullptr};
 
 /* Format-specific handler implementations */

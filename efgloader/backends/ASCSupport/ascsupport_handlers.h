@@ -218,19 +218,20 @@ private:
 };
 const std::string EntryHandlerTotalDataPoints::ID{"total data points"};
 
-class EntryHandlerXAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
-                                           EntryHandlerSizeTrait<-1, double>,
-                                           EntryHandlerMustBePositiveTrait<double>
+class EntryHandlerAxisMultiplierAbstract : public EntryHandlerEssentalityTrait<true>,
+                                                  EntryHandlerSizeTrait<-1, double>,
+                                                  EntryHandlerMustBePositiveTrait<double>
 {
 public:
   typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
 
-  EntryHandlerXAxisMultiplier(const Executor &executor) :
+  EntryHandlerAxisMultiplierAbstract(const Executor &executor) :
     EntryHandlerSizeTrait<-1, double>{},
     EntryHandlerMustBePositiveTrait<double>{},
     m_executor{executor}
   {
   }
+  virtual const std::string & id() const noexcept = 0;
 
   virtual void process(ASCContext &ctx, const std::string &entry) const override
   {
@@ -244,68 +245,54 @@ public:
       validateSize(multipliers, ctx);
       validatePositive(multipliers);
     } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
+      throw ASCFormatException(id() + std::string{": "} + ex.what());
     }
 
     ctx.xAxisMultipliers = std::move(multipliers);
   }
 
-  static const std::string ID;
-
 private:
   const Executor m_executor;
+};
+
+class EntryHandlerXAxisMultiplier : public EntryHandlerAxisMultiplierAbstract
+{
+public:
+  using EntryHandlerAxisMultiplierAbstract::EntryHandlerAxisMultiplierAbstract;
+  virtual const std::string & id() const noexcept override
+  {
+    return ID;
+  }
+
+  static const std::string ID;
 };
 const std::string EntryHandlerXAxisMultiplier::ID{"x axis multiplier"};
 
-class EntryHandlerYAxisMultiplier : public EntryHandlerEssentalityTrait<true>,
-                                           EntryHandlerSizeTrait<-1, double>,
-                                           EntryHandlerMustBePositiveTrait<double>
+class EntryHandlerYAxisMultiplier : public EntryHandlerAxisMultiplierAbstract
 {
 public:
-  typedef std::function<void (std::vector<double>&, const char, const char, const std::string&)> Executor;
-
-  EntryHandlerYAxisMultiplier(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, double>{},
-    EntryHandlerMustBePositiveTrait<double>{},
-    m_executor{executor}
+  using EntryHandlerAxisMultiplierAbstract::EntryHandlerAxisMultiplierAbstract;
+  virtual const std::string & id() const noexcept override
   {
-  }
-
-  virtual void process(ASCContext &ctx, const std::string &entry) const override
-  {
-    std::vector<double> multipliers;
-
-    checkIsSet(ctx.yAxisMultipliers, ctx);
-
-    multipliers.reserve(ctx.nChans);
-    m_executor(multipliers, ctx.valueDelim, ctx.dataDecimalPoint, entry);
-    try {
-      validateSize(multipliers, ctx);
-      validatePositive(multipliers);
-    } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
-    }
-
-    ctx.yAxisMultipliers = std::move(multipliers);
+    return ID;
   }
 
   static const std::string ID;
-
-private:
-  const Executor m_executor;
 };
 const std::string EntryHandlerYAxisMultiplier::ID{"y axis multiplier"};
 
-class EntryHandlerXAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
+class EntryHandlerAxisTitleAbstract : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
 {
 public:
   typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
 
-  EntryHandlerXAxisTitle(const Executor &executor) :
+  EntryHandlerAxisTitleAbstract(const Executor &executor) :
     EntryHandlerSizeTrait<-1, std::string>{},
     m_executor{executor}
   {
   }
+
+  virtual const std::string & id() const noexcept = 0;
 
   virtual void process(ASCContext &ctx, const std::string &entry) const override
   {
@@ -318,51 +305,39 @@ public:
     try {
       validateSize(titles, ctx);
     } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
+      throw ASCFormatException(id() + std::string{": "} + ex.what());
     }
 
     ctx.xAxisTitles = std::move(titles);
   }
 
-  static const std::string ID;
-
 private:
   const Executor m_executor;
 };
-const std::string EntryHandlerXAxisTitle::ID{"x axis title"};
 
-class EntryHandlerYAxisTitle : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
+class EntryHandlerXAxisTitle : public EntryHandlerAxisTitleAbstract
 {
 public:
-  typedef std::function<void (std::vector<std::string>&, const char, const std::string&)> Executor;
-
-  EntryHandlerYAxisTitle(const Executor &executor) :
-    EntryHandlerSizeTrait<-1, std::string>{},
-    m_executor{executor}
+  using EntryHandlerAxisTitleAbstract::EntryHandlerAxisTitleAbstract;
+  virtual const std::string & id() const noexcept override
   {
-  }
-
-  virtual void process(ASCContext &ctx, const std::string &entry) const override
-  {
-    std::vector<std::string> titles;
-
-    checkIsSet(ctx.yAxisTitles, ctx);
-
-    titles.reserve(ctx.nChans);
-    m_executor(titles, ctx.valueDelim, entry);
-    try {
-      validateSize(titles, ctx);
-    } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
-    }
-
-    ctx.yAxisTitles = std::move(titles);
+    return ID;
   }
 
   static const std::string ID;
+};
+const std::string EntryHandlerXAxisTitle::ID{"x axis title"};
 
-private:
-  const Executor m_executor;
+class EntryHandlerYAxisTitle : public EntryHandlerAxisTitleAbstract
+{
+public:
+  using EntryHandlerAxisTitleAbstract::EntryHandlerAxisTitleAbstract;
+  virtual const std::string & id() const noexcept override
+  {
+    return ID;
+  }
+
+  static const std::string ID;
 };
 const std::string EntryHandlerYAxisTitle::ID{"y axis title"};
 
