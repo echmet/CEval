@@ -5,6 +5,7 @@
 #include <QString>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <locale>
 #include <iostream>
 #include <regex>
@@ -31,10 +32,21 @@ namespace backend {
 
 typedef std::list<std::string>::const_iterator LIt;
 
-double strToDbl(const std::string &ns)
+char initDecimalPoint()
 {
   static const std::locale sLoc{""};
-  static const char decPoint = std::use_facet<std::numpunct<char>>(sLoc).decimal_point();
+  const char sep = std::use_facet<std::numpunct<char>>(sLoc).decimal_point();
+
+#ifdef Q_OS_WIN
+  setlocale(LC_ALL, sLoc.c_str()); /* No, this is not a joke */
+#endif // Q_OS_WIN
+
+  return sep;
+}
+
+double strToDbl(const std::string &ns)
+{
+  static const char decPoint = initDecimalPoint();
 
   std::string s{ns};
 
@@ -115,7 +127,7 @@ std::vector<std::string> fileList(const QString &hintPath)
   const auto _files = openDlg.selectedFiles();
 
   for (const QString &file : _files)
-    files.emplace_back(file.toStdString());
+    files.emplace_back(QDir::toNativeSeparators(file).toUtf8());
 
   return files;
 }
@@ -272,6 +284,77 @@ std::istringstream readFile(const std::string &path)
   return iss;
 }
 #elif defined Q_OS_WIN
+std::istringstream readFile(const std::string &path)
+{
+  HANDLE fh;
+  int wSize;
+  wchar_t *wPath;
+  DWORD fileSizeHigh;
+  char *buf;
+  int64_t fileSize = 0;
+
+  wSize = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path.c_str(), -1, nullptr, 0);
+  if (wSize <= 0)
+    throw ASCFormatException{"Cannot get wchar_t array size"};
+
+  wPath = new wchar_t[wSize];
+  if (wPath == nullptr)
+    throw ASCFormatException{"Cannot convert UTF-8 path to Windows native path: Out of memory"};
+
+  wSize = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path.c_str(), -1, wPath, wSize);
+  if (wSize <= 0) {
+    delete [] wPath;
+    throw ASCFormatException{"Cannot convert UTF-8 path to Windows native path: Conversion failure"};
+  }
+
+  fh = CreateFileW(wPath, GENERIC_READ, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  if (fh == INVALID_HANDLE_VALUE) {
+    delete [] wPath;
+    throw ASCFormatException{"Cannot open data file"};
+  }
+
+  const DWORD fileSizeLow = GetFileSize(fh, &fileSizeHigh);
+  if (fileSizeLow == INVALID_FILE_SIZE) {
+    CloseHandle(fh);
+    delete [] wPath;
+    throw ASCFormatException{"Failed to get file size"};
+  }
+
+  fileSize |= static_cast<int64_t>(fileSizeHigh) << 32 | fileSizeLow;
+
+  buf = new char[fileSize + 1];
+  if (buf == nullptr) {
+    CloseHandle(fh);
+    delete [] wPath;
+    throw ASCFormatException{"Cannot allocate input buffer"};
+  }
+
+  DWORD bytesRead;
+  if (ReadFile(fh, buf, fileSize, &bytesRead, NULL) != TRUE) {
+    CloseHandle(fh);
+    delete [] buf;
+    delete [] wPath;
+    throw ASCFormatException{"Cannot read file content"};
+  }
+  buf[fileSize] = '\0';
+
+
+  /* We fail if the file size exceeds 4 GiB */
+  if (bytesRead != fileSize) {
+    CloseHandle(fh);
+    delete [] buf;
+    delete [] wPath;
+    throw ASCFormatException{"Number of read bytes does not match the size of the file"};
+  }
+
+  std::istringstream iss{buf};
+  CloseHandle(fh);
+  delete [] buf;
+  delete [] wPath;
+
+  return iss;
+}
+
 #else
 #error "Unknown platform"
 #endif // Q_OS_
@@ -530,7 +613,7 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
   std::vector<std::string> files = fileList(QString::fromStdString(hintPath));
 
   if (files.size() == 0)
-    return  data;
+    return data;
 
   for (const std::string &file : files) {
     const auto _data = loadInternal(file);

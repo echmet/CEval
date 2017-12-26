@@ -3,11 +3,11 @@
 
 namespace backend {
 
-const QString MalformedCsvFileDialog::POSSIBLY_INCORRECT_SETTINGS_MSG = tr("The selected file does not appear to have the desired format.\n"
-                                                                           "Check that delimiter and decimal separator are set correctly");
-const QString MalformedCsvFileDialog::BAD_DELIMITER_MSG = tr("Invalid delimiter on line %1. Data will be incomplete");
-const QString MalformedCsvFileDialog::BAD_TIME_MSG = tr("Invalid value for \"time\" on line %1. Data will be incomplete");
-const QString MalformedCsvFileDialog::BAD_VALUE_MSG = tr("Invalid value for \"value\" on line %1. Data will be incomplete");
+const QString MalformedCsvFileDialog::POSSIBLY_INCORRECT_SETTINGS_MSG{"The selected file does not appear to have the desired format.\n"
+                                                                      "Check that delimiter and decimal separator are set correctly"};
+const QString MalformedCsvFileDialog::BAD_DELIMITER_MSG{"Invalid delimiter on line %1. Data will be incomplete"};
+const QString MalformedCsvFileDialog::BAD_TIME_MSG {"Invalid value for \"time\" on line %1. Data will be incomplete"};
+const QString MalformedCsvFileDialog::BAD_VALUE_MSG{"Invalid value for \"value\" on line %1. Data will be incomplete"};
 
 MalformedCsvFileDialog::MalformedCsvFileDialog(const Error err, const int lineNo, const QString &badLine, QWidget *parent) :
   QDialog(parent),
