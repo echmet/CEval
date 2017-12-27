@@ -1,5 +1,7 @@
 #include "ascsupport.h"
 #include "../../efgloader-core/common/backendhelpers_p.h"
+#include "availablechannels.h"
+#include "ui/selectchannelsdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QString>
@@ -215,12 +217,23 @@ ASCContext makeContext(const std::string &name, const std::string &path, const s
   return ASCContext{name, path, static_cast<size_t>(nChans), std::move(kvDelim), valueDelim, dataDecimalPoint};
 }
 
-void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list<std::string> &traces)
+void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list<std::string> &traces, const ASCSupport::SelectedChannelsVec &selChans)
 {
+  auto isSelected = [&](const size_t idx) {
+    const auto &yUnit = ctx.yAxisTitles.at(idx);
+    const auto &yUnitSel = selChans.at(idx).first;
+
+    return (yUnit == yUnitSel) && (selChans.at(idx).second);
+  };
   LIt it = traces.cbegin();
 
   for (size_t channel = 0; channel < ctx.nChans; channel++) {
     const int numPoints = ctx.nDatapoints.at(channel);
+    if (!isSelected(channel)) {
+      std::advance(it, numPoints);
+      continue;
+    }
+
     const double timeStep = 1.0 / ctx.samplingRates.at(channel) * ctx.xAxisMultipliers.at(channel);
     const double yMultiplier = ctx.yAxisMultipliers.at(channel);
     std::vector<std::tuple<double, double>> dataPoints{};
@@ -393,6 +406,14 @@ std::string readLine(std::istringstream &stream)
   return line;
 }
 
+void selectChannels(ASCSupport::SelectedChannelsVec &selChans, const std::vector<std::string> &availChans)
+{
+  SelectChannelsDialog dlg{availChans};
+  dlg.exec();
+
+  selChans = dlg.selection();
+}
+
 void spliceHeaderTraces(std::list<std::string> &lines, std::list<std::string> &header, std::list<std::string> &traces)
 {
   LIt it = lines.cbegin();
@@ -469,6 +490,17 @@ std::vector<std::string> splitDecimal(std::string s, const char delim, const cha
   return segments;
 }
 
+void warnDifferentChannels(const std::string &filePath)
+{
+  QMessageBox mbox{QMessageBox::Information,
+                   "Channels do not match",
+                   QString{"Signal channels in the currently processed file\n%1\ndo not match the channels in previous files. "
+                           "Please review the channels and update the selection of channels you want to load."}.arg(filePath.c_str())
+                  };
+
+  mbox.exec();
+}
+
 Identifier ASCSupport::s_identifier{"ASC text file (EZChrom format)", "ASC text", "ASC", {}};
 ASCSupport *ASCSupport::s_me{nullptr};
 
@@ -517,30 +549,29 @@ void EZChrom_AxisTitle(std::vector<std::string> &titles, const char delim, const
 EntryHandlersMap ASCSupport::s_handlers =
 {
   {
-    EntryHandlerSamplingRate::ID,
+    EntryHandlerSamplingRate::ID(),
     new EntryHandlerSamplingRate(EZChrom_SamplingRate)
   },
   {
-    EntryHandlerTotalDataPoints::ID,
+    EntryHandlerTotalDataPoints::ID(),
     new EntryHandlerTotalDataPoints(EZChrom_TotalDataPoints)
   },
   {
-    EntryHandlerXAxisMultiplier::ID,
+    EntryHandlerXAxisMultiplier::ID(),
     new EntryHandlerXAxisMultiplier(EZChrom_AxisMultiplier)
   },
   {
-    EntryHandlerYAxisMultiplier::ID,
+    EntryHandlerYAxisMultiplier::ID(),
     new EntryHandlerYAxisMultiplier(EZChrom_AxisMultiplier)
   },
   {
-    EntryHandlerXAxisTitle::ID,
+    EntryHandlerXAxisTitle::ID(),
     new EntryHandlerXAxisTitle(EZChrom_AxisTitle)
   },
   {
-    EntryHandlerYAxisTitle::ID,
+    EntryHandlerYAxisTitle::ID(),
     new EntryHandlerYAxisTitle(EZChrom_AxisTitle)
   }
-
 };
 
 LoaderBackend::~LoaderBackend()
@@ -605,7 +636,10 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
 {
   (void)option;
 
-  return loadInternal(path);
+  AvailableChannels availChans{};
+  SelectedChannelsVec selChans{};
+
+  return loadInternal(path, availChans, selChans);
 }
 
 std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
@@ -616,15 +650,18 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
   if (files.size() == 0)
     return data;
 
+  AvailableChannels availChans{};
+  SelectedChannelsVec selChans{};
+
   for (const std::string &file : files) {
-    const auto _data = loadInternal(file);
+    const auto _data = loadInternal(file, availChans, selChans);
     std::copy(_data.cbegin(), _data.cend(), std::back_inserter(data));
   }
 
   return data;
 }
 
-std::vector<Data> ASCSupport::loadInternal(const std::string &path)
+std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans)
 {
   std::vector<Data> data{};
 
@@ -668,7 +705,19 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path)
     ASCContext ctx = makeContext(name, path, header);
 
     parseHeader(ctx, header);
-    parseTraces(data, ctx, traces);
+
+    if (availChans.state == AvailableChannels::State::NOT_SET) {
+      availChans = AvailableChannels{ctx.yAxisTitles};
+      selectChannels(selChans, availChans.channels());
+    } else {
+      if (!availChans.matches(ctx)) {
+        warnDifferentChannels(name);
+        availChans = AvailableChannels{ctx.yAxisTitles};
+        selectChannels(selChans, availChans.channels());
+      }
+    }
+
+    parseTraces(data, ctx, traces, selChans);
   } catch (ASCFormatException &ex) {
     reportError(QString::fromStdString(ex.what()));
     return std::vector<Data>{};

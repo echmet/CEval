@@ -170,18 +170,17 @@ public:
       validateSize(rates, ctx);
       validatePositive(rates);
     } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
+      throw ASCFormatException(ID() + std::string{": "} + ex.what());
     }
 
     ctx.samplingRates = std::move(rates);
   }
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   const Executor m_executor;
 };
-const std::string EntryHandlerSamplingRate::ID{"sampling rate"};
 
 class EntryHandlerTotalDataPoints : public EntryHandlerEssentalityTrait<true>, EntryHandlerSizeTrait<-1, int32_t>
 {
@@ -205,18 +204,17 @@ public:
       m_executor(numPoints, ctx.valueDelim, entry);
       validateSize(numPoints, ctx);
     } catch (const ASCTraitException &ex) {
-      throw ASCFormatException(ID + std::string{": "} + ex.what());
+      throw ASCFormatException(ID() + std::string{": "} + ex.what());
     }
 
     ctx.nDatapoints = std::move(numPoints);
   }
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   const Executor m_executor;
 };
-const std::string EntryHandlerTotalDataPoints::ID{"total data points"};
 
 class EntryHandlerAxisMultiplierAbstract : public EntryHandlerEssentalityTrait<true>,
                                                   EntryHandlerSizeTrait<-1, double>,
@@ -263,12 +261,9 @@ class EntryHandlerXAxisMultiplier : public EntryHandlerAxisMultiplierAbstract
 {
 public:
   using EntryHandlerAxisMultiplierAbstract::EntryHandlerAxisMultiplierAbstract;
-  virtual const std::string & id() const noexcept override
-  {
-    return ID;
-  }
+  virtual const std::string & id() const noexcept override;
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   virtual std::vector<double> & dataBlock(ASCContext &ctx) const noexcept override
@@ -276,18 +271,14 @@ private:
     return ctx.xAxisMultipliers;
   }
 };
-const std::string EntryHandlerXAxisMultiplier::ID{"x axis multiplier"};
 
 class EntryHandlerYAxisMultiplier : public EntryHandlerAxisMultiplierAbstract
 {
 public:
   using EntryHandlerAxisMultiplierAbstract::EntryHandlerAxisMultiplierAbstract;
-  virtual const std::string & id() const noexcept override
-  {
-    return ID;
-  }
+  virtual const std::string & id() const noexcept override;
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   virtual std::vector<double> & dataBlock(ASCContext &ctx) const noexcept override
@@ -295,7 +286,6 @@ private:
     return ctx.yAxisMultipliers;
   }
 };
-const std::string EntryHandlerYAxisMultiplier::ID{"y axis multiplier"};
 
 class EntryHandlerAxisTitleAbstract : public EntryHandlerEssentalityTrait<false>, EntryHandlerSizeTrait<-1, std::string>
 {
@@ -339,12 +329,9 @@ class EntryHandlerXAxisTitle : public EntryHandlerAxisTitleAbstract
 {
 public:
   using EntryHandlerAxisTitleAbstract::EntryHandlerAxisTitleAbstract;
-  virtual const std::string & id() const noexcept override
-  {
-    return ID;
-  }
+  virtual const std::string & id() const noexcept override;
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   virtual std::vector<std::string> & dataBlock(ASCContext &ctx) const noexcept override
@@ -352,18 +339,14 @@ private:
     return ctx.xAxisTitles;
   }
 };
-const std::string EntryHandlerXAxisTitle::ID{"x axis title"};
 
 class EntryHandlerYAxisTitle : public EntryHandlerAxisTitleAbstract
 {
 public:
   using EntryHandlerAxisTitleAbstract::EntryHandlerAxisTitleAbstract;
-  virtual const std::string & id() const noexcept override
-  {
-    return ID;
-  }
+  virtual const std::string & id() const noexcept override;
 
-  static const std::string ID;
+  static const std::string & ID() noexcept;
 
 private:
   virtual std::vector<std::string> & dataBlock(ASCContext &ctx) const noexcept override
@@ -371,7 +354,6 @@ private:
     return ctx.yAxisTitles;
   }
 };
-const std::string EntryHandlerYAxisTitle::ID{"y axis title"};
 
 typedef std::map<std::string, EntryHandler *> EntryHandlersMap;
 

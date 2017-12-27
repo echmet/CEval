@@ -24,12 +24,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    ascsupport.cpp
+    ascsupport.cpp \
+    availablechannels.cpp \
+    ascsupport_handlers.cpp \
+    ui/selectchannelsdialog.cpp \
+    commonpropertiesdialog.cpp
 
 HEADERS +=\
     ascsupport.h \
     ascsupport_global.h \
-    ascsupport_handlers.h
+    ascsupport_handlers.h \
+    availablechannels.h \
+    ui/selectchannelsdialog.h \
+    commonpropertiesdialog.h
 
 DESTDIR = ../../../efgbackends
 
@@ -45,5 +52,9 @@ win32: LIBS += -luser32
 
     INCLUDEPATH += $$BOOSTPATH
 }
+
+FORMS += \
+    ui/selectchannelsdialog.ui \
+    commonpropertiesdialog.ui
 
 

@@ -8,8 +8,13 @@
 
 namespace backend {
 
+class AvailableChannels;
+
 class ASCSUPPORTSHARED_EXPORT ASCSupport : public LoaderBackend {
 public:
+  typedef std::pair<std::string, bool> SelectedChannel;
+  typedef std::vector<SelectedChannel> SelectedChannelsVec;
+
   virtual Identifier identifier() const override;
   virtual void destroy() override;
   virtual std::vector<Data> load(const int option) override;
@@ -18,12 +23,12 @@ public:
 
   static ASCSupport *instance();
 
-private:
+private: 
   ASCSupport();
   virtual ~ASCSupport() override;
   const EntryHandler * getHandler(const std::string &key);
   std::vector<Data> loadInteractive(const std::string &hintPath);
-  std::vector<Data> loadInternal(const std::string &path);
+  std::vector<Data> loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans);
   void parseHeader(ASCContext &ctx, const std::list<std::string> &header);
 
   static Identifier s_identifier;
