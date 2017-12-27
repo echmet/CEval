@@ -429,13 +429,21 @@ std::istringstream readFile(const std::string &path, const SupportedEncodings::E
     throw ASCFormatException{"Number of read bytes does not match the size of the file"};
   }
 
-  std::string converted = convertToUTF8WinAPI(buf, encoding);
-  CloseHandle(fh);
-  delete [] buf;
-  delete [] wPath;
+  try {
+    std::string converted = convertToUTF8WinAPI(buf, encoding);
+    CloseHandle(fh);
+    delete [] buf;
+    delete [] wPath;
 
-  std::istringstream iss{std::move(converted)};
-  return iss;
+    std::istringstream iss{std::move(converted)};
+    return iss;
+  } catch (const ASCFormatException &up) {
+    CloseHandle(fh);
+    delete [] buf;
+    delete [] wPath;
+
+    throw up;
+  }
 }
 
 #else
