@@ -4,6 +4,7 @@
 #include "ascsupport_global.h"
 #include "ascsupport_handlers.h"
 #include "../../efgloader-core/common/backendinterface.h"
+#include "supportedencodings.h"
 #include <list>
 
 namespace backend {
@@ -28,7 +29,8 @@ private:
   virtual ~ASCSupport() override;
   const EntryHandler * getHandler(const std::string &key);
   std::vector<Data> loadInteractive(const std::string &hintPath);
-  std::vector<Data> loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans, const std::string &encoding);
+  std::vector<Data> loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans,
+                                 const SupportedEncodings::EncodingType &encoding);
   void parseHeader(ASCContext &ctx, const std::list<std::string> &header);
 
   static Identifier s_identifier;

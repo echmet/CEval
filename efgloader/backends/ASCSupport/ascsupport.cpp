@@ -314,7 +314,60 @@ std::istringstream readFile(const std::string &path, const std::string &encoding
   return iss;
 }
 #elif defined Q_OS_WIN
-std::istringstream readFile(const std::string &path)
+std::string convertToUTF8WinAPI(const char *buf, const int encoding)
+{
+  int size;
+  wchar_t *wStr;
+
+  if (encoding == CP_UTF8)
+    return std::string{buf}; /* No need to convert anything */
+
+  /* Convert from source encoding to wchar */
+  size = MultiByteToWideChar(encoding, 0, buf, -1, nullptr, 0);
+  if (size <= 0)
+    throw ASCFormatException{"Cannot get wchar_t array size"};
+
+  wStr = new (std::nothrow) wchar_t[size];
+  if (wStr == nullptr)
+    throw ASCFormatException{"Cannot convert ASC input to UTF-8: Out of memory"};
+
+  size = MultiByteToWideChar(encoding, 0, buf, -1, wStr, size);
+  if (size <= 0) {
+    delete [] wStr;
+    throw ASCFormatException{"Cannot convert ASC input to UTF-8: Conversion failure"};
+  }
+
+  /* Convert from wchar to UTF-8 */
+  char *convStr;
+
+  size = WideCharToMultiByte(CP_UTF8, 0, wStr, -1, nullptr, 0, nullptr, nullptr);
+  if (size <= 0) {
+    delete [] wStr;
+    throw ASCFormatException{"Cannot convert ASC input to UTF-8: Cannot get char array size"};
+  }
+
+  convStr = new (std::nothrow) char[size];
+  if (convStr == nullptr) {
+    delete [] wStr;
+    throw ASCFormatException{"Cannot convert ASC input to UTF-8: Out of memory"};
+  }
+
+  size = WideCharToMultiByte(CP_UTF8, 0, wStr, -1, convStr, size, nullptr, nullptr);
+  if (size <= 0) {
+    delete [] wStr;
+    delete [] convStr;
+    throw ASCFormatException{"Cannot convert ASC input to UTF-8: Conversion failure"};
+  }
+
+  delete [] wStr;
+
+  std::string converted{convStr};
+  delete [] convStr;
+
+  return converted;
+}
+
+std::istringstream readFile(const std::string &path, const SupportedEncodings::EncodingType &encoding)
 {
   HANDLE fh;
   int wSize;
@@ -327,7 +380,7 @@ std::istringstream readFile(const std::string &path)
   if (wSize <= 0)
     throw ASCFormatException{"Cannot get wchar_t array size"};
 
-  wPath = new wchar_t[wSize];
+  wPath = new (std::nothrow) wchar_t[wSize];
   if (wPath == nullptr)
     throw ASCFormatException{"Cannot convert UTF-8 path to Windows native path: Out of memory"};
 
@@ -352,7 +405,7 @@ std::istringstream readFile(const std::string &path)
 
   fileSize |= static_cast<int64_t>(fileSizeHigh) << 32 | fileSizeLow;
 
-  buf = new char[fileSize + 1];
+  buf = new (std::nothrow) char[fileSize + 1];
   if (buf == nullptr) {
     CloseHandle(fh);
     delete [] wPath;
@@ -368,7 +421,6 @@ std::istringstream readFile(const std::string &path)
   }
   buf[fileSize] = '\0';
 
-
   /* We fail if the file size exceeds 4 GiB */
   if (bytesRead != fileSize) {
     CloseHandle(fh);
@@ -377,11 +429,12 @@ std::istringstream readFile(const std::string &path)
     throw ASCFormatException{"Number of read bytes does not match the size of the file"};
   }
 
-  std::istringstream iss{buf};
+  std::string converted = convertToUTF8WinAPI(buf, encoding);
   CloseHandle(fh);
   delete [] buf;
   delete [] wPath;
 
+  std::istringstream iss{std::move(converted)};
   return iss;
 }
 
@@ -657,7 +710,7 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
 
   CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
   dlg.exec();
-  const std::string encoding = dlg.encoding();
+  const SupportedEncodings::EncodingType encoding = dlg.encoding();
 
   return loadInternal(path, availChans, selChans, encoding);
 }
@@ -672,7 +725,7 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
 
   CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
   dlg.exec();
-  const std::string encoding = dlg.encoding();
+  const SupportedEncodings::EncodingType encoding = dlg.encoding();
 
   AvailableChannels availChans{};
   SelectedChannelsVec selChans{};
@@ -685,7 +738,8 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
   return data;
 }
 
-std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans, const std::string &encoding)
+std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans,
+                                           const SupportedEncodings::EncodingType &encoding)
 {
   std::vector<Data> data{};
 

@@ -17,17 +17,17 @@ CommonPropertiesDialog::~CommonPropertiesDialog()
   delete ui;
 }
 
-std::string CommonPropertiesDialog::encoding() const
+SupportedEncodings::EncodingType CommonPropertiesDialog::encoding() const
 {
   const QVariant v = ui->qcbox_encoding->currentData();
-  if (!v.canConvert<QString>())
-    return "";
+  if (!v.canConvert<SupportedEncodings::EncodingType>())
+    return SupportedEncodings::INVALID_ENCTYPE;
 
-  return v.toString().toStdString();
+  return v.value<SupportedEncodings::EncodingType>();
 }
 
 void CommonPropertiesDialog::fillEncodings(const SupportedEncodings::EncodingsVec &encs)
 {
   for (const auto &e : encs)
-    ui->qcbox_encoding->addItem(QString::fromStdString(e.first), QString::fromStdString(e.second));
+    ui->qcbox_encoding->addItem(QString::fromStdString(e.first), QVariant::fromValue<SupportedEncodings::EncodingType>(e.second));
 }

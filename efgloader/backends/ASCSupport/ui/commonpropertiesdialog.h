@@ -15,7 +15,7 @@ class CommonPropertiesDialog : public QDialog
 public:
   explicit CommonPropertiesDialog(const SupportedEncodings::EncodingsVec &encs, QWidget *parent = nullptr);
   ~CommonPropertiesDialog();
-  std::string encoding() const;
+  SupportedEncodings::EncodingType encoding() const;
 
 private:
   void fillEncodings(const SupportedEncodings::EncodingsVec &encs);
