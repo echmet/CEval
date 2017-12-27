@@ -28,7 +28,8 @@ SOURCES += \
     availablechannels.cpp \
     ascsupport_handlers.cpp \
     ui/selectchannelsdialog.cpp \
-    commonpropertiesdialog.cpp
+    ui/commonpropertiesdialog.cpp \
+    supportedencodings.cpp
 
 HEADERS +=\
     ascsupport.h \
@@ -36,11 +37,18 @@ HEADERS +=\
     ascsupport_handlers.h \
     availablechannels.h \
     ui/selectchannelsdialog.h \
-    commonpropertiesdialog.h
+    ui/commonpropertiesdialog.h \
+    supportedencodings.h
 
 DESTDIR = ../../../efgbackends
 
-win32: LIBS += -luser32
+unix {
+  DEFINES += ENCODING_USE_ICU
+  LIBS += -licuuc -licu18n
+} win32 {
+  DEFINES += ENCODING_USE_WINAPI
+  LIBS += -luser32
+}
 
 !win32-msvc2015 {
     QMAKE_CXXFLAGS += "-Wall -Wextra -pedantic"
@@ -55,6 +63,6 @@ win32: LIBS += -luser32
 
 FORMS += \
     ui/selectchannelsdialog.ui \
-    commonpropertiesdialog.ui
+    ui/commonpropertiesdialog.ui
 
 

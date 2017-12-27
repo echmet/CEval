@@ -2,11 +2,13 @@
 #include "../../efgloader-core/common/backendhelpers_p.h"
 #include "availablechannels.h"
 #include "ui/selectchannelsdialog.h"
+#include "ui/commonpropertiesdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QString>
 #include <algorithm>
 #include <fstream>
+#include <limits>
 #include <sstream>
 #include <locale>
 #include <iostream>
@@ -24,6 +26,10 @@
 #elif defined Q_OS_WIN
   #include <Windows.h>
 #endif // Q_OS_
+
+#if defined ENCODING_USE_ICU
+#include <unicode/unistr.h>
+#endif // ENCODING_USE_ICU
 
 #define KV_DELIM ':'
 
@@ -265,7 +271,18 @@ void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list
 }
 
 #if defined Q_OS_UNIX
-std::istringstream readFile(const std::string &path)
+
+std::string convertToUTF8ICU(const char *buf, const int32_t bufLen, const std::string &encoding)
+{
+  icu::UnicodeString ustr{buf, bufLen, encoding.c_str()};
+
+  std::string converted{};
+  ustr.toUTF8String(converted);
+
+  return converted;
+}
+
+std::istringstream readFile(const std::string &path, const std::string &encoding)
 {
   int fd = open(path.c_str(), O_RDONLY);
   if (fd <= 0) {
@@ -275,6 +292,11 @@ std::istringstream readFile(const std::string &path)
 
   const off_t len = lseek(fd, 0, SEEK_END);
   lseek(fd, 0, SEEK_SET);
+
+  if (len + 1 > std::numeric_limits<int32_t>::max()) {
+    close(fd);
+    throw ASCFormatException{"File is too large process"};
+  }
 
   char *buf = new char[len + 1];
   if (buf == nullptr) {
@@ -288,12 +310,14 @@ std::istringstream readFile(const std::string &path)
     close(fd);
     throw ASCFormatException{"Cannot open file: unable to read the whole file"};
   }
-  buf[len] = '\0';
+  buf[len] = '\0'; /* Force zero-termination */
 
   close(fd);
-  std::istringstream iss{std::string{buf}};
 
+  std::string converted = convertToUTF8ICU(buf, len, encoding);
   delete [] buf;
+
+  std::istringstream iss{std::move(converted)};
 
   return iss;
 }
@@ -639,7 +663,11 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
   AvailableChannels availChans{};
   SelectedChannelsVec selChans{};
 
-  return loadInternal(path, availChans, selChans);
+  CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
+  dlg.exec();
+  const std::string encoding = dlg.encoding();
+
+  return loadInternal(path, availChans, selChans, encoding);
 }
 
 std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
@@ -650,18 +678,22 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
   if (files.size() == 0)
     return data;
 
+  CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
+  dlg.exec();
+  const std::string encoding = dlg.encoding();
+
   AvailableChannels availChans{};
   SelectedChannelsVec selChans{};
 
   for (const std::string &file : files) {
-    const auto _data = loadInternal(file, availChans, selChans);
+    const auto _data = loadInternal(file, availChans, selChans, encoding);
     std::copy(_data.cbegin(), _data.cend(), std::back_inserter(data));
   }
 
   return data;
 }
 
-std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans)
+std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableChannels &availChans, SelectedChannelsVec &selChans, const std::string &encoding)
 {
   std::vector<Data> data{};
 
@@ -669,7 +701,7 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
   std::istringstream inStream{};
 
   try {
-    inStream = readFile(path);
+    inStream = readFile(path, encoding);
   } catch (const ASCFormatException &ex) {
     reportError(ex.what());
     return data;
