@@ -29,7 +29,8 @@ SOURCES += \
     ascsupport_handlers.cpp \
     ui/selectchannelsdialog.cpp \
     ui/commonpropertiesdialog.cpp \
-    supportedencodings.cpp
+    supportedencodings.cpp \
+    ui/pickdecimalpointdialog.cpp
 
 HEADERS +=\
     ascsupport.h \
@@ -38,13 +39,14 @@ HEADERS +=\
     availablechannels.h \
     ui/selectchannelsdialog.h \
     ui/commonpropertiesdialog.h \
-    supportedencodings.h
+    supportedencodings.h \
+    ui/pickdecimalpointdialog.h
 
 DESTDIR = ../../../efgbackends
 
 unix {
   DEFINES += ENCODING_USE_ICU
-  LIBS += -licuuc -licu18n
+  LIBS += -licuuc -licui18n
 } win32 {
   DEFINES += ENCODING_USE_WINAPI
   LIBS += -luser32
@@ -63,6 +65,7 @@ unix {
 
 FORMS += \
     ui/selectchannelsdialog.ui \
-    ui/commonpropertiesdialog.ui
+    ui/commonpropertiesdialog.ui \
+    ui/pickdecimalpointdialog.ui
 
 

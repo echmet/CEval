@@ -3,6 +3,7 @@
 #include "availablechannels.h"
 #include "ui/selectchannelsdialog.h"
 #include "ui/commonpropertiesdialog.h"
+#include "ui/pickdecimalpointdialog.h"
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QString>
@@ -157,21 +158,12 @@ std::tuple<std::string, std::string> splitKeyValue(const std::string &entry, con
     return {key, entry.substr(delimIdx + delim.length())};
 }
 
-char pickDecimalPoint()
+char pickDecimalPoint(const std::string &name)
 {
-  QDialog dlg{};
-
-  QComboBox qcbox{};
-  qcbox.addItem("Comma (,)", ',');
-  qcbox.addItem("Period (.)", '.');
-
-  dlg.setLayout(new QVBoxLayout{});
-
-  dlg.layout()->addWidget(&qcbox);
-
+  PickDecimalPointDialog dlg{QString::fromStdString(name)};
   dlg.exec();
 
-  return qcbox.currentData().toChar().toLatin1();
+  return dlg.separator();
 }
 
 ASCContext makeContext(const std::string &name, const std::string &path, const std::list<std::string> &header)
@@ -194,9 +186,9 @@ ASCContext makeContext(const std::string &name, const std::string &path, const s
   }();
 
   kvDelim = std::string{KV_DELIM} + std::string{valueDelim};
-  const char dataDecimalPoint = [](const char valueDelim) {
+  const char dataDecimalPoint = [&name](const char valueDelim) {
     if (valueDelim == '.' || valueDelim == ',')
-      return pickDecimalPoint();
+      return pickDecimalPoint(name);
 
     return '.'; /* The actual value does not really matter */
   }(valueDelim);
