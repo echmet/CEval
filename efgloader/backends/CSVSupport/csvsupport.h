@@ -30,7 +30,7 @@ private:
   LoadCsvFileDialog *m_loadCsvFileDlg;
 
   static CSVSupport *s_me;
-  static Identifier s_identifier;
+  static const Identifier s_identifier;
 };
 
 extern "C" {

@@ -8,7 +8,7 @@
 namespace backend {
 
 CSVSupport *CSVSupport::s_me{nullptr};
-Identifier CSVSupport::s_identifier{"Comma separated file format support", "CSV", "CSV", {"file", "clipboard"}};
+const Identifier CSVSupport::s_identifier{"Comma separated file format support", "CSV", "CSV", {"file", "clipboard"}};
 
 Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const LoadCsvFileDialog::Parameters &p)
 {
