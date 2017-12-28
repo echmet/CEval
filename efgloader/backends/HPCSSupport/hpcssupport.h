@@ -3,6 +3,7 @@
 
 #include "hpcssupport_global.h"
 #include "../../efgloader-core/common/backendinterface.h"
+#include <QMutex>
 #include <QStringList>
 #include <QSize>
 #include "chemstationbatchloader.h"
@@ -31,8 +32,12 @@ private:
   Data loadChemStationFileSingle(const QString &path);
   void loadChemStationFileMultipleDirectories(std::vector<Data> &dataVec, const QStringList &dirPaths, const ChemStationBatchLoader::Filter &filter);
   void loadChemStationFileWholeDirectory(std::vector<Data> &dataVec, const QString &path, const ChemStationBatchLoader::Filter &filter);
+  std::vector<Data> loadInteractive(LoadChemStationDataDialog *dlg);
+  LoadChemStationDataDialog * makeLoadDialog(const QString &path);
 
-  LoadChemStationDataDialog *m_loadChemStationDataDlg;
+  QMutex m_dlgSizeLock;
+  QMutex m_lastPathLock;
+
   QSize m_lastChemStationDlgSize;
   QString m_lastChemStationPath;
 

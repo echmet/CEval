@@ -9,6 +9,13 @@ namespace backend {
 HPCSSupport *HPCSSupport::s_me{nullptr};
 const Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
 
+bool isDirectoryUsable(const QString &path)
+{
+  const QDir dir(path);
+
+  return (dir.exists() && dir.isReadable());
+}
+
 LoaderBackend::~LoaderBackend()
 {
 }
@@ -32,12 +39,10 @@ HPCSSupport::HPCSSupport() :
     return pathsToTry;
   }())
 {
-  m_loadChemStationDataDlg = new LoadChemStationDataDialog{};
 }
 
 HPCSSupport::~HPCSSupport()
 {
-  delete m_loadChemStationDataDlg;
 }
 
 std::string HPCSSupport::chemStationTypeToString(const ChemStationFileLoader::Type type)
@@ -109,37 +114,58 @@ HPCSSupport * HPCSSupport::instance()
   return s_me;
 }
 
-bool HPCSSupport::isDirectoryUsable(const QString &path) const
+LoadChemStationDataDialog * HPCSSupport::makeLoadDialog(const QString &path)
 {
-  const QDir dir(path);
+  LoadChemStationDataDialog *dlg = new LoadChemStationDataDialog{};
 
-  return (dir.exists() && dir.isReadable());
+  if (isDirectoryUsable(path))
+    dlg->expandToPath(path);
+
+  m_dlgSizeLock.lock();
+  if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
+      dlg->resize(m_lastChemStationDlgSize);
+  m_dlgSizeLock.unlock();
+
+  BackendHelpers::showWindowOnTop(dlg);
+
+  return dlg;
 }
 
 std::vector<Data> HPCSSupport::load(const int option)
 {
   Q_UNUSED(option);
-  int ret;
 
-  if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
-      m_loadChemStationDataDlg->resize(m_lastChemStationDlgSize);
+  m_lastPathLock.lock();
+  const QString path = m_lastChemStationPath;
+  m_lastPathLock.unlock();
 
-  if (!isDirectoryUsable(m_lastChemStationPath))
-    m_lastChemStationPath = defaultPath();
+  auto *dlg = makeLoadDialog(path);
+  const auto ret = loadInteractive(dlg);
+  delete dlg;
 
-  m_loadChemStationDataDlg->expandToPath(m_lastChemStationPath);
+  return ret;
+}
 
-  BackendHelpers::showWindowOnTop(m_loadChemStationDataDlg);
-  ret = m_loadChemStationDataDlg->exec();
+std::vector<Data> HPCSSupport::loadHint(const std::string &hintPath, const int option)
+{
+  Q_UNUSED(option);
 
-  m_lastChemStationDlgSize = m_loadChemStationDataDlg->size();
+  auto *dlg = makeLoadDialog(QString::fromStdString(hintPath));
+  const auto ret = loadInteractive(dlg);
+  delete dlg;
 
-  if (ret != QDialog::Accepted)
-    return std::vector<Data>{};
+  return ret;
+}
 
-  LoadChemStationDataDialog::LoadInfo loadInfo = m_loadChemStationDataDlg->loadInfo();
+std::vector<Data> HPCSSupport::loadInteractive(LoadChemStationDataDialog *dlg)
+{
+  std::vector<Data> dataVec{};
 
-  std::vector<Data> dataVec;
+  if (dlg->exec() != QDialog::Accepted)
+    return dataVec;
+
+  const auto loadInfo = dlg->loadInfo();
+
   switch (loadInfo.loadingMode) {
   case LoadChemStationDataDialog::LoadingMode::SINGLE_FILE:
     dataVec.emplace_back(loadChemStationFileSingle(loadInfo.path));
@@ -152,25 +178,21 @@ std::vector<Data> HPCSSupport::load(const int option)
     break;
   }
 
+  m_dlgSizeLock.lock();
+  m_lastChemStationDlgSize = dlg->size();
+  m_dlgSizeLock.unlock();
+  m_lastPathLock.lock();
+  m_lastChemStationPath = loadInfo.path;
+  m_lastPathLock.unlock();
+
   return dataVec;
-}
-
-std::vector<Data> HPCSSupport::loadHint(const std::string &hintPath, const int option)
-{
-  const QString qHintPath(hintPath.c_str());
-
-  if (isDirectoryUsable(qHintPath))
-    m_lastChemStationPath = qHintPath;
-
-  return load(option);
 }
 
 std::vector<Data> HPCSSupport::loadPath(const std::string &path, const int option)
 {
   Q_UNUSED(option);
-  Data d = loadChemStationFileSingle(QString::fromStdString(path));
 
-  return std::vector<Data>{d};
+  return {loadChemStationFileSingle(QString::fromStdString(path))};
 }
 
 Data HPCSSupport::loadChemStationFileSingle(const QString &path)
