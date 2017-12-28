@@ -20,7 +20,7 @@ SelectChannelsDialog::SelectChannelsDialog(const std::vector<std::string> &chann
     const auto &s = channels.at(idx);
     QLabel *l = new QLabel{this};
     QCheckBox *cb = new QCheckBox{this};
-    m_selected.emplace_back(std::make_pair(s, cb));
+    m_selected.emplace_back(s, cb);
 
     l->setText(QString::fromStdString(s));
     cb->setChecked(true);
@@ -46,7 +46,7 @@ std::vector<std::pair<std::string, bool>> SelectChannelsDialog::selection() cons
   std::vector<std::pair<std::string, bool>> sel{};
 
   for (const auto &item : m_selected)
-    sel.emplace_back(std::make_pair(item.first, item.second->isChecked()));
+    sel.emplace_back(item.first, item.second->isChecked());
 
   return sel;
 }
