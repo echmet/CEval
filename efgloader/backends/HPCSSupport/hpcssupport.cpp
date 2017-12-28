@@ -7,7 +7,7 @@
 namespace backend {
 
 HPCSSupport *HPCSSupport::s_me{nullptr};
-Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
+const Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
 
 LoaderBackend::~LoaderBackend()
 {
