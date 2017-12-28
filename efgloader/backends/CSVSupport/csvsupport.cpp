@@ -55,6 +55,17 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
               std::move(csvData.data)};
 }
 
+LoadCsvFileDialog * makeCsvLoaderDialog()
+{
+  LoadCsvFileDialog *dlg = new LoadCsvFileDialog{};
+
+  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
+    dlg->addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
+
+  BackendHelpers::showWindowOnTop(dlg);
+  return dlg;
+}
+
 CsvFileLoader::Parameters makeCsvLoaderParameters(LoadCsvFileDialog *dlg)
 {
   BackendHelpers::showWindowOnTop(dlg);
@@ -100,15 +111,10 @@ LoaderBackend::~LoaderBackend()
 
 CSVSupport::CSVSupport()
 {
-  m_loadCsvFileDlg = new LoadCsvFileDialog{};
-
-  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
-     m_loadCsvFileDlg->addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
 }
 
 CSVSupport::~CSVSupport()
 {
-  delete m_loadCsvFileDlg;
 }
 
 void CSVSupport::destroy()
@@ -148,10 +154,13 @@ std::vector<Data> CSVSupport::load(const int option)
 
 std::vector<Data> CSVSupport::loadCsvFromClipboard()
 {
+  std::vector<Data> retData{};
+  auto *dlg = makeCsvLoaderDialog();
+
   while (true) {
-    CsvFileLoader::Parameters readerParams = makeCsvLoaderParameters(m_loadCsvFileDlg);
+    CsvFileLoader::Parameters readerParams = makeCsvLoaderParameters(dlg);
     if (!readerParams.isValid)
-      return std::vector<Data>{};
+      break;
 
     CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(readerParams);
     if (!csvData.isValid()) {
@@ -159,39 +168,42 @@ std::vector<Data> CSVSupport::loadCsvFromClipboard()
       continue;
     }
 
-    return std::vector<Data>{loadCsvData(csvData, QString(), m_loadCsvFileDlg->parameters())};
+    retData = std::vector<Data>{loadCsvData(csvData, QString(), dlg->parameters())};
   }
+
+  delete dlg;
+  return retData;
 }
 
 std::vector<Data> CSVSupport::loadCsvFromFile(const std::string &sourcePath)
 {
   QStringList files;
-  QFileDialog openDlg(nullptr, QObject::tr("Pick a text data file"), QString::fromStdString(sourcePath));
+  QFileDialog openDlg{nullptr, QObject::tr("Pick a text data file"), QString::fromStdString(sourcePath)};
 
   BackendHelpers::showWindowOnTop(&openDlg);
   openDlg.setAcceptMode(QFileDialog::AcceptOpen);
   openDlg.setFileMode(QFileDialog::ExistingFiles);
 
   if (openDlg.exec() != QDialog::Accepted)
-     return std::vector<Data>{};
+   return std::vector<Data>{};
 
   files = openDlg.selectedFiles();
   if (files.length() < 1)
     return std::vector<Data>{};
 
   return loadCsvFromFileInternal(files);
-
 }
 
 std::vector<Data> CSVSupport::loadCsvFromFileInternal(const QStringList &files)
 {
   std::vector<Data> retData;
   CsvFileLoader::Parameters readerParams;
+  auto *dlg = makeCsvLoaderDialog();
 
   for (const QString &f : files) {
     while (true) {
       if (!readerParams.isValid) {
-         readerParams = makeCsvLoaderParameters(m_loadCsvFileDlg);
+         readerParams = makeCsvLoaderParameters(dlg);
          if (!readerParams.isValid)
            break;
        }
@@ -202,11 +214,12 @@ std::vector<Data> CSVSupport::loadCsvFromFileInternal(const QStringList &files)
          continue;
        }
 
-       retData.emplace_back(loadCsvData(csvData, f, m_loadCsvFileDlg->parameters()));
+       retData.emplace_back(loadCsvData(csvData, f, dlg->parameters()));
        break;
     }
   }
 
+  delete dlg;
   return retData;
 }
 
@@ -222,7 +235,7 @@ std::vector<Data> CSVSupport::loadHint(const std::string &hintPath, const int op
   }
 }
 
-std::vector<Data>  CSVSupport::loadPath(const std::string &path, const int option)
+std::vector<Data> CSVSupport::loadPath(const std::string &path, const int option)
 {
   switch (option) {
   case 0:

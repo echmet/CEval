@@ -27,8 +27,6 @@ private:
   std::vector<Data> loadCsvFromFile(const std::string &sourcePath);
   std::vector<Data> loadCsvFromFileInternal(const QStringList &files);
 
-  LoadCsvFileDialog *m_loadCsvFileDlg;
-
   static CSVSupport *s_me;
   static const Identifier s_identifier;
 };
