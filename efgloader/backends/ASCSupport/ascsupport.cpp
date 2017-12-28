@@ -290,7 +290,7 @@ std::istringstream readFile(const std::string &path, const std::string &encoding
     throw ASCFormatException{"File is too large process"};
   }
 
-  char *buf = new char[len + 1];
+  char *buf = new (std::nothrow) char[len + 1];
   if (buf == nullptr) {
     close(fd);
     throw ASCFormatException{"Cannot open file: out of memory"};

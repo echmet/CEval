@@ -22,5 +22,8 @@ private:
 
   Ui::CommonPropertiesDialog *ui;
 };
+#if defined ENCODING_USE_ICU
+Q_DECLARE_METATYPE(std::string)
+#endif // ENCODING_USE_ICU
 
 #endif // COMMONPROPERTIESDIALOG_H

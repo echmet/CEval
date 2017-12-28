@@ -8,7 +8,7 @@ class SupportedEncodings
 {
 public:
 #if defined ENCODING_USE_ICU
-  typedef std::string EncodingType
+  typedef std::string EncodingType;
 #elif defined ENCODING_USE_WINAPI
   typedef int EncodingType;
 #else
