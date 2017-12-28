@@ -6,7 +6,7 @@
 
 namespace backend {
 
-Identifier NetCDFSupport::s_identifier{"NetCDF (Common Data Format) file format support", "NetCDF", "NetCDF", {}};
+const Identifier NetCDFSupport::s_identifier{"NetCDF (Common Data Format) file format support", "NetCDF", "NetCDF", {}};
 NetCDFSupport *NetCDFSupport::s_me{nullptr};
 
 LoaderBackend::~LoaderBackend()

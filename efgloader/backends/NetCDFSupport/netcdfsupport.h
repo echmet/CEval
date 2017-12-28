@@ -23,7 +23,7 @@ private:
   std::vector<Data> loadInternal(const QString &path);
   Data loadOneFile(const QString &path);
 
-  static Identifier s_identifier;
+  static const Identifier s_identifier;
   static NetCDFSupport *s_me;
 };
 
