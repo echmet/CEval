@@ -711,6 +711,8 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
   CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
   dlg.exec();
   const SupportedEncodings::EncodingType encoding = dlg.encoding();
+  if (encoding == SupportedEncodings::INVALID_ENCTYPE)
+    throw ASCFormatException{"Invalid encoding selected"};
 
   return loadInternal(path, availChans, selChans, encoding);
 }
@@ -726,6 +728,8 @@ std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
   CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
   dlg.exec();
   const SupportedEncodings::EncodingType encoding = dlg.encoding();
+  if (encoding == SupportedEncodings::INVALID_ENCTYPE)
+    throw ASCFormatException{"Invalid encoding selected"};
 
   AvailableChannels availChans{};
   SelectedChannelsVec selChans{};
