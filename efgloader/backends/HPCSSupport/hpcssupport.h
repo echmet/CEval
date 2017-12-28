@@ -32,10 +32,11 @@ private:
   void loadChemStationFileMultipleDirectories(std::vector<Data> &dataVec, const QStringList &dirPaths, const ChemStationBatchLoader::Filter &filter);
   void loadChemStationFileWholeDirectory(std::vector<Data> &dataVec, const QString &path, const ChemStationBatchLoader::Filter &filter);
 
-  QStringList m_defaultPathsToTry;
   LoadChemStationDataDialog *m_loadChemStationDataDlg;
   QSize m_lastChemStationDlgSize;
   QString m_lastChemStationPath;
+
+  const QStringList m_defaultPathsToTry;
 
   static HPCSSupport *s_me;
   static const Identifier s_identifier;
