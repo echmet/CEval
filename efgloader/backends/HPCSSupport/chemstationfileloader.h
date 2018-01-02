@@ -7,6 +7,8 @@
 #include <QVector>
 #include <libHPCS.h>
 
+class UIBackend;
+
 class ChemStationFileLoader
 {
 public:
@@ -57,15 +59,15 @@ public:
 
   ChemStationFileLoader() = delete;
 
-  static Data loadHeader(const QString &path, const bool reportErrors = false);
-  static Data loadFile(const QString &path, const bool reportErrors = false);
+  static Data loadHeader(UIBackend *backend, const QString &path, const bool reportErrors = false);
+  static Data loadFile(UIBackend *backend, const QString &path, const bool reportErrors = false);
 
 private:
   static QDate HPCSDateToQDate(const struct HPCS_Date date);
   static QVector<QPointF> HPCSDataToQVector(const struct HPCS_TVPair *data, const size_t length);
   static QTime HPCSDateToQTime(const struct HPCS_Date date);
   static Type HPCSTypeToType(const enum HPCS_FileType type);
-  static Data load(const QString &path, const bool fullFile, const bool reportErrors);
+  static Data load(UIBackend *backend, const QString &path, const bool fullFile, const bool reportErrors);
 };
 
 #endif // CHEMSTATIONFILELOADER_H

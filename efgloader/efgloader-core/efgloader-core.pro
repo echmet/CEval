@@ -12,7 +12,9 @@ include(../efgloader.pri)
 SOURCES += src/main.cpp \
     src/dataloader.cpp \
     src/ipcproxy.cpp \
-    src/localsocketipcproxy.cpp
+    src/localsocketipcproxy.cpp \
+    src/localsocketconnectionhandler.cpp \
+    common/uibackend.cpp
 
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which as been marked deprecated (the exact warnings
@@ -31,7 +33,10 @@ HEADERS += \
     src/dataloader.h \
     src/ipcproxy.h \
     src/localsocketipcproxy.h \
-    common/backendhelpers_p.h
+    common/backendhelpers_p.h \
+    src/localsocketconnectionhandler.h \
+    common/uibackend.h \
+    common/threadeddialog.h
 
 ipc_dbus {
     SOURCES += \

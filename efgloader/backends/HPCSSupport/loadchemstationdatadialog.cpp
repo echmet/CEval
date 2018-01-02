@@ -34,8 +34,9 @@ LoadChemStationDataDialog::LoadInfo & LoadChemStationDataDialog::LoadInfo::opera
   return *this;
 }
 
-LoadChemStationDataDialog::LoadChemStationDataDialog(QWidget *parent) :
+LoadChemStationDataDialog::LoadChemStationDataDialog(UIBackend *backend, QWidget *parent) :
   QDialog(parent),
+  m_uiBackend(backend),
   ui(new Ui::LoadChemStationDataDialog),
   m_loadInfo(LoadInfo(LoadingMode::SINGLE_FILE, ""))
 {
@@ -225,7 +226,7 @@ void LoadChemStationDataDialog::multipleDirectoriesSelected()
     dirPaths.push_back(m_fsModel->filePath(index));
   }
 
-  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(dirPaths);
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(m_uiBackend, dirPaths);
 
   setBatchLoadModel(common);
 }
@@ -361,7 +362,7 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
     QString absoluteFilePath = dir.absoluteFilePath(fileName);
     QString name = QFileInfo(absoluteFilePath).fileName();
 
-    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(absoluteFilePath);
+    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(m_uiBackend, absoluteFilePath);
     if (!chData.isValid())
       entries.push_back(ChemStationFileInfoModel::Entry(name, "", "", false));
     else
@@ -374,7 +375,7 @@ void LoadChemStationDataDialog::singleSelected(const QModelIndex &index)
 
 void LoadChemStationDataDialog::wholeDirectorySelected(const QModelIndex &index)
 {
-  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(m_fsModel->filePath(index));
+  ChemStationBatchLoader::CHSDataVec common = ChemStationBatchLoader::getCommonTypes(m_uiBackend, m_fsModel->filePath(index));
 
   setBatchLoadModel(common);
 }

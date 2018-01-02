@@ -1,6 +1,6 @@
 #include "chemstationfileloader.h"
 #include <libHPCS.h>
-#include <QMessageBox>
+#include "../../efgloader-core/common/threadeddialog.h"
 
 ChemStationFileLoader::Data::Data(const struct HPCS_MeasuredData *mdata) :
   fileDescription(mdata->file_description),
@@ -66,14 +66,14 @@ ChemStationFileLoader::Wavelength::Wavelength() :
 {
 }
 
-ChemStationFileLoader::Data ChemStationFileLoader::loadFile(const QString &path, const bool reportErrors)
+ChemStationFileLoader::Data ChemStationFileLoader::loadFile(UIBackend *backend, const QString &path, const bool reportErrors)
 {
-  return load(path, true, reportErrors);
+  return load(backend, path, true, reportErrors);
 }
 
-ChemStationFileLoader::Data ChemStationFileLoader::loadHeader(const QString &path, const bool reportErrors)
+ChemStationFileLoader::Data ChemStationFileLoader::loadHeader(UIBackend *backend, const QString &path, const bool reportErrors)
 {
-  return load(path, false, reportErrors);
+  return load(backend, path, false, reportErrors);
 }
 
 QVector<QPointF> ChemStationFileLoader::HPCSDataToQVector(const HPCS_TVPair *data, const size_t length)
@@ -130,7 +130,7 @@ ChemStationFileLoader::Type ChemStationFileLoader::HPCSTypeToType(const enum HPC
   }
 }
 
-ChemStationFileLoader::Data ChemStationFileLoader::load(const QString &path, const bool fullFile, const bool reportErrors)
+ChemStationFileLoader::Data ChemStationFileLoader::load(UIBackend *backend, const QString &path, const bool fullFile, const bool reportErrors)
 {
   enum HPCS_RetCode ret;
   struct HPCS_MeasuredData *mdata = hpcs_alloc_mdata();
@@ -143,10 +143,9 @@ ChemStationFileLoader::Data ChemStationFileLoader::load(const QString &path, con
   else
     ret = hpcs_read_mheader(path.toUtf8(), mdata);
   if (ret != HPCS_OK) {
-    if (reportErrors) {
-      QMessageBox::warning(nullptr, QMessageBox::tr("Cannot load ChemStation file"),
-                           QString("%1: %2").arg(QMessageBox::tr("Error reported")).arg(hpcs_error_to_string(ret)));
-    }
+    if (reportErrors)
+      ThreadedDialog<QMessageBox>::displayWarning(backend, QMessageBox::tr("Cannot load ChemStation file"),
+                                                  QString("%1: %2").arg(QMessageBox::tr("Error reported")).arg(hpcs_error_to_string(ret)));
     hpcs_free_mdata(mdata);
     return ChemStationFileLoader::Data();
   }

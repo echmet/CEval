@@ -4,8 +4,8 @@
 #include "ui/selectchannelsdialog.h"
 #include "ui/commonpropertiesdialog.h"
 #include "ui/pickdecimalpointdialog.h"
+#include "../../efgloader-core/common/threadeddialog.h"
 #include <QFileDialog>
-#include <QMessageBox>
 #include <QString>
 #include <algorithm>
 #include <fstream>
@@ -16,6 +16,7 @@
 #include <regex>
 #include <QComboBox>
 #include <QLayout>
+
 
 #if defined Q_OS_UNIX
   #include <sys/types.h>
@@ -40,6 +41,44 @@ static const std::string PTS_STR{"Pts."};
 namespace backend {
 
 typedef std::list<std::string>::const_iterator LIt;
+
+class OpenFileThreadedDialog : public ThreadedDialog<QFileDialog>
+{
+public:
+  OpenFileThreadedDialog(UIBackend *backend, const QString &path) :
+    ThreadedDialog<QFileDialog>{
+      backend,
+      [this]() {
+        auto dlg = new QFileDialog{nullptr, QObject::tr("Pick an ASC file"), this->m_path};
+
+        dlg->setNameFilter("ASC file (*.asc *.ASC)");
+        dlg->setAcceptMode(QFileDialog::AcceptOpen);
+        dlg->setFileMode(QFileDialog::ExistingFiles);
+        BackendHelpers::showWindowOnTop(dlg);
+
+        return dlg;
+      }
+    },
+    m_path{path}
+  {
+  }
+
+private:
+  const QString m_path;
+};
+
+class CommonPropertiesThreadedDialog : public ThreadedDialog<CommonPropertiesDialog>
+{
+public:
+  CommonPropertiesThreadedDialog(UIBackend *backend) :
+    ThreadedDialog<CommonPropertiesDialog>{
+      backend,
+      []() {
+        return new CommonPropertiesDialog{SupportedEncodings::supportedEncodings()};
+      }
+    }
+  {}
+};
 
 char initDecimalPoint()
 {
@@ -108,32 +147,25 @@ int strToInt(const std::string &s)
   }
 }
 
-void reportError(const QString &error)
+void reportError(UIBackend *backend, const QString &error)
 {
-  QMessageBox mbox{QMessageBox::Critical, QObject::tr("Cannot read ASC file"), error};
-  mbox.exec();
+  ThreadedDialog<QMessageBox>::displayCritical(backend, QObject::tr("Cannot read ASC file"), error);
 }
 
-void reportWarning(const QString &warning)
+void reportWarning(UIBackend *backend, const QString &warning)
 {
-  QMessageBox mbox{QMessageBox::Warning, QObject::tr("Cannot read ASC file"), warning};
-  mbox.exec();
+  ThreadedDialog<QMessageBox>::displayWarning(backend, QObject::tr("Cannot read ASC file"), warning);
 }
 
-std::vector<std::string> fileList(const QString &hintPath)
+std::vector<std::string> fileList(UIBackend *backend, const QString &hintPath)
 {
   std::vector<std::string> files{};
-  QFileDialog openDlg{nullptr, QObject::tr("Pick an ASC file"), hintPath};
+  OpenFileThreadedDialog dlgWrap{backend, hintPath};
 
-  openDlg.setNameFilter("ASC file (*.asc *.ASC)");
-  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
-  openDlg.setFileMode(QFileDialog::ExistingFiles);
-
-  BackendHelpers::showWindowOnTop(&openDlg);
-  if  (openDlg.exec() != QDialog::Accepted)
+  if (dlgWrap.execute() != QDialog::Accepted)
     return files;
 
-  const auto _files = openDlg.selectedFiles();
+  const auto _files = dlgWrap.dialog()->selectedFiles();
 
   for (const QString &file : _files)
     files.emplace_back(QDir::toNativeSeparators(file).toUtf8());
@@ -215,7 +247,7 @@ ASCContext makeContext(const std::string &name, const std::string &path, const s
   return ASCContext{name, path, static_cast<size_t>(nChans), std::move(kvDelim), valueDelim, dataDecimalPoint};
 }
 
-void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list<std::string> &traces, const ASCSupport::SelectedChannelsVec &selChans)
+void parseTraces(UIBackend *backend, std::vector<Data> &data, const ASCContext &ctx, const std::list<std::string> &traces, const ASCSupport::SelectedChannelsVec &selChans)
 {
   auto isSelected = [&](const size_t idx) {
     const auto &yUnit = ctx.yAxisTitles.at(idx);
@@ -259,7 +291,7 @@ void parseTraces(std::vector<Data> &data, const ASCContext &ctx, const std::list
   }
 
   if (it != traces.cend())
-    reportWarning("Data trace is longer than expected");
+    reportWarning(backend, "Data trace is longer than expected");
 }
 
 #if defined Q_OS_UNIX
@@ -567,15 +599,14 @@ std::vector<std::string> splitDecimal(std::string s, const char delim, const cha
   return segments;
 }
 
-void warnDifferentChannels(const std::string &filePath)
+void warnDifferentChannels(UIBackend *backend, const std::string &filePath)
 {
-  QMessageBox mbox{QMessageBox::Information,
-                   "Channels do not match",
-                   QString{"Signal channels in the currently processed file\n%1\ndo not match the channels in previous files. "
-                           "Please review the channels and update the selection of channels you want to load."}.arg(filePath.c_str())
-                  };
+  ThreadedDialog<QMessageBox>::displayInformation(backend,
+                                                  "Channels do not match",
+                                                  QString{"Signal channels in the currently processed file\n%1\ndo not match the channels in previous files. "
+                                                  "Please review the channels and update the selection of channels you want to load."}.arg(filePath.c_str())
+                                                  );
 
-  mbox.exec();
 }
 
 Identifier ASCSupport::s_identifier{"ASC text file (EZChrom format)", "ASC text", "ASC", {}};
@@ -655,7 +686,8 @@ LoaderBackend::~LoaderBackend()
 {
 }
 
-ASCSupport::ASCSupport()
+ASCSupport::ASCSupport(UIBackend *backend) :
+  m_uiBackend{backend}
 {
 }
 
@@ -687,10 +719,10 @@ Identifier ASCSupport::identifier() const
   return s_identifier;
 }
 
-ASCSupport * ASCSupport::instance()
+ASCSupport * ASCSupport::instance(UIBackend *backend)
 {
   if (s_me == nullptr)
-    s_me = new (std::nothrow) ASCSupport{};
+    s_me = new (std::nothrow) ASCSupport{backend};
 
   return s_me;
 }
@@ -716,9 +748,9 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
   AvailableChannels availChans{};
   SelectedChannelsVec selChans{};
 
-  CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
-  dlg.exec();
-  const SupportedEncodings::EncodingType encoding = dlg.encoding();
+  CommonPropertiesThreadedDialog dlgWrap{m_uiBackend};
+  dlgWrap.execute();
+  const SupportedEncodings::EncodingType encoding = dlgWrap.dialog()->encoding();
   if (encoding == SupportedEncodings::INVALID_ENCTYPE)
     throw ASCFormatException{"Invalid encoding selected"};
 
@@ -728,14 +760,15 @@ std::vector<Data> ASCSupport::loadPath(const std::string &path, const int option
 std::vector<Data> ASCSupport::loadInteractive(const std::string &hintPath)
 {
   std::vector<Data> data{};
-  std::vector<std::string> files = fileList(QString::fromStdString(hintPath));
+  CommonPropertiesThreadedDialog dlgWrap{m_uiBackend};
+  std::vector<std::string> files = fileList(m_uiBackend, QString::fromStdString(hintPath));
 
   if (files.size() == 0)
     return data;
 
-  CommonPropertiesDialog dlg{SupportedEncodings::supportedEncodings()};
-  dlg.exec();
-  const SupportedEncodings::EncodingType encoding = dlg.encoding();
+
+  dlgWrap.execute();
+  const SupportedEncodings::EncodingType encoding = dlgWrap.dialog()->encoding();
   if (encoding == SupportedEncodings::INVALID_ENCTYPE)
     throw ASCFormatException{"Invalid encoding selected"};
 
@@ -761,7 +794,7 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
   try {
     inStream = readFile(path, encoding);
   } catch (const ASCFormatException &ex) {
-    reportError(ex.what());
+    reportError(m_uiBackend, ex.what());
     return data;
   }
 
@@ -772,7 +805,7 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
   }
 
   if (!inStream.eof()) {
-    reportError("I/O error while reading ASC file");
+    reportError(m_uiBackend, "I/O error while reading ASC file");
     return data;
   }
 
@@ -781,7 +814,7 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
   spliceHeaderTraces(lines, header, traces);
 
   if (header.size() < 1) {
-    reportError("File contains no header"); /* TODO: Switch to headerless mode */
+    reportError(m_uiBackend, "File contains no header"); /* TODO: Switch to headerless mode */
     return data;
   }
 
@@ -801,18 +834,18 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
       selectChannels(selChans, availChans.channels());
     } else {
       if (!availChans.matches(ctx)) {
-        warnDifferentChannels(name);
+        warnDifferentChannels(m_uiBackend, name);
         availChans = AvailableChannels{ctx.yAxisTitles};
         selectChannels(selChans, availChans.channels());
       }
     }
 
-    parseTraces(data, ctx, traces, selChans);
+    parseTraces(m_uiBackend, data, ctx, traces, selChans);
   } catch (ASCFormatException &ex) {
-    reportError(QString::fromStdString(ex.what()));
+    reportError(m_uiBackend, QString::fromStdString(ex.what()));
     return std::vector<Data>{};
   } catch (std::bad_alloc &) {
-    reportError(QObject::tr("Insufficient memory to read ASC file"));
+    reportError(m_uiBackend, QObject::tr("Insufficient memory to read ASC file"));
     return std::vector<Data>{};
   }
 
@@ -834,7 +867,7 @@ void ASCSupport::parseHeader(ASCContext &ctx, const std::list<std::string> &head
       if (handler->essential()) {
         throw;
       } else {
-        reportWarning(QString::fromStdString(ex.what()));
+        reportWarning(m_uiBackend, QString::fromStdString(ex.what()));
       }
     } catch (std::bad_alloc &) {
       throw;
@@ -845,9 +878,9 @@ void ASCSupport::parseHeader(ASCContext &ctx, const std::list<std::string> &head
     throw ASCFormatException{"ASC header does not contain all information necessary to interpret the data"};
 }
 
-LoaderBackend * initialize()
+LoaderBackend * initialize(UIBackend *backend)
 {
-  return ASCSupport::instance();
+  return ASCSupport::instance(backend);
 }
 
 } //namespace backend

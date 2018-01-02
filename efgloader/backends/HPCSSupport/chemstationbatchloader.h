@@ -4,6 +4,8 @@
 #include <QDir>
 #include "chemstationfileloader.h"
 
+class UIBackend;
+
 class ChemStationBatchLoader
 {
 public:
@@ -26,15 +28,15 @@ public:
   ChemStationBatchLoader() = delete;
 
   static bool filterMatches(const ChemStationFileLoader::Data &chData, const Filter &filter);
-  static CHSDataVec getCommonTypes(const QString &path);
-  static CHSDataVec getCommonTypes(const QStringList &dirPaths);
-  static QStringList getFilesList(const QString &path, const Filter &filter);
-  static QStringList getFilesList(const QStringList &dirPaths, const Filter &filter);
+  static CHSDataVec getCommonTypes(UIBackend *backend, const QString &path);
+  static CHSDataVec getCommonTypes(UIBackend *backend, const QStringList &dirPaths);
+  static QStringList getFilesList(UIBackend *backend, const QString &path, const Filter &filter);
+  static QStringList getFilesList(UIBackend *backend, const QStringList &dirPaths, const Filter &filter);
 
 private:
-  static CHSDataVec getChemStationFiles(const QDir &dir);
+  static CHSDataVec getChemStationFiles(UIBackend *backend, const QDir &dir);
   static CHSDataVec intersection(const CHSDataVecVec &chvVec);
-  static QStringList walkDirectory(const QString &path, const Filter &filter);
+  static QStringList walkDirectory(UIBackend *backend, const QString &path, const Filter &filter);
 
 };
 //Q_DECLARE_METATYPE(ChemStationBatchLoader::Filter)

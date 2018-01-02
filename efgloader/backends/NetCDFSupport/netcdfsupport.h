@@ -15,20 +15,23 @@ public:
   virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) override;
   virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
 
+  static NetCDFSupport *initialize(UIBackend *backend);
   static NetCDFSupport *instance();
 
 private:
-  NetCDFSupport();
+  NetCDFSupport(UIBackend *backend);
   virtual ~NetCDFSupport() override;
   std::vector<Data> loadInternal(const QString &path);
   Data loadOneFile(const QString &path);
+
+  UIBackend *m_uiBackend;
 
   static const Identifier s_identifier;
   static NetCDFSupport *s_me;
 };
 
 extern "C" {
-  NETCDFSUPPORTSHARED_EXPORT LoaderBackend * initialize();
+  NETCDFSUPPORTSHARED_EXPORT LoaderBackend * initialize(UIBackend *backend);
 }
 
 } // namespace backend

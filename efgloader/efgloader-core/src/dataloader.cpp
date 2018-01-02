@@ -1,5 +1,6 @@
 #include "dataloader.h"
 #include "common/backendinterface.h"
+#include "common/uibackend.h"
 #include <QDir>
 #include <QLibrary>
 #include <iostream>
@@ -131,7 +132,7 @@ void DataLoader::initializePlugin(const QString &pluginPath)
     return;
   }
 
-  backend::LoaderBackend *instance = dynamic_cast<backend::LoaderBackend *>(initializer());
+  backend::LoaderBackend *instance = dynamic_cast<backend::LoaderBackend *>(initializer(UIBackend::instance()));
   if (instance == nullptr) {
     std::cerr << "Unable to get LoaderPlugin interface for " << pluginPath.toStdString() << std::endl;
     return;

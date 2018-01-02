@@ -22,10 +22,10 @@ public:
   virtual std::vector<Data> loadHint(const std::string &hintPath, const int option) override;
   virtual std::vector<Data> loadPath(const std::string &path, const int option) override;
 
-  static ASCSupport *instance();
+  static ASCSupport *instance(UIBackend *backend);
 
 private: 
-  ASCSupport();
+  ASCSupport(UIBackend *backend);
   virtual ~ASCSupport() override;
   const EntryHandler * getHandler(const std::string &key);
   std::vector<Data> loadInteractive(const std::string &hintPath);
@@ -33,13 +33,15 @@ private:
                                  const SupportedEncodings::EncodingType &encoding);
   void parseHeader(ASCContext &ctx, const std::list<std::string> &header);
 
+  UIBackend *m_uiBackend;
+
   static Identifier s_identifier;
   static ASCSupport *s_me;
   static EntryHandlersMap s_handlers;
 };
 
 extern "C" {
-  ASCSUPPORTSHARED_EXPORT LoaderBackend * initialize();
+  ASCSUPPORTSHARED_EXPORT LoaderBackend * initialize(UIBackend *backend);
 }
 
 } // namespace backend

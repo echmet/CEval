@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 
+class UIBackend;
+
 namespace backend {
 
 /*!
@@ -72,7 +74,7 @@ protected:
   virtual ~LoaderBackend() = 0;
 };
 
-typedef LoaderBackend *(*BackendInitializer)();
+typedef LoaderBackend *(*BackendInitializer)(UIBackend *);
 
 } // namespace backend
 

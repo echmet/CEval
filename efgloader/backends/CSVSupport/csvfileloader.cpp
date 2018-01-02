@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include "malformedcsvfiledialog.h"
+#include "../../efgloader-core/common/threadeddialog.h"
 
 namespace backend {
 
@@ -44,7 +45,7 @@ CsvFileLoader::Encoding::Encoding(const Encoding &other) :
 {
 }
 
-CsvFileLoader::Encoding &CsvFileLoader::Encoding::operator=(const CsvFileLoader::Encoding &other)
+CsvFileLoader::Encoding & CsvFileLoader::Encoding::operator=(const CsvFileLoader::Encoding &other)
 {
   const_cast<QString&>(name) = other.name;
   const_cast<QByteArray&>(bom) = other.bom;
@@ -70,7 +71,7 @@ CsvFileLoader::Data::Data() :
 {
 }
 
-CsvFileLoader::Data &CsvFileLoader::Data::operator=(const Data &other)
+CsvFileLoader::Data & CsvFileLoader::Data::operator=(const Data &other)
 {
   const_cast<std::vector<std::tuple<double, double>>&>(data) = other.data;
   const_cast<QString&>(xType) = other.yType;
@@ -125,13 +126,34 @@ CsvFileLoader::Parameters & CsvFileLoader::Parameters::operator=(const Parameter
   return *this;
 }
 
-void showMalformedFileError(const MalformedCsvFileDialog::Error err, const int lineNo, const QString &badLine)
+class MalformedCsvFileThreadedDialog : public ThreadedDialog<MalformedCsvFileDialog>
 {
-  MalformedCsvFileDialog dlg(err, lineNo, badLine);
-  dlg.exec();
+public:
+  MalformedCsvFileThreadedDialog(UIBackend *backend, const MalformedCsvFileDialog::Error err, const int lineNo, const QString &badLine) :
+    ThreadedDialog<MalformedCsvFileDialog>{
+      backend,
+      [this]() {
+        return new MalformedCsvFileDialog{this->err, this->lineNo, this->badLine};
+      }
+    },
+    err{err},
+    lineNo{lineNo},
+    badLine{badLine}
+  {}
+
+private:
+  const MalformedCsvFileDialog::Error err;
+  const int lineNo;
+  const QString badLine;
+};
+
+void showMalformedFileError(UIBackend *uiBackend, const MalformedCsvFileDialog::Error err, const int lineNo, const QString &badLine)
+{
+  MalformedCsvFileThreadedDialog dlgWrap{uiBackend, err, lineNo, badLine};
+  dlgWrap.execute();
 }
 
-CsvFileLoader::Data CsvFileLoader::readClipboard(const Parameters &params)
+CsvFileLoader::Data CsvFileLoader::readClipboard(UIBackend *uiBackend, const Parameters &params)
 {
   QString clipboardText = QApplication::clipboard()->text();
   QTextStream stream;
@@ -139,23 +161,22 @@ CsvFileLoader::Data CsvFileLoader::readClipboard(const Parameters &params)
   stream.setCodec(params.encodingId.toUtf8());
   stream.setString(&clipboardText);
 
-  return readStream(stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
+  return readStream(uiBackend, stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
 }
 
-CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const Parameters &params)
+CsvFileLoader::Data CsvFileLoader::readFile(UIBackend *uiBackend, const QString &path, const Parameters &params)
 {
   QFile dataFile(path);
   QTextStream stream;
 
   if (!dataFile.exists()) {
-    QMessageBox::warning(nullptr, QObject::tr("Invalid file"), QObject::tr("Specified file does not exist"));
-
+    ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("Invalid file"), QObject::tr("Specified file does not exist"));
     return Data();
   }
 
   if (!dataFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-    QMessageBox::warning(nullptr, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"
-                                                                                       "Error reported: %1")).arg(dataFile.errorString()));
+    ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("Cannot open file"), QString(QObject::tr("Cannot open the specified file for reading\n"
+                                                                                                                "Error reported: %1")).arg(dataFile.errorString()));
     return Data();
   }
 
@@ -165,12 +186,12 @@ CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const Parameter
     const QByteArray actualBom = dataFile.read(bom.size());
 
     if (actualBom.size() != bom.size()) {
-      QMessageBox::warning(nullptr, QObject::tr("Cannot read file"), QObject::tr("Byte order mark was expected but not found"));
+      ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("Cannot read file"), QObject::tr("Byte order mark was expected but not found"));
       return Data();
     }
 
     if (memcmp(actualBom.data(), bom.data(), bom.size())) {
-      QMessageBox::warning(nullptr, QObject::tr("Cannot read file"), QObject::tr("Byte order mark does not match to that expected for the given encoding"));
+      ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("Cannot read file"), QObject::tr("Byte order mark does not match to that expected for the given encoding"));
       return Data();
     }
   }
@@ -178,11 +199,12 @@ CsvFileLoader::Data CsvFileLoader::readFile(const QString &path, const Parameter
   stream.setDevice(&dataFile);
   stream.setCodec(params.encodingId.toUtf8());
 
-  return readStream(stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
+  return readStream(uiBackend, stream, params.delimiter, params.decimalSeparator, params.xColumn, params.yColumn, params.hasHeader, params.linesToSkip);
 
 }
 
-CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
+CsvFileLoader::Data CsvFileLoader::readStream(UIBackend *uiBackend,
+                                              QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
                                               const int xColumn, const int yColumn,
                                               const bool hasHeader, const int linesToSkip)
 {
@@ -211,12 +233,12 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     lines.append(stream.readLine());
 
   if (lines.size() < 1) {
-    QMessageBox::warning(nullptr, QObject::tr("No data"), QObject::tr("Input stream contains no data"));
+    ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("No data"), QObject::tr("Input stream contains no data"));
     return Data();
   }
 
   if (lines.size() < linesToSkip + 1) {
-    QMessageBox::warning(nullptr, QObject::tr("Invalid data"), QObject::tr("File contains less lines than the number of lines that were to be skipped"));
+    ThreadedDialog<QMessageBox>::displayWarning(uiBackend, QObject::tr("Invalid data"), QObject::tr("File contains less lines than the number of lines that were to be skipped"));
     return Data();
   }
 
@@ -227,8 +249,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     header = line.split(delimiter);
     if (header.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
-
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
       return Data();
     }
     xType = header.at(xColumn - 1);
@@ -241,8 +262,7 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
     const QStringList splitted = line.split(delimiter);
 
     if (splitted.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
-
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::POSSIBLY_INCORRECT_SETTINGS, linesRead, line);
       return Data();
     }
   }
@@ -257,35 +277,35 @@ CsvFileLoader::Data CsvFileLoader::readStream(QTextStream &stream, const QChar &
 
     values = line.split(delimiter);
     if (values.size() < highColumn) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(std::move(points), xType, yType);
     }
 
     s = &values[xColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(std::move(points), xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     x = cLoc.toDouble(s, &ok);
     if (!ok) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::BAD_TIME_DATA, linesRead + emptyLines + 1, line);
       return Data(std::move(points), xType, yType);
     }
 
     s = &values[yColumn - 1];
     /* Check that the string does not contain period as the default separator */
     if (decimalSeparator != '.' && s->contains('.')) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::BAD_DELIMITER, linesRead + emptyLines + 1, line);
       return Data(std::move(points), xType, yType);
     }
 
     s->replace(decimalSeparator, '.');
     y = cLoc.toDouble(s, &ok);
     if (!ok) {
-      showMalformedFileError(MalformedCsvFileDialog::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
+      showMalformedFileError(uiBackend, MalformedCsvFileDialog::Error::BAD_VALUE_DATA, linesRead + emptyLines + 1, line);
       return Data(std::move(points), xType, yType);
     }
 

@@ -6,6 +6,7 @@
 #include <QVector>
 
 class QTextStream;
+class UIBackend;
 
 namespace backend {
 
@@ -62,13 +63,14 @@ public:
 
   CsvFileLoader() = delete;
 
-  static Data readClipboard(const Parameters &params);
-  static Data readFile(const QString &path, const Parameters &params);
+  static Data readClipboard(UIBackend *uiBackend, const Parameters &params);
+  static Data readFile(UIBackend *uiBackend, const QString &path, const Parameters &params);
 
   static const QMap<QString, Encoding> SUPPORTED_ENCODINGS;
 
 private:
-  static Data readStream(QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
+  static Data readStream(UIBackend *uiBackend,
+                         QTextStream &stream, const QChar &delimiter, const QChar &decimalSeparator,
                          const int xColumn, const int yColumn,
                          const bool hasHeader, const int linesToSkip);
 };

@@ -4,8 +4,20 @@
 #include "ipcproxy.h"
 #include <QLocalServer>
 
-class QLocalServer;
-class QLocalSocket;
+class QThreadPool;
+
+class IPCServer : public QLocalServer
+{
+  Q_OBJECT
+
+public:
+  explicit IPCServer(const DataLoader &loader, QObject *parent);
+  virtual void incomingConnection(quintptr sockDesc) override;
+
+private:
+  const DataLoader &h_loader;
+  QThreadPool *m_threadPool;
+};
 
 class LocalSocketIPCProxy : public IPCProxy
 {
@@ -13,24 +25,10 @@ class LocalSocketIPCProxy : public IPCProxy
 
 public:
   explicit LocalSocketIPCProxy(DataLoader *loader, QObject *parent = nullptr);
-  virtual ~LocalSocketIPCProxy();
+  virtual ~LocalSocketIPCProxy() override;
 
 private:
-  enum class RequestType {
-    SUPPORTED_FORMATS,
-    LOAD_DATA
-  };
-
-  void handleConnection(QLocalSocket *socket);
-  bool readHeader(QLocalSocket *socket, RequestType &reqType);
-  bool respondLoadData(QLocalSocket *socket);
-  bool respondSupportedFormats(QLocalSocket *socket);
-
-  QLocalServer *m_server;
-
-private slots:
-  void onNewConnection();
-
+  IPCServer *m_server;
 };
 
 #endif // UNIXSOCKETIPCPROXY_H

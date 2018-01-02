@@ -4,6 +4,7 @@
 #include <iostream>
 #include "dataloader.h"
 #include "ipcproxy.h"
+#include "common/uibackend.h"
 
 #ifdef ENABLE_IPC_INTERFACE_DBUS
   #include "dbusipcproxy.h"
@@ -133,6 +134,7 @@ int main(int argc, char *argv[])
 
   a.setQuitOnLastWindowClosed(false); /* We want our plugins to be able use Qt GUI and not kill us when they close their UI elements */
   catchTermination();
+  UIBackend::initialize();
 
   try {
     DataLoader loader{};

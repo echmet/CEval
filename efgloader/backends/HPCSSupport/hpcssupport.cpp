@@ -3,11 +3,9 @@
 #include <QMessageBox>
 #include "loadchemstationdatadialog.h"
 #include "../../efgloader-core/common/backendhelpers_p.h"
+#include "../../efgloader-core/common/threadeddialog.h"
 
 namespace backend {
-
-HPCSSupport *HPCSSupport::s_me{nullptr};
-const Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
 
 bool isDirectoryUsable(const QString &path)
 {
@@ -16,11 +14,44 @@ bool isDirectoryUsable(const QString &path)
   return (dir.exists() && dir.isReadable());
 }
 
+class LoadChemStationDataThreadedDialog : public ThreadedDialog<LoadChemStationDataDialog>
+{
+public:
+  LoadChemStationDataThreadedDialog(UIBackend *backend, const QString &path, const QSize &dlgSize) :
+    ThreadedDialog<LoadChemStationDataDialog>{
+      backend,
+      [this, backend]() {
+        auto dlg = new LoadChemStationDataDialog{backend};
+
+        if (isDirectoryUsable(this->m_path))
+          dlg->expandToPath(this->m_path);
+
+        if (this->m_dlgSize.width() > 0 && m_dlgSize.height() > 0)
+          dlg->resize(this->m_dlgSize);
+
+        BackendHelpers::showWindowOnTop(dlg);
+        return dlg;
+      },
+    },
+    m_path{path},
+    m_dlgSize{dlgSize}
+  {}
+
+private:
+  const QString m_path;
+  const QSize m_dlgSize;
+};
+
+
+HPCSSupport *HPCSSupport::s_me{nullptr};
+const Identifier HPCSSupport::s_identifier{"Agilent(HP) ChemStation file format support", "ChemStation", "HPCS", {}};
+
 LoaderBackend::~LoaderBackend()
 {
 }
 
-HPCSSupport::HPCSSupport() :
+HPCSSupport::HPCSSupport(UIBackend *backend) :
+  m_uiBackend{backend},
   m_defaultPathsToTry([]() {
     QStringList pathsToTry = { QDir::homePath() };
 
@@ -101,11 +132,11 @@ Identifier HPCSSupport::identifier() const
   return s_identifier;
 }
 
-HPCSSupport * HPCSSupport::instance()
+HPCSSupport * HPCSSupport::instance(UIBackend *backend)
 {
   if (s_me == nullptr) {
     try {
-      s_me = new HPCSSupport{};
+      s_me = new HPCSSupport{backend};
     } catch (...) {
       s_me = nullptr;
     }
@@ -114,19 +145,11 @@ HPCSSupport * HPCSSupport::instance()
   return s_me;
 }
 
-LoadChemStationDataDialog * HPCSSupport::makeLoadDialog(const QString &path)
+LoadChemStationDataThreadedDialog * HPCSSupport::makeLoadDialog(const QString &path)
 {
-  LoadChemStationDataDialog *dlg = new LoadChemStationDataDialog{};
-
-  if (isDirectoryUsable(path))
-    dlg->expandToPath(path);
-
   m_dlgSizeLock.lock();
-  if (m_lastChemStationDlgSize.width() > 0 && m_lastChemStationDlgSize.height() > 0)
-      dlg->resize(m_lastChemStationDlgSize);
+  auto dlg = new LoadChemStationDataThreadedDialog{m_uiBackend, path, m_lastChemStationDlgSize};
   m_dlgSizeLock.unlock();
-
-  BackendHelpers::showWindowOnTop(dlg);
 
   return dlg;
 }
@@ -157,14 +180,14 @@ std::vector<Data> HPCSSupport::loadHint(const std::string &hintPath, const int o
   return ret;
 }
 
-std::vector<Data> HPCSSupport::loadInteractive(LoadChemStationDataDialog *dlg)
+std::vector<Data> HPCSSupport::loadInteractive(LoadChemStationDataThreadedDialog *dlg)
 {
   std::vector<Data> dataVec{};
 
-  if (dlg->exec() != QDialog::Accepted)
+  if (dlg->execute() != QDialog::Accepted)
     return dataVec;
 
-  const auto loadInfo = dlg->loadInfo();
+  const auto loadInfo = dlg->dialog()->loadInfo();
 
   switch (loadInfo.loadingMode) {
   case LoadChemStationDataDialog::LoadingMode::SINGLE_FILE:
@@ -179,7 +202,7 @@ std::vector<Data> HPCSSupport::loadInteractive(LoadChemStationDataDialog *dlg)
   }
 
   m_dlgSizeLock.lock();
-  m_lastChemStationDlgSize = dlg->size();
+  m_lastChemStationDlgSize = dlg->dialog()->size();
   m_dlgSizeLock.unlock();
   m_lastPathLock.lock();
   m_lastChemStationPath = loadInfo.path;
@@ -197,7 +220,7 @@ std::vector<Data> HPCSSupport::loadPath(const std::string &path, const int optio
 
 Data HPCSSupport::loadChemStationFileSingle(const QString &path)
 {
-  ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(path, true);
+  ChemStationFileLoader::Data chData = ChemStationFileLoader::loadFile(m_uiBackend, path, true);
 
   if (!chData.isValid())
     return Data{};
@@ -224,7 +247,7 @@ Data HPCSSupport::loadChemStationFileSingle(const QString &path)
 
 void HPCSSupport::loadChemStationFileMultipleDirectories(std::vector<Data> &dataVec, const QStringList &dirPaths, const ChemStationBatchLoader::Filter &filter)
 {
-  QStringList files = ChemStationBatchLoader::getFilesList(dirPaths, filter);
+  QStringList files = ChemStationBatchLoader::getFilesList(m_uiBackend, dirPaths, filter);
 
   for (const QString &path : files)
     dataVec.emplace_back(loadChemStationFileSingle(path));
@@ -232,15 +255,15 @@ void HPCSSupport::loadChemStationFileMultipleDirectories(std::vector<Data> &data
 
 void HPCSSupport::loadChemStationFileWholeDirectory(std::vector<Data> &dataVec, const QString &path, const ChemStationBatchLoader::Filter &filter)
 {
-  QStringList files = ChemStationBatchLoader::getFilesList(path, filter);
+  QStringList files = ChemStationBatchLoader::getFilesList(m_uiBackend, path, filter);
 
   for (const QString &filePath : files)
     dataVec.emplace_back(loadChemStationFileSingle(filePath));
 }
 
-LoaderBackend * initialize()
+LoaderBackend * initialize(UIBackend *backend)
 {
-  return HPCSSupport::instance();
+  return HPCSSupport::instance(backend);
 }
 
 } // namespace plugin

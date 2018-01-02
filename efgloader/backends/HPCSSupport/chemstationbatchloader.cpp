@@ -62,14 +62,14 @@ bool ChemStationBatchLoader::filterMatches(const ChemStationFileLoader::Data &ch
   return true;
 }
 
-ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getChemStationFiles(const QDir &dir)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getChemStationFiles(UIBackend *backend, const QDir &dir)
 {
   CHSDataVec chsVec;
 
   QDirIterator dirIt(dir.absolutePath(), QDir::Files | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
 
   while (dirIt.hasNext()) {
-    const ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(dirIt.next());
+    const ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(backend, dirIt.next());
 
     if (!chData.isValid())
       continue;
@@ -80,7 +80,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getChemStationFiles(c
   return chsVec;
 }
 
-QStringList ChemStationBatchLoader::getFilesList(const QString &path, const Filter &filter)
+QStringList ChemStationBatchLoader::getFilesList(UIBackend *backend, const QString &path, const Filter &filter)
 {
   QDir dir(path);
   QStringList files;
@@ -91,12 +91,12 @@ QStringList ChemStationBatchLoader::getFilesList(const QString &path, const Filt
   QDirIterator dirIt(path, QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks, QDirIterator::NoIteratorFlags);
 
   while (dirIt.hasNext())
-    files.append(walkDirectory(dirIt.next(), filter));
+    files.append(walkDirectory(backend, dirIt.next(), filter));
 
   return files;
 }
 
-QStringList ChemStationBatchLoader::getFilesList(const QStringList &dirPaths, const Filter &filter)
+QStringList ChemStationBatchLoader::getFilesList(UIBackend *backend, const QStringList &dirPaths, const Filter &filter)
 {
   QStringList files;
 
@@ -106,13 +106,13 @@ QStringList ChemStationBatchLoader::getFilesList(const QStringList &dirPaths, co
     if (!dir.exists() || !dir.isReadable())
       continue;
 
-    files.append(walkDirectory(path, filter));
+    files.append(walkDirectory(backend, path, filter));
   }
 
   return files;
 }
 
-ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const QString &path)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(UIBackend *backend, const QString &path)
 {
   QDir dir(path);
   CHSDataVecVec chVecVec;
@@ -127,7 +127,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const 
     QDir innerDir(dirIt.next());
 
     if (innerDir.isReadable())
-      chVecVec.push_back(getChemStationFiles(innerDir));
+      chVecVec.push_back(getChemStationFiles(backend, innerDir));
 
   }
 
@@ -137,7 +137,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const 
   return common;
 }
 
-ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const QStringList &dirPaths)
+ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(UIBackend *backend, const QStringList &dirPaths)
 {
   CHSDataVecVec chVecVec;
   CHSDataVec common;
@@ -148,7 +148,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::getCommonTypes(const 
     if (!dir.exists() || !dir.isReadable())
       continue;
 
-    chVecVec.push_back(getChemStationFiles(dir));
+    chVecVec.push_back(getChemStationFiles(backend, dir));
   }
 
   if (chVecVec.size() > 0)
@@ -192,7 +192,7 @@ ChemStationBatchLoader::CHSDataVec ChemStationBatchLoader::intersection(const CH
   return common;
 }
 
-QStringList ChemStationBatchLoader::walkDirectory(const QString &path, const Filter &filter)
+QStringList ChemStationBatchLoader::walkDirectory(UIBackend *backend, const QString &path, const Filter &filter)
 {
   QStringList files;
   QDirIterator dirIt(path, QDir::Files | QDir::NoDotAndDotDot, QDirIterator::NoIteratorFlags);
@@ -200,7 +200,7 @@ QStringList ChemStationBatchLoader::walkDirectory(const QString &path, const Fil
   while (dirIt.hasNext()) {
     QString filePath = dirIt.next();
 
-    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(filePath);
+    ChemStationFileLoader::Data chData = ChemStationFileLoader::loadHeader(backend, filePath);
 
     if (!chData.isValid())
       continue;

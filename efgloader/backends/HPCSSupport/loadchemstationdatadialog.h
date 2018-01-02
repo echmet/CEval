@@ -11,6 +11,7 @@
 #include "chemstationbatchloader.h"
 
 class ChemStationBatchLoadModel;
+class UIBackend;
 
 namespace Ui {
 class LoadChemStationDataDialog;
@@ -43,7 +44,7 @@ public:
     const ChemStationBatchLoader::Filter filter;
   };
 
-  explicit LoadChemStationDataDialog(QWidget *parent = nullptr);
+  explicit LoadChemStationDataDialog(UIBackend *backend, QWidget *parent = nullptr);
   ~LoadChemStationDataDialog();
   void expandToPath(const QString &path);
   LoadInfo loadInfo();
@@ -60,6 +61,7 @@ private:
   void singleSelected(const QModelIndex &index);
   void wholeDirectorySelected(const QModelIndex &index);
 
+  UIBackend *m_uiBackend;
   Ui::LoadChemStationDataDialog *ui;
   QSplitter *qs_splitter;
   QTreeView *qtrv_fileSystem;

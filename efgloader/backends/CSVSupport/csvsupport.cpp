@@ -1,11 +1,54 @@
 #include "csvsupport.h"
 #include <QFileDialog>
-#include <QMessageBox>
 #include "csvfileloader.h"
 #include "loadcsvfiledialog.h"
 #include "../../efgloader-core/common/backendhelpers_p.h"
+#include "../../efgloader-core/common/threadeddialog.h"
 
 namespace backend {
+
+class OpenFileThreadedDialog : public ThreadedDialog<QFileDialog>
+{
+public:
+  OpenFileThreadedDialog(UIBackend *backend, const QString &path) :
+    ThreadedDialog<QFileDialog>{
+      backend,
+      [this]() {
+        auto dlg = new QFileDialog{nullptr, QObject::tr("Pick a text file"), this->m_path};
+
+        dlg->setAcceptMode(QFileDialog::AcceptOpen);
+        dlg->setFileMode(QFileDialog::ExistingFiles);
+        BackendHelpers::showWindowOnTop(dlg);
+
+        return dlg;
+      }
+    },
+    m_path{path}
+  {
+  }
+
+private:
+  const QString m_path;
+};
+
+class LoadCsvFileThreadedDialog : public ThreadedDialog<LoadCsvFileDialog>
+{
+public:
+  LoadCsvFileThreadedDialog(UIBackend *backend) :
+    ThreadedDialog<LoadCsvFileDialog>{
+      backend,
+      []() {
+        auto dlg = new LoadCsvFileDialog{};
+
+        for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
+          dlg->addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
+
+        BackendHelpers::showWindowOnTop(dlg);
+        return dlg;
+      }
+    }
+  {}
+};
 
 CSVSupport *CSVSupport::s_me{nullptr};
 const Identifier CSVSupport::s_identifier{"Comma separated file format support", "CSV", "CSV", {"file", "clipboard"}};
@@ -55,39 +98,32 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
               std::move(csvData.data)};
 }
 
-LoadCsvFileDialog * makeCsvLoaderDialog()
+LoadCsvFileThreadedDialog * makeCsvLoaderDialog(UIBackend *backend)
 {
-  LoadCsvFileDialog *dlg = new LoadCsvFileDialog{};
-
-  for (const CsvFileLoader::Encoding &enc : CsvFileLoader::SUPPORTED_ENCODINGS)
-    dlg->addEncoding(enc.name, enc.displayedName, enc.canHaveBom);
-
-  BackendHelpers::showWindowOnTop(dlg);
-  return dlg;
+  return new LoadCsvFileThreadedDialog{backend};
 }
 
-CsvFileLoader::Parameters makeCsvLoaderParameters(LoadCsvFileDialog *dlg)
+CsvFileLoader::Parameters makeCsvLoaderParameters(UIBackend *backend, LoadCsvFileThreadedDialog *dlg)
 {
-  BackendHelpers::showWindowOnTop(dlg);
-
   while (true) {
-    int dlgRet = dlg->exec();
+    int dlgRet = dlg->execute();
     if (dlgRet != QDialog::Accepted)
       return CsvFileLoader::Parameters();
 
-    const LoadCsvFileDialog::Parameters p = dlg->parameters();
+    auto _dlg = dlg->dialog();
+    const LoadCsvFileDialog::Parameters p = _dlg->parameters();
 
     if (p.delimiter.length() != 1 && (p.delimiter.compare("\\t") != 0)) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character or '\\t' to represent TAB."));
+      ThreadedDialog<QMessageBox>::displayWarning(backend, QObject::tr("Invalid input"), QObject::tr("Delimiter must be a single character or '\\t' to represent TAB."));
       continue;
     }
     if (p.decimalSeparator == p.delimiter) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
+      ThreadedDialog<QMessageBox>::displayWarning(backend, QObject::tr("Invalid input"), QObject::tr("Delimiter and decimal separator cannot be the same character."));
       continue;
     }
 
     if (p.xColumn == p.yColumn) {
-      QMessageBox::warning(nullptr, QObject::tr("Invalid input"), QObject::tr("X and Y columns cannot be the same"));
+      ThreadedDialog<QMessageBox>::displayWarning(backend, QObject::tr("Invalid input"), QObject::tr("X and Y columns cannot be the same"));
       continue;
     }
 
@@ -109,7 +145,8 @@ LoaderBackend::~LoaderBackend()
 {
 }
 
-CSVSupport::CSVSupport()
+CSVSupport::CSVSupport(UIBackend *backend) :
+  m_uiBackend{backend}
 {
 }
 
@@ -127,11 +164,11 @@ Identifier CSVSupport::identifier() const
   return s_identifier;
 }
 
-CSVSupport *CSVSupport::instance()
+CSVSupport *CSVSupport::instance(UIBackend *backend)
 {
   if (s_me == nullptr) {
     try {
-      s_me = new CSVSupport{};
+      s_me = new CSVSupport{backend};
     } catch (...) {
       s_me = nullptr;
     }
@@ -155,20 +192,20 @@ std::vector<Data> CSVSupport::load(const int option)
 std::vector<Data> CSVSupport::loadCsvFromClipboard()
 {
   std::vector<Data> retData{};
-  auto *dlg = makeCsvLoaderDialog();
+  auto dlg = makeCsvLoaderDialog(m_uiBackend);
 
   while (true) {
-    CsvFileLoader::Parameters readerParams = makeCsvLoaderParameters(dlg);
+    CsvFileLoader::Parameters readerParams = makeCsvLoaderParameters(m_uiBackend, dlg);
     if (!readerParams.isValid)
       break;
 
-    CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(readerParams);
+    CsvFileLoader::Data csvData = CsvFileLoader::readClipboard(m_uiBackend, readerParams);
     if (!csvData.isValid()) {
       readerParams = CsvFileLoader::Parameters();
       continue;
     }
 
-    retData = std::vector<Data>{loadCsvData(csvData, QString(), dlg->parameters())};
+    retData = std::vector<Data>{loadCsvData(csvData, QString(), dlg->dialog()->parameters())};
   }
 
   delete dlg;
@@ -178,16 +215,12 @@ std::vector<Data> CSVSupport::loadCsvFromClipboard()
 std::vector<Data> CSVSupport::loadCsvFromFile(const std::string &sourcePath)
 {
   QStringList files;
-  QFileDialog openDlg{nullptr, QObject::tr("Pick a text data file"), QString::fromStdString(sourcePath)};
+  OpenFileThreadedDialog dlgWrap{m_uiBackend,  QString::fromStdString(sourcePath)};
 
-  BackendHelpers::showWindowOnTop(&openDlg);
-  openDlg.setAcceptMode(QFileDialog::AcceptOpen);
-  openDlg.setFileMode(QFileDialog::ExistingFiles);
-
-  if (openDlg.exec() != QDialog::Accepted)
+  if (dlgWrap.execute() != QDialog::Accepted)
    return std::vector<Data>{};
 
-  files = openDlg.selectedFiles();
+  files = dlgWrap.dialog()->selectedFiles();
   if (files.length() < 1)
     return std::vector<Data>{};
 
@@ -198,23 +231,23 @@ std::vector<Data> CSVSupport::loadCsvFromFileInternal(const QStringList &files)
 {
   std::vector<Data> retData;
   CsvFileLoader::Parameters readerParams;
-  auto *dlg = makeCsvLoaderDialog();
+  auto dlg = makeCsvLoaderDialog(m_uiBackend);
 
   for (const QString &f : files) {
     while (true) {
       if (!readerParams.isValid) {
-         readerParams = makeCsvLoaderParameters(dlg);
+         readerParams = makeCsvLoaderParameters(m_uiBackend, dlg);
          if (!readerParams.isValid)
            break;
        }
 
-       CsvFileLoader::Data csvData = CsvFileLoader::readFile(f, readerParams);
+       CsvFileLoader::Data csvData = CsvFileLoader::readFile(m_uiBackend, f, readerParams);
        if (!csvData.isValid()) {
          readerParams = CsvFileLoader::Parameters();
          continue;
        }
 
-       retData.emplace_back(loadCsvData(csvData, f, dlg->parameters()));
+       retData.emplace_back(loadCsvData(csvData, f, dlg->dialog()->parameters()));
        break;
     }
   }
@@ -247,9 +280,9 @@ std::vector<Data> CSVSupport::loadPath(const std::string &path, const int option
   }
 }
 
-LoaderBackend * initialize()
+LoaderBackend * initialize(UIBackend *backend)
 {
-  return CSVSupport::instance();
+  return CSVSupport::instance(backend);
 }
 
 } // namespace backend
