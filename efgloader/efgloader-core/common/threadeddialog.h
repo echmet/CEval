@@ -65,12 +65,14 @@ public:
 
   explicit ThreadedDialog(UIBackend *backend, DispFunc &&dispFunc) :
     ThreadedDialogBase{backend},
-    m_dispFunc{dispFunc}
+    m_dispFunc{dispFunc},
+    m_dialog{nullptr}
   {}
 
   virtual ~ThreadedDialog() override
   {
-    m_dialog->deleteLater();
+    if (m_dialog != nullptr)
+      m_dialog->deleteLater();
   }
 
   DialogType * dialog()
@@ -98,12 +100,14 @@ public:
 
   explicit ThreadedDialog(UIBackend *backend, const DispFunc &dispFunc) :
     ThreadedDialogBase{backend},
-    m_dispFunc{dispFunc}
+    m_dispFunc{dispFunc},
+    m_dialog{nullptr}
   {}
 
   virtual ~ThreadedDialog() override
   {
-    m_dialog->deleteLater();
+    if (m_dialog != nullptr)
+      m_dialog->deleteLater();
   }
 
   static int displayCritical(UIBackend *backend, const QString &title, const QString &message)
