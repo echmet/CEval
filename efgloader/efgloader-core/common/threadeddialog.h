@@ -136,7 +136,7 @@ private:
     m_dlgRet = m_dialog->exec();
   }
 
-  const DispFunc &m_dispFunc;
+  const DispFunc m_dispFunc;
   QMessageBox *m_dialog;
 };
 
