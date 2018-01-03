@@ -39,13 +39,13 @@
   }
 
 #define WRITE_CHECKED_RAW(socket, payload) \
-  if (!writeSegmented(socket, (const char*)&payload, static_cast<qint64>(sizeof(payload)))) { \
+  if (!writeSegmented(socket, reinterpret_cast<const char*>(&payload), static_cast<qint64>(sizeof(payload)))) { \
     qWarning() << "Failed to send raw payload:" << socket->errorString(); \
     return false; \
   }
 
 #define WRITE_RAW(socket, payload) \
-  writeSegmented(socket, (const char*)&payload, static_cast<qint64>(sizeof(payload)))
+  writeSegmented(socket, reinterpret_cast<const char*>(&payload), static_cast<qint64>(sizeof(payload)))
 
 template <typename P>
 bool checkSig(const P &packet)
@@ -280,6 +280,7 @@ bool LocalSocketConnectionHandler::respondLoadData(QLocalSocket *socket)
   const std::vector<Data> &data = std::get<0>(result);
   INIT_RESPONSE(respHeader, IPCSockResponseType::RESPONSE_LOAD_DATA_HEADER, IPCS_SUCCESS);
   respHeader.items = data.size();
+  respHeader.errorLength = 0;
   WRITE_CHECKED_RAW(socket, respHeader);
 
   for (const auto &item : data) {
@@ -313,13 +314,13 @@ bool LocalSocketConnectionHandler::respondLoadData(QLocalSocket *socket)
     WRITE_CHECKED(socket, yUnitBytes);
 
    for (const auto &dp : item.datapoints) {
-     IPCSockDatapoint respDp;
+      IPCSockDatapoint respDp;
 
-     respDp.x = std::get<0>(dp);
-     respDp.y = std::get<1>(dp);
+      respDp.x = std::get<0>(dp);
+      respDp.y = std::get<1>(dp);
 
-     WRITE_CHECKED_RAW(socket, respDp);
-   }
+      WRITE_CHECKED_RAW(socket, respDp);
+    }
   }
   FINALIZE(socket);
 }
@@ -331,6 +332,7 @@ bool LocalSocketConnectionHandler::respondSupportedFormats(QLocalSocket *socket)
   IPCSockResponseHeader responseHeader;
   INIT_RESPONSE(responseHeader, IPCSockResponseType::RESPONSE_SUPPORTED_FORMAT_HEADER, IPCS_SUCCESS);
   responseHeader.items = ffiVec.size();
+  responseHeader.errorLength = 0;
 
   WRITE_CHECKED_RAW(socket, responseHeader);
 
