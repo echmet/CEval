@@ -134,31 +134,23 @@ LocalSocketConnectionHandler::LocalSocketConnectionHandler(const quintptr sockDe
 
 void LocalSocketConnectionHandler::handleConnection(QLocalSocket *socket)
 {
-  while (true) {
-    if (!socket->bytesAvailable()) {
-      if (!socket->waitForReadyRead(HANDLING_TIMEOUT)) {
-        if (isSocketAlive(socket))
-          continue;
-        else
-          return;
-      }
-    }
-
-    RequestType reqType;
-    if (!readHeader(socket, reqType))
+  if (!socket->bytesAvailable()) {
+    if (!socket->waitForReadyRead(HANDLING_TIMEOUT))
       return;
+  }
 
-    switch (reqType) {
-    case RequestType::SUPPORTED_FORMATS:
-      if (!respondSupportedFormats(socket))
-        return;
-      break;
-    case RequestType::LOAD_DATA:
-      if (!respondLoadData(socket))
-       return;
-      break;
-    }
-  };
+  RequestType reqType;
+  if (!readHeader(socket, reqType))
+    return;
+
+  switch (reqType) {
+  case RequestType::SUPPORTED_FORMATS:
+    respondSupportedFormats(socket);
+    break;
+  case RequestType::LOAD_DATA:
+    respondLoadData(socket);
+    break;
+  }
 }
 
 bool LocalSocketConnectionHandler::readHeader(QLocalSocket *socket, RequestType &reqType)
@@ -171,7 +163,7 @@ bool LocalSocketConnectionHandler::readHeader(QLocalSocket *socket, RequestType 
     return false;
   }
 
-  const IPCSockRequestHeader *header = (const IPCSockRequestHeader *)(headerRaw.data());
+  const IPCSockRequestHeader *header = reinterpret_cast<const IPCSockRequestHeader *>(headerRaw.data());
 
   if (!checkSig(header))
     return false;

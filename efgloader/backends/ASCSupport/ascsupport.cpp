@@ -42,6 +42,45 @@ namespace backend {
 
 typedef std::list<std::string>::const_iterator LIt;
 
+class PickDecimalPointThreadedDialog : public ThreadedDialog<PickDecimalPointDialog>
+{
+public:
+  PickDecimalPointThreadedDialog(UIBackend *backend, const QString &name) :
+    ThreadedDialog<PickDecimalPointDialog>{
+      backend,
+      [this]() {
+        auto dlg = new PickDecimalPointDialog{this->m_name};
+        BackendHelpers::showWindowOnTop(dlg);
+
+        return dlg;
+      }
+    },
+    m_name{name}
+  {}
+private:
+  const QString m_name;
+};
+
+class SelectChannelsThreadedDialog : public ThreadedDialog<SelectChannelsDialog>
+{
+public:
+  SelectChannelsThreadedDialog(UIBackend *backend, const std::vector<std::string> &availChans) :
+    ThreadedDialog<SelectChannelsDialog>{
+      backend,
+      [this]() {
+        auto dlg = new SelectChannelsDialog{this->m_availChans};
+        BackendHelpers::showWindowOnTop(dlg);
+
+        return dlg;
+      }
+    },
+    m_availChans{availChans}
+  {}
+
+private:
+  const std::vector<std::string> m_availChans;
+};
+
 class OpenFileThreadedDialog : public ThreadedDialog<QFileDialog>
 {
 public:
@@ -190,15 +229,15 @@ std::tuple<std::string, std::string> splitKeyValue(const std::string &entry, con
     return {key, entry.substr(delimIdx + delim.length())};
 }
 
-char pickDecimalPoint(const std::string &name)
+char pickDecimalPoint(UIBackend *backend, const std::string &name)
 {
-  PickDecimalPointDialog dlg{QString::fromStdString(name)};
-  dlg.exec();
+  PickDecimalPointThreadedDialog dlgWrap{backend, QString::fromStdString(name)};
+  dlgWrap.execute();
 
-  return dlg.separator();
+  return dlgWrap.dialog()->separator();
 }
 
-ASCContext makeContext(const std::string &name, const std::string &path, const std::list<std::string> &header)
+ASCContext makeContext(UIBackend *backend, const std::string &name, const std::string &path, const std::list<std::string> &header)
 {
   int nChans = -1;
   std::string kvDelim;
@@ -218,9 +257,9 @@ ASCContext makeContext(const std::string &name, const std::string &path, const s
   }();
 
   kvDelim = std::string{KV_DELIM} + std::string{valueDelim};
-  const char dataDecimalPoint = [&name](const char valueDelim) {
+  const char dataDecimalPoint = [backend, &name](const char valueDelim) {
     if (valueDelim == '.' || valueDelim == ',')
-      return pickDecimalPoint(name);
+      return pickDecimalPoint(backend, name);
 
     return '.'; /* The actual value does not really matter */
   }(valueDelim);
@@ -515,12 +554,12 @@ std::string readLine(std::istringstream &stream)
   return line;
 }
 
-void selectChannels(ASCSupport::SelectedChannelsVec &selChans, const std::vector<std::string> &availChans)
+void selectChannels(UIBackend *backend, ASCSupport::SelectedChannelsVec &selChans, const std::vector<std::string> &availChans)
 {
-  SelectChannelsDialog dlg{availChans};
-  dlg.exec();
+  SelectChannelsThreadedDialog dlgWrap{backend, availChans};
+  dlgWrap.execute();
 
-  selChans = dlg.selection();
+  selChans = dlgWrap.dialog()->selection();
 }
 
 void spliceHeaderTraces(std::list<std::string> &lines, std::list<std::string> &header, std::list<std::string> &traces)
@@ -825,18 +864,18 @@ std::vector<Data> ASCSupport::loadInternal(const std::string &path, AvailableCha
                 path.end()};
     }();
 
-    ASCContext ctx = makeContext(name, path, header);
+    ASCContext ctx = makeContext(m_uiBackend, name, path, header);
 
     parseHeader(ctx, header);
 
     if (availChans.state == AvailableChannels::State::NOT_SET) {
       availChans = AvailableChannels{ctx.yAxisTitles};
-      selectChannels(selChans, availChans.channels());
+      selectChannels(m_uiBackend, selChans, availChans.channels());
     } else {
       if (!availChans.matches(ctx)) {
         warnDifferentChannels(m_uiBackend, name);
         availChans = AvailableChannels{ctx.yAxisTitles};
-        selectChannels(selChans, availChans.channels());
+        selectChannels(m_uiBackend, selChans, availChans.channels());
       }
     }
 

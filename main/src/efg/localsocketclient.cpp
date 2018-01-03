@@ -169,7 +169,6 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
       FAIL(m_socket);
   }
 
-
   QByteArray respLdrHdrBA;
   const IPCSockResponseHeader *respLdrHdr = readPacket<IPCSockResponseHeader>(respLdrHdrBA);
   if (respLdrHdr == nullptr)
@@ -250,14 +249,12 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
 
 bool LocalSocketClient::readBlock(QByteArray &buffer, const int size)
 {
-  waitForData(size);
+  if (!waitForData(size))
+    return false;
 
   buffer.resize(size);
   qint64 read = 0;
   while (read < size) {
-    if (m_socket->state() != QLocalSocket::ConnectedState)
-      return false;
-
     qint64 r = m_socket->read(buffer.data() + read, size);
     if (r <= 0)
       return false;
@@ -381,11 +378,14 @@ bool LocalSocketClient::supportedFileFormats(QVector<EFGSupportedFileFormat> &su
 
 bool LocalSocketClient::waitForData(const int size)
 {
-  while (m_socket->bytesAvailable() < size) {
-    if (m_socket->state() != QLocalSocket::ConnectedState)
-      return false;
+  qint64 avail = m_socket->bytesAvailable();
+  while (avail < size) {
+    const auto state = m_socket->state();
+    if (!(state == QLocalSocket::ConnectedState || state == QLocalSocket::ClosingState))
+      return avail >= size;
 
     m_socket->waitForReadyRead(100);
+    avail = m_socket->bytesAvailable();
   }
 
   return true;

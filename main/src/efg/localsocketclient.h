@@ -12,7 +12,7 @@ class LocalSocketClient : public IPCClient
 {
 public:
   explicit LocalSocketClient();
-  virtual ~LocalSocketClient();
+  virtual ~LocalSocketClient() override;
 
   virtual void connectToInterface() override;
   virtual bool isInterfaceAvailable() override;
