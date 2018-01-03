@@ -1,6 +1,6 @@
 linux {
-    #DEFINES += ENABLE_IPC_INTERFACE_DBUS
-    #CONFIG += ipc_dbus
+    DEFINES += ENABLE_IPC_INTERFACE_DBUS
+    CONFIG += ipc_dbus
 }
 
 win32-msvc2015 {

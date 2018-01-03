@@ -5,10 +5,12 @@
 
 #include <functional>
 #include <memory>
+#include <QApplication>
 #include <QMutex>
 #include <QWaitCondition>
 #include <QMetaMethod>
 #include <QMessageBox>
+#include <QThread>
 
 class ThreadedDialogBase
 {
@@ -21,6 +23,11 @@ public:
 
   int execute()
   {
+    if (qApp->thread() == QThread::currentThread()) {
+      process();
+      return m_dlgRet;
+    }
+
     int mthIdx = m_backend->metaObject()->indexOfMethod("display(ThreadedDialogBase*)");
     QMetaMethod mth = m_backend->metaObject()->method(mthIdx);
 
