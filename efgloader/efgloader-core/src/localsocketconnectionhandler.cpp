@@ -2,14 +2,23 @@
 #include "../common/ipcinterface.h"
 #include "dataloader.h"
 
-#ifdef Q_OS_WIN
-  #define HANDLING_TIMEOUT 2500
-#else
-  #define HANDLING_TIMEOUT 250
-#endif // Q_OS_WIN
+#define HANDLING_TIMEOUT 5000
 
+bool finalize(QLocalSocket *socket)
+{
+  do {
+    if (!socket->waitForBytesWritten(HANDLING_TIMEOUT))
+      return false;
+  } while (socket->bytesToWrite());
+  return true;
+}
+
+/*
 #ifdef Q_OS_WIN
   #define FINALIZE(socket) \
+    do { \
+      socket->waitForBytesWritten(HANDLING_TIMEOUT) \
+    } (socket->bytesToWrite())
     if (socket->bytesToWrite()) \
       return socket->waitForBytesWritten(); \
     return true;
@@ -17,7 +26,7 @@
    #define FINALIZE(socket) \
      return socket->waitForBytesWritten()
 #endif // Q_OS_WIN
-
+*/
 
 #define INIT_RESPONSE(packet, rtype, s) \
   packet.magic = IPCS_PACKET_MAGIC; \
@@ -104,7 +113,7 @@ bool reportError(QLocalSocket *socket, const IPCSockResponseType rtype, const QS
 
   WRITE_CHECKED_RAW(socket, resp);
   WRITE_CHECKED(socket, messageRaw);
-  FINALIZE(socket);
+  return finalize(socket);
 }
 
 bool readBlock(QLocalSocket *socket, QByteArray &buffer, qint64 size)
@@ -266,7 +275,7 @@ bool LocalSocketConnectionHandler::respondLoadData(QLocalSocket *socket)
     WRITE_RAW(socket, respHeader);
 
     socket->write(error);
-    FINALIZE(socket);
+    return finalize(socket);
   }
 
   const std::vector<Data> &data = std::get<0>(result);
@@ -314,7 +323,7 @@ bool LocalSocketConnectionHandler::respondLoadData(QLocalSocket *socket)
       WRITE_CHECKED_RAW(socket, respDp);
     }
   }
-  FINALIZE(socket);
+  return finalize(socket);
 }
 
 bool LocalSocketConnectionHandler::respondSupportedFormats(QLocalSocket *socket)
@@ -365,7 +374,7 @@ bool LocalSocketConnectionHandler::respondSupportedFormats(QLocalSocket *socket)
       }
     }
   }
-  FINALIZE(socket);
+  return finalize(socket);
 }
 
 void LocalSocketConnectionHandler::run()

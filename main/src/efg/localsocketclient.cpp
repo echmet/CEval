@@ -8,16 +8,11 @@
     return false; \
   } while (false)
 
-#ifdef Q_OS_WIN
-  #define FINALIZE(socket) \
-    do { \
-      socket->close(); \
-      return true; \
-    } while (false)
-#else
-  #define FINALIZE(socket) \
-    return true
-#endif // Q_OS_WIN
+#define FINALIZE(socket) \
+  do { \
+    socket->close(); \
+    return true; \
+  } while (false)
 
 #define WAIT_FOR_WRITTEN(socket) \
   do { \
