@@ -377,7 +377,7 @@ bool LocalSocketClient::waitForData(const int size)
   while (avail < size) {
     const auto state = m_socket->state();
     if (!(state == QLocalSocket::ConnectedState || state == QLocalSocket::ClosingState))
-      return avail >= size;
+      return false;
 
     m_socket->waitForReadyRead(100);
     avail = m_socket->bytesAvailable();
