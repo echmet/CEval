@@ -39,6 +39,7 @@ HEADERS += \
     common/threadeddialog.h
 
 ipc_dbus {
+    DEFINES += ENABLE_IPC_INTERFACE_DBUS
     SOURCES += \
         src/dbusipcproxy.cpp \
         src/dbus/dbusinterface.cpp \
