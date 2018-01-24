@@ -254,11 +254,11 @@ public:
 #endif // ENABLE_IPC_INTERFACE_DBUS
 
 #ifdef CEVAL_COMPILER_MSVC
-  #define PACKED_STRUCT \
-    __pragma(pack()) struct
+  #define PACKED_STRUCT_BEGIN __pragma(pack(push, 1)) struct
+  #define PACKED_STRUCT_END __pragma(pack(pop))
 #elif defined CEVAL_COMPILER_GCC_LIKE
-  #define PACKED_STRUCT \
-    struct  __attribute__((packed))
+  #define PACKED_STRUCT_BEGIN struct  __attribute__((packed))
+  #define PACKED_STRUCT_END
 #endif
 
 #include <stdint.h>
@@ -291,12 +291,13 @@ enum IPCSocketLoadDataMode {
   IPCS_LOAD_FILE = 0x3
 };
 
-PACKED_STRUCT IPCSockRequestHeader {
+PACKED_STRUCT_BEGIN IPCSockRequestHeader {
   uint16_t magic;
   uint8_t requestType;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockResponseHeader {
+PACKED_STRUCT_BEGIN IPCSockResponseHeader {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -304,8 +305,9 @@ PACKED_STRUCT IPCSockResponseHeader {
   int32_t items;
   uint32_t errorLength;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockLoadDataRequestDescriptor {
+PACKED_STRUCT_BEGIN IPCSockLoadDataRequestDescriptor {
   uint16_t magic;
   uint8_t requestType;
   uint8_t mode;
@@ -314,8 +316,9 @@ PACKED_STRUCT IPCSockLoadDataRequestDescriptor {
   uint32_t tagLength;
   uint32_t filePathLength;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockSupportedFormatResponseDescriptor {
+PACKED_STRUCT_BEGIN IPCSockSupportedFormatResponseDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -325,16 +328,18 @@ PACKED_STRUCT IPCSockSupportedFormatResponseDescriptor {
   uint32_t tagLength;
   uint32_t loadOptionsLength;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockLoadOptionDescriptor {
+PACKED_STRUCT_BEGIN IPCSockLoadOptionDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
 
   uint32_t optionLength;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockLoadDataResponseDescriptor {
+PACKED_STRUCT_BEGIN IPCSockLoadDataResponseDescriptor {
   uint16_t magic;
   uint8_t responseType;
   uint8_t status;
@@ -348,10 +353,12 @@ PACKED_STRUCT IPCSockLoadDataResponseDescriptor {
   uint32_t yUnitLength;
   uint32_t datapointsLength;
 };
+PACKED_STRUCT_END
 
-PACKED_STRUCT IPCSockDatapoint {
+PACKED_STRUCT_BEGIN IPCSockDatapoint {
   double x;
   double y;
 };
+PACKED_STRUCT_END
 
 #endif // IPCINTERFACE_H
