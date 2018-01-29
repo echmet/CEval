@@ -205,7 +205,8 @@ std::vector<Data> CSVSupport::loadCsvFromClipboard()
       continue;
     }
 
-    retData = std::vector<Data>{loadCsvData(csvData, QString(), dlg->dialog()->parameters())};
+    retData.emplace_back(loadCsvData(csvData, QString(), dlg->dialog()->parameters()));
+    break;
   }
 
   delete dlg;
