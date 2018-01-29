@@ -236,19 +236,19 @@ std::vector<Data> CSVSupport::loadCsvFromFileInternal(const QStringList &files)
   for (const QString &f : files) {
     while (true) {
       if (!readerParams.isValid) {
-         readerParams = makeCsvLoaderParameters(m_uiBackend, dlg);
-         if (!readerParams.isValid)
-           break;
-       }
+        readerParams = makeCsvLoaderParameters(m_uiBackend, dlg);
+        if (!readerParams.isValid)
+          break;
+      }
 
-       CsvFileLoader::Data csvData = CsvFileLoader::readFile(m_uiBackend, f, readerParams);
-       if (!csvData.isValid()) {
-         readerParams = CsvFileLoader::Parameters();
-         continue;
-       }
+      CsvFileLoader::Data csvData = CsvFileLoader::readFile(m_uiBackend, f, readerParams);
+      if (!csvData.isValid()) {
+        readerParams = CsvFileLoader::Parameters();
+        continue;
+      }
 
-       retData.emplace_back(loadCsvData(csvData, f, dlg->dialog()->parameters()));
-       break;
+      retData.emplace_back(loadCsvData(csvData, f, dlg->dialog()->parameters()));
+      break;
     }
   }
 
