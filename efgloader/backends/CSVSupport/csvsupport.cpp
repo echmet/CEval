@@ -60,6 +60,7 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
   QString xUnit;
   QString yUnit;
   QString fileName;
+  QString dataID = QString::number(p.yColumn);
 
   switch (p.header) {
   case LoadCsvFileDialog::HeaderHandling::NO_HEADER:
@@ -89,7 +90,7 @@ Data loadCsvData(const CsvFileLoader::Data &csvData, const QString &file, const 
     fileName = QFileInfo(file).fileName();
 
   return Data{fileName.toStdString(),
-              "",
+              dataID.toStdString(),
               file.toStdString(),
               xType.toStdString(),
               yType.toStdString(),
