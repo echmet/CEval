@@ -3,6 +3,7 @@
 #include <QDir>
 #include <QDirIterator>
 #include <QMessageBox>
+#include <QHeaderView>
 #include "chemstationbatchloader.h"
 #include "chemstationbatchloadmodel.h"
 
