@@ -171,7 +171,8 @@ SOURCES += src/main.cpp \
     src/efg/localsocketclient.cpp \
     src/hvlextrapolator.cpp \
     src/snrcalculator.cpp \
-    src/datahash.cpp
+    src/datahash.cpp \
+    src/gui/ediinotfounddialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -369,7 +370,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/hvlextrapolator.h \
     src/snrcalculator.h \
     src/datahash.h \
-    src/filescomboboxmodel.h
+    src/filescomboboxmodel.h \
+    src/gui/ediinotfounddialog.h
 
 ipc_dbus {
     SOURCES += \
@@ -406,7 +408,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/hyperbolafitwidget.ui \
     src/gui/registerinhyperbolafitdialog.ui \
     src/gui/registerinhyperbolafitwidget.ui \
-    src/gui/hvlestimateinprogressdialog.ui
+    src/gui/hvlestimateinprogressdialog.ui \
+    src/gui/ediinotfounddialog.ui
 
 unix {
     LIBS += -ldl
@@ -426,3 +429,5 @@ include($$PWD/CEval.pri)
 
     INCLUDEPATH += $$BOOSTPATH
 }
+
+RESOURCES +=

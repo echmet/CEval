@@ -8,6 +8,7 @@
 #include "softwareupdater.h"
 #include "efg/efgloaderinterface.h"
 #include "efg/efgloaderwatcher.h"
+#include "gui/ediinotfounddialog.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -53,15 +54,24 @@ void checkEDIIServicePath(QString &ediiServicePath)
   if (efg::EFGLoaderWatcher::isServicePathValid(ediiServicePath))
     return;
 
-  QFileDialog dlg(nullptr, "Set path to ECHMET Data Import Infrastructure service", ediiServicePath);
+  EDIINotFoundDialog infoDlg;
+  if (infoDlg.exec() == QDialog::Rejected) {
+    ediiServicePath = QString("%1/EDII/%2/%3").arg(qApp->applicationDirPath())
+                                              .arg(efg::EFGLoaderWatcher::s_EFGLoaderPathPrefix)
+                                              .arg(efg::EFGLoaderWatcher::s_EFGLoaderBinaryName);
+    return;
+  }
+
+  QFileDialog dlg(nullptr, "Set path to ECHMET Data Import Infrastructure service");
 
   dlg.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::ReadOnly);
 
   while (true) {
+    dlg.setDirectory(ediiServicePath);
     if (dlg.exec() != QDialog::Accepted)
       return;
 
-    auto path = dlg.selectedFiles()[0];
+    QString path = dlg.selectedFiles()[0];
     if (efg::EFGLoaderWatcher::isServicePathValid(path)) {
       ediiServicePath = std::move(path);
       return;

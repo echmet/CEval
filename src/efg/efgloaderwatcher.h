@@ -14,12 +14,15 @@ public:
   ~EFGLoaderWatcher();
 
   static bool isServicePathValid(const QString &path);
+
+  static const QString s_EFGLoaderPathPrefix;
+  static const QString s_EFGLoaderBinaryName;
+
 private:
   void restartEFGLoader();
 
   QProcess *m_efgLoader;
 
-  static const QString s_EFGLoaderBinaryName;
 
 private slots:
   void onEFGLoaderFinished(int exitCode, QProcess::ExitStatus exitStatus);

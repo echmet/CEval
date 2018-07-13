@@ -1,9 +1,13 @@
 #include "efgloaderwatcher.h"
+#include "../globals.h"
+
 #include <QCoreApplication>
 #include <QDir>
 #include <QMessageBox>
 
 namespace efg {
+
+const QString EFGLoaderWatcher::s_EFGLoaderPathPrefix("bin");
 
 #ifdef Q_OS_WIN
 const QString EFGLoaderWatcher::s_EFGLoaderBinaryName("EDIICore.exe");
@@ -14,12 +18,12 @@ const QString EFGLoaderWatcher::s_EFGLoaderBinaryName("EDIICore");
 EFGLoaderWatcher::EFGLoaderWatcher(const QString &ediiServicePath, QObject *parent) :
   QObject(parent)
 {
-  const QString execPath = ediiServicePath + "/bin/" + s_EFGLoaderBinaryName;
+  const QString execPath = ediiServicePath + "/" + s_EFGLoaderPathPrefix + "/" + s_EFGLoaderBinaryName;
   const qlonglong mainProcPid = QCoreApplication::applicationPid();
 
   m_efgLoader = new QProcess();
   m_efgLoader->setProgram(execPath);
-  m_efgLoader->setWorkingDirectory(ediiServicePath + "/bin/");
+  m_efgLoader->setWorkingDirectory(ediiServicePath + "/" + s_EFGLoaderPathPrefix + "/");
   m_efgLoader->setArguments({ QString::number(mainProcPid) });
 
   connect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
@@ -43,7 +47,7 @@ EFGLoaderWatcher::~EFGLoaderWatcher()
 
 bool EFGLoaderWatcher::isServicePathValid(const QString &path)
 {
-  QFile f(path + "/bin/" + s_EFGLoaderBinaryName);
+  QFile f(path + "/" + s_EFGLoaderPathPrefix + "/" + s_EFGLoaderBinaryName);
 
   if (!f.exists())
     return false;
@@ -65,16 +69,17 @@ void EFGLoaderWatcher::onEFGLoaderStarted()
 void EFGLoaderWatcher::restartEFGLoader()
 {
   int ret = QMessageBox::question(nullptr, tr("ECHMET Data Import Infrastructure"),
-				  tr("Aieee..., it looks like the process responsible for loading electophoregram data has crashed.\n"
-                                     "CEval can try to restart the process and resume operation. If the process is not restarted,"
-                                     "you will not be able to load any new electrophoregrams\n\n"
-                                     "Restart EDII service?"));
+                                  QString(tr("Aieee..., it looks like the process responsible for loading electophoregram data has crashed.\n"
+                                             "%1 can try to restart the process and resume operation. If the process is not restarted,"
+                                             "you will not be able to load any new electrophoregrams\n\n"
+                                             "Restart EDII service?")).arg(Globals::SOFTWARE_NAME));
 
   if (ret == QMessageBox::Yes) {
     m_efgLoader->start();
     if (!m_efgLoader->waitForStarted())
       QMessageBox::critical(nullptr, tr("ECHMET Data Import Infrastructure"),
-		            tr("CEval was unable to restart EFGLoader. You will not be able to load any new electropghoregrams."));
+                            QString(tr("%1 was unable to restart EDII service. "
+                                       "You will not be able to load any new electropghoregrams.")).arg(Globals::SOFTWARE_NAME));
   }
 }
 
