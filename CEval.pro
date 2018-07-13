@@ -430,4 +430,5 @@ include($$PWD/CEval.pri)
     INCLUDEPATH += $$BOOSTPATH
 }
 
-RESOURCES +=
+RESOURCES += \
+    cevalres.qrc

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file>res/ECHMET_logo_velke.png</file>
+    </qresource>
+</RCC>
