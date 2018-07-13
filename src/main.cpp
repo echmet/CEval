@@ -165,8 +165,8 @@ int main(int argc, char *argv[])
 
   if (!CEvalCrashHandler::installCrashHandler()) {
     QMessageBox::warning(nullptr, QObject::tr("Unable to install crash handler"),
-                         QObject::tr("CEval was unable to install crash handler. You will not receive a detailed diagnostic"
-                                     "output in an event of unhandled internal error."));
+                         QString(QObject::tr("%1 was unable to install crash handler. You will not receive a detailed diagnostic "
+                                             "output in an event of unhandled internal error.")).arg(Globals::SOFTWARE_NAME));
   }
 
   setOpenMPThreads();
