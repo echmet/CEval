@@ -172,7 +172,9 @@ SOURCES += src/main.cpp \
     src/hvlextrapolator.cpp \
     src/snrcalculator.cpp \
     src/datahash.cpp \
-    src/gui/ediinotfounddialog.cpp
+    src/gui/ediinotfounddialog.cpp \
+    src/gui/selectediipath.cpp \
+    src/cevalconfig.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -371,7 +373,9 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/snrcalculator.h \
     src/datahash.h \
     src/filescomboboxmodel.h \
-    src/gui/ediinotfounddialog.h
+    src/gui/ediinotfounddialog.h \
+    src/gui/selectediipath.h \
+    src/cevalconfig.h
 
 ipc_dbus {
     SOURCES += \
@@ -409,7 +413,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/registerinhyperbolafitdialog.ui \
     src/gui/registerinhyperbolafitwidget.ui \
     src/gui/hvlestimateinprogressdialog.ui \
-    src/gui/ediinotfounddialog.ui
+    src/gui/ediinotfounddialog.ui \
+    src/gui/selectediipath.ui
 
 unix {
     LIBS += -ldl

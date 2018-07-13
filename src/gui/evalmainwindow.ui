@@ -22,7 +22,7 @@
      <x>0</x>
      <y>0</y>
      <width>982</width>
-     <height>23</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -41,6 +41,7 @@
     </property>
     <addaction name="actionAdjust_plot_appearance"/>
     <addaction name="actionSet_number_format"/>
+    <addaction name="actionSet_path_to_EDII_service"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -124,6 +125,11 @@
   <action name="actionLoad_NetCDF_file">
    <property name="text">
     <string>Load &amp;NetCDF file</string>
+   </property>
+  </action>
+  <action name="actionSet_path_to_EDII_service">
+   <property name="text">
+    <string>Set path to EDII service</string>
    </property>
   </action>
  </widget>

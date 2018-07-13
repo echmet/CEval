@@ -1,16 +1,18 @@
 #include "globals.h"
 
-const QString Globals::ECHMET_WEB_LINK = "http://echmet.natur.cuni.cz";
-const QString Globals::ORG_NAME = "ECHMET";
-const QString Globals::SOFTWARE_NAME = "CEval";
-const int Globals::VERSION_MAJ = 0;
-const int Globals::VERSION_MIN = 6;
-const QString Globals::VERSION_REV = "g";
+const QString Globals::ECHMET_WEB_LINK("http://echmet.natur.cuni.cz");
+const QString Globals::ORG_NAME("ECHMET");
+const QString Globals::SOFTWARE_NAME("CEval");
+const int Globals::VERSION_MAJ(0);
+const int Globals::VERSION_MIN(6);
+const QString Globals::VERSION_REV("g");
 
-const QVector<Globals::DeveloperID> Globals::DEVELOPERS = { Globals::DeveloperID("Pavel Dubsk\xC3\xBD", "pavel.dubsky@natur.cuni.cz"),
-                                                            Globals::DeveloperID("Magda Dovhunov\xC3\xA1", "magda.ordogova@natur.cuni.cz"),
-                                                            Globals::DeveloperID("Michal Mal\xC3\xBD", "malymi@natur.cuni.cz")
-                                                          };
+const QString Globals::CONFIG_FILE_NAME(QString("%1.conf").arg(SOFTWARE_NAME));
+
+const QVector<Globals::DeveloperID> Globals::DEVELOPERS{ Globals::DeveloperID("Pavel Dubsk\xC3\xBD", "pavel.dubsky@natur.cuni.cz"),
+                                                         Globals::DeveloperID("Magda Dovhunov\xC3\xA1", "magda.ordogova@natur.cuni.cz"),
+                                                         Globals::DeveloperID("Michal Mal\xC3\xBD", "malymi@natur.cuni.cz")
+                                                        };
 
 Globals::DeveloperID::DeveloperID(const QString &name, const QString &mail) :
   name(name),

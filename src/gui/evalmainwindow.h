@@ -69,6 +69,7 @@ private slots:
   void onActionLoadElectrophoregram();
   void onActionSaveDataTable();
   void onActionSetNumberFormat();
+  void onActionSetPathToEDII();
   void onActionWholePeakToClipboard();
 };
 

@@ -29,6 +29,7 @@ public:
   static const int VERSION_MAJ;
   static const int VERSION_MIN;
   static const QString VERSION_REV;
+  static const QString CONFIG_FILE_NAME;
 
   static const QVector<DeveloperID> DEVELOPERS;
 };

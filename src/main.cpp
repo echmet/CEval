@@ -1,4 +1,5 @@
 #include "gui/evalmainwindow.h"
+#include "cevalconfig.h"
 #include "custommetatypes.h"
 #include "cevalcrashhandler.h"
 #include "dataaccumulator.h"
@@ -9,6 +10,8 @@
 #include "efg/efgloaderinterface.h"
 #include "efg/efgloaderwatcher.h"
 #include "gui/ediinotfounddialog.h"
+#include "gui/selectediipath.h"
+
 #include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -24,28 +27,26 @@
 #include <tchar.h>
 #endif
 
-
-static const QString DAC_SETTINGS_TAG("DataAccumulator");
-static const QString EFG_LOADER_INTERFACE_SETTINGS_TAG("EFGLoaderInterface");
-static const QString NUM_FORMAT_SETTINGS_TAG("NumFormat");
-static const QString SOFTWARE_UPDATER_SETTINGS_TAG("SoftwareUpdater");
-static const QString ROOT_SETTINGS_TAG("Root");
-static const QString EDII_SERVICE_PATH_TAG("EDIIServicePath");
-
 static
-void applyUserSettings(const QMap<QString, QVariant> &rootMap, DataAccumulator *dac, SoftwareUpdater *updater)
+void applyUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 {
-  if (rootMap.contains(DAC_SETTINGS_TAG))
-    dac->loadUserSettings(rootMap[DAC_SETTINGS_TAG]);
+  QVariant v;
 
-  if (rootMap.contains(NUM_FORMAT_SETTINGS_TAG))
-    DoubleToStringConvertor::loadUserSettings(rootMap[NUM_FORMAT_SETTINGS_TAG]);
+  v = CEvalConfig::value(CEvalConfig::DAC_SETTINGS_TAG);
+  if (v.isValid())
+    dac->loadUserSettings(v);
 
-  if (rootMap.contains(SOFTWARE_UPDATER_SETTINGS_TAG))
-    updater->loadUserSettings(rootMap[SOFTWARE_UPDATER_SETTINGS_TAG]);
+  v = CEvalConfig::value(CEvalConfig::NUM_FORMAT_SETTINGS_TAG);
+  if (v.isValid())
+    DoubleToStringConvertor::loadUserSettings(v);
 
-  if (rootMap.contains(EFG_LOADER_INTERFACE_SETTINGS_TAG))
-    EFGLoaderInterface::instance().loadUserSettings(rootMap[EFG_LOADER_INTERFACE_SETTINGS_TAG]);
+  v = CEvalConfig::value(CEvalConfig::SOFTWARE_UPDATER_SETTINGS_TAG);
+  if (v.isValid())
+    updater->loadUserSettings(v);
+
+  v = CEvalConfig::value(CEvalConfig::EFG_LOADER_INTERFACE_SETTINGS_TAG);
+  if (v.isValid())
+    EFGLoaderInterface::instance().loadUserSettings(v);
 }
 
 static
@@ -62,44 +63,7 @@ void checkEDIIServicePath(QString &ediiServicePath)
     return;
   }
 
-  QFileDialog dlg(nullptr, "Set path to ECHMET Data Import Infrastructure service");
-
-  dlg.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::ReadOnly);
-
-  while (true) {
-    dlg.setDirectory(ediiServicePath);
-    if (dlg.exec() != QDialog::Accepted)
-      return;
-
-    QString path = dlg.selectedFiles()[0];
-    if (efg::EFGLoaderWatcher::isServicePathValid(path)) {
-      ediiServicePath = std::move(path);
-      return;
-    }
-
-    QMessageBox mbox(QMessageBox::Warning,
-                     QObject::tr("ECHMET Data Import Infrastructure error"),
-                     QObject::tr("Given path does not appear to contain EDDI service executable. Please enter a valid path."));
-    mbox.exec();
-  }
-}
-
-static
-QString configFileName()
-{
-  return Globals::SOFTWARE_NAME + QString(".conf");
-}
-
-static
-QMap<QString, QVariant> loadUserSettings()
-{
-  QSettings s(configFileName(), QSettings::IniFormat);
-
-  QVariant root = s.value(ROOT_SETTINGS_TAG);
-  if (!root.canConvert<EMT::StringVariantMap>())
-    return {};
-
-  return root.value<EMT::StringVariantMap>();
+  ediiServicePath = SelectEDIIPath::browseToEDII(ediiServicePath);
 }
 
 #if defined(Q_OS_UNIX)
@@ -175,18 +139,13 @@ void setupBindings(EvalMainWindow *w, DataAccumulator *dac)
 static
 void saveUserSettings(DataAccumulator *dac, SoftwareUpdater *updater, const QString &ediiServicePath)
 {
-  QSettings s(configFileName(), QSettings::IniFormat);
+  CEvalConfig::setValue(CEvalConfig::DAC_SETTINGS_TAG, dac->saveUserSettings());
+  CEvalConfig::setValue(CEvalConfig::NUM_FORMAT_SETTINGS_TAG, DoubleToStringConvertor::saveUserSettings());
+  CEvalConfig::setValue(CEvalConfig::SOFTWARE_UPDATER_SETTINGS_TAG, updater->saveUserSettings());
+  CEvalConfig::setValue(CEvalConfig::EFG_LOADER_INTERFACE_SETTINGS_TAG, EFGLoaderInterface::instance().saveUserSettings());
+  CEvalConfig::setValue(CEvalConfig::EDII_SERVICE_PATH_TAG, ediiServicePath);
 
-  EMT::StringVariantMap map;
-
-  map.insert(DAC_SETTINGS_TAG, dac->saveUserSettings());
-  map.insert(NUM_FORMAT_SETTINGS_TAG, DoubleToStringConvertor::saveUserSettings());
-  map.insert(SOFTWARE_UPDATER_SETTINGS_TAG, updater->saveUserSettings());
-  map.insert(EFG_LOADER_INTERFACE_SETTINGS_TAG, EFGLoaderInterface::instance().saveUserSettings());
-  map.insert(EDII_SERVICE_PATH_TAG, ediiServicePath);
-
-  s.setValue(ROOT_SETTINGS_TAG, map);
-  s.sync();
+  CEvalConfig::save();
 }
 
 static
@@ -221,10 +180,16 @@ int main(int argc, char *argv[])
 
   DoubleToStringConvertor::initialize();
 
-  const auto cfg = loadUserSettings();
+  if (!CEvalConfig::initialize()) {
+    QMessageBox mbox(QMessageBox::Critical, QObject::tr("Configuration error"),
+                     QString(QObject::tr("%1 failed to initialize user configuration handler. The program will terminate")).arg(Globals::SOFTWARE_NAME));
 
-  if (cfg.contains(EDII_SERVICE_PATH_TAG))
-    ediiServicePath = cfg[EDII_SERVICE_PATH_TAG].toString();
+    mbox.exec();
+
+    return EXIT_FAILURE;
+  }
+
+  ediiServicePath = CEvalConfig::value(CEvalConfig::EDII_SERVICE_PATH_TAG).toString();
 
   checkEDIIServicePath(ediiServicePath);
   try {
@@ -259,7 +224,7 @@ int main(int argc, char *argv[])
   w->show();
   dac->announceDefaultState();
 
-  applyUserSettings(cfg, dac, updater);
+  applyUserSettings(dac, updater);
 
   setDefaultState(w);
 

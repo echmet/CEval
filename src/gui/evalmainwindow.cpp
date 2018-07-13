@@ -10,6 +10,8 @@
 #include "../doubletostringconvertor.h"
 #include "../witchcraft.h"
 #include "efgloadinfo.h"
+#include "selectediipath.h"
+
 #include <QMessageBox>
 
 EvalMainWindow::EvalMainWindow(QWidget *parent) :
@@ -54,6 +56,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionSet_number_format->setIcon(QIcon::fromTheme("preferences-system"));
   ui->actionCheck_for_update->setIcon(QIcon::fromTheme("system-software-update"));
   ui->actionAbout->setIcon(QIcon::fromTheme("help-about"));
+  ui->actionSet_path_to_EDII_service->setIcon(QIcon::fromTheme("preferences-system"));
 #else
   ui->actionLoad_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogOpenButton));
   ui->actionSave_data_table->setIcon(style()->standardIcon(QStyle::SP_DialogSaveButton));
@@ -62,6 +65,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   ui->actionSet_number_format->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
   ui->actionCheck_for_update->setIcon(style()->standardIcon(QStyle::SP_BrowserReload));
   ui->actionAbout->setIcon(style()->standardIcon(QStyle::SP_DialogHelpButton));
+  ui->actionSet_path_to_EDII_service->setIcon(style()->standardIcon(QStyle::SP_CommandLink));
 #endif // Q_OS
 
   connect(ui->actionAbout, &QAction::triggered, this, &EvalMainWindow::onActionAbout);
@@ -72,6 +76,7 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionLoad_data_table, &QAction::triggered, this, &EvalMainWindow::onActionLoadDataTable);
   connect(ui->actionSave_data_table, &QAction::triggered, this, &EvalMainWindow::onActionSaveDataTable);
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
+  connect(ui->actionSet_path_to_EDII_service, &QAction::triggered, this, &EvalMainWindow::onActionSetPathToEDII);
 
   this->setMinimumHeight(600);
 }
@@ -174,6 +179,13 @@ void EvalMainWindow::onActionSetNumberFormat()
 {
   m_numberFormatDialog->setParameters(DoubleToStringConvertor::type(), DoubleToStringConvertor::digits());
   m_numberFormatDialog->exec();
+}
+
+void EvalMainWindow::onActionSetPathToEDII()
+{
+  SelectEDIIPath dlg;
+
+  dlg.exec();
 }
 
 void EvalMainWindow::onActionWholePeakToClipboard()
