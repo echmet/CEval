@@ -4,16 +4,10 @@
 #include "../globals.h"
 #include "../efg/efgloaderwatcher.h"
 
-const QString EDIINotFoundDialog::s_dialogText(tr(
-    "<html><head/><body><p>Path to ECHMET Data Import Infrastructure (EDII) service has not been set. "
-    "This service is necessary for %1 to load experimental data and %1 cannot function without it.</p><p>"
-    "If you have downloaded %1 from official sources "
-    "(<a href=\"https://echmet.natur.cuni.cz/software/download\"><span style=\" text-decoration: underline; color:#007af4;\">ECHMET research group website</span></a>) "
-    "you may select the &quot;Default path&quot;. %1 will then use EDII binaries shipped with the installation package.</p><p>"
-    "If you already use a software that makes use of EDII you may specify the path to EDII service manually. "
-    "This will ensure better consistency of supported data formats. Manually specified path shall contain a "
-    "\"%2\" directory with \"%3\" executable file inside."
-    "</p></body></html>"));
+const QString EDIINotFoundDialog::s_dialogText(
+    QString(tr("Path to ECHMET Data Import Infrastructure (EDII) service has not been set. "
+               "This service is necessary for %1 to load experimental data and %1 cannot function without it.\n\n"
+               "Unless you have a reason to set the path manually default path should be safe to use.")).arg(Globals::SOFTWARE_NAME));
 
 EDIINotFoundDialog::EDIINotFoundDialog(QWidget *parent) :
   QDialog(parent),
