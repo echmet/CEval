@@ -81,6 +81,12 @@ bool EFGLoaderInterface::bringUpIPCInterface(const QString &ediiServicePath)
   return true;
 }
 
+void EFGLoaderInterface::checkABICompatibility()
+{
+  if (!m_ipcClient->isABICompatible())
+    throw std::runtime_error("EDII service ABI is not compatible");
+}
+
 QByteArray EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData &nd)
 {
   QCryptographicHash hash(QCryptographicHash::Sha1);
@@ -162,6 +168,8 @@ void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption
 void EFGLoaderInterface::initialize(const QString &ediiServicePath)
 {
   s_me = std::unique_ptr<EFGLoaderInterface>(new EFGLoaderInterface(ediiServicePath));
+
+  s_me->checkABICompatibility();
 }
 
 EFGLoaderInterface & EFGLoaderInterface::instance()

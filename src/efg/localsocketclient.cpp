@@ -109,6 +109,24 @@ bool LocalSocketClient::connectSocket()
   return true;
 }
 
+bool LocalSocketClient::isABICompatible()
+{
+  if (!reconnectIfNeeded())
+    return false;
+
+  EDII_IPCSockRequestHeader reqHdr;
+  initRequest(reqHdr, EDII_REQUEST_ABI_VERSION);
+  if (!sendPacket(reqHdr))
+    FAIL(m_socket);
+
+  QByteArray respBA;
+  const EDII_IPCSockResponseABIVersion *resp = readPacket<EDII_IPCSockResponseABIVersion>(respBA);
+  if (resp == nullptr)
+    return false;
+
+  return (resp->major == EDII_ABI_VERSION_MAJOR) && (resp->minor == EDII_ABI_VERSION_MINOR);
+}
+
 bool LocalSocketClient::isInterfaceAvailable()
 {
   bool ifaceAvailable;

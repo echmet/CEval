@@ -194,10 +194,13 @@ int main(int argc, char *argv[])
   checkEDIIServicePath(ediiServicePath);
   try {
     EFGLoaderInterface::initialize(ediiServicePath);
-  } catch (const std::runtime_error &) {
+  } catch (const std::runtime_error &ex) {
     QMessageBox mbox(QMessageBox::Critical,
                      QObject::tr("ECHMET Data Import Infrastructure error"),
-                     QString(QObject::tr("%1 failed to connect to EDII service. The program will terminate.").arg(Globals::SOFTWARE_NAME)));
+                     QString(QObject::tr("%1 failed to connect to EDII service. The program will terminate.\n"
+                                         "Error reported:\n%2")
+                             .arg(Globals::SOFTWARE_NAME))
+                             .arg(ex.what()));
     mbox.exec();
 
     return EXIT_FAILURE;

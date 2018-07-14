@@ -91,6 +91,7 @@ public:
 private:
   explicit EFGLoaderInterface(const QString &ediiServicePath, QObject *parent = nullptr);
   bool bringUpIPCInterface(const QString &ediiServicePath);
+  void checkABICompatibility();
   QByteArray computeDataHash(const efg::IPCClient::NativeData &nd);
 
   std::unique_ptr<efg::GUIDisplayer> m_guiDisplayer;

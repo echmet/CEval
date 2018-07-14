@@ -41,6 +41,18 @@ void DBusClient::connectToInterface()
   m_iface->setTimeout(DEFAULT_TIMEOUT);
 }
 
+bool DBusClient::isABICompatible()
+{
+  QDBusReply<EDII::IPCQtDBus::ABIVersion> reply;
+
+  reply = m_iface->call("abiVersion");
+  if (!reply.isValid())
+    throw std::runtime_error("Unable to check EDII service ABI version");
+
+  const auto v = reply.value();
+  return (v.ver_major == EDII_ABI_VERSION_MAJOR) && (v.ver_minor == EDII_ABI_VERSION_MINOR);
+}
+
 bool DBusClient::isInterfaceAvailable()
 {
   return QDBusConnection::sessionBus().interface()->isServiceRegistered(EDII_DBUS_SERVICE_NAME);
