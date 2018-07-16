@@ -12,7 +12,6 @@ QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1.3-bin"
 EIGENPATH = "/home/madcat/Devel/eigen-3.3.4"
 EDIIPATH = "/home/madcat/Devel/ECHMET/EDII-bin/include"
 
-INCLUDEPATH += "$$HPCSPATH/include"
 INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
 INCLUDEPATH += $$EDIIPATH
