@@ -7,11 +7,7 @@
 
 namespace efg {
 
-#ifdef CEVAL_FLATPAK_BUILD
-const QString EFGLoaderWatcher::s_EFGLoaderPathPrefix(".");
-#else
 const QString EFGLoaderWatcher::s_EFGLoaderPathPrefix("bin");
-#endif // CEVAL_FLATPAK_BUILD
 
 #ifdef Q_OS_WIN
 const QString EFGLoaderWatcher::s_EFGLoaderBinaryName("EDIICore.exe");
