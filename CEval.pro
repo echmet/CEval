@@ -439,10 +439,10 @@ RESOURCES += \
     cevalres.qrc
 
 flatpak_build {
-	DEFINES += CEVAL_FLATPAK_BUILD
+    DEFINES += CEVAL_FLATPAK_BUILD
 
-	package.path = /app/bin
-	package.files += CEval
-	package.CONFIG = no_check_exist
-	INSTALLS += package
+    package.path = /app/bin
+    package.files += CEval
+    package.CONFIG = no_check_exist
+    INSTALLS += package
 }

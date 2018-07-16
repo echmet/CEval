@@ -57,9 +57,11 @@ void checkEDIIServicePath(QString &ediiServicePath)
 
   EDIINotFoundDialog infoDlg;
   if (infoDlg.exec() == QDialog::Rejected) {
-    ediiServicePath = QString("%1/EDII/%2/%3").arg(qApp->applicationDirPath())
-                                              .arg(efg::EFGLoaderWatcher::s_EFGLoaderPathPrefix)
-                                              .arg(efg::EFGLoaderWatcher::s_EFGLoaderBinaryName);
+#ifdef CEVAL_FLATPAK_BUILD
+    ediiServicePath = "/app"
+#else
+    ediiServicePath = QString("%1/EDII").arg(qApp->applicationDirPath());
+#endif // CEVAL_FLATPAK_BUILD
     return;
   }
 
