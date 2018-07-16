@@ -58,7 +58,7 @@ void checkEDIIServicePath(QString &ediiServicePath)
   EDIINotFoundDialog infoDlg;
   if (infoDlg.exec() == QDialog::Rejected) {
 #ifdef CEVAL_FLATPAK_BUILD
-    ediiServicePath = "/app"
+    ediiServicePath = "/app";
 #else
     ediiServicePath = QString("%1/EDII").arg(qApp->applicationDirPath());
 #endif // CEVAL_FLATPAK_BUILD
