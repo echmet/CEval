@@ -17,8 +17,8 @@ CEval makes use of the following toolkits:
 - [Boost](http://www.boost.org/)
 - [Qwt](http://qwt.sourceforge.net/)
 - [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
-- [libHPCS](https://github.com/echmet/libHPCS)
 - [HVL_MT](https://github.com/echmet/HVL_MT)
+- [ECHMET Data Import Infrastructure](https://github.com/echmet/EDII)
 
 All of the libraries and packages above are hard dependencies. CEval cannot be built or run without them.
 
@@ -32,10 +32,10 @@ Prior to building CEval, all hard dependencies have to be available in binary fo
   Paths to build dependencies can be set in **CEval.pri** file. The variables to set are following:
 
   - `HVLPATH` - Path to the directory which contains installation of the **HVL_MT** library.
-  - `HPCSPATH` - Path to the directory which contains installation of the **libHPCS** library.
   - `BOOSTPATH` - Path to the directory with the Boost library headers.
   - `QWTPATH` - Path to the **features/qwt.prf** file.
   - `EIGENPATH` - Path to the directory where the Eigen library is located.
+  - `EDIIPATH` - Path containing the EDII public API header files
 
 **Hint:** If you intend to modify CEval and commit your changes to git, we suggest you run
 
@@ -63,19 +63,21 @@ prior to making any changes to the `CEval.pri` file. This will make git exclude 
 
 3. Run
 
-  If the Qwt, libHPCS and libhvl_mt libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib**; **libHPCS.so, libHPCS.dll, libHPCS.dylib** and **libhvl_mt.so, libhvl_mt.dll, libhvl_mt.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the directory which contains the CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries, Windows users may adjust the **PATH** variable in the same manner.
+  If the `Qwt`, `libHPCS` and `libhvl_mt` libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib**; **libHPCS.so, libHPCS.dll, libHPCS.dylib** and **libhvl_mt.so, libhvl_mt.dll, libhvl_mt.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the directory which contains the CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries, Windows users may adjust the **PATH** variable in the same manner.
+
+As CEval cannot function without the EDII service it prompts the user for a path to EDII service binary when the path is either not set or seems invalid. CEval will attempt to start the EDII service only when the service is not already running.
 
 Pre-built binaries
 ---
 Pre-built binaries for commonly used platforms can be downloaded from the link below. Please note that the binaries may be considerably out of date.
 
-[ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
+[ECHMET website](https://echmet.natur.cuni.cz/software/download#ceval)
 
 Usage
 ---
 Tutorial for CEval can be obtained from here. Please keep in mind that the tutorial corresponds to the binary version that is available for download at the ECHMET website and may not reflect the state of the latest development code.
 
-[ECHMET website](http://echmet.natur.cuni.cz/ceval#block-block-17)
+[ECHMET website](https://echmet.natur.cuni.cz/software/download#ceval)
 
 Licensing
 ---
@@ -89,7 +91,7 @@ Authors
 ---
 
 Pavel Dubský  
-Magda Ördögová  
+Magda Dovhunová  
 Michal Malý  
 
 Group of Electromigration and Chromatographic Methods (http://echmet.natur.cuni.cz)
