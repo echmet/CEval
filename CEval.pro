@@ -6,10 +6,6 @@
 
 QT       += core gui network printsupport widgets
 
-linux {
-    QT += dbus
-}
-
 CONFIG += c++11
 
 TARGET = CEval
@@ -33,7 +29,6 @@ unix {
 
 linux {
     DEFINES += CRASHHANDLING_LINUX
-    DEFINES += ENABLE_IPC_INTERFACE_DBUS
     CONFIG += ipc_dbus
 }
 
@@ -378,6 +373,10 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/cevalconfig.h
 
 ipc_dbus {
+    QT += dbus
+
+    DEFINES += ENABLE_IPC_INTERFACE_DBUS
+
     SOURCES += \
         src/efg/dbusclient.cpp \
 
