@@ -44,7 +44,7 @@ QString SelectEDIIPath::browseToEDII(const QString &browseFrom)
 
     QMessageBox mbox(QMessageBox::Warning,
                      QObject::tr("ECHMET Data Import Infrastructure error"),
-                     QObject::tr("Given path does not appear to contain EDDI service executable. Please enter a valid path."));
+                     QObject::tr("Given path does not appear to contain EDII service executable. Please enter a valid path."));
     mbox.exec();
   }
 }

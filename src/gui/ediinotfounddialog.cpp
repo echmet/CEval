@@ -15,9 +15,7 @@ EDIINotFoundDialog::EDIINotFoundDialog(QWidget *parent) :
 {
   ui->setupUi(this);
 
-  ui->ql_mainText->setText(s_dialogText.arg(Globals::SOFTWARE_NAME)
-                           .arg(efg::EFGLoaderWatcher::s_EFGLoaderPathPrefix)
-                           .arg(efg::EFGLoaderWatcher::s_EFGLoaderBinaryName));
+  ui->ql_mainText->setText(s_dialogText.arg(Globals::SOFTWARE_NAME));
 
   connect(ui->qpb_useDefault, &QPushButton::clicked, this, &EDIINotFoundDialog::onUseDefaultClicked);
   connect(ui->qpb_setManually, &QPushButton::clicked, this, &EDIINotFoundDialog::onSetManuallyClicked);
