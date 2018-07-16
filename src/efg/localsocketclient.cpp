@@ -2,15 +2,23 @@
 #include <QLocalSocket>
 #include <QThread>
 
+static
+void finalizeSocket(QLocalSocket *&socket)
+{
+  socket->close();
+  delete socket;
+  socket = nullptr;
+}
+
 #define FAIL(socket) \
   do { \
-    socket->close(); \
+    finalizeSocket(socket); \
     return false; \
   } while (false)
 
 #define FINALIZE(socket) \
   do { \
-    socket->close(); \
+    finalizeSocket(socket); \
     return true; \
   } while (false)
 
@@ -122,9 +130,12 @@ bool LocalSocketClient::isABICompatible()
   QByteArray respBA;
   const EDII_IPCSockResponseABIVersion *resp = readPacket<EDII_IPCSockResponseABIVersion>(respBA);
   if (resp == nullptr)
-    return false;
+    FAIL(m_socket);
 
-  return (resp->major == EDII_ABI_VERSION_MAJOR) && (resp->minor == EDII_ABI_VERSION_MINOR);
+  const bool ret = (resp->major == EDII_ABI_VERSION_MAJOR) && (resp->minor == EDII_ABI_VERSION_MINOR);
+
+  finalizeSocket(m_socket);
+  return ret;
 }
 
 bool LocalSocketClient::isInterfaceAvailable()
@@ -140,8 +151,7 @@ bool LocalSocketClient::isInterfaceAvailable()
 
   /* We need to recreate the socket from the EFGLoader event queue in order to
    * have it assigned to the correct thread */
-  delete m_socket;
-  m_socket = nullptr;
+  finalizeSocket(m_socket);
 
   return ifaceAvailable;
 }
