@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/images">
         <file>res/ECHMET_logo_velke.png</file>
+        <file>res/CEval_icon_16.png</file>
+        <file>res/CEval_icon_32.png</file>
+        <file>res/CEval_icon_64.png</file>
     </qresource>
 </RCC>

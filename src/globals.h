@@ -5,6 +5,8 @@
 #include <QString>
 #include <QVector>
 
+class QIcon;
+
 class Globals
 {
 public:
@@ -21,6 +23,7 @@ public:
 
   Globals() = delete;
 
+  static QIcon ICON();
   static QString VERSION_STRING();
 
   static const QString ECHMET_WEB_LINK;

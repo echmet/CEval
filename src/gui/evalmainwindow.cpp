@@ -79,6 +79,8 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionSet_path_to_EDII_service, &QAction::triggered, this, &EvalMainWindow::onActionSetPathToEDII);
 
   this->setMinimumHeight(600);
+
+  setWindowIcon(Globals::ICON());
 }
 
 EvalMainWindow::~EvalMainWindow()

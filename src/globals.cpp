@@ -1,5 +1,7 @@
 #include "globals.h"
 
+#include <QIcon>
+
 const QString Globals::ECHMET_WEB_LINK("http://echmet.natur.cuni.cz");
 const QString Globals::ORG_NAME("ECHMET");
 const QString Globals::SOFTWARE_NAME("CEval");
@@ -28,6 +30,16 @@ QString Globals::DeveloperID::linkString() const
 QString Globals::DeveloperID::prettyString() const
 {
   return QString("%1 (%2)").arg(name).arg(mail);
+}
+
+QIcon Globals::ICON()
+{
+  static const QPixmap PROGRAM_ICON(":/images/res/CEval_icon_64.png");
+
+  if (PROGRAM_ICON.isNull())
+      return {};
+
+  return QIcon(PROGRAM_ICON);
 }
 
 QString Globals::VERSION_STRING()
