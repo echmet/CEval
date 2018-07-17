@@ -27,11 +27,14 @@ private:
 
   EMT::StringVariantMap m_cfg;
 
-  static QString configFileName();
+  static QString configFilePath();
 
   static std::unique_ptr<CEvalConfig> s_me;
 
   static const QString ROOT_SETTINGS_TAG;
+#ifdef Q_OS_UNIX
+  static const QString s_pathPrefixTemplate;
+#endif // Q_OS_UNIX
 };
 
 #endif // CEVALCONFIG_H

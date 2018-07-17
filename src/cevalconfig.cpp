@@ -1,6 +1,7 @@
 #include "cevalconfig.h"
 #include "globals.h"
 
+#include <QDir>
 #include <QSettings>
 
 std::unique_ptr<CEvalConfig> CEvalConfig::s_me(nullptr);
@@ -12,18 +13,28 @@ const QString CEvalConfig::EDII_SERVICE_PATH_TAG("EDIIServicePath");
 
 const QString CEvalConfig::ROOT_SETTINGS_TAG("Root");
 
+#ifdef Q_OS_UNIX
+const QString CEvalConfig::s_pathPrefixTemplate(QString("%2/.local/share/ECHMET/%1/").arg(Globals::SOFTWARE_NAME));
+#endif // Q_OS_UNIX
+
 CEvalConfig::CEvalConfig()
 {
-  QSettings s(configFileName(), QSettings::IniFormat);
+  QSettings s(configFilePath(), QSettings::IniFormat);
 
   QVariant root = s.value(ROOT_SETTINGS_TAG);
   if (root.canConvert<EMT::StringVariantMap>())
     m_cfg = root.value<EMT::StringVariantMap>();
 }
 
-QString CEvalConfig::configFileName()
+QString CEvalConfig::configFilePath()
 {
-  return QString("%1.conf").arg(Globals::SOFTWARE_NAME);
+#ifdef Q_OS_UNIX
+  const QString prefix = s_pathPrefixTemplate.arg(QDir::homePath());
+#else
+  const QString prefix = "";
+#endif // Q_OS_UNIX
+
+  return QString("%1%2.conf").arg(prefix).arg(Globals::SOFTWARE_NAME);
 }
 
 bool CEvalConfig::initialize()
@@ -60,7 +71,7 @@ void CEvalConfig::save()
 
 void CEvalConfig::saveInternal() const
 {
-  QSettings s(configFileName(), QSettings::IniFormat);
+  QSettings s(configFilePath(), QSettings::IniFormat);
 
   s.setValue(ROOT_SETTINGS_TAG, m_cfg);
 }
