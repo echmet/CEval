@@ -68,7 +68,7 @@ void SelectEDIIPath::onOkClicked()
     return;
   }
 
-  CEvalConfig::setValue(path, CEvalConfig::EDII_SERVICE_PATH_TAG);
+  CEvalConfig::setValue(CEvalConfig::EDII_SERVICE_PATH_TAG, path);
 
   QMessageBox mbox(QMessageBox::Information, tr("EDII path changed"),
                    QString(tr("Path to EDII service has been changed. Please restart %1 in order for the change to take effect.")).arg(Globals::SOFTWARE_NAME));
