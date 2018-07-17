@@ -52,18 +52,18 @@ void applyUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 static
 void checkEDIIServicePath(QString &ediiServicePath)
 {
+#ifdef CEVAL_FLATPAK_BUILD
+  ediiServicePath = "/app";
+#else
   if (efg::EFGLoaderWatcher::isServicePathValid(ediiServicePath))
     return;
 
   EDIINotFoundDialog infoDlg;
   if (infoDlg.exec() == QDialog::Rejected) {
-#ifdef CEVAL_FLATPAK_BUILD
-    ediiServicePath = "/app";
-#else
     ediiServicePath = QString("%1/EDII").arg(qApp->applicationDirPath());
-#endif // CEVAL_FLATPAK_BUILD
   } else
     ediiServicePath = SelectEDIIPath::browseToEDII(ediiServicePath);
+#endif // CEVAL_FLATPAK_BUILD
 
   CEvalConfig::setValue(CEvalConfig::EDII_SERVICE_PATH_TAG, ediiServicePath);
 }

@@ -78,6 +78,11 @@ EvalMainWindow::EvalMainWindow(QWidget *parent) :
   connect(ui->actionSet_number_format, &QAction::triggered, this, &EvalMainWindow::onActionSetNumberFormat);
   connect(ui->actionSet_path_to_EDII_service, &QAction::triggered, this, &EvalMainWindow::onActionSetPathToEDII);
 
+#ifdef CEVAL_FLATPAK_BUILD
+  ui->actionSet_path_to_EDII_service->setVisible(false);
+#endif // CEVAL_FLATPAK_BUILD
+
+
   this->setMinimumHeight(600);
 
   setWindowIcon(Globals::ICON());
