@@ -58,7 +58,17 @@ void SelectEDIIPath::onBrowseClicked()
 
 void SelectEDIIPath::onOkClicked()
 {
-  CEvalConfig::setValue(ui->qle_path->text(), CEvalConfig::EDII_SERVICE_PATH_TAG);
+  const QString path = ui->qle_path->text();
+  if (!efg::EFGLoaderWatcher::isServicePathValid(path)) {
+    QMessageBox mbox(QMessageBox::Warning,
+                     QObject::tr("ECHMET Data Import Infrastructure error"),
+                     QObject::tr("Given path does not appear to contain EDII service executable. Please enter a valid path."));
+    mbox.exec();
+
+    return;
+  }
+
+  CEvalConfig::setValue(path, CEvalConfig::EDII_SERVICE_PATH_TAG);
 
   QMessageBox mbox(QMessageBox::Information, tr("EDII path changed"),
                    QString(tr("Path to EDII service has been changed. Please restart %1 in order for the change to take effect.")).arg(Globals::SOFTWARE_NAME));
