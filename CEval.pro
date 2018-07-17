@@ -437,6 +437,8 @@ include($$PWD/CEval.pri)
 RESOURCES += \
     cevalres.qrc
 
+RC_FILE = CEval.rc
+
 flatpak_build {
     DEFINES += CEVAL_FLATPAK_BUILD
 
