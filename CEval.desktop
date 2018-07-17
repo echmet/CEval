@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Exec=CEval
+Name=CEval
+GenericName=Capillary Electrophoresis experiments evaluation tool
+X-KDE-StartupNotify=true
+Terminal=false
+Categories=Science;Education
+Icon=CEval
