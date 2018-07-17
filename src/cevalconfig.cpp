@@ -81,7 +81,7 @@ void CEvalConfig::setValue(const QString &key, const QVariant &value)
   if (s_me == nullptr)
     return;
 
-  s_me->m_cfg[key] = value;
+  s_me->m_cfg.insert(key, value);
 }
 
 

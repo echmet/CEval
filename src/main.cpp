@@ -62,10 +62,10 @@ void checkEDIIServicePath(QString &ediiServicePath)
 #else
     ediiServicePath = QString("%1/EDII").arg(qApp->applicationDirPath());
 #endif // CEVAL_FLATPAK_BUILD
-    return;
-  }
+  } else
+    ediiServicePath = SelectEDIIPath::browseToEDII(ediiServicePath);
 
-  ediiServicePath = SelectEDIIPath::browseToEDII(ediiServicePath);
+  CEvalConfig::setValue(CEvalConfig::EDII_SERVICE_PATH_TAG, ediiServicePath);
 }
 
 #if defined(Q_OS_UNIX)
@@ -139,13 +139,12 @@ void setupBindings(EvalMainWindow *w, DataAccumulator *dac)
 }
 
 static
-void saveUserSettings(DataAccumulator *dac, SoftwareUpdater *updater, const QString &ediiServicePath)
+void saveUserSettings(DataAccumulator *dac, SoftwareUpdater *updater)
 {
   CEvalConfig::setValue(CEvalConfig::DAC_SETTINGS_TAG, dac->saveUserSettings());
   CEvalConfig::setValue(CEvalConfig::NUM_FORMAT_SETTINGS_TAG, DoubleToStringConvertor::saveUserSettings());
   CEvalConfig::setValue(CEvalConfig::SOFTWARE_UPDATER_SETTINGS_TAG, updater->saveUserSettings());
   CEvalConfig::setValue(CEvalConfig::EFG_LOADER_INTERFACE_SETTINGS_TAG, EFGLoaderInterface::instance().saveUserSettings());
-  CEvalConfig::setValue(CEvalConfig::EDII_SERVICE_PATH_TAG, ediiServicePath);
 
   CEvalConfig::save();
 }
@@ -242,7 +241,7 @@ int main(int argc, char *argv[])
 
   aRet =  a.exec();
 
-  saveUserSettings(dac, updater, ediiServicePath);
+  saveUserSettings(dac, updater);
 
 out:
   CEvalCrashHandler::uninstallCrashHandler();
