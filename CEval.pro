@@ -169,7 +169,8 @@ SOURCES += src/main.cpp \
     src/datahash.cpp \
     src/gui/ediinotfounddialog.cpp \
     src/gui/selectediipath.cpp \
-    src/cevalconfig.cpp
+    src/cevalconfig.cpp \
+    src/gui/ediiconnectionfaileddialog.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -370,7 +371,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/filescomboboxmodel.h \
     src/gui/ediinotfounddialog.h \
     src/gui/selectediipath.h \
-    src/cevalconfig.h
+    src/cevalconfig.h \
+    src/gui/ediiconnectionfaileddialog.h
 
 ipc_dbus {
     QT += dbus
@@ -413,7 +415,8 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/registerinhyperbolafitwidget.ui \
     src/gui/hvlestimateinprogressdialog.ui \
     src/gui/ediinotfounddialog.ui \
-    src/gui/selectediipath.ui
+    src/gui/selectediipath.ui \
+    src/gui/ediiconnectionfaileddialog.ui
 
 unix {
     LIBS += -ldl

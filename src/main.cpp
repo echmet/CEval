@@ -9,6 +9,7 @@
 #include "softwareupdater.h"
 #include "efg/efgloaderinterface.h"
 #include "efg/efgloaderwatcher.h"
+#include "gui/ediiconnectionfaileddialog.h"
 #include "gui/ediinotfounddialog.h"
 #include "gui/selectediipath.h"
 
@@ -196,13 +197,8 @@ int main(int argc, char *argv[])
   try {
     EFGLoaderInterface::initialize(ediiServicePath);
   } catch (const std::runtime_error &ex) {
-    QMessageBox mbox(QMessageBox::Critical,
-                     QObject::tr("ECHMET Data Import Infrastructure error"),
-                     QString(QObject::tr("%1 failed to connect to EDII service. The program will terminate.\n"
-                                         "Error reported:\n%2")
-                             .arg(Globals::SOFTWARE_NAME))
-                             .arg(ex.what()));
-    mbox.exec();
+    EDIIConnectionFailedDialog dlg(ex.what());
+    dlg.exec();
 
     return EXIT_FAILURE;
   }

@@ -52,7 +52,7 @@ EFGLoaderWatcher::EFGLoaderWatcher(const QString &inEdiiServicePath, QObject *pa
 
   m_efgLoader->start();
   if (!m_efgLoader->waitForStarted(5000))
-    throw std::runtime_error(QString("Cannot start EFGLoader, error code %1").arg(m_efgLoader->error()).toUtf8().data());
+    throw std::runtime_error(QString("Cannot start EDIICore, error code %1").arg(m_efgLoader->errorString()).toUtf8().data());
 }
 
 EFGLoaderWatcher::~EFGLoaderWatcher()
