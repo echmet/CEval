@@ -19,11 +19,6 @@ private:
   Ui::EDIINotFoundDialog *ui;
 
   const QString m_dialogTextTemp;
-
-private slots:
-  void onUseDefaultClicked();
-  void onSetManuallyClicked();
-
 };
 
 #endif // EDIINOTFOUNDDIALOG_H

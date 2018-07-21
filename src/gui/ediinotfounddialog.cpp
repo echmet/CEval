@@ -15,21 +15,11 @@ EDIINotFoundDialog::EDIINotFoundDialog(QWidget *parent) :
 
   ui->ql_mainText->setText(m_dialogTextTemp.arg(Globals::SOFTWARE_NAME));
 
-  connect(ui->qpb_useDefault, &QPushButton::clicked, this, &EDIINotFoundDialog::onUseDefaultClicked);
-  connect(ui->qpb_setManually, &QPushButton::clicked, this, &EDIINotFoundDialog::onSetManuallyClicked);
+  connect(ui->qpb_useDefault, &QPushButton::clicked, this, &EDIINotFoundDialog::reject);
+  connect(ui->qpb_setManually, &QPushButton::clicked, this, &EDIINotFoundDialog::accept);
 }
 
 EDIINotFoundDialog::~EDIINotFoundDialog()
 {
   delete ui;
-}
-
-void EDIINotFoundDialog::onUseDefaultClicked()
-{
-  reject();
-}
-
-void EDIINotFoundDialog::onSetManuallyClicked()
-{
-  accept();
 }
