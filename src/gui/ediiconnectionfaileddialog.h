@@ -18,7 +18,7 @@ public:
 private:
   Ui::EDIIConnectionFailedDialog *ui;
 
-  static const QString s_infoTemp;
+  const QString m_infoTemp;
 };
 
 #endif // EDIICONNECTIONFAILEDDIALOG_H

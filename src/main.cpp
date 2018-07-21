@@ -24,7 +24,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #elif defined(Q_OS_WIN)
-#include <windows.h>
+#include <Windows.h>
 #include <tchar.h>
 #endif
 
@@ -100,7 +100,7 @@ void setOpenMPThreads()
   LPTSTR ompThreads;
   HANDLE heap = GetProcessHeap();
 
-  if (heap == NULL)
+  if (heap == nullptr)
       return;
 
   ompThreads = static_cast<LPTSTR>(HeapAlloc(heap, HEAP_ZERO_MEMORY, 32767));

@@ -18,7 +18,7 @@ public:
 private:
   Ui::EDIINotFoundDialog *ui;
 
-  static const QString s_dialogText;
+  const QString m_dialogTextTemp;
 
 private slots:
   void onUseDefaultClicked();

@@ -8,16 +8,16 @@
 #include <QMessageBox>
 #include <QStyle>
 
-const QString EDIIConnectionFailedDialog::s_infoTemp("Failed to connect to EDII service. %1 will terminate.\n"
-                                                     "Error reported: %2");
 
 EDIIConnectionFailedDialog::EDIIConnectionFailedDialog(const QString &error, QWidget *parent) :
   QDialog(parent),
-  ui(new Ui::EDIIConnectionFailedDialog)
+  ui(new Ui::EDIIConnectionFailedDialog),
+  m_infoTemp(tr("Failed to connect to EDII service. %1 will terminate.\n"
+                "Error reported: %2"))
 {
   ui->setupUi(this);
 
-  ui->ql_info->setText(s_infoTemp.arg(Globals::SOFTWARE_NAME).arg(error));
+  ui->ql_info->setText(m_infoTemp.arg(Globals::SOFTWARE_NAME).arg(error));
 #ifdef Q_OS_LINUX
   ui->ql_icon->setPixmap(QIcon::fromTheme("dialog-error").pixmap(64, 64));
 #else
