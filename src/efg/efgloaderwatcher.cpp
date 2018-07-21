@@ -15,7 +15,6 @@ const QString EFGLoaderWatcher::s_EFGLoaderBinaryName("EDIICore.exe");
 const QString EFGLoaderWatcher::s_EFGLoaderBinaryName("EDIICore");
 #endif // Q_OS_WIN
 
-#ifdef CEVAL_FLATPAK_BUILD
 QString EFGLoaderWatcher::stripPathIfNeeded(const QString &path)
 {
   if (path.endsWith("/" + s_EFGLoaderPathPrefix + "/" + s_EFGLoaderBinaryName)) {
@@ -28,16 +27,11 @@ QString EFGLoaderWatcher::stripPathIfNeeded(const QString &path)
 
   return path;
 }
-#endif // CEVAL_FLATPAK_BUILD
 
 EFGLoaderWatcher::EFGLoaderWatcher(const QString &inEdiiServicePath, QObject *parent) :
   QObject(parent)
 {
-#ifdef CEVAL_FLATPAK_BUILD
   const QString ediiServicePath = stripPathIfNeeded(inEdiiServicePath);
-#else
-  const QString ediiServicePath = inEdiiServicePath;
-#endif // CEVAL_FLATPAK_BUILD
 
   const QString execPath = appendPath(ediiServicePath);
   const qlonglong mainProcPid = QCoreApplication::applicationPid();
@@ -73,11 +67,7 @@ QString EFGLoaderWatcher::appendPath(const QString &path)
 
 bool EFGLoaderWatcher::isServicePathValid(const QString &inPath)
 {
-#ifdef CEVAL_FLATPAK_BUILD
   const QString path = stripPathIfNeeded(inPath);
-#else
-  const QString path = inPath;
-#endif // CEVAL_FLATPAK_BUILD
 
   QFile f(appendPath(path));
 

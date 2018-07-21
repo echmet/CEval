@@ -24,9 +24,7 @@ private:
   QProcess *m_efgLoader;
 
   static QString appendPath(const QString &path);
-#ifdef CEVAL_FLATPAK_BUILD
   static QString stripPathIfNeeded(const QString &path);
-#endif // CEVAL_FLATPAK_BUILD
 
 private slots:
   void onEFGLoaderFinished(int exitCode, QProcess::ExitStatus exitStatus);
