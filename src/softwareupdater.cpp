@@ -6,7 +6,8 @@
 #include <QThread>
 #include <echmetupdatecheck.h>
 
-const QStringList SoftwareUpdater::UPDATE_LINKS{"https://devoid-pointer.net/echmet/eupd_manifest.json"};
+const QStringList SoftwareUpdater::UPDATE_LINKS{"https://echmet.natur.cuni.cz/echmet/download/public/eupd_manifest.json",
+                                                "https://devoid-pointer.net/echmet/eupd_manifest.json"};
 const QString SoftwareUpdater::CHECK_AUTOMATICALLY_SETTINGS_TAG("CheckAutomatically");
 
 void SoftwareUpdateWorker::process()
