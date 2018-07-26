@@ -67,5 +67,8 @@ void SoftwareUpdateWidget::setDisplay(const SoftwareUpdateResult &result)
       }
     }
     return;
+  case SoftwareUpdateResult::State::DISABLED:
+    ui->ql_result->setText(tr("Updates are disabled in development versions"));
+    return;
   }
 }

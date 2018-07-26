@@ -15,7 +15,8 @@ public:
     OK,
     CHECK_ERROR,
     NETWORK_ERROR,
-    NO_DATA
+    NO_DATA,
+    DISABLED
   };
 
   explicit SoftwareUpdateResult();

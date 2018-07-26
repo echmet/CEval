@@ -102,6 +102,12 @@ void SoftwareUpdater::checkAutomatically()
 
 void SoftwareUpdater::checkForUpdate(const bool automatic)
 {
+#ifdef UNSTABLE_VERSION
+  emit checkComplete(SoftwareUpdateResult(SoftwareUpdateResult::State::DISABLED,
+                                          QString()));
+  return;
+#endif // UNSTABLE_VERSION
+
   std::lock_guard<std::mutex> lk(m_checkInProgressLock);
   if (m_checkInProgress)
     return;
