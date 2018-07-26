@@ -3,7 +3,7 @@
 
 #include <QDialog>
 
-class UpdateCheckResults;
+class SoftwareUpdateResult;
 
 namespace Ui {
 class CheckForUpdateDialog;
@@ -29,7 +29,7 @@ signals:
   void setAutoUpdate(const bool enabled);
 
 public slots:
-  void onCheckComplete(const UpdateCheckResults &results);
+  void onCheckComplete(const SoftwareUpdateResult &result);
   void onAutoUpdateChanged(const bool enabled);
 
 private slots:

@@ -1,29 +1,90 @@
 #include "softwareupdater.h"
-#include <QVariant>
 #include "globals.h"
 #include "gui/autoupdatecheckdialog.h"
 
-const QUrl SoftwareUpdater::UPDATE_LINK("http://echmet.natur.cuni.cz/sites/all/trackmenot/public/swupdateinfo.xml");
+#include <QVariant>
+#include <QThread>
+#include <echmetupdatecheck.h>
+
+const QStringList SoftwareUpdater::UPDATE_LINKS{"https://devoid-pointer.net/echmet/eupd_manifest.json"};
 const QString SoftwareUpdater::CHECK_AUTOMATICALLY_SETTINGS_TAG("CheckAutomatically");
 
+void SoftwareUpdateWorker::process()
+{
+  EUPDResult res;
+
+  EUPDInSoftware inSw;
+  strncpy(inSw.name, Globals::SOFTWARE_NAME.toLatin1(), sizeof(EUPDInSoftware::name));
+  inSw.version.major = Globals::VERSION_MAJ;
+  inSw.version.minor = Globals::VERSION_MIN;
+  strncpy(inSw.version.revision, Globals::VERSION_REV.toLatin1(), sizeof(EUPDVersion::revision));
+
+  int linkIdx = 0;
+  EUPDRetCode ret;
+  do {
+    ret = updater_check(m_links[linkIdx].toLatin1(), &inSw, &res, 0);
+  } while (EUPD_IS_NETWORK_ERROR(ret) && linkIdx < m_links.size() - 1);
+
+  if (EUPD_IS_ERROR(ret)) {
+    QString err(updater_error_to_str(ret));
+
+    if (EUPD_IS_NETWORK_ERROR(ret))
+      emit checkComplete(m_automatic, SoftwareUpdateResult(SoftwareUpdateResult::State::NETWORK_ERROR, std::move(err)));
+    else
+      emit checkComplete(m_automatic, SoftwareUpdateResult(SoftwareUpdateResult::State::CHECK_ERROR, std::move(err)));
+  } else {
+    if (res.status == EUST_UNKNOWN) {
+      QString err(updater_error_to_str(ret));
+
+      emit checkComplete(m_automatic, SoftwareUpdateResult(SoftwareUpdateResult::State::NO_DATA, std::move(err)));
+    } else if (res.status == EUST_UP_TO_DATE) {
+      emit checkComplete(m_automatic, SoftwareUpdateResult());
+    } else {
+      try {
+        auto s = [](const EUPDUpdateStatus status) {
+                    switch (status) {
+                    case EUST_UPDATE_AVAILABLE:
+                      return SoftwareUpdateResult::Severity::AVAILABLE;
+                    case EUST_UPDATE_RECOMMENDED:
+                      return SoftwareUpdateResult::Severity::RECOMMENDED;
+                    case EUST_UPDATE_REQUIRED:
+                      return SoftwareUpdateResult::Severity::REQUIRED;
+                    default:
+                      throw std::runtime_error("Invalid update state");
+                    }
+        }(res.status);
+
+        emit checkComplete(m_automatic,
+                           SoftwareUpdateResult(
+                             res.version.major,
+                             res.version.minor,
+                             [](const char rev[4]) {
+                               if (rev[3] != '\0')
+                                 return QString::fromLatin1(rev, 4);
+                               return QString::fromLatin1(rev);
+                             }(res.version.revision),
+                             s,
+                             QString::fromUtf8(res.link)
+                           )
+                          );
+      } catch (const std::runtime_error &) {
+        emit checkComplete(m_automatic, SoftwareUpdateResult(SoftwareUpdateResult::State::CHECK_ERROR, "Invalid update state value"));
+      }
+    }
+
+    updater_free_result(&res);
+
+    emit finished();
+  }
+}
+
 SoftwareUpdater::SoftwareUpdater(QObject *parent) : QObject(parent),
-  m_checkAutomatically(true)
+  m_checkAutomatically(true),
+  m_checkInProgress(false)
 {
   m_autoDlg = new AutoUpdateCheckDialog();
 
-  connect(&m_fetcher, &UpdateListFetcher::listFetched, this, &SoftwareUpdater::onListFetched);
-  connect(this, &SoftwareUpdater::automaticCheckComplete, this, &SoftwareUpdater::onAutomaticCheckComplete);
   connect(m_autoDlg, &AutoUpdateCheckDialog::setAutoUpdate, this, &SoftwareUpdater::onSetAutoUpdate);
-}
-
-SoftwareUpdater::~SoftwareUpdater()
-{
-  m_fetcher.abortFetch();
-}
-
-void SoftwareUpdater::abortCheck()
-{
-  m_fetcher.abortFetch();
 }
 
 bool SoftwareUpdater::automaticCheckEnabled() const
@@ -41,31 +102,23 @@ void SoftwareUpdater::checkAutomatically()
 
 void SoftwareUpdater::checkForUpdate(const bool automatic)
 {
-#ifdef UNSTABLE_VERSION
-  emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Update checks are disabled in development versions.")));
-  return;
-#endif
+  std::lock_guard<std::mutex> lk(m_checkInProgressLock);
+  if (m_checkInProgress)
+    return;
+  m_checkInProgress = true;
 
-  UpdateListFetcher::RetCode tRet = m_fetcher.fetch(UPDATE_LINK);
+  QThread *thr = new QThread();
+  SoftwareUpdateWorker *worker = new SoftwareUpdateWorker(UPDATE_LINKS, automatic);
 
-  switch (tRet) {
-  case UpdateListFetcher::RetCode::E_NOT_CONNECTED:
-    if (!automatic)
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Network connection is not available.")));
-    break;
-  case UpdateListFetcher::RetCode::E_IN_PROGRESS:
-    if (!automatic)
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Another check for update is already running.")));
-    break;
-  case UpdateListFetcher::RetCode::E_NO_MEM:
-    if (!automatic)
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Insufficient memory.")));
-    break;
-  default:
-    break;
-  }
+  worker->moveToThread(thr);
 
-  m_automatic = automatic;
+  connect(thr, &QThread::started, worker, &SoftwareUpdateWorker::process);
+  connect(worker, &SoftwareUpdateWorker::checkComplete, this, &SoftwareUpdater::onUpdateCheckComplete);
+  connect(worker, &SoftwareUpdateWorker::finished, thr, &QThread::quit);
+  connect(worker, &SoftwareUpdateWorker::finished, worker, &SoftwareUpdateWorker::deleteLater);
+  connect(thr, &QThread::finished, thr, &QThread::deleteLater);
+
+  thr->start();
 }
 
 void SoftwareUpdater::loadUserSettings(const QVariant &settings)
@@ -84,25 +137,12 @@ void SoftwareUpdater::loadUserSettings(const QVariant &settings)
   }
 }
 
-void SoftwareUpdater::onAutomaticCheckComplete(const UpdateCheckResults &results)
+void SoftwareUpdater::automaticCheckComplete(const SoftwareUpdateResult &result)
 {
-  SoftwareUpdateWidget::Result r;
-
-  switch (results.status) {
-  case UpdateCheckResults::Status::FAILED:
-    r = SoftwareUpdateWidget::Result::FAILED;
-    break;
-  case UpdateCheckResults::Status::UP_TO_DATE:
-    r = SoftwareUpdateWidget::Result::UP_TO_DATE;
-    break;
-  case UpdateCheckResults::Status::UPDATE_AVAILABLE:
-    r = SoftwareUpdateWidget::Result::UPDATE_AVAILABLE;
-    break;
-  default:
+  if (!result.updateAvailable)
     return;
-  }
 
-  m_autoDlg->setDisplay(r, results.versionTag, results.downloadLink);
+  m_autoDlg->setDisplay(result);
   m_autoDlg->exec();
 }
 
@@ -111,52 +151,15 @@ void SoftwareUpdater::onCheckForUpdate()
   checkForUpdate(false);
 }
 
-void SoftwareUpdater::onListFetched(const UpdateListFetcher::RetCode tRet, const SoftwareUpdateInfoMap &map)
+void SoftwareUpdater::onUpdateCheckComplete(const bool automatic, const SoftwareUpdateResult &result)
 {
-  if (!m_automatic) {
-    switch (tRet) {
-    case UpdateListFetcher::RetCode::E_INVALID_FILE_STRUCTURE:
-    case UpdateListFetcher::RetCode::E_INVALID_DATA:
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Invalid update info received.")));
-      return;
-      break;
-    case UpdateListFetcher::RetCode::E_MALFORMED_XML:
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("Malformed XML document received.")));
-      return;
-      break;
-    case UpdateListFetcher::RetCode::E_NETWORK_ERROR:
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("A network error occured while fetching update information. Please try again later.")));
-      return;
-      break;
-    default:
-      break;
-    }
-  }
+  std::lock_guard<std::mutex> lk(m_checkInProgressLock);
+  m_checkInProgress = false;
 
-  const QString swNameLower = Globals::SOFTWARE_NAME.toLower();
-  if (!map.contains(swNameLower)) {
-    if (!m_automatic)
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::FAILED, "", "", tr("No information about available updates were received.")));
-    return;
-  }
-
-  const SoftwareUpdateInfo &info = map[swNameLower];
-  const SoftwareUpdateInfo::Version &version = info.version;
-  const SoftwareUpdateInfo::Version myVersion(Globals::VERSION_MAJ, Globals::VERSION_MIN, Globals::VERSION_REV);
-
-  if (myVersion >= version) {
-    if (!m_automatic)
-      emit checkComplete(UpdateCheckResults(UpdateCheckResults::Status::UP_TO_DATE, "", "", ""));
-  } else {
-    QString versionTag = QString("%1.%2%3").arg(version.major).arg(version.minor).arg(version.revision);
-
-    const UpdateCheckResults r(UpdateCheckResults::Status::UPDATE_AVAILABLE, info.downloadLink, versionTag, "");
-
-    if (m_automatic)
-      emit automaticCheckComplete(r);
-    else
-      emit checkComplete(r);
-  }
+  if (automatic)
+    automaticCheckComplete(result);
+  else
+    emit checkComplete(result);
 }
 
 void SoftwareUpdater::onSetAutoUpdate(const bool enabled)

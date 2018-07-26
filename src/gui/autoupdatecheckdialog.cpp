@@ -26,7 +26,7 @@ void AutoUpdateCheckDialog::onCloseClicked()
   close();
 }
 
-void AutoUpdateCheckDialog::setDisplay(const SoftwareUpdateWidget::Result result, const QString &versionTag, const QString &downloadLink)
+void AutoUpdateCheckDialog::setDisplay(const SoftwareUpdateResult &result)
 {
-  ui->qw_result->setDisplay(result, versionTag, downloadLink);
+  ui->qw_result->setDisplay(result);
 }

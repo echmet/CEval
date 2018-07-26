@@ -18,9 +18,9 @@
     <widget class="SoftwareUpdateWidget" name="qw_result" native="true"/>
    </item>
    <item>
-    <widget class="QLabel" name="ql_error">
+    <widget class="QLabel" name="ql_inProgress">
      <property name="text">
-      <string/>
+      <string>Checking for update...</string>
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>

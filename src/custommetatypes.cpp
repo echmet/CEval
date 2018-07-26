@@ -2,6 +2,7 @@
 #include "dataexporter/exporterglobals.h"
 #include "softwareupdater.h"
 #include "datahash.h"
+#include "softwareupdateresult.h"
 
 QDataStream &operator>>(QDataStream &in, EMT::SeriesSettingsMap &map)
 {
@@ -90,6 +91,6 @@ void EMT::registerAll()
 {
   qRegisterMetaTypeStreamOperators<DataExporter::Globals::DataArrangement>("DataArrangement");
   qRegisterMetaTypeStreamOperators<SeriesSettingsMap>("SeriesSettingsMap");
-  qRegisterMetaType<UpdateCheckResults>("UpdateCheckResults");
   qRegisterMetaType<DataHash>("DataHash");
+  qRegisterMetaType<SoftwareUpdateResult>("SoftwareUpdateResult");
 }

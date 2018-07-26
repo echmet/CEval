@@ -11,15 +11,17 @@ BOOSTPATH = "/home/madcat/Devel/ECHMET/boost_1_66_0"
 QWTPATH = "/home/madcat/Devel/ECHMET/qwt-6.1.3-bin"
 EIGENPATH = "/home/madcat/Devel/eigen-3.3.4"
 EDIIPATH = "/home/madcat/Devel/ECHMET/EDII-bin/include"
+ECHMETUPDATERPATH = "/home/madcat/Devel/ECHMET/ECHMETUpdateCheck-bin"
 
 INCLUDEPATH += "$$HVLPATH/include"
 INCLUDEPATH += $$EIGENPATH
 INCLUDEPATH += $$EDIIPATH
-DEPENDPATH += $$HPCSPATH
+INCLUDEPATH += "$$ECHMETUPDATERPATH/include"
+DEPENDPATH += $$HVLPATH
 
 include("$$QWTPATH/features/qwt.prf")
 
-unix|win32: LIBS += -L"$$HVLPATH/lib" -lhvl_mt
+unix|win32: LIBS += -L"$$HVLPATH/lib" -lhvl_mt -L"$$ECHMETUPDATERPATH/lib" -lECHMETUpdateCheck
 unix: LIBS += -lpthread
 
 # Development version

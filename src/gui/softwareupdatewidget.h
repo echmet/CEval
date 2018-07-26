@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+class SoftwareUpdateResult;
+
 namespace Ui {
 class SoftwareUpdateWidget;
 }
@@ -20,7 +22,7 @@ public:
 
   explicit SoftwareUpdateWidget(QWidget *parent = nullptr);
   ~SoftwareUpdateWidget();
-  void setDisplay(const Result result, const QString &versionTag, const QString &downloadLink);
+  void setDisplay(const SoftwareUpdateResult &result);
 
 private:
   Ui::SoftwareUpdateWidget *ui;

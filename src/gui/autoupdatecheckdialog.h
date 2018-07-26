@@ -14,7 +14,7 @@ class AutoUpdateCheckDialog : public QDialog
 public:
   explicit AutoUpdateCheckDialog(QWidget *parent = nullptr);
   ~AutoUpdateCheckDialog();
-  void setDisplay(const SoftwareUpdateWidget::Result result, const QString &versionTag, const QString &downloadLink);
+  void setDisplay(const SoftwareUpdateResult &result);
 
 private:
   Ui::AutoUpdateCheckDialog *ui;

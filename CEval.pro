@@ -123,11 +123,8 @@ SOURCES += src/main.cpp \
     src/gui/softwareupdatewidget.cpp \
     src/gui/autoupdatecheckdialog.cpp \
     src/gui/checkforupdatedialog.cpp \
-    src/softwareupdateinfo.cpp \
-    src/updatelistfetcher.cpp \
     src/softwareupdater.cpp \
     src/evalmainwindowsoftwareupdaterconnector.cpp \
-    src/updatecheckresults.cpp \
     src/doubleclickableqwtplotzoomer.cpp \
     src/evaluationenginedataexporter.cpp \
     src/dataexporter/exporterelems.cpp \
@@ -170,7 +167,8 @@ SOURCES += src/main.cpp \
     src/gui/ediinotfounddialog.cpp \
     src/gui/selectediipath.cpp \
     src/cevalconfig.cpp \
-    src/gui/ediiconnectionfaileddialog.cpp
+    src/gui/ediiconnectionfaileddialog.cpp \
+    src/softwareupdateresult.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
     src/gui/common/floatingvaluelineedit.h \
@@ -319,10 +317,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/softwareupdatewidget.h \
     src/gui/autoupdatecheckdialog.h \
     src/gui/checkforupdatedialog.h \
-    src/softwareupdateinfo.h \
-    src/updatelistfetcher.h \
     src/softwareupdater.h \
-    src/updatecheckresults.h \
     src/doubleclickableqwtplotzoomer.h \
     src/dataexporter/exporter.h \
     src/dataexporter/exporterelems.h \
@@ -372,7 +367,8 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/ediinotfounddialog.h \
     src/gui/selectediipath.h \
     src/cevalconfig.h \
-    src/gui/ediiconnectionfaileddialog.h
+    src/gui/ediiconnectionfaileddialog.h \
+    src/softwareupdateresult.h
 
 ipc_dbus {
     QT += dbus

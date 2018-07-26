@@ -1,13 +1,15 @@
 #include "checkforupdatedialog.h"
 #include "ui_checkforupdatedialog.h"
-#include "../updatecheckresults.h"
 #include "softwareupdatewidget.h"
+#include "../softwareupdateresult.h"
 
 CheckForUpdateDialog::CheckForUpdateDialog(QWidget *parent) :
   QDialog(parent),
   ui(new Ui::CheckForUpdateDialog)
 {
   ui->setupUi(this);
+
+  ui->ql_inProgress->setVisible(false);
 
   connect(ui->qcb_checkOnStartup, &QCheckBox::clicked, this, &CheckForUpdateDialog::onCheckOnStartupClicked);
   connect(ui->qpb_check, &QPushButton::clicked, this, &CheckForUpdateDialog::onCheckNowClicked);
@@ -31,33 +33,15 @@ void CheckForUpdateDialog::onAutoUpdateChanged(const bool enabled)
   ui->qcb_checkOnStartup->setChecked(enabled);
 }
 
-void CheckForUpdateDialog::onCheckComplete(const UpdateCheckResults &results)
+void CheckForUpdateDialog::onCheckComplete(const SoftwareUpdateResult &result)
 {
-  SoftwareUpdateWidget::Result r;
-
-  switch (results.status) {
-  case UpdateCheckResults::Status::FAILED:
-    r = SoftwareUpdateWidget::Result::FAILED;
-    ui->ql_error->setText(results.errorMessage);
-    break;
-  case UpdateCheckResults::Status::UP_TO_DATE:
-    r = SoftwareUpdateWidget::Result::UP_TO_DATE;
-    ui->ql_error->setText("");
-    break;
-  case UpdateCheckResults::Status::UPDATE_AVAILABLE:
-    r = SoftwareUpdateWidget::Result::UPDATE_AVAILABLE;
-    ui->ql_error->setText("");
-    break;
-  default:
-    return;
-  }
-
-  ui->qw_result->setDisplay(r, results.versionTag, results.downloadLink);
+  ui->ql_inProgress->setVisible(false);
+  ui->qw_result->setDisplay(result);
 }
 
 void CheckForUpdateDialog::onCheckNowClicked()
 {
-  ui->ql_error->setText("Checking for updates...");
+  ui->ql_inProgress->setVisible(true);
   emit checkForUpdate();
 }
 
