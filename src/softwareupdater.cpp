@@ -24,7 +24,7 @@ void SoftwareUpdateWorker::process()
   EUPDRetCode ret;
   do {
     ret = updater_check(m_links[linkIdx].toLatin1(), &inSw, &res, 0);
-  } while (EUPD_IS_NETWORK_ERROR(ret) && linkIdx < m_links.size() - 1);
+  } while (EUPD_IS_NETWORK_ERROR(ret) && linkIdx++ < m_links.size() - 1);
 
   if (EUPD_IS_ERROR(ret)) {
     QString err(updater_error_to_str(ret));
