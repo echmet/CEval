@@ -25,7 +25,6 @@ SoftwareUpdateWidget::~SoftwareUpdateWidget()
 
 void SoftwareUpdateWidget::setDisplay(const SoftwareUpdateResult &result)
 {
-  ui->ql_newVersion->setText("");
   ui->ql_link->setText("");
   ui->ql_link->setOpenExternalLinks(false);
   ui->ql_extraInfo->setText("");
@@ -34,19 +33,23 @@ void SoftwareUpdateWidget::setDisplay(const SoftwareUpdateResult &result)
   case SoftwareUpdateResult::State::CHECK_ERROR:
     ui->ql_result->setText(QString(tr("Error occured during update check")));
     ui->ql_extraInfo->setText(result.error);
+    ui->ql_newVersion->setText("(unknown)");
     return;
   case SoftwareUpdateResult::State::NETWORK_ERROR:
     ui->ql_result->setText(QString(tr("Network error occured during update check")));
     ui->ql_extraInfo->setText(result.error);
+    ui->ql_newVersion->setText("(unknown)");
     return;
   case SoftwareUpdateResult::State::NO_DATA:
     ui->ql_result->setText(QString(tr("Update check did not return any data")));
     ui->ql_extraInfo->setText(result.error);
+    ui->ql_newVersion->setText("(unknown)");
     return;
   case SoftwareUpdateResult::State::OK:
-    if (!result.updateAvailable)
+    if (!result.updateAvailable) {
       ui->ql_result->setText(QString(tr("%1 is up to date")).arg(Globals::SOFTWARE_NAME));
-    else {
+      ui->ql_newVersion->setText("(none available)");
+    } else {
       ui->ql_result->setText(QString(tr("Update for %1 is available")).arg(Globals::SOFTWARE_NAME));
       ui->ql_newVersion->setText(QString("%1.%2%3").arg(result.verMajor).arg(result.verMinor).arg(result.revision));
       ui->ql_link->setText(QString("Download new version from:<br /><a href=\"%1\">%1</a>").arg(result.downloadLink.toHtmlEscaped()));
@@ -69,6 +72,7 @@ void SoftwareUpdateWidget::setDisplay(const SoftwareUpdateResult &result)
     return;
   case SoftwareUpdateResult::State::DISABLED:
     ui->ql_result->setText(tr("Updates are disabled in development versions"));
+    ui->ql_newVersion->setText("(unknown)");
     return;
   }
 }
