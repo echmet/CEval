@@ -13,7 +13,7 @@ SoftwareUpdateWidget::SoftwareUpdateWidget(QWidget *parent) :
 
   const QString currentVersionTag = QString("%1.%2%3").arg(Globals::VERSION_MAJ).arg(Globals::VERSION_MIN).arg(Globals::VERSION_REV);
   ui->ql_result->setText(tr("Check was not performed yet"));
-  ui->ql_currentVersion->setText(currentVersionTag);
+  ui->ql_installedVersion->setText(currentVersionTag);
   ui->ql_newVersion->setText("");
   ui->ql_link->setText("");
 }
