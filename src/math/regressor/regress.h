@@ -864,7 +864,7 @@ void RegressFunction<XT, YT>::ACalculateP () {
 
         const msize_t pid = m_pindexes[i];
 
-        #pragma omp parallel for
+        #pragma omp parallel for schedule(dynamic,32)
         for (msize_t k = 0; k < m_x.size(); ++k)
             m_p(i,k) = ACalculateDerivative(m_x[k], m_params, pid, k);
 
