@@ -1529,6 +1529,7 @@ void HyperbolaFittingEngine::onDoStats(const HyperbolaStats::Intervals intr)
     break;
   case HyperbolaStats::Intervals::BOTH:
     twoSided = true;
+    /* FALLTHRU */
   case HyperbolaStats::Intervals::RIGHT:
     tau = TAU_MAX;
     break;

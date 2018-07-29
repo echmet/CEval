@@ -95,6 +95,7 @@ void CommonParametersEngine::onNumModelDataChanged(QModelIndex topLeft, QModelIn
     case CommonParametersItems::Floating::T_EOF:
       if (m_boolData.at(CommonParametersItems::Boolean::NO_EOF))
         continue;
+      /* FALLTHRU */
     case CommonParametersItems::Floating::DETECTOR:
       checkValidity();
       emitParams = true;
