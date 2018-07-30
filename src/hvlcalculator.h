@@ -39,6 +39,7 @@ public:
     double s;
     double s0;
     int iterations;
+    int finalPrecision;
     Failure failure;
 
   private:
@@ -98,6 +99,7 @@ public:
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
     const double epsilon, const int iterations, const int digits,
+    const bool autoDigits,
     const bool showStats
   );
 
@@ -121,7 +123,7 @@ private:
 class HVLCalculatorWorker : public QObject {
   Q_OBJECT
 public:
-  explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper);
+  explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper, const bool autoDigits);
   ~HVLCalculatorWorker();
   const HVLCalculator::HVLParameters & results() const;
 

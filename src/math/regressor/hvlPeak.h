@@ -28,7 +28,7 @@ public:
 
     typedef typename RegressFunction<XT, YT>::MatrixY MatrixY;
 
-    HVLPeak (const HVLLibWrapper *hvlLib = nullptr);
+    HVLPeak (HVLLibWrapper *hvlLib, const bool autoPrecision);
     ~HVLPeak();
 
     bool Initialize (
@@ -37,6 +37,11 @@ public:
          YT eps, unsigned nmax, bool dumping,
          HVLCore::Coefficients c, YT bsl, YT bslSlope
     );
+
+    int FinalPrecision() const
+    {
+      return m_precision;
+    }
 
 protected:
 
@@ -66,11 +71,14 @@ protected:
     virtual bool AAccepted (YT, MatrixY const & params) const override;
 
     virtual void ACalculateP () override;
+    virtual void AValidateParameters(MatrixY &params) override;
     virtual void OnParamsChangedInternal () override;
 
 private:
 
-    const HVLLibWrapper *m_hvlLib;
+    HVLLibWrapper *m_hvlLib;
+    bool m_autoPrecision;
+    int m_precision;
     HVLCore::Coefficients m_c;
     YT m_bsl;
     YT m_bslSlope;
@@ -82,10 +90,12 @@ private:
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline HVLPeak<XT, YT>::HVLPeak(const HVLLibWrapper *hvlLib)
+inline HVLPeak<XT, YT>::HVLPeak(HVLLibWrapper *hvlLib, const bool autoPrecision)
 :
     RegressFunction<XT, YT>(4),
-    m_hvlLib(hvlLib)
+    m_hvlLib(hvlLib),
+    m_autoPrecision(autoPrecision),
+    m_precision(hvlLib->precision())
 {}
 
 //---------------------------------------------------------------------------
@@ -118,7 +128,7 @@ template <typename XT, typename YT>
 HVLPeak<XT, YT> * HVLPeak<XT, YT>::ACreate() const
 {
 
-    return new HVLPeak();
+    return new HVLPeak(m_hvlLib, m_autoPrecision);
 
 }
 
@@ -212,6 +222,22 @@ const {
 }
 
 template <typename XT, typename YT>
+void HVLPeak<XT, YT>::AValidateParameters(MatrixY &params)
+{
+  if (!m_autoPrecision)
+    return;
+
+  const YT a3 = this->GetParam(params, HVLPeakParams::a3);
+  m_precision = echmet::HVLCore::guessMPFRPrecision(a3);
+
+  if (m_precision > 300)
+    m_precision = 300;
+
+  this->m_hvlLib->setPrecision(m_precision);
+}
+
+
+template <typename XT, typename YT>
 void HVLPeak<XT, YT>::OnParamsChangedInternal()
 {
   ACalculateP(); /* Our CalculateP calculates Fx as well */
@@ -237,7 +263,7 @@ void HVLPeak<XT, YT>::ACalculateP()
 
     const HVLLibWrapper::ParameterFlags pflags = MakeParamFlags(this->m_notFixed);
 
-    #pragma omp parallel for
+    #pragma omp parallel for schedule(static)
     for (msize_t k = 0; k < this->m_x.size(); ++k) {
         const HVLLibWrapper::XYPack pack = m_hvlLib->calculateMultiple(pflags,
                                                                        this->m_x[k],

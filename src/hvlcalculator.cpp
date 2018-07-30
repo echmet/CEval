@@ -3,6 +3,7 @@
 #include "helpers.h"
 #include "gui/hvlfitinprogressdialog.h"
 #include "gui/hvlestimateinprogressdialog.h"
+#include "math/hvlestimate.h"
 #include "hvllibwrapper.h"
 #include "math/regressor/hvlPeak.h"
 #include <QMessageBox>
@@ -60,8 +61,8 @@ HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
 {
 }
 
-HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper) :
-  m_regressor(new echmet::regressCore::HVLPeak<double, double>(wrapper)),
+HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper, const bool autoDigits) :
+  m_regressor(new echmet::regressCore::HVLPeak<double, double>(wrapper, autoDigits)),
   m_aborted(false),
   m_params(params)
 {
@@ -154,6 +155,7 @@ void HVLCalculatorWorker::process()
   m_outParams.a2 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
   m_outParams.a3 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a3);
   m_outParams.s = m_regressor->GetS();
+  m_outParams.finalPrecision = m_regressor->FinalPrecision();
   m_outParams.s0 = s0;
   m_outParams.iterations = m_regressor->GetIterationCounter();
   m_outParams.validate();
@@ -190,87 +192,8 @@ HVLEstimatorWorker::~HVLEstimatorWorker()
 
 void HVLEstimatorWorker::process()
 {
-  static const std::function<bool (const double, const double)> comparatorGreater = [](const double current, const double last) { return current + 1.0e-11 > last; };
-  static const std::function<bool (const double, const double)> comparatorLess = [](const double current, const double last) { return current - 1.0e-11 < last; };
-  static const auto calculatePrecision = [](const double t, const double a1, const double a2, const double a3) {
-    const double expArg = -0.5 * std::pow((t - a1) / a2, 2.0);
-    const double gauss = std::abs(exp(expArg) * std::sqrt(2.0 / M_PI) / a2);
+  m_precision = echmet::HVLCore::guessMPFRPrecision(m_params.a3);
 
-    /* Semi-empiric guess based on the dx of the error function plus some safety margin */
-    const int prec = static_cast<int>(std::floor(-std::log10(gauss) - 0.5)) + 15 + static_cast<int>(std::floor(std::exp(0.010 * std::abs(a3)) + 0.5));
-    return (prec > 17) ? prec : 17;
-  };
-
-  const int currentPrecision = m_wrapper->precision();
-
-  try {
-    m_wrapper->setPrecision(225);
-  } catch (HVLLibWrapper::HVLLibException &) {
-    m_precision = -1;
-    emit finished();
-  }
-
-  HVLLibWrapper::Result hvlDx = m_wrapper->calculateRange(HVLLibWrapper::Parameter::DX, m_params.from, m_params.to, m_params.step,
-                                                          m_params.a0, m_params.a1, m_params.a2, m_params.a3);
-  if (hvlDx.count() == 0) {
-    try {
-     m_wrapper->setPrecision(currentPrecision);
-    } catch (HVLLibWrapper::HVLLibException &) {
-      /* There is not much to do here except for avoiding a crash */
-    }
-
-    m_precision = -1;
-    emit finished();
-  }
-
-  std::function<bool (const double, const double)> extremeComparator = (!m_params.negative) ? ((m_params.a3 > 0.0) ? comparatorGreater : comparatorLess) :
-                                                                                     ((m_params.a3 > 0.0) ? comparatorLess : comparatorGreater);
-  auto updateExtreme = [](std::function<bool (const double, const double)> comparator, HVLLibWrapper::Result &r, double &extreme, int &extremeIdx, const int idx, int &postExtremeCtr) {
-    const double value = r[idx].y;
-
-    if (comparator(value, extreme)) {
-      extreme = value;
-      extremeIdx = idx;
-      postExtremeCtr = 0;
-    } else {
-      postExtremeCtr++;
-    }
-  };
-
-  double extremeVal;
-  int extremeIdx;
-  int postExtremeCtr = 0;
-
-  if (m_params.a3 > 0.0) {
-    extremeVal = hvlDx[0].y;
-    extremeIdx = 0;
-
-    for (int idx = 1; idx < hvlDx.count(); idx++) {
-      updateExtreme(extremeComparator, hvlDx, extremeVal, extremeIdx, idx, postExtremeCtr);
-      if (postExtremeCtr >= 5)
-        break;
-    }
-  } else {
-    extremeVal = hvlDx[hvlDx.count() - 1].y;
-    extremeIdx = hvlDx.count() - 1;
-
-    for (int idx = hvlDx.count() - 1; idx >= 0; idx--) {
-      updateExtreme(extremeComparator, hvlDx, extremeVal, extremeIdx, idx, postExtremeCtr);
-      if (postExtremeCtr >= 5)
-        break;
-    }
-  }
-
-  const double extremeT = hvlDx[extremeIdx].x;
-
-  try {
-    m_wrapper->setPrecision(currentPrecision);
-  } catch (HVLLibWrapper::HVLLibException &) {
-    m_precision = -1;
-    emit finished();
-  }
-
-  m_precision = calculatePrecision(extremeT, m_params.a1, m_params.a2, m_params.a3);
   emit finished();
 }
 
@@ -305,7 +228,8 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations, int digits, const bool showStats = false)
+    const double epsilon, const int iterations, int digits, const bool autoDigits,
+    const bool showStats = false)
 {
   Q_ASSERT(s_me != nullptr);
 
@@ -340,7 +264,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   in.iterations = iterations;
   in.toIdx = toIdx;
 
-  HVLCalculatorWorker worker(in, s_me->m_wrapper);
+  HVLCalculatorWorker worker(in, s_me->m_wrapper, autoDigits);
   QThread thread;
   worker.moveToThread(&thread);
   connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
