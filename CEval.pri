@@ -25,7 +25,7 @@ unix|win32: LIBS += -L"$$HVLPATH/lib" -llibhvl_mt -L"$$ECHMETUPDATERPATH/lib" -l
 unix: LIBS += -lpthread
 
 # Development version
-#DEFINES += UNSTABLE_VERSION
+DEFINES += UNSTABLE_VERSION
 
 # Version released publically - if defined,
 # some untested or experimental features will be

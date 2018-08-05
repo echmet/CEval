@@ -34,7 +34,11 @@ QString Globals::DeveloperID::prettyString() const
 
 QIcon Globals::ICON()
 {
+#ifdef Q_OS_WIN
+  static const QPixmap PROGRAM_ICON(":/images/res/CEval_icon.ico");
+#else
   static const QPixmap PROGRAM_ICON(":/images/res/CEval_icon_64.png");
+#endif // Q_OS_WIN
 
   if (PROGRAM_ICON.isNull())
       return {};
