@@ -7,7 +7,7 @@ const QString Globals::ORG_NAME("ECHMET");
 const QString Globals::SOFTWARE_NAME("CEval");
 const int Globals::VERSION_MAJ(0);
 const int Globals::VERSION_MIN(6);
-const QString Globals::VERSION_REV("h2");
+const QString Globals::VERSION_REV("h3");
 
 const QString Globals::CONFIG_FILE_NAME(QString("%1.conf").arg(SOFTWARE_NAME));
 
