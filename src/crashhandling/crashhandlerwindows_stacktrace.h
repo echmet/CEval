@@ -137,7 +137,7 @@ const std::string straceWin::getBacktrace(std::ostringstream &logStream, const D
     StackFrame.AddrStack.Mode   = AddrModeFlat;
 #elif _M_X64
     MachineType                 = IMAGE_FILE_MACHINE_AMD64;
-    StackFrame.AddrPC.Offset    = extcx->Rip;
+    StackFrame.AddrPC.Offset    = exctx->Rip;
     StackFrame.AddrPC.Mode      = AddrModeFlat;
     StackFrame.AddrFrame.Offset = exctx->Rsp;
     StackFrame.AddrFrame.Mode   = AddrModeFlat;
