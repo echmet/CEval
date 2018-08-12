@@ -19,6 +19,7 @@ CEval makes use of the following toolkits:
 - [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [HVL_MT](https://github.com/echmet/HVL_MT)
 - [ECHMET Data Import Infrastructure](https://github.com/echmet/EDII)
+- [ECHMETUpdateCheck](https://github.com/echmet/ECHMETUpdateCheck)
 
 All of the libraries and packages above are hard dependencies. CEval cannot be built or run without them.
 
