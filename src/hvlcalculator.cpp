@@ -335,15 +335,37 @@ QVector<QPointF> HVLCalculator::plot(
     return vec;
   }
 
-  HVLLibWrapper::Result result = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::T, fromX, toX, step, a0, a1, a2, a3);
+  try {
+    HVLLibWrapper::Result result = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::T, fromX, toX, step, a0, a1, a2, a3);
 
-  for (int idx = 0; idx < result.count(); idx++) {
-    const HVLLibWrapper::XY &xy = result[idx];
+    for (int idx = 0; idx < result.count(); idx++) {
+      const HVLLibWrapper::XY &xy = result[idx];
 
-    vec.push_back(QPointF(xy.x, xy.y));
+      vec.push_back(QPointF(xy.x, xy.y));
+    }
+
+    return vec;
+  } catch (const HVLLibWrapper::HVLLibException &ex) {
+    if (ex.isFatal) {
+      QMessageBox mbox(QMessageBox::Critical,
+                       tr("Failed to plot HVL function"),
+                       QString(tr("HVL function you tried to plot represents too sharp of a peak that "
+                                  "the calculation of error function triggered and exception "
+                                  "in the underlying math library.\n\n"
+                                  "Unfortunately, this left %1 in an inconsistent state and it needs to be terminated.\n\n"
+                                  "We are sorry about this but this is not a %1 issue and the best we can do for now "
+                                  "is let you know what happened.")).arg(Globals::SOFTWARE_NAME));
+      mbox.exec();
+      abort();
+    } else {
+      QMessageBox mbox(QMessageBox::Warning,
+                       tr("Failed to plot HVL function"), ex.what());
+
+      mbox.exec();
+
+      return {};
+    }
   }
-
-  return vec;
 }
 
 bool HVLCalculator::initialize()

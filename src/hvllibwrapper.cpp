@@ -1,14 +1,29 @@
 #include "hvllibwrapper.h"
 #include "hvl.h"
 
-HVLLibWrapper::HVLLibException::HVLLibException() :
-  std::exception()
+static
+void throwOnError(const HVL_RetCode tRet)
 {
+  switch (tRet) {
+  case HVL_OK:
+    return;
+  case HVL_E_NO_MEMORY:
+    throw HVLLibWrapper::HVLLibException("Insufficient memory", false);
+  case HVL_E_INVALID_ARG:
+    throw HVLLibWrapper::HVLLibException("Invalid argument", false);
+  case HVL_E_INTERNAL:
+    throw HVLLibWrapper::HVLLibException("Internal HVL_MT error", false);
+  case HVL_E_MPFR_ASSERT:
+    throw HVLLibWrapper::HVLLibException("MPFR assertion failed", true);
+  default:
+    throw HVLLibWrapper::HVLLibException("Unspecified error", false);
+  }
 }
 
-const char * HVLLibWrapper::HVLLibException::what() const noexcept
+HVLLibWrapper::HVLLibException::HVLLibException(const char *what, const bool isFatal) :
+  std::runtime_error(what),
+  isFatal(isFatal)
 {
-  return "Unable to perform HVL calculation";
 }
 
 HVLLibWrapper::XY::XY() :
@@ -92,28 +107,31 @@ HVLLibWrapper::XY HVLLibWrapper::calculate(const Parameter p,
                                            const double x,
                                            const double a0, const double a1, const double a2, const double a3) const
 {
+  HVL_RetCode tRet;
   double result = 0.0;
 
   switch (p) {
   case Parameter::T:
-    result = HVL_t(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_t(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   case Parameter::DX:
-    result = HVL_dx(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_dx(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   case Parameter::DA0:
-    result = HVL_da0(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_da0(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   case Parameter::DA1:
-    result = HVL_da1(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_da1(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   case Parameter::DA2:
-    result = HVL_da2(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_da2(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   case Parameter::DA3:
-    result = HVL_da3(m_hctx, x, a0, a1, a2, a3);
+    tRet = HVL_da3(&result, m_hctx, x, a0, a1, a2, a3);
     break;
   }
+
+  throwOnError(tRet);
 
   return XY(x, result);
 }
@@ -124,33 +142,58 @@ const HVLLibWrapper::XYPack HVLLibWrapper::calculateMultiple(const ParameterFlag
 {
   HVL_Prepared *prep;
   XYPack pack;
+  HVL_RetCode tRet;
 
-  if (HVL_prepare(&prep, m_hctx, x, a0, a1, a2, a3) != HVL_OK)
-    throw HVLLibException();
+  tRet = HVL_prepare(&prep, m_hctx, x, a0, a1, a2, a3);
+  throwOnError(tRet);
 
-  if (params & ParameterFlags::T) {
-    const double t = HVL_t_prepared(prep);
-    pack.setData(Parameter::T, XY(x, t));
-  }
-  if (params & ParameterFlags::DX) {
-    const double dx = HVL_dx_prepared(prep);
-    pack.setData(Parameter::DX, XY(x, dx));
-  }
-  if (params & ParameterFlags::DA0) {
-    const double da0 = HVL_da0_prepared(prep);
-    pack.setData(Parameter::DA0, XY(x, da0));
-  }
-  if (params & ParameterFlags::DA1) {
-    const double da1 = HVL_da1_prepared(prep);
-    pack.setData(Parameter::DA1, XY(x, da1));
-  }
-  if (params & ParameterFlags::DA2) {
-    const double da2 = HVL_da2_prepared(prep);
-    pack.setData(Parameter::DA2, XY(x, da2));
-  }
-  if (params & ParameterFlags::DA3) {
-    const double da3 = HVL_da3_prepared(prep);
-    pack.setData(Parameter::DA3, XY(x, da3));
+  try {
+    if (params & ParameterFlags::T) {
+      double t;
+      tRet = HVL_t_prepared(&t, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::T, XY(x, t));
+    }
+    if (params & ParameterFlags::DX) {
+      double dx;
+      tRet = HVL_dx_prepared(&dx, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::DX, XY(x, dx));
+    }
+    if (params & ParameterFlags::DA0) {
+      double da0;
+      tRet = HVL_da0_prepared(&da0, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::DA0, XY(x, da0));
+    }
+    if (params & ParameterFlags::DA1) {
+      double da1;
+      tRet = HVL_da1_prepared(&da1, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::DA1, XY(x, da1));
+    }
+    if (params & ParameterFlags::DA2) {
+      double da2;
+      tRet = HVL_da2_prepared(&da2, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::DA2, XY(x, da2));
+    }
+    if (params & ParameterFlags::DA3) {
+      double da3;
+      tRet = HVL_da3_prepared(&da3, prep);
+      throwOnError(tRet);
+
+      pack.setData(Parameter::DA3, XY(x, da3));
+    }
+  } catch (const HVLLibException &ex) {
+    HVL_free_prepared(prep);
+
+    throw ex;
   }
 
   HVL_free_prepared(prep);
@@ -163,36 +206,36 @@ HVLLibWrapper::Result HVLLibWrapper::calculateRange(const Parameter p,
                                                     const double a0, const double a1, const double a2, const double a3) const
 {
   HVL_Range *r = nullptr;
+  HVL_RetCode tRet;
 
   switch (p) {
   case Parameter::T:
-    r = HVL_t_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_t_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   case Parameter::DX:
-    r = HVL_dx_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_dx_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   case Parameter::DA0:
-    r = HVL_da0_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_da0_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   case Parameter::DA1:
-    r = HVL_da1_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_da1_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   case Parameter::DA2:
-    r = HVL_da2_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_da2_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   case Parameter::DA3:
-    r = HVL_da3_range(m_hctx, from, to, step, a0, a1, a2, a3);
+    tRet = HVL_da3_range(&r, m_hctx, from, to, step, a0, a1, a2, a3);
     break;
   }
 
-  if (r == nullptr)
-    return Result();
+  throwOnError(tRet);
 
   QList<XY> values;
   for (size_t idx = 0; idx < r->count; idx++) {
-    const HVL_Pair *p = &r->p[idx];
+    const HVL_Pair *pr = &r->p[idx];
 
-    values.append(XY(p->x, p->y));
+    values.append(XY(pr->x, pr->y));
   }
 
   HVL_free_range(r);
@@ -212,8 +255,8 @@ void HVLLibWrapper::setPrecision(const int precision)
   if (precision < 1)
     return;
 
-  if (HVL_make_context(&m_hctx, precision) != HVL_OK)
-    throw HVLLibException();
+  auto tRet = HVL_make_context(&m_hctx, precision);
+    throwOnError(tRet);
 
   m_precision = precision;
 }

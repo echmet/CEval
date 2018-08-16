@@ -8,11 +8,11 @@ struct HVL_Context;
 
 class HVLLibWrapper {
 public:
-  class HVLLibException : public std::exception {
+  class HVLLibException : public std::runtime_error {
   public:
-    explicit HVLLibException();
-    const char * what() const noexcept;
+    HVLLibException(const char *what, const bool isFatal);
 
+    const bool isFatal;
   };
 
   enum class Parameter : size_t {
