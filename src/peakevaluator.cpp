@@ -460,6 +460,8 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
   r.baselineCorrectedPeak = correctForBaseline(p.fromIndex, p.toIndex, r.baselineSlope, r.baselineIntercept, p.data);
   r.peakArea = calculateArea(r.baselineCorrectedPeak);
   calculateVariances(r);
+  r.nAsym = std::pow(r.meanX, 2) / r.varianceMean; /* Requested by Hervé Cottet for separation efficiency evaluations
+                                                      with asymetrical peaks */
 
   r.validate();
 

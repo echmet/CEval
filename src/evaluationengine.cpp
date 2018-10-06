@@ -1616,6 +1616,7 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::SIGMA_APEX] = er.sigmaApex;
   resultsValues[EvaluationResultsItems::Floating::SIGMA_MEAN] = er.sigmaMean;
   resultsValues[EvaluationResultsItems::Floating::MEAN_X] = er.meanX;
+  resultsValues[EvaluationResultsItems::Floating::N_ASYM] = er.nAsym;
 
   return PeakContextModels(resultsValues, hvlResults, hvlFitIntValues, hvlFitBooleanValues, snrValues);
 }

@@ -622,7 +622,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-777</y>
+            <y>-572</y>
             <width>742</width>
             <height>1309</height>
            </rect>
@@ -2173,6 +2173,16 @@ padding-right: 2em;</string>
                    <bool>true</bool>
                   </property>
                  </widget>
+                </item>
+                <item row="2" column="2">
+                 <widget class="QLabel" name="ql_hetpAsym">
+                  <property name="text">
+                   <string>N (asym)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_peakNAsym"/>
                 </item>
                </layout>
               </item>

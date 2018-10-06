@@ -42,6 +42,7 @@ public:
     SIGMA_APEX,
     SIGMA_MEAN,
     MEAN_X,
+    N_ASYM,
     LAST_INDEX
   };
 

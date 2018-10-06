@@ -89,6 +89,7 @@ public:
     double varianceMean;
     double sigmaApex;
     double sigmaMean;
+    double nAsym;
 
     double HVL_width005;
     double HVL_width005Left;
