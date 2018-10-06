@@ -33,7 +33,6 @@ PlotExporter::~PlotExporter()
 
 void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 {
-  QSizeF guessedDimensions;
   ExportPlotToImageDialog::Parameters p = m_exportDlg->parameters();
 
   m_exportDlg->setAspectRatio(plot->size().width() / plot->size().height());
@@ -129,10 +128,10 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     yLeftTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
     yRightTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
     titleFont.setPointSizeF(p.chartTitleFontSize * scalingRatio);
-    exPlot.axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(_xBottomPenWidth);
-    exPlot.axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(_xTopPenWidth);
-    exPlot.axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(_yLeftPenWidth);
-    exPlot.axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(_yRightPenWidth);
+    exPlot.axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(int(_xBottomPenWidth));
+    exPlot.axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(int(_xTopPenWidth));
+    exPlot.axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(int(_yLeftPenWidth));
+    exPlot.axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(int(_yRightPenWidth));
 
     exPlot.setPalette(m_plotPalette);
     exPlot.axisWidget(QwtPlot::xBottom)->setPalette(m_plotPalette);

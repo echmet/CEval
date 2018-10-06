@@ -1239,7 +1239,6 @@ void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, 
   case FindPeakMenuActions::SCALE_PLOT_TO_FIT:
     m_plotCtx->scaleToFit();
     return;
-    break;
   }
 
   if (autoFrom.isValid())
@@ -1798,7 +1797,6 @@ void EvaluationEngine::onConfigureExporterBackend()
       }
     }
   }
-    return;
   }
 }
 
@@ -2440,7 +2438,6 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
   switch (msg) {
   case EvaluationEngineMsgs::Default::FINDER_PARAMETERS:
     return setDefaultFinderParameters();
-    break;
   }
 }
 
@@ -3123,7 +3120,6 @@ void EvaluationEngine::switchWindowUnit(const EvaluationParametersItems::ComboWi
     break;
   default:
     return;
-    break;
   }
 
   m_evaluationFloatingValues[EvaluationParametersItems::Floating::NOISE_WINDOW] = nw;
