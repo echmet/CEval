@@ -32,11 +32,3 @@ DEFINES += UNSTABLE_VERSION
 # some untested or experimental features will be
 # hidden from the user
 DEFINES += CEVAL_PUBLIC_RELEASE
-
-# Any changes below this line release angry dragons!
-
-unix {
-    QMAKE_LFLAGS += -Wl,-rpath-link,"$$HVLPATH/lib"
-    QMAKE_LFLAGS += -Wl,-rpath-link,"$$QWTPATH/lib"
-    QMAKE_LFLAGS += -Wl,-rpath-link,"$$ECHMETUPDATERPATH/lib"
-}
