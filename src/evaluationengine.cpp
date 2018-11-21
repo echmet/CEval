@@ -108,11 +108,12 @@ const QString EvaluationEngine::HVLFITOPTIONS_SHOW_FIT_STATS_TAG("HVLFitOptions-
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DELIMTIER_TAG("ClipboardExporter-Delimiter");
 const QString EvaluationEngine::CLIPBOARDEXPORTER_DATAARRANGEMENT_TAG("ClipboardExporter-DataArrangement");
 
-EvaluationEngine::DataContext::DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path,
+EvaluationEngine::DataContext::DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path, QString id,
                                            const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx) :
   data(data),
   name(name),
   path(path),
+  id(std::move(id)),
   commonContext(commonCtx),
   evaluationContext(evalCtx)
 {
@@ -363,7 +364,7 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
   m_currentPeakIdx = 0;
   m_allPeaks.push_back(StoredPeak("", freshPeakContext()));
-  m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", "", m_commonParamsEngine->currentContext(),
+  m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "", "", "", m_commonParamsEngine->currentContext(),
                                                                       currentEvaluationContext()));
   m_currentDataContextKey = s_emptyCtxKey;
 
@@ -840,9 +841,13 @@ void EvaluationEngine::createContextMenus() noexcept(false)
   m_setNoiseReferenceBaselineMenu->addAction(a);
 }
 
-bool EvaluationEngine::createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name)
+bool EvaluationEngine::createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name, const QString &id)
 {
-  m_plotCtx->setPlotTitle(name);
+  m_plotCtx->setPlotTitle([](const QString &name, const QString &id) {
+    if (id.isEmpty())
+      return name;
+    return QString{"%1 (%2)"}.arg(name, id);
+  }(name, id));
 
   if (data == nullptr) {
     m_plotCtx->clearAllSerieSamples();
@@ -1708,7 +1713,7 @@ void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
   else {
     m_loadedFilesModel.deleteByIdx(idx);
     m_allDataContexts.remove(m_currentDataContextKey);
-    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "",  "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
+    m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "",  "", "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
     m_currentDataContextKey = s_emptyCtxKey;
   }
 
@@ -1857,7 +1862,8 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
   clipboard->setText(out);
 }
 
-void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName)
+void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName,
+                                    QString id)
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
@@ -1908,7 +1914,7 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash,
 
   storeCurrentContext();
 
-  std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, filePath,
+  std::shared_ptr<DataContext> ctx = std::shared_ptr<DataContext>(new DataContext(data, fileName, filePath, std::move(id),
                                                                                   m_commonParamsEngine->currentContext(),
                                                                                   freshEvaluationContext()));
 
@@ -2923,7 +2929,7 @@ bool EvaluationEngine::setEvaluationContext(const EvaluationContext &ctx)
   else
     m_userInteractionState = UserInteractionState::PEAK_POSTPROCESSING;
 
-  return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name);
+  return createSignalPlot(m_currentDataContext->data, m_currentDataContext->name, m_currentDataContext->id);
 }
 
 void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
@@ -3032,6 +3038,7 @@ bool EvaluationEngine::storeCurrentContext()
 
     try {
       std::shared_ptr<DataContext> oldCtx = std::shared_ptr<DataContext>(new DataContext(m_currentDataContext->data, m_currentDataContext->name, m_currentDataContext->path,
+                                                                                         m_currentDataContext->id,
                                                                                          m_commonParamsEngine->currentContext(), currentEvaluationContext()));
       m_allDataContexts[m_currentDataContextKey] = oldCtx;
     } catch (std::bad_alloc&) {

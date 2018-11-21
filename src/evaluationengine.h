@@ -286,12 +286,13 @@ private:
 
   class DataContext {
   public:
-    DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path,
+    DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path, QString id,
                 const CommonParametersEngine::Context &commonCtx, const EvaluationContext &evalCtx);
 
     std::shared_ptr<EFGData> data;
     QString name;
     QString path;
+    QString id;
     CommonParametersEngine::Context commonContext;
     EvaluationContext evaluationContext;
   };
@@ -306,7 +307,7 @@ private:
   void calculateSNRTriggered(const SetNoiseReferenceBaselineActions &action, const QPointF &to);
   void clearPeakPlots();
   void createContextMenus() noexcept(false);
-  bool createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name);
+  bool createSignalPlot(std::shared_ptr<EFGData> &data, const QString &name, const QString &id);
   DataContext currentDataContext() const;
   EvaluationContext currentEvaluationContext() const;
   QVector<bool> defaultHvlBooleanValues() const;
@@ -554,7 +555,7 @@ public slots:
   void onTraverseFiles(const EvaluationEngineMsgs::Traverse dir);
 
 private slots:
-  void onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName);
+  void onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, QString filePath, QString fileName, QString id);
   void onHvlParametersModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onHvlResultsModelChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles);
   void onProvisionalPeakSelected(const QModelIndex index, const QAbstractItemModel *model, const int peakWindow);

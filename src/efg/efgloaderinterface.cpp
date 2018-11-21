@@ -160,7 +160,7 @@ void EFGLoaderInterface::loadData(const QString &formatTag, const int loadOption
 
     for (auto &nd : ndVec) {
       DataHash hash(computeDataHash(nd));
-      emit onDataLoaded(nd.data, hash, nd.path, nd.name);
+      emit onDataLoaded(nd.data, hash, nd.path, nd.name, nd.data->dataId);
     }
   }
 }

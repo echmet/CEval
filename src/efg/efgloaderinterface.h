@@ -106,7 +106,7 @@ private:
   static const QString LAST_FILE_PATHS_SETTINGS_TAG;
 
 signals:
-  void onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, const QString &path, const QString &name);
+  void onDataLoaded(EFGDataSharedPtr data, const DataHash &hash, const QString &path, const QString &name, const QString &id);
   void supportedFileFormatsRetrieved(EFGSupportedFileFormatVec supportedFormats);
 
 public slots:
