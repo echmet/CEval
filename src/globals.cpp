@@ -3,6 +3,7 @@
 #include <QIcon>
 
 const QString Globals::ECHMET_WEB_LINK("http://echmet.natur.cuni.cz");
+const QString Globals::ORG_DOMAIN("echmet.natur.cuni.cz");
 const QString Globals::ORG_NAME("ECHMET");
 const QString Globals::SOFTWARE_NAME("CEval");
 const int Globals::VERSION_MAJ(0);

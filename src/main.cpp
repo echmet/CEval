@@ -173,6 +173,7 @@ int main(int argc, char *argv[])
 
   setOpenMPThreads();
 
+  QCoreApplication::setOrganizationDomain(Globals::ORG_DOMAIN);
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);
   QCoreApplication::setApplicationName(Globals::SOFTWARE_NAME);
   QCoreApplication::setApplicationVersion(Globals::VERSION_STRING());
