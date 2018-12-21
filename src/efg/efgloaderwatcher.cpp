@@ -41,6 +41,13 @@ EFGLoaderWatcher::EFGLoaderWatcher(const QString &inEdiiServicePath, QObject *pa
   m_efgLoader->setWorkingDirectory(ediiServicePath + "/" + s_EFGLoaderPathPrefix + "/");
   m_efgLoader->setArguments({ QString::number(mainProcPid) });
 
+#ifdef Q_OS_LINUX
+  auto env = QProcessEnvironment::systemEnvironment();
+  env.insert("LD_LIBRARY_PATH", ediiServicePath + "/" + s_EFGLoaderPathPrefix + "/plugins/");
+
+  m_efgLoader->setProcessEnvironment(env);
+#endif // Q_OS_LINUX
+
   connect(m_efgLoader, static_cast<void (QProcess:: *)(int, QProcess::ExitStatus)>(&QProcess::finished), this, &EFGLoaderWatcher::onEFGLoaderFinished);
   connect(m_efgLoader, &QProcess::started, this, &EFGLoaderWatcher::onEFGLoaderStarted);
 
