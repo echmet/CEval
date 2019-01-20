@@ -2,6 +2,7 @@
 #include "crashevent.h"
 #include "crasheventcatcher.h"
 #include "crashhandling/crashhandlingprovider.h"
+#include "globals.h"
 #include <fstream>
 #include <sstream>
 #include <cstdio>
@@ -17,6 +18,14 @@
   #include "crashhandling/nullcrashhandler.h"
   #define CrashHandlerPlatform NullCrashHandler
 #endif // Q_OS_
+
+inline
+std::string mkSWStr(const std::string &tail)
+{
+  static const std::string swname = Globals::SOFTWARE_NAME.toStdString();
+
+  return swname + "_" + tail;
+}
 
 class UICrashFinalizer : public CrashHandlerFinalizer<CrashHandlerPlatform>
 {
@@ -52,7 +61,7 @@ public:
 
 UICrashFinalizer * CEvalCrashHandler::s_uiFinalizer(nullptr);
 CrashEventCatcher * CEvalCrashHandler::s_catcher(nullptr);
-const std::string CEvalCrashHandler::s_textCrashDumpFile("CEval_crashDump.txt");
+const std::string CEvalCrashHandler::s_textCrashDumpFile(mkSWStr("crashDump.txt"));
 
 void CEvalCrashHandler::checkForCrash()
 {
@@ -77,7 +86,7 @@ CrashHandlerBase * CEvalCrashHandler::handler()
 
 bool CEvalCrashHandler::installCrashHandler()
 {
-  if (!CrashHandlingProvider<CrashHandlerPlatform>::initialize("CEval_minidump.mdmp"))
+  if (!CrashHandlingProvider<CrashHandlerPlatform>::initialize(mkSWStr("minidump.mdmp")))
     return false;
 
   try {

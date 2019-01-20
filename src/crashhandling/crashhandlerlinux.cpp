@@ -66,7 +66,7 @@ void CrashHandlerLinux::crashHandlerFunc(int signum, siginfo_t *siginfo, void *v
   }
 
   /* Retrigger the signal by hand if it came from a userspace kill() */
-  if (siginfo->si_code < 0 || signum == SIGABRT) {
+  if (siginfo->si_code == SI_USER || signum == SIGABRT) {
     if (retrigger(signum))
       _exit(EXIT_FAILURE);
   }
