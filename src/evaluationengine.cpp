@@ -2449,7 +2449,6 @@ void EvaluationEngine::onSetDefault(EvaluationEngineMsgs::Default msg)
 
 void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
 {
-
   if (!m_allDataContexts.contains(m_currentDataContextKey))
     return;
 
@@ -2460,31 +2459,27 @@ void EvaluationEngine::onTraverseFiles(const EvaluationEngineMsgs::Traverse dir)
   if (!locker.lockForDataModification())
     return;
 
-  DataContextMap::ConstIterator cit = m_allDataContexts.find(m_currentDataContextKey);
+  auto fmIdx = m_loadedFilesModel.indexByHash(m_currentDataContextKey);
 
   switch (dir) {
   case EvaluationEngineMsgs::Traverse::PREVIOUS:
-    if (cit == m_allDataContexts.cbegin())
-      return;
-    cit--;
+    fmIdx--;
     break;
   case EvaluationEngineMsgs::Traverse::NEXT:
-    if (cit + 1 == m_allDataContexts.cend())
-      return;
-    cit++;
+    fmIdx++;
     break;
   }
 
+  if (fmIdx < 0 || fmIdx >= m_loadedFilesModel.rowCount())
+    return;
 
-  switchEvaluationContext(cit.key());
+  auto var = m_loadedFilesModel.data(m_loadedFilesModel.index(fmIdx, 0), Qt::UserRole + 1);
+  auto newKey = var.value<DataHash>();
+  if (m_allDataContexts.find(newKey) == m_allDataContexts.cend())
+    return;
 
-  for (int idx = 0; idx < m_loadedFilesModel.rowCount(); idx++) {
-    const QModelIndex midx = m_loadedFilesModel.index(idx, 0);
-    const DataHash dh(m_loadedFilesModel.data(midx, Qt::UserRole + 1).value<DataHash>());
-
-    if (dh == cit.key())
-      emit evaluationFileSwitched(idx);
-  }
+  switchEvaluationContext(newKey);
+  emit evaluationFileSwitched(fmIdx);
 }
 
 void EvaluationEngine::onUnhighlightProvisionalPeak()
