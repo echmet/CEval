@@ -25,7 +25,7 @@ private:
   QMap<const void *, QMargins> m_layoutMargins;
 
 private slots:
-  void onPrimaryScreenChanged();
+  void onScreenChanged();
   void onVisibilityChanged();
 
 };

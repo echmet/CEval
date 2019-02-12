@@ -17,7 +17,14 @@ CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   resizeCollapseButton(this->size());
 
   connect(m_clExpButton, &CollapseExpandButton::clicked, this, &CollapsibleGroupBox::onVisibilityChanged);
-  connect(qApp, &QGuiApplication::primaryScreenChanged, this, &CollapsibleGroupBox::onPrimaryScreenChanged);
+
+  if (parent != nullptr) {
+    auto w = qobject_cast<QWidget *>(parent);
+    if (w != nullptr) {
+      auto wh = w->windowHandle();
+      connect(wh, &QWindow::screenChanged, this, &CollapsibleGroupBox::onScreenChanged);
+    }
+  }
 }
 
 void CollapsibleGroupBox::collapseLayout(QLayout *layout)
@@ -55,7 +62,7 @@ void CollapsibleGroupBox::expandLayout(QLayout *layout)
   }
 }
 
-void CollapsibleGroupBox::onPrimaryScreenChanged()
+void CollapsibleGroupBox::onScreenChanged()
 {
   resizeCollapseButton(this->size());
 }
