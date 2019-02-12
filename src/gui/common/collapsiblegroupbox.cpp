@@ -6,6 +6,7 @@
 #include <QResizeEvent>
 #include <QScreen>
 #include <QStyle>
+#include <QWindow>
 #include <cmath>
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
@@ -104,7 +105,16 @@ void CollapsibleGroupBox::onVisibilityChanged()
 
 void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
 {
-  const QScreen *scr = QGuiApplication::primaryScreen();
+  const QScreen *scr = [this]() -> QScreen * {
+    auto w = qobject_cast<QWidget *>(this->parent());
+    if (w == nullptr)
+      return nullptr;
+
+    return w->windowHandle()->screen();
+  }();
+  if (scr == nullptr)
+    return;
+
 #ifdef Q_OS_WIN
   qreal baseSize = 15.0;
   int yOffset = 5;
