@@ -14,10 +14,10 @@ public:
   explicit CollapsibleGroupBox(QWidget *parent = nullptr);
 
 protected:
-  void resizeEvent(QResizeEvent *ev);
+  void resizeEvent(QResizeEvent *);
 
 private:
-  void resizeCollapseButton(const QSize &size);
+  void resizeCollapseButton();
   void collapseLayout(QLayout *layout);
   void expandLayout(QLayout *layout);
 

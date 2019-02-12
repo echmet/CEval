@@ -6,25 +6,55 @@
 #include <QResizeEvent>
 #include <QScreen>
 #include <QStyle>
+#include <QTimer>
 #include <QWindow>
 #include <cmath>
+
+inline
+QWindow *findWindowForWidget(const QWidget *widget)
+{
+  for (;;) {
+    QWindow *wh = widget->window()->windowHandle();
+    if (wh != nullptr)
+      return wh;
+
+    widget = qobject_cast<const QWidget *>(widget->parent());
+    if (widget == nullptr)
+      return nullptr;
+  }
+}
+
+inline
+QScreen * findScreenForWidget(const QWidget *widget)
+{
+  for (;;) {
+    QWindow *wh = widget->window()->windowHandle();
+    if (wh != nullptr) {
+      QScreen *scr = wh->screen();
+      if (scr != nullptr)
+        return scr;
+    }
+
+    widget = qobject_cast<const QWidget *>(widget->parent());
+    if (widget == nullptr)
+      return nullptr;
+  }
+}
 
 CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   QGroupBox(parent)
 {
   m_clExpButton = new CollapseExpandButton(this);
 
-  resizeCollapseButton(this->size());
-
   connect(m_clExpButton, &CollapseExpandButton::clicked, this, &CollapsibleGroupBox::onVisibilityChanged);
 
-  if (parent != nullptr) {
-    auto w = qobject_cast<QWidget *>(parent);
-    if (w != nullptr) {
-      auto wh = w->windowHandle();
+  QTimer::singleShot(0, this, [this] {
+    auto wh = findWindowForWidget(this);
+    if (wh != nullptr)
       connect(wh, &QWindow::screenChanged, this, &CollapsibleGroupBox::onScreenChanged);
-    }
-  }
+  });
+
+  QTimer::singleShot(0, this, &CollapsibleGroupBox::resizeCollapseButton);
 }
 
 void CollapsibleGroupBox::collapseLayout(QLayout *layout)
@@ -64,7 +94,7 @@ void CollapsibleGroupBox::expandLayout(QLayout *layout)
 
 void CollapsibleGroupBox::onScreenChanged()
 {
-  resizeCollapseButton(this->size());
+  resizeCollapseButton();
 }
 
 void CollapsibleGroupBox::onVisibilityChanged()
@@ -73,11 +103,12 @@ void CollapsibleGroupBox::onVisibilityChanged()
 
   s = m_clExpButton->state();
 
-  QLayout *master = this->layout();
   QList<QObject *> children = this->children();
 
   switch (s) {
   case CollapseExpandButton::State::COLLAPSED:
+    m_layoutMargins.clear();
+
     for (QObject *o : children) {
       QWidget *w = qobject_cast<QWidget *>(o);
       if (w != nullptr) {
@@ -87,10 +118,9 @@ void CollapsibleGroupBox::onVisibilityChanged()
         continue;
       }
 
-      if (o == master && master != nullptr) {
-        m_layoutMargins.clear();
-        collapseLayout(master);
-      }
+      QLayout *l = qobject_cast<QLayout *>(o);
+      if (l != nullptr)
+        collapseLayout(l);
     }
     break;
   case CollapseExpandButton::State::EXPANDED:
@@ -102,25 +132,23 @@ void CollapsibleGroupBox::onVisibilityChanged()
         continue;
       }
 
-      if (o == master && master != nullptr)
-        expandLayout(master);
+      QLayout *l = qobject_cast<QLayout *>(o);
+      if (l != nullptr)
+        expandLayout(l);
 
     }
     break;
   }
 }
 
-void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
+void CollapsibleGroupBox::resizeCollapseButton()
 {
-  const QScreen *scr = [this]() -> QScreen * {
-    auto w = qobject_cast<QWidget *>(this->parent());
-    if (w == nullptr)
-      return nullptr;
+  const QScreen *scr = findScreenForWidget(this);
 
-    return w->windowHandle()->screen();
-  }();
   if (scr == nullptr)
     return;
+
+  const auto &size = this->size();
 
 #ifdef Q_OS_WIN
   qreal baseSize = 15.0;
@@ -142,7 +170,7 @@ void CollapsibleGroupBox::resizeCollapseButton(const QSize &size)
   m_clExpButton->setGeometry(size.width() - btnSize, yOffset, btnSize, btnSize);
 }
 
-void CollapsibleGroupBox::resizeEvent(QResizeEvent *ev)
+void CollapsibleGroupBox::resizeEvent(QResizeEvent *)
 {
-  resizeCollapseButton(ev->size());
+  resizeCollapseButton();
 }
