@@ -61,6 +61,7 @@ public:
     double peakHeightBaseline;
 
     double peakArea;
+    double correctedPeakArea;
     QVector<QPointF> baselineCorrectedPeak;
 
     double widthHalfLeft;

@@ -406,6 +406,7 @@ void EvaluationWidget::setEvaluationResultsModel(AbstractMapperModel<double, Eva
   m_evaluationResultsMapper->addMapping(ui->qle_vPeakEff, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_VELOCITY_EFF));
   m_evaluationResultsMapper->addMapping(ui->qle_uPeak, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_MOBILITY_EFF));
   m_evaluationResultsMapper->addMapping(ui->qle_areaPeak, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_AREA));
+  m_evaluationResultsMapper->addMapping(ui->qle_correctedArea, model->indexFromItem(EvaluationResultsItems::Floating::PEAK_CORRECTED_AREA));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfLeft, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_LEFT));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfRight, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_RIGHT));
   m_evaluationResultsMapper->addMapping(ui->qle_peakWidthHalfFull, model->indexFromItem(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL));

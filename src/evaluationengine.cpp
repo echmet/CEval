@@ -1615,6 +1615,7 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
   resultsValues[EvaluationResultsItems::Floating::PEAK_HEIGHT] = er.peakHeight;
   resultsValues[EvaluationResultsItems::Floating::PEAK_HEIGHT_BL] = er.peakHeightBaseline;
   resultsValues[EvaluationResultsItems::Floating::PEAK_AREA] = er.peakArea;
+  resultsValues[EvaluationResultsItems::Floating::PEAK_CORRECTED_AREA] = er.correctedPeakArea;
   resultsValues[EvaluationResultsItems::Floating::VARIANCE_APEX] = er.varianceApex;
   resultsValues[EvaluationResultsItems::Floating::VARIANCE_MEAN] = er.varianceMean;
   resultsValues[EvaluationResultsItems::Floating::SIGMA_APEX] = er.sigmaApex;

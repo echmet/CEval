@@ -23,7 +23,7 @@ QVector<QPointF> correctForBaseline(const int fromIdx, const int toIdx,
   return blCorrected;
 }
 
-double calculateArea(const QVector<QPointF> &data)
+double calculateArea(const QVector<QPointF> &data, const bool correctForX)
 {
   double peakArea = 0.0;
 
@@ -33,7 +33,14 @@ double calculateArea(const QVector<QPointF> &data)
     const double xR = data.at(idx).x();
     const double yR = data.at(idx).y();
 
-    peakArea += ((yL + yR) / 2.0) * (xR - xL);
+    double slice =  ((yL + yR) / 2.0) * (xR - xL);
+    if (correctForX) {
+      double xAvg = (xR + xR) / 2.0;
+      if (xAvg <= 0.0)
+        return std::numeric_limits<double>::quiet_NaN();
+      slice /= xAvg;
+    }
+    peakArea += slice;
   }
 
   return peakArea;
@@ -159,7 +166,7 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
       throw std::runtime_error("Cannot find extrapolated peak boundaries");
 
     const QVector<QPointF> blCorrected = correctForBaseline(fromIdx, toIdx, blK, blQ, data);
-    return calculateArea(blCorrected);
+    return calculateArea(blCorrected, false);
   };
 
   Results r = ir;
@@ -458,7 +465,8 @@ PeakEvaluator::Results PeakEvaluator::evaluate(const PeakEvaluator::Parameters &
     r.vP_Eff /= 1.0e-3;
 
   r.baselineCorrectedPeak = correctForBaseline(p.fromIndex, p.toIndex, r.baselineSlope, r.baselineIntercept, p.data);
-  r.peakArea = calculateArea(r.baselineCorrectedPeak);
+  r.peakArea = calculateArea(r.baselineCorrectedPeak, false);
+  r.correctedPeakArea = calculateArea(r.baselineCorrectedPeak, true);
   calculateVariances(r);
   r.nAsym = std::pow(r.meanX, 2) / r.varianceMean; /* Requested by Hervé Cottet for separation efficiency evaluations
                                                       with asymetrical peaks */
