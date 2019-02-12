@@ -622,7 +622,7 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-572</y>
+            <y>0</y>
             <width>742</width>
             <height>1309</height>
            </rect>
@@ -805,15 +805,15 @@
               </item>
               <item>
                <layout class="QGridLayout" name="gridLayout_4">
-                <item row="2" column="2">
-                 <widget class="QLabel" name="ql_vPeakRel">
+                <item row="2" column="4">
+                 <widget class="QLabel" name="ql_uPeak">
                   <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;u&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_vPeak">
+                <item row="0" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_peakFromYRes">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -834,6 +834,13 @@
                   </property>
                   <property name="readOnly">
                    <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="0">
+                 <widget class="QLabel" name="ql_areaPeak">
+                  <property name="text">
+                   <string>Area (Units.min)</string>
                   </property>
                  </widget>
                 </item>
@@ -862,70 +869,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="2" column="4">
-                 <widget class="QLabel" name="ql_uPeak">
-                  <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;u&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="FloatingValueLineEdit" name="qle_vPeakEff">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QLabel" name="ql_vPeak">
-                  <property name="text">
-                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="0">
                  <widget class="QLabel" name="ql_peakFromX_2">
                   <property name="text">
                    <string>Peak from X</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QLabel" name="ql_peakFromY_2">
-                  <property name="text">
-                   <string>Peak from Y</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QLabel" name="ql_peakToX_2">
-                  <property name="text">
-                   <string>Peak to X</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QLabel" name="ql_peakToY_2">
-                  <property name="text">
-                   <string>Peak to Y</string>
                   </property>
                  </widget>
                 </item>
@@ -936,40 +883,8 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="4">
-                 <widget class="QLabel" name="ql_peakHeight_2">
-                  <property name="text">
-                   <string>Peak height</string>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="1">
                  <widget class="FloatingValueLineEdit" name="qle_peakFromXRes">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="FloatingValueLineEdit" name="qle_peakFromYRes">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1018,8 +933,72 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="1">
-                 <widget class="FloatingValueLineEdit" name="qle_peakToXRes">
+                <item row="3" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_hvlTUSP">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="3">
+                 <widget class="FloatingValueLineEdit" name="qle_vPeakEff">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QLabel" name="ql_peakToY_2">
+                  <property name="text">
+                   <string>Peak to Y</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="0">
+                 <widget class="QLabel" name="ql_vPeak">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="2" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_vPeak">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1068,35 +1047,17 @@
                   </property>
                  </widget>
                 </item>
-                <item row="1" column="5">
-                 <widget class="FloatingValueLineEdit" name="qle_peakHeightRes">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="focusPolicy">
-                   <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="readOnly">
-                   <bool>true</bool>
+                <item row="2" column="2">
+                 <widget class="QLabel" name="ql_vPeakRel">
+                  <property name="text">
+                   <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;v&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-3&lt;/span&gt; m/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="ql_areaPeak">
+                <item row="3" column="2">
+                 <widget class="QLabel" name="ql_hvlTUSP">
                   <property name="text">
-                   <string>Area (Units.min)</string>
+                   <string>t USP</string>
                   </property>
                  </widget>
                 </item>
@@ -1122,15 +1083,22 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <widget class="QLabel" name="ql_hvlTUSP">
+                <item row="0" column="2">
+                 <widget class="QLabel" name="ql_peakFromY_2">
                   <property name="text">
-                   <string>t USP</string>
+                   <string>Peak from Y</string>
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="3">
-                 <widget class="FloatingValueLineEdit" name="qle_hvlTUSP">
+                <item row="1" column="4">
+                 <widget class="QLabel" name="ql_peakHeight_2">
+                  <property name="text">
+                   <string>Peak height</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="1">
+                 <widget class="FloatingValueLineEdit" name="qle_peakToXRes">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -1149,6 +1117,52 @@
                   <property name="alignment">
                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                   </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="5">
+                 <widget class="FloatingValueLineEdit" name="qle_peakHeightRes">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>25</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="focusPolicy">
+                   <enum>Qt::ClickFocus</enum>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                  </property>
+                  <property name="readOnly">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="ql_peakToX_2">
+                  <property name="text">
+                   <string>Peak to X</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="4">
+                 <widget class="QLabel" name="ql_correctedArea">
+                  <property name="text">
+                   <string>Corr. area (Units)</string>
+                  </property>
+                 </widget>
+                </item>
+                <item row="3" column="5">
+                 <widget class="FloatingValueLineEdit" name="qle_correctedArea">
                   <property name="readOnly">
                    <bool>true</bool>
                   </property>
