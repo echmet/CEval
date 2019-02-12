@@ -8,6 +8,7 @@
 #include <QStyle>
 #include <QTimer>
 #include <QWindow>
+#include <cassert>
 #include <cmath>
 
 inline
