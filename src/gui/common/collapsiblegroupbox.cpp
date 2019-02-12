@@ -57,39 +57,64 @@ CollapsibleGroupBox::CollapsibleGroupBox(QWidget *parent) :
   QTimer::singleShot(0, this, &CollapsibleGroupBox::resizeCollapseButton);
 }
 
-void CollapsibleGroupBox::collapseLayout(QLayout *layout)
+void CollapsibleGroupBox::collapseLayout(QLayout *lay)
 {
-  for (QObject *o : layout->children()) {
-    QLayout *l= qobject_cast<QLayout *>(o);
+  assert(!m_layoutMargins.contains(lay));
 
-    if (l == nullptr)
-      continue;
+  const int cnt = lay->count();
+  for (int idx = 0; idx < cnt; idx++) {
+    auto lit = lay->itemAt(idx);
 
-    collapseLayout(l);
+    if (lit->widget()) {
+      auto w = lit->widget();
+      if (w != m_clExpButton)
+        w->setVisible(false);
+    }
+    else if (lit->spacerItem())
+      collapseSpacer(lit->spacerItem());
+    else if (lit->layout())
+      collapseLayout(lit->layout());
   }
-  if (m_layoutMargins.contains(layout))
-    return;
 
-  QMargins m = layout->contentsMargins();
-  m_layoutMargins[layout] = m;
-  layout->setContentsMargins(0, 0, 0, 0);
+  m_layoutMargins[lay] = lay->contentsMargins();
+  lay->setContentsMargins(0, 0, 0, 0);
 }
 
-void CollapsibleGroupBox::expandLayout(QLayout *layout)
+void CollapsibleGroupBox::collapseSpacer(QSpacerItem *spacer)
 {
-  for (QObject *o : layout->children()) {
-    QLayout *l = qobject_cast<QLayout *>(o);
+  assert(!m_spacerSizes.contains(spacer));
 
-    if (l == nullptr)
-      continue;
+  m_spacerSizes[spacer] = {spacer->sizeHint(), spacer->sizePolicy()};
+  spacer->changeSize(0, 0);
+}
 
-    if (m_layoutMargins.contains(l))
-      expandLayout(l);
+void CollapsibleGroupBox::expandLayout(QLayout *lay)
+{
+  assert(m_layoutMargins.contains(lay));
+
+  const int cnt = lay->count();
+  for (int idx = 0; idx < cnt; idx++) {
+    auto lit = lay->itemAt(idx);
+
+    if (lit->widget())
+      lit->widget()->setVisible(true);
+    else if (lit->spacerItem())
+      expandSpacer(lit->spacerItem());
+    else if (lit->layout())
+      expandLayout(lit->layout());
   }
-  if (m_layoutMargins.contains(layout)) {
-    QMargins m = m_layoutMargins[layout];
-    layout->setContentsMargins(m);
-  }
+
+  lay->setContentsMargins(m_layoutMargins[lay]);
+}
+
+void CollapsibleGroupBox::expandSpacer(QSpacerItem *spacer)
+{
+  assert(m_spacerSizes.contains(spacer));
+
+  const auto &sz = m_spacerSizes[spacer].first;
+  const auto &pol = m_spacerSizes[spacer].second;
+
+  spacer->changeSize(sz.width(), sz.height(), pol.horizontalPolicy(), pol.verticalPolicy());
 }
 
 void CollapsibleGroupBox::onScreenChanged()
@@ -99,44 +124,19 @@ void CollapsibleGroupBox::onScreenChanged()
 
 void CollapsibleGroupBox::onVisibilityChanged()
 {
-  CollapseExpandButton::State s;
+  assert(this->layout() != nullptr);
 
-  s = m_clExpButton->state();
-
-  QList<QObject *> children = this->children();
+  CollapseExpandButton::State s = m_clExpButton->state();
 
   switch (s) {
   case CollapseExpandButton::State::COLLAPSED:
     m_layoutMargins.clear();
+    m_spacerSizes.clear();
 
-    for (QObject *o : children) {
-      QWidget *w = qobject_cast<QWidget *>(o);
-      if (w != nullptr) {
-        if (w != m_clExpButton)
-          w->setVisible(false);
-
-        continue;
-      }
-
-      QLayout *l = qobject_cast<QLayout *>(o);
-      if (l != nullptr)
-        collapseLayout(l);
-    }
+    collapseLayout(this->layout());
     break;
   case CollapseExpandButton::State::EXPANDED:
-    for (QObject *o : children) {
-      QWidget *w = qobject_cast<QWidget *>(o);
-      if (w != nullptr) {
-        w->setVisible(true);
-
-        continue;
-      }
-
-      QLayout *l = qobject_cast<QLayout *>(o);
-      if (l != nullptr)
-        expandLayout(l);
-
-    }
+    expandLayout(this->layout());
     break;
   }
 }
