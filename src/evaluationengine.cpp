@@ -1394,6 +1394,22 @@ bool EvaluationEngine::isContextValid() const
   return (m_currentDataContextKey == s_emptyCtxKey) ? false : true;
 }
 
+bool EvaluationEngine::isXAscending(const QVector<QPointF> &data) const
+{
+  if (data.count() < 1)
+    return true;
+
+  auto lastX = data.first().x();
+  for (int idx = 1; idx < data.count(); idx++) {
+    const auto x = data[idx].x();
+    if (x <= lastX)
+      return false;
+    lastX = x;
+  }
+
+  return true;
+}
+
 QAbstractItemModel *EvaluationEngine::loadedFilesModel()
 {
   return &m_loadedFilesModel;
@@ -1868,6 +1884,12 @@ void EvaluationEngine::onDataLoaded(EFGDataSharedPtr data, const DataHash &hash,
 {
   if (m_exportOnFileLeftEnabled)
     onExportScheme();
+
+  if (!isXAscending(data->data)) {
+    QMessageBox mbox{QMessageBox::Warning, tr("Invalid data"), tr("X values of data must be ascending")};
+    mbox.exec();
+    return;
+  }
 
   DataAccessLocker locker(&this->m_dataLockState);
   if (!locker.lockForDataModification())

@@ -340,6 +340,7 @@ private:
   bool initDataExporter();
   bool isContextAccessible(DataAccessLocker &locker);
   bool isContextValid() const;
+  bool isXAscending(const QVector<QPointF> &data) const;
   QVector<EvaluatedPeaksModel::EvaluatedPeak> makeEvaluatedPeaks();
   PeakEvaluator::Parameters makeEvaluatorParameters(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr);
   AssistedPeakFinder::Parameters makeFinderParameters();
