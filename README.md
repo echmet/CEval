@@ -10,7 +10,7 @@ In ACE mode CEval can assist with evaluation of electrophoretic mobilities and c
 
 CEval binaries and a user guide can be downloaded from the [ECHMET research group website](https://echmet.natur.cuni.cz/ceval).
 
-In case the primary ECHMET group site is down you may download PeakMaster binaries from a [backup site](https://devoid-pointer.net/echmet_fallback)
+In case the primary ECHMET group site is down you may download CEval binaries from a [backup site](https://devoid-pointer.net/echmet_fallback)
 
 Dependencies
 ---
