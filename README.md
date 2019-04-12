@@ -8,6 +8,10 @@ CEval (Capillary Electrophoresis Evaluator) is a multiplatform open-source tool 
 
 In ACE mode CEval can assist with evaluation of electrophoretic mobilities and complexation constants of analytes with selectors by the means of nonlinear regression. Statistical evaluation of calculated results is also provided in graphical form.
 
+CEval binaries and a user guide can be downloaded from the [ECHMET research group website](https://echmet.natur.cuni.cz/ceval).
+
+In case the primary ECHMET group site is down you may download PeakMaster binaries from a [backup site](https://devoid-pointer.net/echmet_fallback)
+
 Dependencies
 ---
 
@@ -67,12 +71,6 @@ prior to making any changes to the `CEval.pri` file. This will make git exclude 
   If the `Qwt`, `libHPCS` and `libhvl_mt` libraries were built to be linked dynamically (the default), it is necessary to make the libraries (usually named **qwt.so, qwt.dll, qwt.dylib**; **libHPCS.so, libHPCS.dll, libHPCS.dylib** and **libhvl_mt.so, libhvl_mt.dll, libhvl_mt.dylib**) available to the operating system's dynamic linker. This can be achieved by various ways. The libraries can be copied to a directory where the linker is set up to look (i.e. **/usr/lib, C:\Windows\system32**) or to the directory which contains the CEval binary. On Linux systems the **LD_LIBRARY_PATH** environment variable can be adjusted to include paths to the necessary libraries, Windows users may adjust the **PATH** variable in the same manner.
 
 As CEval cannot function without the EDII service it prompts the user for a path to EDII service binary when the path is either not set or seems invalid. CEval will attempt to start the EDII service only when the service is not already running.
-
-Pre-built binaries
----
-Pre-built binaries for commonly used platforms can be downloaded from the link below. Please note that the binaries may be considerably out of date.
-
-[ECHMET website](https://echmet.natur.cuni.cz/software/download#ceval)
 
 Usage
 ---
