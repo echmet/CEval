@@ -1,7 +1,7 @@
 #include "addpeakdialog.h"
 #include "ui_addpeakdialog.h"
 #include "../doubletostringconvertor.h"
-#include <cmath>
+#include <QCompleter>
 
 AddPeakDialog::Answer::Answer(const bool registerInHF, const QString &name, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom) :
   registerInHF(registerInHF),
@@ -19,6 +19,7 @@ AddPeakDialog::AddPeakDialog(QWidget *parent) :
   ui->groupBox->layout()->addWidget(m_registerInHFWidget);
 
   ui->qcbox_analyte->setModel(&m_analytesModel);
+  ui->qcbox_analyte->completer()->setCaseSensitivity(Qt::CaseSensitive);
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &AddPeakDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &AddPeakDialog::onOkClicked);
