@@ -23,7 +23,7 @@
 
 const std::array<int, 6> CrashHandlerLinux::m_handledSignals = {{ SIGSEGV, SIGABRT, SIGFPE, SIGILL, SIGBUS, SIGTRAP }};
 
-CrashHandlerLinux::CrashHandlerLinux(const std::__cxx11::string &miniDumpPath) :
+CrashHandlerLinux::CrashHandlerLinux(const std::string &miniDumpPath) :
   CrashHandlerBase(miniDumpPath),
   m_installed(false),
   m_mainThreadId(syscall(__NR_gettid))
