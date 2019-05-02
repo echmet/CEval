@@ -21,5 +21,6 @@ void CommonParametersWidgetConnector::connectAll(QObject *anonWidget, QObject *a
   QObject::connect(ce, &CommonParametersEngine::validityState, w, &CommonParametersWidget::onValidityState);
   QObject::connect(w, &CommonParametersWidget::readEof, e, &EvaluationEngine::onReadEof);
   QObject::connect(ce, &CommonParametersEngine::noEofStateChanged, e, &EvaluationEngine::onNoEofStateChanged);
+  QObject::connect(w, &CommonParametersWidget::eofSourceChanged, ce, &CommonParametersEngine::onEofSourceChanged);
 }
 

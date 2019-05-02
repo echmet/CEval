@@ -57,6 +57,11 @@ CommonParametersEngine::Context CommonParametersEngine::currentContext() const
   return CommonParametersEngine::Context(m_numData, m_boolData);
 }
 
+CommonParametersItems::EOFSource CommonParametersEngine::eofSource() const
+{
+  return m_eofSource;
+}
+
 AbstractMapperModel<double, CommonParametersItems::Floating> *CommonParametersEngine::numModel()
 {
   return &m_numModel;
@@ -72,6 +77,11 @@ void CommonParametersEngine::onBoolModelDataChanged()
   checkValidity();
   emit noEofStateChanged(m_boolData.at(CommonParametersItems::Boolean::NO_EOF));
   emit parametersUpdated();
+}
+
+void CommonParametersEngine::onEofSourceChanged(const CommonParametersItems::EOFSource source)
+{
+  m_eofSource = source;
 }
 
 void CommonParametersEngine::onNumModelDataChanged(QModelIndex topLeft, QModelIndex bottomRight, QVector<int> roles)

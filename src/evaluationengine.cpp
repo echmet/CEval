@@ -24,6 +24,7 @@
 #include <QMenu>
 #include <QMessageBox>
 #include <QTextStream>
+#include <cassert>
 
 const QVector<bool> EvaluationEngine::s_defaultEvaluationAutoValues({true, /* SLOPE_WINDOW */
                                                                      true, /* NOISE */
@@ -2354,7 +2355,18 @@ void EvaluationEngine::onReadEof()
   if (m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF))
     return;
 
-  double tEOF = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
+  double tEOF = [this]() {
+    auto src = m_commonParamsEngine->eofSource();
+    switch (src) {
+    case CommonParametersItems::EOFSource::MAXIMUM:
+      return m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X);
+    case CommonParametersItems::EOFSource::HVL_A1:
+      return m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
+    }
+
+    assert(false);
+  }();
+
   emit updateTEof(tEOF);
 }
 

@@ -26,6 +26,12 @@ public:
   };
   Q_ENUM(Boolean)
 
+  enum class EOFSource : int {
+      MAXIMUM,
+      HVL_A1
+  };
+  Q_ENUM(EOFSource)
+
 };
 
 #endif // COMMONPARAMETERSITEMS_H

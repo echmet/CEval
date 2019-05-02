@@ -35,9 +35,11 @@ private:
   QPalette m_invalidPalette;
 
 signals:
+  void eofSourceChanged(const CommonParametersItems::EOFSource source);
   void readEof();
 
 private slots:
+  void onEofSourceChanged();
   void onNoEofClicked();
   void onReadEofClicked();
 

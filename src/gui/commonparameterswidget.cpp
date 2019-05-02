@@ -2,6 +2,7 @@
 #include "ui_commonparameterswidget.h"
 #include "../commonparametersitems.h"
 #include "../commonparameterswidgetconnector.h"
+#include <cassert>
 
 CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
   QWidget(parent),
@@ -15,8 +16,16 @@ CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
   m_invalidPalette = this->palette();
   m_invalidPalette.setColor(QPalette::WindowText, Qt::red);
 
+  ui->qcbox_eofSource->addItem(tr("EOF from tMax"),
+                                  QVariant::fromValue<CommonParametersItems::EOFSource>(CommonParametersItems::EOFSource::MAXIMUM));
+  ui->qcbox_eofSource->addItem(tr("EOF from HVL a1"),
+                                  QVariant::fromValue<CommonParametersItems::EOFSource>(CommonParametersItems::EOFSource::HVL_A1));
+
   connect(ui->qpb_readEof, &QPushButton::clicked, this, &CommonParametersWidget::onReadEofClicked);
   connect(ui->qcb_noEof, &QMappedCheckBox::stateChanged, this, &CommonParametersWidget::onNoEofClicked);
+
+  connect(ui->qcbox_eofSource, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
+          this, &CommonParametersWidget::onEofSourceChanged);
 }
 
 CommonParametersWidget::~CommonParametersWidget()
@@ -27,6 +36,8 @@ CommonParametersWidget::~CommonParametersWidget()
 void CommonParametersWidget::connectToAccumulator(QObject *dac)
 {
   CommonParametersWidgetConnector::connectAll(this, dac);
+
+  onEofSourceChanged();
 }
 
 void CommonParametersWidget::markAsInvalid(QWidget *w, const bool invalid)
@@ -35,6 +46,14 @@ void CommonParametersWidget::markAsInvalid(QWidget *w, const bool invalid)
     w->setPalette(m_invalidPalette);
   else
     w->setPalette(QPalette());
+}
+
+void CommonParametersWidget::onEofSourceChanged()
+{
+  auto v = ui->qcbox_eofSource->currentData();
+  assert(v.canConvert<CommonParametersItems::EOFSource>());
+
+  emit eofSourceChanged(v.value<CommonParametersItems::EOFSource>());
 }
 
 void CommonParametersWidget::onNoEofClicked()

@@ -29,6 +29,7 @@ public:
   AbstractMapperModel<bool, CommonParametersItems::Boolean> *boolModel();
   bool boolValue(const CommonParametersItems::Boolean item) const;
   Context currentContext() const;
+  CommonParametersItems::EOFSource eofSource() const;
   AbstractMapperModel<double, CommonParametersItems::Floating> *numModel();
   double numValue(const CommonParametersItems::Floating item) const;
   void revalidate() const;
@@ -39,6 +40,7 @@ private:
   BooleanMapperModel<CommonParametersItems::Boolean> m_boolModel;
   MappedVectorWrapper<double, CommonParametersItems::Floating> m_numData;
   MappedVectorWrapper<bool, CommonParametersItems::Boolean> m_boolData;
+  CommonParametersItems::EOFSource m_eofSource;
 
   void checkValidity() const;
   bool recalculate();
@@ -49,7 +51,8 @@ signals:
   void validityState(const bool state, const CommonParametersItems::Floating item) const;
 
 public slots:
-    void onUpdateTEof(const double t);
+  void onUpdateTEof(const double t);
+  void onEofSourceChanged(const CommonParametersItems::EOFSource source);
 
 private slots:
   void onBoolModelDataChanged();
