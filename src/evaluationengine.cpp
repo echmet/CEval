@@ -2354,7 +2354,7 @@ void EvaluationEngine::onReadEof()
   if (m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF))
     return;
 
-  double tEOF = m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_X);
+  double tEOF = m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_A1);
   emit updateTEof(tEOF);
 }
 
