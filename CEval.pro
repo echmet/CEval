@@ -436,7 +436,10 @@ include($$PWD/CEval.pri)
 RESOURCES += \
     cevalres.qrc
 
-RC_FILE = CEval.rc
+win32 {
+    RC_FILE = CEval.rc
+    CONFIG += embed_manifest_exe
+}
 
 flatpak_build {
     DEFINES += CEVAL_FLATPAK_BUILD
