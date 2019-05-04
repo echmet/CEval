@@ -1120,6 +1120,8 @@ void EvaluationEngine::findPeakAssisted()
     break;
   case UserInteractionState::NOISE_REFERENCE_BL_SETTING:
     break;
+  case UserInteractionState::MANUAL_PEAK_INTEGRATION_FINISHING:
+    assert(false); /* This value cannot appear here during normal operation */
   }
 
   if (m_currentDataContext->data->data.length() == 0)
@@ -2300,6 +2302,8 @@ void EvaluationEngine::onPlotPointSelected(const QPointF &point, const QPoint &c
 
     calculateSNRTriggered(trig->data().value<SetNoiseReferenceBaselineActions>(), point);
     break;
+  case UserInteractionState::MANUAL_PEAK_INTEGRATION_FINISHING:
+    assert(false); /* This value cannot appear here during normal operation */
   }
 }
 
