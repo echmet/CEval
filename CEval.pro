@@ -455,7 +455,7 @@ clang {
     COMPILER_VERSION_LIST = $$split(COMPILER_VERSION_PART, .)
     COMPILER_VERSION_MAJOR = $$first(COMPILER_VERSION_LIST)
 
-    greaterThan(COMPILER_VERSION_MAJOR, 7) {
+    greaterThan(COMPILER_VERSION_MAJOR, 8) {
         CONFIG += use_lto
     }
 }
@@ -465,8 +465,8 @@ use_lto {
     QMAKE_CXXFLAGS += -flto
 
     clang {
-        CONFIG(debug, debug|release): QMAKE_CXXFLAGS = -O0
-        CONFIG(release, debug|release): QMAKE_CXXFLAGS = -O3
+        CONFIG(debug, debug|release): QMAKE_CXXFLAGS += -O0
+        CONFIG(release, debug|release): QMAKE_CXXFLAGS += -O3
 
         QMAKE_LFLAGS += -fuse-ld=gold
     }
