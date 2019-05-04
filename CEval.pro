@@ -425,9 +425,8 @@ include($$PWD/CEval.pri)
 !win32-msvc2015 {
     QMAKE_CXXFLAGS += "-Wall -Wextra -pedantic -isystem \"$$BOOSTPATH\" -isystem \"$$EIGENPATH\" -isystem \"$$QWTPATH/include\""
 } else {
-    QMAKE_LFLAGS_RELEASE += /MAP
-    QMAKE_CFLAGS_RELEASE += /Zi
-    QMAKE_LFLAGS_RELEASE += /debug /opt:ref
+    QMAKE_CXXFLAGS_RELEASE += /Zi /GL
+    QMAKE_LFLAGS_RELEASE += /MAP /LTCG /debug /opt:ref
     QMAKE_CXXFLAGS += /openmp
 
     INCLUDEPATH += $$BOOSTPATH
