@@ -50,6 +50,12 @@ xsimd {
     QMAKE_CXXFLAGS += "-mmmx -msse -msse2"
 }
 
+contains(QT_ARCH, i386) {
+    CONFIG += win32_i386
+} else {
+    CONFIG += win32_x86_64
+}
+
 CONFIG(release, debug|release) {
     DEFINES += USE_CRASHHANDLER
 }
