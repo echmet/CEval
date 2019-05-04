@@ -84,6 +84,7 @@ public:
   enum class UserInteractionState {
     FINDING_PEAK,
     MANUAL_PEAK_INTEGRATION,
+    MANUAL_PEAK_INTEGRATION_FINISHING,
     PEAK_POSTPROCESSING,
     NOISE_REFERENCE_BL_SETTING
   };
@@ -330,7 +331,7 @@ private:
   QVector<double> emptyHvlValues() const;
   QVector<double> emptyResultsValues() const;
   void findPeakAssisted();
-  void findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak = false);
+  bool findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak = false);
   void findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point);
   void findPeakPreciseBoundaries();
   EvaluationContext freshEvaluationContext() const;

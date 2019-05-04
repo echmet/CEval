@@ -1144,25 +1144,16 @@ void EvaluationEngine::findPeakAssisted()
   displayCurrentPeak();
 }
 
-void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak)
+bool EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, const bool snapFrom, const bool snapTo, const bool updatePeak)
 {
   std::shared_ptr<PeakFinderResults> fr;
 
-  /* Erase the provisional baseline */
-  m_plotCtx->setSerieSamples(seriesIndex(Series::PROV_BASELINE), QVector<QPointF>());
-
   DataAccessLocker locker(&this->m_dataLockState);
-  if (!isContextAccessible(locker)) {
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_plotCtx->replot();
-    return;
-  }
+  if (!isContextAccessible(locker))
+    return false;
 
-  if (m_currentDataContext->data->data.length() == 0) {
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_plotCtx->replot();
-    return;
-  }
+  if (m_currentDataContext->data->data.length() == 0)
+    return false;
 
   ManualPeakFinder::Parameters p(m_currentDataContext->data->data);
   p.fromX = from.x();
@@ -1171,7 +1162,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.fromY = Helpers::yForX(from.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr,tr("Invalid value"), tr("Invalid value of \"from X\""));
-      return;
+      return false;
     }
   } else
     p.fromY = from.y();
@@ -1182,7 +1173,7 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
       p.toY = Helpers::yForX(to.x(), m_currentDataContext->data->data);
     } catch (std::out_of_range &) {
       QMessageBox::warning(nullptr, tr("Invalid value"), tr("Invalid value of \"to X\""));
-      return;
+      return false;
     }
   } else
     p.toY = to.y();
@@ -1191,19 +1182,15 @@ void EvaluationEngine::findPeakManually(const QPointF &from, const QPointF &to, 
     fr = ManualPeakFinder::find(p);
   } catch (std::bad_alloc &) {
     QMessageBox::warning(nullptr, tr("Insufficient memory"), tr("Not enough memory to evaluate peak"));
-    goto err_out;
+    return false;
   }
 
   if (fr->results.size() == 0)
-    goto err_out;
+    return false;
 
   walkFoundPeaks(fr->results, AssistedFinderContext(), updatePeak);
   displayCurrentPeak();
-  return;
-
-err_out:
-  m_userInteractionState = UserInteractionState::FINDING_PEAK;
-  m_plotCtx->replot();
+  return true;
 }
 
 void EvaluationEngine::findPeakMenuTriggered(const FindPeakMenuActions &action, const QPointF &point)
@@ -1645,18 +1632,25 @@ EvaluationEngine::PeakContextModels EvaluationEngine::makePeakContextModels(cons
 
 void EvaluationEngine::manualIntegrationMenuTriggered(const ManualIntegrationMenuActions &action, const QPointF &point)
 {
+  bool ok{false};
+
+  m_userInteractionState = UserInteractionState::MANUAL_PEAK_INTEGRATION_FINISHING;
+  m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_BASELINE));
+
   switch (action) {
   case ManualIntegrationMenuActions::CANCEL:
-    m_plotCtx->clearSerieSamples(seriesIndex(Series::PROV_BASELINE));
-    m_userInteractionState = UserInteractionState::FINDING_PEAK;
-    m_plotCtx->replot();
     break;
   case ManualIntegrationMenuActions::FINISH:
-    findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, false);
+    ok = findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, false);
     break;
   case ManualIntegrationMenuActions::FINISH_SIGSNAP:
-    findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, true);
+    ok = findPeakManually(m_manualPeakFrom, point, m_manualPeakSnapFrom, true);
     break;
+  }
+
+  if (!ok) {
+    m_userInteractionState = UserInteractionState::FINDING_PEAK;
+    m_plotCtx->replot();
   }
 }
 
@@ -2612,6 +2606,8 @@ void EvaluationEngine::plotEvaluatedPeak(const std::shared_ptr<PeakFinderResults
 
 void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &action, const QPointF &point)
 {
+  bool restoreFindingMode{false};
+
   switch (action) {
   case PostProcessMenuActions::NEW_PEAK_FROM:
     onCancelEvaluatedPeakSelection();
@@ -2626,16 +2622,16 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     findPeakPreciseBoundaries();
     break;
   case PostProcessMenuActions::MOVE_PEAK_FROM:
-    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false, true);
+    restoreFindingMode = !findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), false, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_FROM_SIGSNAP:
-    findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), true, false, true);
+    restoreFindingMode = !findPeakManually(point, QPointF(m_currentPeak.finderResults->peakToX, m_currentPeak.finderResults->peakToY), true, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_TO:
-    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, false, true);
+    restoreFindingMode = !findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, false, true);
     break;
   case PostProcessMenuActions::MOVE_PEAK_TO_SIGSNAP:
-    findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, true, true);
+    restoreFindingMode = !findPeakManually(QPointF(m_currentPeak.finderResults->peakFromX, m_currentPeak.finderResults->peakFromY), point, false, true, true);
     break;
   case PostProcessMenuActions::DESELECT_PEAK:
     onCancelEvaluatedPeakSelection();
@@ -2653,6 +2649,9 @@ void EvaluationEngine::postProcessMenuTriggered(const PostProcessMenuActions &ac
     beginSetNoiseReferenceBaseline(point);
     break;
   }
+
+  if (restoreFindingMode)
+    onCancelEvaluatedPeakSelection();
 }
 
 EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<QPointF> &data, const std::shared_ptr<PeakFinderResults::Result> &fr, const AssistedFinderContext &afContext,
