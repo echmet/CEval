@@ -435,6 +435,8 @@ include($$PWD/CEval.pri)
     QMAKE_LFLAGS_RELEASE += /MAP /LTCG /debug /opt:ref
     QMAKE_CXXFLAGS += /openmp
 
+    win32_i386: QMAKE_CXXFLAGS += /arch:SSE2
+
     INCLUDEPATH += $$BOOSTPATH
 }
 
