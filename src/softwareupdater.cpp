@@ -15,7 +15,7 @@ void SoftwareUpdateWorker::process()
   EUPDResult res;
 
   EUPDInSoftware inSw;
-  strncpy(inSw.name, Globals::SOFTWARE_NAME.toLatin1(), sizeof(EUPDInSoftware::name));
+  strncpy(inSw.name, SOFTWARE_NAME_INTERNAL_S, sizeof(EUPDInSoftware::name));
   inSw.version.major = Globals::VERSION_MAJ;
   inSw.version.minor = Globals::VERSION_MIN;
   strncpy(inSw.version.revision, Globals::VERSION_REV.toLatin1(), sizeof(EUPDVersion::revision));

@@ -5,6 +5,8 @@
 #include <QString>
 #include <QVector>
 
+#define SOFTWARE_NAME_INTERNAL_S "CEval"
+
 class QIcon;
 
 class Globals
@@ -30,6 +32,7 @@ public:
   static const QString ORG_DOMAIN;
   static const QString ORG_NAME;
   static const QString SOFTWARE_NAME;
+  static const QString SOFTWARE_NAME_INTERNAL;
   static const int VERSION_MAJ;
   static const int VERSION_MIN;
   static const QString VERSION_REV;

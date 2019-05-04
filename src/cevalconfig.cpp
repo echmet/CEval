@@ -14,7 +14,7 @@ const QString CEvalConfig::EDII_SERVICE_PATH_TAG("EDIIServicePath");
 const QString CEvalConfig::ROOT_SETTINGS_TAG("Root");
 
 #ifdef Q_OS_UNIX
-const QString CEvalConfig::s_pathPrefixTemplate(QString("%2/.local/share/ECHMET/%1/").arg(Globals::SOFTWARE_NAME));
+const QString CEvalConfig::s_pathPrefixTemplate(QString("%2/.local/share/ECHMET/%1/").arg(Globals::SOFTWARE_NAME_INTERNAL));
 #endif // Q_OS_UNIX
 
 CEvalConfig::CEvalConfig()
@@ -34,7 +34,7 @@ QString CEvalConfig::configFilePath()
   const QString prefix = "";
 #endif // Q_OS_UNIX
 
-  return QString("%1%2.conf").arg(prefix).arg(Globals::SOFTWARE_NAME);
+  return QString("%1%2.conf").arg(prefix).arg(Globals::SOFTWARE_NAME_INTERNAL);
 }
 
 bool CEvalConfig::initialize()
