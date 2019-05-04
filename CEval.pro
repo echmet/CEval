@@ -433,6 +433,38 @@ include($$PWD/CEval.pri)
     INCLUDEPATH += $$BOOSTPATH
 }
 
+gcc {
+    COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
+    COMPILER_MAJOR_VERSION = $$str_member($$COMPILER_VERSION)
+    greaterThan(COMPILER_MAJOR_VERSION, 9) {
+        CONFIG += use_lto
+    }
+}
+
+clang {
+    COMPILER_VERSION_STRING_FULL = $$system($$QMAKE_CXX " --version")
+    COMPILER_VERSION_STRING = $$split(COMPILER_VERSION_STRING_FULL, " ")
+    COMPILER_VERSION_PART = $$member(COMPILER_VERSION_STRING, 2, 2)
+    COMPILER_VERSION_LIST = $$split(COMPILER_VERSION_PART, .)
+    COMPILER_VERSION_MAJOR = $$first(COMPILER_VERSION_LIST)
+
+    greaterThan(COMPILER_VERSION_MAJOR, 7) {
+        CONFIG += use_lto
+    }
+}
+
+use_lto {
+    message("LTO enabled")
+    QMAKE_CXXFLAGS += -flto
+
+    clang {
+        CONFIG(debug, debug|release): QMAKE_CXXFLAGS = -O0
+        CONFIG(release, debug|release): QMAKE_CXXFLAGS = -O3
+
+        QMAKE_LFLAGS += -fuse-ld=gold
+    }
+}
+
 RESOURCES += \
     cevalres.qrc
 
