@@ -22,10 +22,12 @@ CEval makes use of the following toolkits:
 - [Qwt](http://qwt.sourceforge.net/)
 - [Eigen](http://eigen.tuxfamily.org/index.php?title=Main_Page)
 - [HVL_MT](https://github.com/echmet/HVL_MT)
-- [ECHMET Data Import Infrastructure](https://github.com/echmet/EDII)
+- [ECHMET Data Import Infrastructure](https://github.com/echmet/EDII) (\*)
 - [ECHMETUpdateCheck](https://github.com/echmet/ECHMETUpdateCheck)
 
 All of the libraries and packages above are hard dependencies. CEval cannot be built or run without them.
+
+\* EDII is a separate program this is supposed to run as a background service that CEval uses to load data. As such, CEval does not need to link against EDII.
 
 Build
 ---
@@ -74,7 +76,7 @@ As CEval cannot function without the EDII service it prompts the user for a path
 
 Usage
 ---
-Tutorial for CEval can be obtained from here. Please keep in mind that the tutorial corresponds to the binary version that is available for download at the ECHMET website and may not reflect the state of the latest development code.
+Tutorial for CEval can be obtained from [here](https://echmet.natur.cuni.cz/echmet/download/public/CEval_Manual.pdf). Please keep in mind that the tutorial corresponds to the binary version that is available for download at the ECHMET website and may not reflect the state of the latest development code.
 
 [ECHMET website](https://echmet.natur.cuni.cz/software/download#ceval)
 
