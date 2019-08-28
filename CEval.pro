@@ -58,6 +58,10 @@ contains(QT_ARCH, i386) {
 
 CONFIG(release, debug|release) {
     DEFINES += USE_CRASHHANDLER
+
+    linux {
+        QMAKE_LFLAGS_RELEASE += "-rdynamic"
+    }
 }
 CONFIG(debug, debug|release) {
     # Configuration specific for "debug" build
