@@ -9,7 +9,7 @@ const QString Globals::SOFTWARE_NAME("CEval");
 const QString Globals::SOFTWARE_NAME_INTERNAL(SOFTWARE_NAME_INTERNAL_S);
 const int Globals::VERSION_MAJ(0);
 const int Globals::VERSION_MIN(6);
-const QString Globals::VERSION_REV("h7");
+const QString Globals::VERSION_REV("h8");
 
 const QString Globals::CONFIG_FILE_NAME(QString("%1.conf").arg(SOFTWARE_NAME));
 
