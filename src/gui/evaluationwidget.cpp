@@ -28,6 +28,9 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   ui->qtabw_evaluation->removeTab(2); /* Disable hackish export functionality by hiding its controls */
 #endif // CEVAL_PUBLIC_RELEASE
 
+  ui->qpb_findPeak->setVisible(false);
+  ui->qtabw_evaluation->removeTab(0);
+
   connect(ui->qpb_defaultFinderParameters, &QPushButton::clicked, this, &EvaluationWidget::onDefaultFinderParametersClicked);
   connect(ui->qcbox_baselineAlgorithm, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onBaselineComboBoxChanged);
   connect(ui->qcbox_showWindow, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationWidget::onShowWindowComboBoxChanged);

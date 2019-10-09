@@ -2588,6 +2588,9 @@ padding-right: 3em;</string>
      </item>
      <item>
       <widget class="QPushButton" name="qpb_findPeak">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
        <property name="sizeIncrement">
         <size>
          <width>0</width>
