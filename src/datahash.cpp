@@ -43,6 +43,9 @@ const QString & DataHash::toString() const
 
 DataHash & DataHash::operator=(const DataHash &other)
 {
+  if (m_data == other.m_data)
+    return *this;
+
   COPYHASH(other.m_data);
   m_numHash = other.m_numHash;
   m_hexString = other.m_hexString;
