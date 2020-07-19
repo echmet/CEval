@@ -187,7 +187,14 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     return std::abs(yVal) <= std::abs(0.05 * ir.peakHeightBaseline);
   };
 
-  const int maximumIndex = ir.peakIndex - p.fromIndex;
+  const int maximumIndex = [&]() {
+    auto mi = ir.peakIndex - p.fromIndex;
+    if (mi >= r.baselineCorrectedPeak.size())
+      return r.baselineCorrectedPeak.size() - 1;
+    else if (mi < 0)
+      return 0;
+    return mi;
+  }();
   /* Check that we have an actual peak, meaning that its maximum
    * must not be at neither of the ends of the given signal slice.
      TODO: This should take noise in to account to be effective. */

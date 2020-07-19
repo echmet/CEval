@@ -2,6 +2,8 @@
 #define ECHMET_HVLESTIMATE_H
 
 #include <cmath>
+#include <limits>
+#include <stdexcept>
 
 namespace echmet {
 
@@ -31,7 +33,11 @@ int guessMPFRPrecision(const double in_a3)
   const double linear_term = 17.0 + a3 / 2.9;
   const double exp_term = std::exp(0.0125 * (a3 - 38.0));
 
-  return static_cast<int>(std::floor(linear_term + exp_term + 0.5));
+  const auto est = std::floor(linear_term + exp_term + 0.5);
+  if (est < 0 || est > std::numeric_limits<int>::max())
+    throw std::runtime_error("MPFR precision out of bounds");
+
+  return static_cast<int>(est);
 }
 
 } // namespace HVLCore

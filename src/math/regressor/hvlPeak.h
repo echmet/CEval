@@ -228,10 +228,15 @@ void HVLPeak<XT, YT>::AValidateParameters(MatrixY &params)
     return;
 
   const YT a3 = this->GetParam(params, HVLPeakParams::a3);
-  m_precision = echmet::HVLCore::guessMPFRPrecision(a3);
 
-  if (m_precision > 300)
+  try {
+    m_precision = echmet::HVLCore::guessMPFRPrecision(a3);
+
+    if (m_precision > 300)
+      m_precision = 300;
+  } catch (const std::runtime_error &) {
     m_precision = 300;
+  }
 
   this->m_hvlLib->setPrecision(m_precision);
 }

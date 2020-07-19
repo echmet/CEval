@@ -2479,13 +2479,14 @@ void EvaluationEngine::onReplotHvl()
   const double step = timeStep(m_currentPeak.finderResults->fromIndex, m_currentPeak.finderResults->toIndex);
 
   if (m_currentPeak.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS)) {
-    const int hvlDigits = HVLCalculator::estimatePrecision(from, to, step, a0, a1, a2, a3,
-                                                           m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+    try {
+      const int hvlDigits = HVLCalculator::estimatePrecision(from, to, step, a0, a1, a2, a3,
+                                                             m_currentPeak.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
 
-    if (hvlDigits > 0) {
       m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
-
       m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS, HVLFitParametersItems::Int::DIGITS);
+    } catch (const std::runtime_error &) {
+      // NOOP
     }
   }
 
@@ -2726,9 +2727,18 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
 
     if (srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS)) {
       const double step = (fr->peakToX - fr->peakFromX) / (fr->toIndex - fr->fromIndex);
-      const int _hvlDigits = HVLCalculator::estimatePrecision(fr->peakFromX, fr->peakToX, step,
-                                                              HVL_a0, HVL_a1, HVL_a2, HVL_a3,
-                                                              srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+      int _hvlDigits = 0;
+
+      try {
+        _hvlDigits = HVLCalculator::estimatePrecision(fr->peakFromX, fr->peakToX, step,
+                                                      HVL_a0, HVL_a1, HVL_a2, HVL_a3,
+                                                      srcCtx.resultsValues.at(EvaluationResultsItems::Floating::PEAK_HEIGHT_BL) < 0.0);
+      } catch (const std::runtime_error &) {
+        QMessageBox::warning(nullptr,
+                             tr("HVL estimate error"),
+                             tr("HVL estimator returned suspicious values. HVL fit is likely to fail.")
+                            );
+      }
 
       if (_hvlDigits > 0)
         hvlDigits = _hvlDigits;
@@ -2802,7 +2812,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                              );
 
     if (hvlPlotEx.size() == 0)
-      QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performec.\n"
+      QMessageBox::warning(nullptr, tr("HVL extrapolation error"), tr("HVL extrapolation could not have been performed.\n"
                                                                       "Check the input parameters and try again."));
     else {
       HVLExtrapolator::Result r = HVLExtrapolator::varianceFromExtrapolated(er.baselineSlope, er.baselineIntercept,

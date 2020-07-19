@@ -193,14 +193,21 @@ HVLEstimatorWorker::~HVLEstimatorWorker()
 
 void HVLEstimatorWorker::process()
 {
-  m_precision = echmet::HVLCore::guessMPFRPrecision(m_params.a3);
+  try {
+    m_precision = echmet::HVLCore::guessMPFRPrecision(m_params.a3);
+  } catch (const std::runtime_error &) {
+    m_precision = -1;
+  }
 
   emit finished();
 }
 
 int HVLEstimatorWorker::precision() const
 {
-  return m_precision;
+  if (m_precision > 0)
+    return m_precision;
+  else
+    throw std::runtime_error("MPFR precision out of bounds");
 }
 
 int HVLCalculator::estimatePrecision(const double from, const double to, const double step,
