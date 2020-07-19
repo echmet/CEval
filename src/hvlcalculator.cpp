@@ -6,6 +6,7 @@
 #include "math/hvlestimate.h"
 #include "hvllibwrapper.h"
 #include "math/regressor/hvlPeak.h"
+#include <QElapsedTimer>
 #include <QMessageBox>
 #include <QApplication>
 #include <QThread>
@@ -273,7 +274,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   connect(&worker, &HVLCalculatorWorker::nextIteration, &inProgressDlg, &HVLFitInProgressDialog::setCurrentIteration);
   connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort, Qt::DirectConnection);
 
-  QTime stopwatch;
+  QElapsedTimer stopwatch;
   stopwatch.start();
 
   thread.start();
