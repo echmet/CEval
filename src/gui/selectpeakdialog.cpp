@@ -12,7 +12,7 @@ SelectPeakDialog::SelectPeakDialog(QWidget *parent) :
 
   connect(ui->qpb_select, &QPushButton::clicked, this, &SelectPeakDialog::onSelectClicked);
   connect(ui->qpb_selectAll, &QPushButton::clicked, this, &SelectPeakDialog::onSelectAllClicked);
-  connect(ui->qpb_cancel, &QPushButton::clicked, this, &SelectPeakDialog::onCancelClicked);
+  connect(ui->buttonBox, &QDialogButtonBox::rejected, [this]() { reject(); });
   connect(ui->qtbv_listOfPeaks, &QTableView::clicked, this, &SelectPeakDialog::onListClicked);
   connect(ui->qtbv_listOfPeaks, &QTableView::doubleClicked, this, &SelectPeakDialog::onListDoubleClicked);
 }
@@ -32,11 +32,6 @@ void SelectPeakDialog::closeEvent(QCloseEvent *ev)
   Q_UNUSED(ev);
 
   emit closedSignal();
-}
-
-void SelectPeakDialog::onCancelClicked()
-{
-  reject();
 }
 
 void SelectPeakDialog::onListClicked(const QModelIndex &index)

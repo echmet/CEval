@@ -470,12 +470,13 @@ clang {
 
     greaterThan(COMPILER_VERSION_MAJOR, 9) : !CONFIG(xsanitize) {
         CONFIG += use_lto
+        QMAKE_LFLAGS += -fuse-ld=gold
     }
 }
 
 use_lto {
     message("LTO enabled")
-    QMAKE_CXXFLAGS += -flto
+    QMAKE_LFLAGS += -flto
 
     clang {
         CONFIG(debug, debug|release): QMAKE_CXXFLAGS += -O0

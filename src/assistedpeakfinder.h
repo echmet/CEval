@@ -105,9 +105,9 @@ private:
     TSearchHandler(const QVector<QPointF> &Data, int Begin = 0, int End = -1);
     TSearchHandler(TSearchHandler &T);
 
-    virtual double GetX(int I);
-    virtual double GetY(int I);
-    virtual int Count();
+    virtual double GetX(int I) const override;
+    virtual double GetY(int I) const override;
+    virtual int Count() const override;
   };
 
   class TPeaksSearcher : public TExtremeSearcher {

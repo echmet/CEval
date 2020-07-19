@@ -23,13 +23,13 @@ public:
   class TDataHandler
   {
   public:
-    virtual double GetX(int index) = 0;
-    virtual double GetY(int index) = 0;
-    virtual int Count(void) = 0;
+    virtual double GetX(int index) const = 0;
+    virtual double GetY(int index) const = 0;
+    virtual int Count(void) const = 0;
   };
 
-  TDataHandler *Data;
-  int ChainPoints;
+  const TDataHandler *Data;
+  const int ChainPoints;
   double Noise;
   bool LeftBoundary;
   bool RightBoundary;

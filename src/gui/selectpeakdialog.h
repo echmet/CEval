@@ -40,7 +40,6 @@ signals:
   void peakSelected(const QModelIndex &index, const QAbstractItemModel *model, const int peakWindow);
 
 private slots:
-  void onCancelClicked();
   void onListClicked(const QModelIndex &index);
   void onListDoubleClicked(const QModelIndex &index);
   void onSelectClicked();

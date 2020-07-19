@@ -78,21 +78,21 @@ AssistedPeakFinder::TSearchHandler::TSearchHandler(TSearchHandler &T) :
 {
 }
 
-double AssistedPeakFinder::TSearchHandler::GetX(int I)
+double AssistedPeakFinder::TSearchHandler::GetX(int I) const
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].x();
 }
 
-double AssistedPeakFinder::TSearchHandler::GetY(int I)
+double AssistedPeakFinder::TSearchHandler::GetY(int I) const
 {
   Q_ASSERT(I + m_Begin < m_Data.length());
 
   return m_Data[I + m_Begin].y();
 }
 
-int AssistedPeakFinder::TSearchHandler::Count()
+int AssistedPeakFinder::TSearchHandler::Count() const
 {
   return (m_End == -1 ? m_Data.size() : m_End) - m_Begin;
 }
@@ -117,7 +117,7 @@ void AssistedPeakFinder::TPeaksSearcher::OnMaximum(double Value, int Index)
 {
   Q_UNUSED(Value);
 
-  TSearchHandler * h = dynamic_cast<TSearchHandler *>(Data);
+  const TSearchHandler * h = dynamic_cast<const TSearchHandler *>(Data);
 
   if (Index == 0 || Index == h->Count() - 1) return;
   Extremes.push_back(Index + h->m_Begin);
@@ -127,7 +127,7 @@ void AssistedPeakFinder::TPeaksSearcher::OnMinimum(double Value, int Index)
 {
   Q_UNUSED(Value);
 
-  TSearchHandler * h = dynamic_cast<TSearchHandler *>(Data);
+  const TSearchHandler * h = dynamic_cast<const TSearchHandler *>(Data);
 
   if (Index == 0 || Index == h->Count() - 1) return;
   Extremes.push_back(Index + h->m_Begin);
@@ -596,7 +596,7 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
 
         FoundPeaksModel model(modelData);
         p.selPeakDialog->bindModel(&model);
-        p.selPeakDialog->setPeakWindow(PeakWindow);
+        p.selPeakDialog->setPeakWindow(Searcher.ChainPoints);
         dlgRet = p.selPeakDialog->exec();
         emit p.selPeakDialog->closedSignal();
         if (dlgRet != QDialog::Accepted)
