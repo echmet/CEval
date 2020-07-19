@@ -11,6 +11,7 @@ public:
   public:
     explicit EvaluatedPeak();
     explicit EvaluatedPeak(const QString &name, const double time, const double area);
+    EvaluatedPeak(const EvaluatedPeak &other);
     const QString name;
     const double time;
     const double area;

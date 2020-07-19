@@ -38,6 +38,12 @@ HVLLibWrapper::XY::XY(const double x, const double y) :
 {
 }
 
+HVLLibWrapper::XY::XY(const XY &other) :
+  x(other.x),
+  y(other.y)
+{
+}
+
 HVLLibWrapper::XY & HVLLibWrapper::XY::operator=(const XY &other)
 {
   const_cast<double&>(x) = other.x;

@@ -8,6 +8,13 @@ AdjustPlotVisualsDialog::AxisVisuals::AxisVisuals(const SerieProperties::Axis a)
 {
 }
 
+AdjustPlotVisualsDialog::AxisVisuals::AxisVisuals(const AxisVisuals &other) :
+  a(other.a),
+  fontSize(other.fontSize),
+  bold(other.bold)
+{
+}
+
 void AdjustPlotVisualsDialog::AxisVisuals::fromOther(const AxisVisuals &other)
 {
   fontSize = other.fontSize;
@@ -25,6 +32,20 @@ AdjustPlotVisualsDialog::AxisVisuals &AdjustPlotVisualsDialog::AxisVisuals::oper
 
 AdjustPlotVisualsDialog::SerieVisuals::SerieVisuals(const int id) :
   id(id)
+{
+}
+
+AdjustPlotVisualsDialog::SerieVisuals::SerieVisuals(const SerieVisuals &other) :
+  id(other.id),
+  visible(other.visible),
+  lineColor(other.lineColor),
+  lineThickness(other.lineThickness),
+  pointColor(other.pointColor),
+  pointFillColor(other.pointFillColor),
+  pointSize(other.pointSize),
+  pointLineThickness(other.pointLineThickness),
+  pointStyle(other.pointStyle),
+  lineStyle(other.lineStyle)
 {
 }
 

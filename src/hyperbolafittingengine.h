@@ -198,6 +198,7 @@ private:
     HypResults(const double u0, const double uCS, const double KCS, const double maxX,
                const double sigma, const int iterations);
     explicit HypResults();
+    HypResults(const HypResults &other);
     bool isValid() const;
 
     const double u0_A;
@@ -219,6 +220,7 @@ private:
                      const double rss, const int iterations,
                      const double u0_B, const double uCS_B, const double KCS_B);
     explicit DoubleHypResults();
+    DoubleHypResults(const DoubleHypResults &other);
 
     const double u0_B;
     const double uCS_B;

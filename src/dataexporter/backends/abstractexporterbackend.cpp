@@ -31,6 +31,12 @@ AbstractExporterBackend::Output::Output(const QVariant &value, const uint32_t op
 {
 }
 
+AbstractExporterBackend::Output::Output(const Output &other) :
+  value(other.value),
+  options(other.options)
+{
+}
+
 AbstractExporterBackend::Output & AbstractExporterBackend::Output::operator=(const Output &other)
 {
   const_cast<QVariant&>(value) = other.value;

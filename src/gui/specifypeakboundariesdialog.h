@@ -16,6 +16,7 @@ public:
     Answer();
     Answer(const double fromX, const double fromY, const double toX, const double toY,
            const bool snapFrom, const bool snapTo);
+    Answer(const Answer &other);
     bool isValid() const;
     Answer & operator=(const Answer &other);
 

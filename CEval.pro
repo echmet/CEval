@@ -52,6 +52,13 @@ xsimd {
     QMAKE_CXXFLAGS += -msse2
 }
 
+xsanitize {
+    CONFIG += sanitizer
+    CONFIG += sanitize_address
+    CONFIG += sanitize_undefined
+    CONFIG += sanitize_leak
+}
+
 contains(QT_ARCH, i386) {
     CONFIG += win32_i386
 } else {
@@ -449,7 +456,7 @@ include($$PWD/CEval.pri)
 gcc {
     COMPILER_VERSION = $$system($$QMAKE_CXX " -dumpversion")
     COMPILER_MAJOR_VERSION = $$str_member($$COMPILER_VERSION)
-    greaterThan(COMPILER_MAJOR_VERSION, 9) {
+    greaterThan(COMPILER_MAJOR_VERSION, 9) : !CONFIG(xsanitize) {
         CONFIG += use_lto
     }
 }
@@ -461,7 +468,7 @@ clang {
     COMPILER_VERSION_LIST = $$split(COMPILER_VERSION_PART, .)
     COMPILER_VERSION_MAJOR = $$first(COMPILER_VERSION_LIST)
 
-    greaterThan(COMPILER_VERSION_MAJOR, 9) {
+    greaterThan(COMPILER_VERSION_MAJOR, 9) : !CONFIG(xsanitize) {
         CONFIG += use_lto
     }
 }

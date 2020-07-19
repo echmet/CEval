@@ -42,6 +42,7 @@ protected:
   public:
     explicit Output();
     explicit Output(const QVariant &value, const uint32_t options = 0);
+    Output(const Output &other);
     Output & operator=(const Output &other);
 
     const QVariant value;

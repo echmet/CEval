@@ -24,6 +24,7 @@ public:
   public:
     SerializedExportable();
     SerializedExportable(const QString &rootName, const QString &displayName, const int position);
+    SerializedExportable(const SerializedExportable &other);
 
     SerializedExportable & operator=(const SerializedExportable &other);
 

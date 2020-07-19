@@ -43,6 +43,12 @@ SchemeSerializer::SerializedExportable::SerializedExportable(const QString &root
 {
 }
 
+SchemeSerializer::SerializedExportable::SerializedExportable(const SerializedExportable &other) :
+  rootName(other.rootName),
+  position(other.position)
+{
+}
+
 SchemeSerializer::SerializedExportable & SchemeSerializer::SerializedExportable::operator=(const SerializedExportable &other)
 {
   const_cast<QString&>(rootName) = other.rootName;

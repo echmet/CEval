@@ -49,6 +49,7 @@ public:
   class AxisVisuals {
   public:
     AxisVisuals(const SerieProperties::Axis a = SerieProperties::Axis::INVALID);
+    AxisVisuals(const AxisVisuals &other);
     void fromOther(const AxisVisuals &other);
 
     const SerieProperties::Axis a;
@@ -61,6 +62,7 @@ public:
   class SerieVisuals {
   public:
     SerieVisuals(const int id = -1);
+    SerieVisuals(const SerieVisuals &other);
     void fromOther(const SerieVisuals &other);
 
     const int id;

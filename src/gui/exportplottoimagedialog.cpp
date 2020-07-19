@@ -16,6 +16,18 @@ ExportPlotToImageDialog::Parameters::Parameters(const QString &path, const QStri
 {
 }
 
+ExportPlotToImageDialog::Parameters::Parameters(const Parameters &other) :
+  path(other.path),
+  format(other.format),
+  dimensions(other.dimensions),
+  dpi(other.dpi),
+  title(other.title),
+  axisTitlesFontSize(other.axisTitlesFontSize),
+  axisNumbersFontSize(other.axisNumbersFontSize),
+  chartTitleFontSize(other.chartTitleFontSize)
+{
+}
+
 ExportPlotToImageDialog::Parameters &ExportPlotToImageDialog::Parameters::operator=(const Parameters &other)
 {
   const_cast<QString&>(path) = other.path;

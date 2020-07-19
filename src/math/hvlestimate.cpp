@@ -15,6 +15,11 @@ Coefficients::Coefficients(const double a0, const double a1, const double a2, co
 {
 }
 
+Coefficients::Coefficients(const Coefficients &other) :
+    a0(other.a0), a1(other.a1), a2(other.a2), a3d(other.a3d)
+{
+}
+
 Coefficients & Coefficients::operator=(const Coefficients &other)
 {
     const_cast<double &>(a0) = other.a0;

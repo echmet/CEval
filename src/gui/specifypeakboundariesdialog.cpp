@@ -26,6 +26,17 @@ SpecifyPeakBoundariesDialog::Answer::Answer(const double fromX, const double fro
 {
 }
 
+SpecifyPeakBoundariesDialog::Answer::Answer(const Answer &other) :
+  fromX(other.fromX),
+  fromY(other.fromY),
+  toX(other.toX),
+  toY(other.toY),
+  snapFrom(other.snapFrom),
+  snapTo(other.snapTo),
+  m_valid(other.m_valid)
+{
+}
+
 SpecifyPeakBoundariesDialog::Answer & SpecifyPeakBoundariesDialog::Answer::operator=(const Answer &other)
 {
   const_cast<double&>(fromX) = other.fromX;

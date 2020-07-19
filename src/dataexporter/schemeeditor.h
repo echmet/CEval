@@ -44,6 +44,7 @@ public:
   public:
     explicit UserScheme();
     explicit UserScheme(const QString &name, const QString &baseName, const UserExportablesVector &exportables, const Globals::DataArrangement arrangement);
+    UserScheme(const UserScheme &other);
     UserScheme & operator=(const UserScheme &other);
 
     const QString name;

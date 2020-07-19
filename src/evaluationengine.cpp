@@ -126,6 +126,13 @@ EvaluationEngine::EvaluationContext::EvaluationContext(const QVector<StoredPeak>
 {
 }
 
+EvaluationEngine::EvaluationContext::EvaluationContext(const EvaluationContext &other) :
+  peaks(other.peaks),
+  lastIndex(other.lastIndex)
+{
+}
+
+
 EvaluationEngine::StoredPeak::StoredPeak() :
   name("")
 {
@@ -134,6 +141,12 @@ EvaluationEngine::StoredPeak::StoredPeak() :
 EvaluationEngine::StoredPeak::StoredPeak(const QString &name, const PeakContext &peakCtx) :
   name(name),
   m_peakCtx(peakCtx)
+{
+}
+
+EvaluationEngine::StoredPeak::StoredPeak(const StoredPeak &other) :
+  name(other.name),
+  m_peakCtx(other.m_peakCtx)
 {
 }
 
@@ -159,6 +172,16 @@ EvaluationEngine::AssistedFinderContext::AssistedFinderContext(const MappedVecto
   baselineAlgorithm(baselineAlgorithm),
   showWindow(showWindow),
   windowUnits(windowUnits)
+{
+}
+
+EvaluationEngine::AssistedFinderContext::AssistedFinderContext(const AssistedFinderContext &other) :
+  afAutoValues(other.afAutoValues),
+  afBoolValues(other.afBoolValues),
+  afFloatingValues(other.afFloatingValues),
+  baselineAlgorithm(other.baselineAlgorithm),
+  showWindow(other.showWindow),
+  windowUnits(other.windowUnits)
 {
 }
 

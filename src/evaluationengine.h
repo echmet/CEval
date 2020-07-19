@@ -153,6 +153,7 @@ private:
                           const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm,
                           const EvaluationParametersItems::ComboShowWindow showWindow,
                           const EvaluationParametersItems::ComboWindowUnits windowUnits);
+    AssistedFinderContext(const AssistedFinderContext &other);
     AssistedFinderContext & operator=(const AssistedFinderContext &other);
     void setProcessingData(const double noise,
                            const double noiseRefPoint, const double slopeRefPoint,
@@ -262,6 +263,7 @@ private:
   public:
     explicit StoredPeak();
     explicit StoredPeak(const QString &name, const PeakContext &peakCtx);
+    StoredPeak(const StoredPeak &other);
 
     const PeakContext &peak() const;
     void updatePeak(const PeakContext &peakCtx);
@@ -277,6 +279,7 @@ private:
   class EvaluationContext {
   public:
     EvaluationContext(const QVector<StoredPeak> &peaks, const int lastIndex);
+    EvaluationContext(const EvaluationContext &other);
 
     const QVector<StoredPeak> peaks;
     const int lastIndex;

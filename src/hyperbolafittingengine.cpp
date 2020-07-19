@@ -201,6 +201,17 @@ HyperbolaFittingEngine::HypResults::HypResults() :
 {
 }
 
+HyperbolaFittingEngine::HypResults::HypResults(const HypResults &other) :
+  u0_A(other.u0_A),
+  uCS_A(other.uCS_A),
+  KCS_A(other.KCS_A),
+  maxX_A(other.maxX_A),
+  sigma(other.sigma),
+  iterations(other.iterations),
+  m_valid(other.m_valid)
+{
+}
+
 bool HyperbolaFittingEngine::HypResults::isValid() const
 {
   return m_valid;
@@ -230,6 +241,14 @@ HyperbolaFittingEngine::DoubleHypResults::DoubleHypResults(const double u0_A, co
 HyperbolaFittingEngine::DoubleHypResults::DoubleHypResults() :
   HypResults(),
   u0_B(0.0), uCS_B(0.0), KCS_B(0.0)
+{
+}
+
+HyperbolaFittingEngine::DoubleHypResults::DoubleHypResults(const DoubleHypResults &other) :
+  HypResults(other),
+  u0_B(other.u0_B),
+  uCS_B(other.uCS_B),
+  KCS_B(other.KCS_B)
 {
 }
 

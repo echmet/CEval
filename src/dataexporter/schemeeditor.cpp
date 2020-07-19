@@ -65,6 +65,15 @@ SchemeEditor::UserScheme::UserScheme(const QString &name, const QString &baseNam
 {
 }
 
+SchemeEditor::UserScheme::UserScheme(const UserScheme &other) :
+  name(other.name),
+  baseName(other.baseName),
+  exportables(other.exportables),
+  arrangement(other.arrangement),
+  isValid(other.isValid)
+{
+}
+
 SchemeEditor::UserScheme & SchemeEditor::UserScheme::operator=(const UserScheme &other)
 {
   const_cast<QString&>(name) = other.name;

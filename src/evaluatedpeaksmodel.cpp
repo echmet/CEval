@@ -15,6 +15,13 @@ EvaluatedPeaksModel::EvaluatedPeak::EvaluatedPeak(const QString &name, const dou
 {
 }
 
+EvaluatedPeaksModel::EvaluatedPeak::EvaluatedPeak(const EvaluatedPeak &other) :
+  name(other.name),
+  time(other.time),
+  area(other.area)
+{
+}
+
 EvaluatedPeaksModel::EvaluatedPeak &EvaluatedPeaksModel::EvaluatedPeak::operator=(const EvaluatedPeak &other)
 {
   const_cast<QString&>(name) = other.name;

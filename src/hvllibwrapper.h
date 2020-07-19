@@ -37,6 +37,7 @@ public:
   public:
     explicit XY();
     explicit XY(const double X, const double Y);
+    XY(const XY &other);
 
     const double x;
     const double y;
