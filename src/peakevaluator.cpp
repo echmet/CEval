@@ -183,8 +183,16 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
   int right_w005 = -1;
 
   /* TODO: Peak base search should probably take the baseline noise into account */
-  auto isAtBorder = [&ir](const double yVal) {
+  const auto isAtBorder = [&ir](const double yVal) {
     return std::abs(yVal) <= std::abs(0.05 * ir.peakHeightBaseline);
+  };
+
+  const auto clampIndex = [&](const int idx) {
+    if (idx < 0)
+      return 0;
+    else if (idx >= p.data.size() - 1)
+      return p.data.size() - 1;
+    return idx;
   };
 
   const int maximumIndex = [&]() {
@@ -224,17 +232,21 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
   bool useExtrapolateA0 = false;
 
   if (left_w005 == -1) {
+    const auto fIdx = clampIndex(p.fromIndex);
+    const auto tIdx = clampIndex(maximumIndex + p.fromIndex);
     left005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
-                               QPointF(p.fromX, p.data.at(p.fromIndex).y()),
-                               QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()));
+                               QPointF(p.fromX, p.data.at(fIdx).y()),
+                               QPointF(p.data.at(tIdx).x(), p.data.at(tIdx).y()));
     useExtrapolateA0 = true;
   } else
     left005x = p.data.at(left_w005 + p.fromIndex).x();
 
   if (right_w005 == -1) {
+    const auto fIdx = clampIndex(maximumIndex + p.fromIndex);
+    const auto tIdx = clampIndex(p.toIndex);
     right005x = extrapolateEdge(ir.baselineSlope, ir.baselineIntercept, ir.peakHeightBaseline,
-                                QPointF(p.data.at(maximumIndex + p.fromIndex).x(), p.data.at(maximumIndex + p.fromIndex).y()),
-                                QPointF(p.toX, p.data.at(p.toIndex).y()));
+                                QPointF(p.data.at(fIdx).x(), p.data.at(fIdx).y()),
+                                QPointF(p.toX, p.data.at(tIdx).y()));
     useExtrapolateA0 = true;
   } else
     right005x = p.data.at(right_w005 + p.fromIndex).x();
