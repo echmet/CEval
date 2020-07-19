@@ -1,8 +1,9 @@
 //=============================================================================
 // INCLUDE
 #include "extremesearching.h"
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <stdexcept>
 
 //=============================================================================
 // SETTINGS
@@ -18,6 +19,9 @@ double TExtremeSearcher::CalcNoise()
 
   const int diL = std::max(0, _I_ - QCount);
   const int diR = std::min(diL + ChainPoints, Count);
+
+  if (diL >= Count)
+      throw std::runtime_error("Invalid value of diL");
 
   double X, Y /*, slope */;
 
@@ -100,11 +104,16 @@ void TExtremeSearcher::Search()
 
         int answer = CheckForCentralExtreme();
         if (answer) {
-            if (Noise == 0. || CalcNoise() >= Noise) {
-                if (answer > 0)
-                    OnMaximum(YMax, IMax);
-                else
-                    OnMinimum(YMin, IMin);
+            try {
+                if (Noise == 0. || CalcNoise() >= Noise) {
+                    if (answer > 0)
+                        OnMaximum(YMax, IMax);
+                    else
+                        OnMinimum(YMin, IMin);
+                }
+            } catch (const std::runtime_error &) {
+                // Something has gone really wrong with the calculation, better bail out
+                return;
             }
 
             ++_I_;                                                        // 1)
@@ -112,7 +121,7 @@ void TExtremeSearcher::Search()
             // 1) NOT _I_ += QCount -> RightBoundary
 
         } else _I_ = std::min(IMax, IMin);
-        if (counter++ > 10 * Data->Count())
+        if (counter++ > 10 * Count)
             return; // It looks like we got stuck in an infinite loop
 
     }
