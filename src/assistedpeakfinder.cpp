@@ -370,6 +370,8 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   int NoiseWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
     NoiseWindow = static_cast<int>(floor((p.noiseWindow * ppm) + 0.5));
+  else if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::SECONDS)
+    NoiseWindow = static_cast<int>(floor((p.noiseWindow * ppm * 60.0) + 0.5));
   else
     NoiseWindow = static_cast<int>(p.noiseWindow);
 
@@ -381,6 +383,8 @@ std::shared_ptr<PeakFinderResults> AssistedPeakFinder::findInternal(const Abstra
   int PeakWindow;
   if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::MINUTES)
     PeakWindow = static_cast<int>(floor((p.peakWindow * ppm) + 0.5));
+  else if (p.windowUnits == EvaluationParametersItems::ComboWindowUnits::SECONDS)
+    PeakWindow = static_cast<int>(floor((p.peakWindow * ppm * 60.0) + 0.5));
   else
     PeakWindow = static_cast<int>(p.peakWindow);
 

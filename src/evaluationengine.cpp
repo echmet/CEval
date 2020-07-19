@@ -59,7 +59,8 @@ const EvaluationParametersItems::ComboWindowUnits EvaluationEngine::s_defaultWin
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>>
 EvaluationEngine::s_windowUnitsValues({ ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Minutes"), EvaluationParametersItems::ComboWindowUnits::MINUTES),
-                                        ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Points"), EvaluationParametersItems::ComboWindowUnits::POINTS )});
+                                        ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Seconds"), EvaluationParametersItems::ComboWindowUnits::SECONDS),
+                                        ComboBoxItem<EvaluationParametersItems::ComboWindowUnits>(QObject::tr("Points"), EvaluationParametersItems::ComboWindowUnits::POINTS)});
 
 const QVector<ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>>
 EvaluationEngine::s_baselineAlgorithmValues({ ComboBoxItem<EvaluationParametersItems::ComboBaselineAlgorithm>(QObject::tr("Slope"), EvaluationParametersItems::ComboBaselineAlgorithm::SLOPE),

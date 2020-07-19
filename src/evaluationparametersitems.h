@@ -43,6 +43,7 @@ public:
 
   enum class ComboWindowUnits : int {
     MINUTES,
+    SECONDS,
     POINTS,
     LAST_INDEX
   };
