@@ -13,6 +13,7 @@ private:
   double CalcNoise(void);
 
   int CheckForCentralExtreme();
+  int GuessChainPoints(const int ChainPoints);
 
 protected:
   virtual void OnMaximum(double Value, int Index) = 0;
@@ -41,7 +42,7 @@ public:
     bool RightBoundary = false
   ) :
     Data(Data),
-    ChainPoints(ChainPoints),
+    ChainPoints(GuessChainPoints(ChainPoints)),
     Noise(Noise),
     LeftBoundary(LeftBoundary),
     RightBoundary(RightBoundary)
