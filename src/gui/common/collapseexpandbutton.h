@@ -1,6 +1,7 @@
 #ifndef COLLAPSEEXPANDBUTTON_H
 #define COLLAPSEEXPANDBUTTON_H
 
+#include <QPainterPath>
 #include <QPushButton>
 
 class QPen;
