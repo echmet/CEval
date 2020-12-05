@@ -921,11 +921,11 @@ bool HyperbolaFittingEngine::exportToCsvSingleFile(const QString &path, const QC
   stream.setCodec("UTF-8");
   stream.setGenerateByteOrderMark(false);
 
-  for (const std::shared_ptr<Analyte> analyte : m_analytes) {
+  for (const std::shared_ptr<Analyte> &analyte : m_analytes) {
     stream << analyte->name << delimiter << "\n";
 
     stream << QObject::tr("Concentration") << delimiter << QObject::tr("Mobilities") << "\n";
-    for (const std::shared_ptr<Concentration> concentration : analyte->concentrations) {
+    for (const std::shared_ptr<Concentration> &concentration : analyte->concentrations) {
       QString c = loc.toString(concentration->concentration, 'g', precision);
       c.replace(loc.decimalPoint(), decimalSeparator);
 
