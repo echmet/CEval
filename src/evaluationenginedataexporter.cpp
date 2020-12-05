@@ -187,6 +187,18 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL a3", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL S", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HVL effective mobility", m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Width 1/2 (min) full", m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Sigma (min) full", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Width 1/2 (m) full", m_resultsNumericValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Sigma (m) full", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MET_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "N full", m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "HETP (full)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_H_FULL));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Variance (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_APEX));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Variance (mean)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::VARIANCE_MEAN));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "\xCF\x83 (apex)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_APEX));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "\xCF\x83 (mean)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::SIGMA_MEAN));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "Mean at X", m_resultsNumericValues.at(EvaluationResultsItems::Floating::MEAN_X));
+  MAKE_EXPORTABLE(currentPeakExportables, EvaluationEngine, "N(asym)", m_resultsNumericValues.at(EvaluationResultsItems::Floating::N_ASYM));
   MAKE_EXPORTABLE_STR(currentPeakExportables, EvaluationEngine, "Datafile", m_currentDataContext->path);
 
 
@@ -209,6 +221,18 @@ bool EvaluationEngine::initDataExporter()
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL a3", hvlValues.at(HVLFitResultsItems::Floating::HVL_A3));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL S", hvlValues.at(HVLFitResultsItems::Floating::HVL_S));
   MAKE_EXPORTABLE(peakListExportables, PeakContext, "HVL effective mobility", hvlValues.at(HVLFitResultsItems::Floating::HVL_U_EFF_A1));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Width 1/2 (min) full", resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MIN_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Sigma (min) full", resultsValues.at(EvaluationResultsItems::Floating::SIGMA_MIN_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Width 1/2 (m) full", resultsValues.at(EvaluationResultsItems::Floating::WIDTH_HALF_MET_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Sigma (m) full", resultsValues.at(EvaluationResultsItems::Floating::SIGMA_MET_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "N full", resultsValues.at(EvaluationResultsItems::Floating::N_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "HETP", resultsValues.at(EvaluationResultsItems::Floating::N_H_FULL));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Variance (apex)", resultsValues.at(EvaluationResultsItems::Floating::VARIANCE_APEX));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Variance (mean)", resultsValues.at(EvaluationResultsItems::Floating::VARIANCE_MEAN));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "\xCF\x83 (apex)", resultsValues.at(EvaluationResultsItems::Floating::SIGMA_APEX));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "\xCF\x83 (mean)", resultsValues.at(EvaluationResultsItems::Floating::SIGMA_MEAN));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "Mean at X", resultsValues.at(EvaluationResultsItems::Floating::MEAN_X));
+  MAKE_EXPORTABLE(peakListExportables, PeakContext, "N(asym)", resultsValues.at(EvaluationResultsItems::Floating::N_ASYM));
   MAKE_EXPORTABLE_STR(peakListExportables, EvaluationEngine, "Datafile", m_currentDataContext->path);
 
   auto peakListExecutor = [](const EvaluationEngine *exportee, const DataExporter::SelectedExportablesMap &seMap, DataExporter::AbstractExporterBackend &backend, const uint32_t opts) -> bool {
