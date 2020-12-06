@@ -312,8 +312,10 @@ void SchemeEditor::onSchemeChanged(const int idx)
 
   ui->qpte_descriptionText->setPlainText(base.description);
 
+  auto exps = base.exportables;
+  std::sort(exps.begin(), exps.end());
   int posCounter = 0;
-  for (const QString &s : base.exportables) {
+  for (const QString &s : exps) {
     QStandardItem *item = new QStandardItem(s);
     item->setData(s, Qt::UserRole);
     item->setData(posCounter, Qt::UserRole + 1);
