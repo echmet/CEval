@@ -2,6 +2,8 @@
 #include "ui_commonparameterswidget.h"
 #include "../commonparametersitems.h"
 #include "../commonparameterswidgetconnector.h"
+#include "../evaluationenginecommonparametersview.h"
+#include "parameterscarryoverdialog.h"
 #include <cassert>
 
 CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
@@ -26,6 +28,14 @@ CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
 
   connect(ui->qcbox_eofSource, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
           this, &CommonParametersWidget::onEofSourceChanged);
+
+  connect(
+    ui->qpb_carryOverParamsBetweenData,
+    &QPushButton::clicked,
+    [this]() {
+      ParametersCarryOverDialog dlg(m_eeView, this);
+      dlg.exec();
+    });
 }
 
 CommonParametersWidget::~CommonParametersWidget()
@@ -116,4 +126,11 @@ void CommonParametersWidget::setCommonParametersNumModel(AbstractMapperModel<dou
   m_commonParametersNumMapper->addMapping(ui->qle_tEOF, model->indexFromItem(CommonParametersItems::Floating::T_EOF));
   m_commonParametersNumMapper->addMapping(ui->qle_voltage, model->indexFromItem(CommonParametersItems::Floating::VOLTAGE));
   m_commonParametersNumMapper->toFirst();
+}
+
+void CommonParametersWidget::setEvaluationEngineCommonParametersView(EvaluationEngineCommonParametersView *eeView)
+{
+  assert(eeView != nullptr);
+
+  m_eeView = eeView;
 }

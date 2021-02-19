@@ -1,5 +1,11 @@
 #include "commonparametersengine.h"
 #include "commonparametersitems.h"
+#include "evaluationenginecommonparametersview.h"
+
+CommonParametersEngine::Context::Context() :
+  m_valid(false)
+{
+}
 
 CommonParametersEngine::Context::Context(const MappedVectorWrapper<double, CommonParametersItems::Floating> &numData,
                                          const MappedVectorWrapper<bool, CommonParametersItems::Boolean> &boolData) :
@@ -9,9 +15,23 @@ CommonParametersEngine::Context::Context(const MappedVectorWrapper<double, Commo
 {
 }
 
-CommonParametersEngine::Context::Context() :
-  m_valid(false)
+CommonParametersEngine::Context::Context(const Context &other) :
+  numData(other.numData),
+  boolData(other.boolData),
+  m_valid(other.m_valid)
 {
+}
+
+CommonParametersEngine::Context &CommonParametersEngine::Context::operator=(const Context &other)
+{
+  using NDT = std::decay<decltype(Context::numData)>::type;
+  using BDT = std::decay<decltype(Context::boolData)>::type;
+
+  const_cast<NDT&>(numData) = other.numData;
+  const_cast<BDT&>(boolData) = other.boolData;
+  m_valid = other.m_valid;
+
+  return *this;
 }
 
 void CommonParametersEngine::checkValidity() const
@@ -33,13 +53,19 @@ bool CommonParametersEngine::Context::isValid() const
 }
 
 CommonParametersEngine::CommonParametersEngine(QObject *parent) :
-  QObject(parent)
+  QObject(parent),
+  m_eeView(nullptr)
 {
   connect(&m_numModel, &FloatingMapperModel<CommonParametersItems::Floating>::dataChanged, this, &CommonParametersEngine::onNumModelDataChanged);
   connect(&m_boolModel, &BooleanMapperModel<CommonParametersItems::Boolean>::dataChanged, this, &CommonParametersEngine::onBoolModelDataChanged);
 
   m_numModel.setUnderlyingData(m_numData.pointer());
   m_boolModel.setUnderlyingData(m_boolData.pointer());
+}
+
+CommonParametersEngine::~CommonParametersEngine()
+{
+  delete m_eeView;
 }
 
 bool CommonParametersEngine::boolValue(const CommonParametersItems::Boolean item) const
@@ -164,3 +190,7 @@ bool CommonParametersEngine::setContext(const Context &ctx)
   return true;
 }
 
+void CommonParametersEngine::setEvaluationEngineView(EvaluationEngineCommonParametersView *eeView)
+{
+  m_eeView = eeView;
+}

@@ -17,6 +17,7 @@ void CommonParametersWidgetConnector::connectAll(QObject *anonWidget, QObject *a
 
   w->setCommonParametersNumModel(dac->commonParametersEngine()->numModel());
   w->setCommonParametersBoolModel(dac->commonParametersEngine()->boolModel());
+  w->setEvaluationEngineCommonParametersView(dac->commonParametersEngine()->evaluationEngineView());
 
   QObject::connect(ce, &CommonParametersEngine::validityState, w, &CommonParametersWidget::onValidityState);
   QObject::connect(w, &CommonParametersWidget::readEof, e, &EvaluationEngine::onReadEof);

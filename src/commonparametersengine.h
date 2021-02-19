@@ -7,33 +7,45 @@
 #include "floatingmappermodel.h"
 #include "mappedvectorwrapper.h"
 
+class EvaluationEngineCommonParametersView;
+
 class CommonParametersEngine : public QObject
 {
   Q_OBJECT
 public:
   class Context {
   public:
+    Context();
     Context(const MappedVectorWrapper<double, CommonParametersItems::Floating> &numData,
             const MappedVectorWrapper<bool, CommonParametersItems::Boolean> &boolData);
-    Context();
+    Context(const Context &other);
     bool isValid() const;
 
     const MappedVectorWrapper<double, CommonParametersItems::Floating> numData;
     const MappedVectorWrapper<bool, CommonParametersItems::Boolean> boolData;
+
+    Context & operator=(const Context &other);
 
   private:
     bool m_valid;
   };
 
   explicit CommonParametersEngine(QObject *parent = nullptr);
+  ~CommonParametersEngine();
+
   AbstractMapperModel<bool, CommonParametersItems::Boolean> *boolModel();
   bool boolValue(const CommonParametersItems::Boolean item) const;
   Context currentContext() const;
   CommonParametersItems::EOFSource eofSource() const;
+  EvaluationEngineCommonParametersView *evaluationEngineView()
+  {
+    return m_eeView;
+  }
   AbstractMapperModel<double, CommonParametersItems::Floating> *numModel();
   double numValue(const CommonParametersItems::Floating item) const;
   void revalidate() const;
   bool setContext(const Context &ctx);
+  void setEvaluationEngineView(EvaluationEngineCommonParametersView *eeView);
 
 private:
   FloatingMapperModel<CommonParametersItems::Floating> m_numModel;
@@ -41,6 +53,7 @@ private:
   MappedVectorWrapper<double, CommonParametersItems::Floating> m_numData;
   MappedVectorWrapper<bool, CommonParametersItems::Boolean> m_boolData;
   CommonParametersItems::EOFSource m_eofSource;
+  EvaluationEngineCommonParametersView *m_eeView;
 
   void checkValidity() const;
   bool recalculate();

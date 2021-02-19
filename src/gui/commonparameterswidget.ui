@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>359</width>
-    <height>379</height>
+    <width>406</width>
+    <height>499</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -108,8 +108,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>347</width>
-           <height>233</height>
+           <width>364</width>
+           <height>436</height>
           </rect>
          </property>
          <property name="sizePolicy">
@@ -138,7 +138,7 @@
            <number>9</number>
           </property>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout">
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
              <layout class="QGridLayout" name="gridLayout">
               <property name="sizeConstraint">
@@ -371,36 +371,30 @@
              </layout>
             </item>
             <item>
-             <spacer name="horizontalSpacer">
+             <spacer name="verticalSpacer">
               <property name="orientation">
-               <enum>Qt::Horizontal</enum>
+               <enum>Qt::Vertical</enum>
               </property>
               <property name="sizeHint" stdset="0">
                <size>
-                <width>40</width>
-                <height>20</height>
+                <width>20</width>
+                <height>40</height>
                </size>
               </property>
              </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="qpb_carryOverParamsBetweenData">
+              <property name="text">
+               <string>Carry over parameters between data</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
          </layout>
         </widget>
        </widget>
-      </item>
-      <item>
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
      </layout>
     </widget>

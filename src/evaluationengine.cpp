@@ -6,6 +6,7 @@
 #include "gui/specifypeakboundariesdialog.h"
 #include "gui/textexporterbackendconfigurationdialog.h"
 #include "custommetatypes.h"
+#include "evaluationenginecommonparametersview.h"
 #include "helpers.h"
 #include "hvlcalculator.h"
 #include "hvlextrapolator.h"
@@ -395,6 +396,8 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
 
   connect(this, &EvaluationEngine::updateTEof, m_commonParamsEngine, &CommonParametersEngine::onUpdateTEof);
   connect(m_commonParamsEngine, &CommonParametersEngine::parametersUpdated, this, &EvaluationEngine::onCommonParametersChanged);
+
+  m_commonParamsEngine->setEvaluationEngineView(new EvaluationEngineCommonParametersView(this));
 }
 
 EvaluationEngine::~EvaluationEngine()
@@ -1789,6 +1792,8 @@ void EvaluationEngine::onCommonParametersChanged()
       m_commonParamsEngine->numValue(CommonParametersItems::Floating::VOLTAGE) == 0.0 ||
       (m_commonParamsEngine->numValue(CommonParametersItems::Floating::T_EOF) <= 0.0 && !m_commonParamsEngine->boolValue(CommonParametersItems::Boolean::NO_EOF)))
     return;
+
+  m_currentDataContext->commonContext = m_commonParamsEngine->currentContext();
 
   /* Update all stored peaks */
   for (int idx = 1; idx < m_allPeaks.size(); idx++) {
@@ -3274,6 +3279,17 @@ void EvaluationEngine::walkFoundPeaks(const QVector<std::shared_ptr<PeakFinderRe
     }
 
     m_currentPeak = m_allPeaks.back().peak();
+  }
+}
+
+void EvaluationEngine::updateCommonParameters(const CommonParametersEngine::Context &params, const DataHash &hash)
+{
+  auto it = m_allDataContexts.find(hash);
+  if (it != m_allDataContexts.end()) {
+    if (m_currentDataContextKey == hash)
+      m_commonParamsEngine->setContext(params);
+    else
+      it.value()->commonContext = params;
   }
 }
 

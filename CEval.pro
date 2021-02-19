@@ -79,6 +79,7 @@ CONFIG(debug, debug|release) {
 
 
 SOURCES += src/main.cpp \
+    src/evaluationenginecommonparametersview.cpp \
         src/gui/evalmainwindow.cpp \
     src/gui/common/floatingvaluelineedit.cpp \
     src/commonparametersengine.cpp \
@@ -92,6 +93,7 @@ SOURCES += src/main.cpp \
     src/evaluationwidgetconnector.cpp \
     src/evalmainwindowconnector.cpp \
     src/gui/evaluatedpeakswidget.cpp \
+    src/gui/parameterscarryoverdialog.cpp \
     src/gui/selectpeakdialog.cpp \
     src/foundpeaksmodel.cpp \
     src/math/extremesearching.cpp \
@@ -190,6 +192,7 @@ SOURCES += src/main.cpp \
     src/softwareupdateresult.cpp
 
 HEADERS  += src/gui/evalmainwindow.h \
+    src/evaluationenginecommonparametersview.h \
     src/gui/common/floatingvaluelineedit.h \
     src/commonparametersengine.h \
     src/dataaccumulator.h \
@@ -210,6 +213,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/evalmainwindowconnector.h \
     src/dynamiccomboboxmodel.h \
     src/gui/evaluatedpeakswidget.h \
+    src/gui/parameterscarryoverdialog.h \
     src/helpers.h \
     src/gui/selectpeakdialog.h \
     src/foundpeaksmodel.h \
@@ -407,6 +411,7 @@ FORMS    += src/gui/evalmainwindow.ui \
     src/gui/commonparameterswidget.ui \
     src/gui/loadchemstationdatadialog.ui \
     src/gui/evaluatedpeakswidget.ui \
+    src/gui/parameterscarryoverdialog.ui \
     src/gui/selectpeakdialog.ui \
     src/gui/addpeakdialog.ui \
     src/gui/numberformatdialog.ui \

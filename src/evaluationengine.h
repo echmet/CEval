@@ -33,116 +33,6 @@ class TextExporterBackendConfigurationDialog;
 class EvaluationEngine : public QObject, public DataExporter::IExportable
 {
   Q_OBJECT
-public:
-  enum class DataExporterBackends {
-    TEXT,
-    HTML
-  };
-  Q_ENUM(DataExporterBackends)
-
-  enum class FindPeakMenuActions {
-    PEAK_FROM_HERE,
-    PEAK_FROM_HERE_SIGSNAP,
-    SPECIFY_PEAK_BOUNDARIES,
-    NOISE_REF_POINT,
-    SLOPE_REF_POINT,
-    SET_AXIS_TITLES,
-    SET_EOF_TIME,
-    SCALE_PLOT_TO_FIT
-  };
-  Q_ENUM(FindPeakMenuActions)
-
-  enum class ManualIntegrationMenuActions {
-    FINISH,
-    FINISH_SIGSNAP,
-    CANCEL
-  };
-  Q_ENUM(ManualIntegrationMenuActions)
-
-  enum class PostProcessMenuActions {
-    NEW_PEAK_FROM,
-    NEW_PEAK_FROM_SIGSNAP,
-    MOVE_PEAK_FROM,
-    MOVE_PEAK_FROM_SIGSNAP,
-    SPECIFY_PEAK_BOUNDARIES,
-    MOVE_PEAK_TO,
-    MOVE_PEAK_TO_SIGSNAP,
-    DESELECT_PEAK,
-    SET_AXIS_TITLES,
-    SET_EOF_TIME,
-    SCALE_PLOT_TO_FIT,
-    SET_NOISE_REF_BL,
-  };
-  Q_ENUM(PostProcessMenuActions)
-
-  enum class SetNoiseReferenceBaselineActions {
-    FINISH,
-    CANCEL
-  };
-  Q_ENUM(SetNoiseReferenceBaselineActions)
-
-  enum class UserInteractionState {
-    FINDING_PEAK,
-    MANUAL_PEAK_INTEGRATION,
-    MANUAL_PEAK_INTEGRATION_FINISHING,
-    PEAK_POSTPROCESSING,
-    NOISE_REFERENCE_BL_SETTING
-  };
-  Q_ENUM(UserInteractionState)
-
-  explicit EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent = nullptr);
-  ~EvaluationEngine();
-  void announceDefaultState();
-  AbstractMapperModel<bool, EvaluationParametersItems::Auto> *autoValuesModel();
-  void assignContext(std::shared_ptr<PlotContextLimited> ctx);
-  QAbstractItemModel *baselineModel();
-  AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
-  QAbstractItemModel *clipboardDataArrangementModel();
-  QAbstractItemModel *evaluatedPeaksModel();
-  QAbstractItemModel *exporterBackendsModel();
-  QAbstractItemModel *exporterSchemesModel();
-  std::tuple<AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *, AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *>
-  hvlExtrapolatorModels();
-  AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitBooleanModel();
-  AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
-  AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
-  AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *hvlFitOptionsModel();
-  QAbstractItemModel *loadedFilesModel();
-  void loadUserSettings(const QVariant &settings);
-  AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
-  AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
-  AbstractMapperModel<double, SNRItems::Floating> *snrModel();
-  QVariant saveUserSettings() const;
-  QAbstractItemModel *showWindowModel();
-  QAbstractItemModel *windowUnitsModel();
-
-private:
-  enum class DataLockState : int {
-    FREE,
-    LOCKED_FOR_DATA_MODIFICATION,
-    LOCKED_FOR_OPERATION
-  };
-
-  enum class Series : int {
-    SIG,
-    PEAK_HEIGHT,
-    PEAK_TIME,
-    BASELINE,
-    EOF_MARK,
-    FINDER_SYSTEM_A,
-    FINDER_SYSTEM_B,
-    HVL,
-    PROV_PEAK,
-    BASELINE_FROM,
-    BASELINE_TO,
-    PROV_BASELINE,
-    A1_PARAM,
-    PEAK_MEAN,
-    HVL_EXTRAPOLATED,
-    HVL_EXTRAPOLATED_BASELINE,
-    NOISE_BASELINE,
-    LAST_INDEX
-  };
 
   class AssistedFinderContext {
   public:
@@ -165,41 +55,6 @@ private:
     const EvaluationParametersItems::ComboBaselineAlgorithm baselineAlgorithm;
     const EvaluationParametersItems::ComboShowWindow showWindow;
     const EvaluationParametersItems::ComboWindowUnits windowUnits;
-
-  };
-
-  /* NOTE: This is *NOT* a thread synchronization mechanism - do not use it as such!
-     This only prevents slots executing from the same event queue from messing up
-     the data storage. */
-  class DataAccessLocker {
-  public:
-    DataAccessLocker(DataLockState *lockState);
-    ~DataAccessLocker();
-
-    bool lockForDataModification();
-    bool lockForOperation();
-
-  private:
-    bool lock(const DataLockState lockTo);
-
-    DataLockState *m_lockState;
-    DataLockState m_releaseToState;
-
-  };
-
-  class PeakContextModels {
-  public:
-    explicit PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
-                               const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
-                               const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
-                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
-                               const MappedVectorWrapper<double, SNRItems::Floating> &snrValues);
-
-    const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
-    const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
-    const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
-    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues;
-    const MappedVectorWrapper<double, SNRItems::Floating> snrValues;
 
   };
 
@@ -288,6 +143,7 @@ private:
 
   };
 
+public:
   class DataContext {
   public:
     DataContext(std::shared_ptr<EFGData> data, const QString &name, const QString &path, QString id,
@@ -301,6 +157,156 @@ private:
     EvaluationContext evaluationContext;
   };
   typedef QHash<DataHash, std::shared_ptr<DataContext>> DataContextMap;
+
+  enum class DataExporterBackends {
+    TEXT,
+    HTML
+  };
+  Q_ENUM(DataExporterBackends)
+
+  enum class FindPeakMenuActions {
+    PEAK_FROM_HERE,
+    PEAK_FROM_HERE_SIGSNAP,
+    SPECIFY_PEAK_BOUNDARIES,
+    NOISE_REF_POINT,
+    SLOPE_REF_POINT,
+    SET_AXIS_TITLES,
+    SET_EOF_TIME,
+    SCALE_PLOT_TO_FIT
+  };
+  Q_ENUM(FindPeakMenuActions)
+
+  enum class ManualIntegrationMenuActions {
+    FINISH,
+    FINISH_SIGSNAP,
+    CANCEL
+  };
+  Q_ENUM(ManualIntegrationMenuActions)
+
+  enum class PostProcessMenuActions {
+    NEW_PEAK_FROM,
+    NEW_PEAK_FROM_SIGSNAP,
+    MOVE_PEAK_FROM,
+    MOVE_PEAK_FROM_SIGSNAP,
+    SPECIFY_PEAK_BOUNDARIES,
+    MOVE_PEAK_TO,
+    MOVE_PEAK_TO_SIGSNAP,
+    DESELECT_PEAK,
+    SET_AXIS_TITLES,
+    SET_EOF_TIME,
+    SCALE_PLOT_TO_FIT,
+    SET_NOISE_REF_BL,
+  };
+  Q_ENUM(PostProcessMenuActions)
+
+  enum class SetNoiseReferenceBaselineActions {
+    FINISH,
+    CANCEL
+  };
+  Q_ENUM(SetNoiseReferenceBaselineActions)
+
+  enum class UserInteractionState {
+    FINDING_PEAK,
+    MANUAL_PEAK_INTEGRATION,
+    MANUAL_PEAK_INTEGRATION_FINISHING,
+    PEAK_POSTPROCESSING,
+    NOISE_REFERENCE_BL_SETTING
+  };
+  Q_ENUM(UserInteractionState)
+
+  explicit EvaluationEngine(CommonParametersEngine *commonParamsEngine, QObject *parent = nullptr);
+  ~EvaluationEngine();
+  const DataContextMap & allDataContexts() const
+  {
+    return m_allDataContexts;
+  }
+  void announceDefaultState();
+  AbstractMapperModel<bool, EvaluationParametersItems::Auto> *autoValuesModel();
+  void assignContext(std::shared_ptr<PlotContextLimited> ctx);
+  QAbstractItemModel *baselineModel();
+  AbstractMapperModel<bool, EvaluationParametersItems::Boolean> *booleanValuesModel();
+  QAbstractItemModel *clipboardDataArrangementModel();
+  QAbstractItemModel *evaluatedPeaksModel();
+  QAbstractItemModel *exporterBackendsModel();
+  QAbstractItemModel *exporterSchemesModel();
+  std::tuple<AbstractMapperModel<bool, HVLExtrapolationParametersItems::Boolean> *, AbstractMapperModel<double, HVLExtrapolationParametersItems::Floating> *>
+  hvlExtrapolatorModels();
+  AbstractMapperModel<bool, HVLFitParametersItems::Boolean> *hvlFitBooleanModel();
+  AbstractMapperModel<int, HVLFitParametersItems::Int> *hvlFitIntModel();
+  AbstractMapperModel<double, HVLFitResultsItems::Floating> *hvlFitModel();
+  AbstractMapperModel<bool, HVLFitOptionsItems::Boolean> *hvlFitOptionsModel();
+  QAbstractItemModel *loadedFilesModel();
+  void loadUserSettings(const QVariant &settings);
+  AbstractMapperModel<double, EvaluationParametersItems::Floating> *floatingValuesModel();
+  AbstractMapperModel<double, EvaluationResultsItems::Floating> *resultsValuesModel();
+  AbstractMapperModel<double, SNRItems::Floating> *snrModel();
+  QVariant saveUserSettings() const;
+  QAbstractItemModel *showWindowModel();
+  void updateCommonParameters(const CommonParametersEngine::Context &params, const DataHash &hash);
+  QAbstractItemModel *windowUnitsModel();
+
+private:
+  enum class DataLockState : int {
+    FREE,
+    LOCKED_FOR_DATA_MODIFICATION,
+    LOCKED_FOR_OPERATION
+  };
+
+  enum class Series : int {
+    SIG,
+    PEAK_HEIGHT,
+    PEAK_TIME,
+    BASELINE,
+    EOF_MARK,
+    FINDER_SYSTEM_A,
+    FINDER_SYSTEM_B,
+    HVL,
+    PROV_PEAK,
+    BASELINE_FROM,
+    BASELINE_TO,
+    PROV_BASELINE,
+    A1_PARAM,
+    PEAK_MEAN,
+    HVL_EXTRAPOLATED,
+    HVL_EXTRAPOLATED_BASELINE,
+    NOISE_BASELINE,
+    LAST_INDEX
+  };
+
+  /* NOTE: This is *NOT* a thread synchronization mechanism - do not use it as such!
+     This only prevents slots executing from the same event queue from messing up
+     the data storage. */
+  class DataAccessLocker {
+  public:
+    DataAccessLocker(DataLockState *lockState);
+    ~DataAccessLocker();
+
+    bool lockForDataModification();
+    bool lockForOperation();
+
+  private:
+    bool lock(const DataLockState lockTo);
+
+    DataLockState *m_lockState;
+    DataLockState m_releaseToState;
+
+  };
+
+  class PeakContextModels {
+  public:
+    explicit PeakContextModels(const MappedVectorWrapper<double, EvaluationResultsItems::Floating> &resultsValues,
+                               const MappedVectorWrapper<double, HVLFitResultsItems::Floating> &hvlValues,
+                               const MappedVectorWrapper<int, HVLFitParametersItems::Int> &hvlFitIntValues,
+                               const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> &hvlFitBooleanValues,
+                               const MappedVectorWrapper<double, SNRItems::Floating> &snrValues);
+
+    const MappedVectorWrapper<double, EvaluationResultsItems::Floating> resultsValues;
+    const MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlValues;
+    const MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues;
+    const MappedVectorWrapper<bool, HVLFitParametersItems::Boolean> hvlFitBooleanValues;
+    const MappedVectorWrapper<double, SNRItems::Floating> snrValues;
+
+  };
 
   void activateCurrentDataContext();
   void addPeakToList(const PeakContext &ctx, const QString &name, const bool registerInHF, const RegisterInHyperbolaFitWidget::MobilityFrom mobilityFrom);
@@ -322,13 +328,13 @@ private:
 
   std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int>
   doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
-                                                                     const double estA0, const double estA1, const double estA2, const double estA3,
-                                                                     const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
-                                                                     const double epsilon,
-                                                                     const int iterations, const int digits, const double tUsp,
-                                                                     const double baselineSlope, const double baselineIntercept,
-                                                                     const bool autoDigits,
-                                                                     bool *ok);
+           const double estA0, const double estA1, const double estA2, const double estA3,
+           const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
+           const double epsilon,
+           const int iterations, const int digits, const double tUsp,
+           const double baselineSlope, const double baselineIntercept,
+           const bool autoDigits,
+           bool *ok);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);
   QVector<double> emptyHvlValues() const;

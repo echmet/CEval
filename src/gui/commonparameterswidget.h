@@ -9,6 +9,7 @@
 #include "../floatingvaluedelegate.h"
 #include "common/qmappedcheckbox.h"
 
+class EvaluationEngineCommonParametersView;
 
 namespace Ui {
 class CommonParametersWidget;
@@ -23,6 +24,7 @@ public:
   void connectToAccumulator(QObject *dac);
   void setCommonParametersBoolModel(AbstractMapperModel<bool, CommonParametersItems::Boolean> *model);
   void setCommonParametersNumModel(AbstractMapperModel<double, CommonParametersItems::Floating> *model);
+  void setEvaluationEngineCommonParametersView(EvaluationEngineCommonParametersView *eeView);
 
 private:
   void markAsInvalid(QWidget *w, const bool invalid);
@@ -33,6 +35,7 @@ private:
   QDataWidgetMapper *m_commonParametersNumMapper;
   FloatingValueDelegate m_commonParametersMapperDelegate;
   QPalette m_invalidPalette;
+  EvaluationEngineCommonParametersView *m_eeView;
 
 signals:
   void eofSourceChanged(const CommonParametersItems::EOFSource source);
