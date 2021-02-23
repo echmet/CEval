@@ -42,6 +42,7 @@ public slots:
   void onFileSwitched(const int idx);
 
 private slots:
+  void onCloseAllFilesClicked();
   void onCloseFileClicked();
   void onFileComboBoxChanged(const int idx);
   void onNextFileClicked();

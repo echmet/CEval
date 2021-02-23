@@ -22,10 +22,10 @@
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <layout class="QGridLayout" name="gridLayout_7">
-     <item row="0" column="3">
-      <widget class="QPushButton" name="qpb_nextFile">
+     <item row="0" column="2">
+      <widget class="QPushButton" name="qpb_prevFile">
        <property name="text">
-        <string>Next file</string>
+        <string>Prev. file</string>
        </property>
       </widget>
      </item>
@@ -36,20 +36,17 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="2">
-      <widget class="QPushButton" name="qpb_prevFile">
+     <item row="0" column="3">
+      <widget class="QPushButton" name="qpb_nextFile">
        <property name="text">
-        <string>Prev. file</string>
+        <string>Next file</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QComboBox" name="qcbox_files">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-         <horstretch>0</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
+     <item row="0" column="4">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
        </property>
       </widget>
      </item>
@@ -66,10 +63,20 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="4">
-      <widget class="Line" name="line">
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
+     <item row="0" column="1">
+      <widget class="QComboBox" name="qcbox_files">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="6">
+      <widget class="QPushButton" name="qpb_closeAllFiles">
+       <property name="text">
+        <string>Close all files</string>
        </property>
       </widget>
      </item>

@@ -1,6 +1,7 @@
 #include "evaluationupperwidget.h"
 #include "ui_evaluationupperwidget.h"
 #include "../evaluationupperwidgetconnector.h"
+#include <QMessageBox>
 
 EvaluationUpperWidget::EvaluationUpperWidget(QWidget *parent) :
   QWidget(parent),
@@ -25,6 +26,7 @@ EvaluationUpperWidget::EvaluationUpperWidget(QWidget *parent) :
   m_splitter->setStretchFactor(2, 1);
 
   connect(ui->qcbox_files, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this, &EvaluationUpperWidget::onFileComboBoxChanged);
+  connect(ui->qpb_closeAllFiles, &QPushButton::clicked, this, &EvaluationUpperWidget::onCloseAllFilesClicked);
   connect(ui->qpb_closeFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onCloseFileClicked);
   connect(ui->qpb_nextFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onNextFileClicked);
   connect(ui->qpb_prevFile, &QPushButton::clicked, this, &EvaluationUpperWidget::onPreviousFileClicked);
@@ -41,6 +43,15 @@ void EvaluationUpperWidget::connectToAccumulator(QObject *dac)
   m_commonParametersWidget->connectToAccumulator(dac);
   m_evaluatedPeaksWidget->connectToAccumulator(dac);
   m_evaluationWidget->connectToAccumulator(dac);
+}
+
+void EvaluationUpperWidget::onCloseAllFilesClicked()
+{
+  if (QMessageBox::question(this, tr("Close all files?"), tr("Are you sure you want to close all files?"))!= QMessageBox::Yes)
+    return;
+
+  while (ui->qcbox_files->count() > 0)
+    emit closeFile(0);
 }
 
 void EvaluationUpperWidget::onCloseFileClicked()
