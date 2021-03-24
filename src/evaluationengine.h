@@ -333,7 +333,6 @@ private:
            const double epsilon,
            const int iterations, const int digits, const double tUsp,
            const double baselineSlope, const double baselineIntercept,
-           const bool autoDigits,
            bool *ok);
   void drawEofMarker();
   PeakContext duplicatePeakContext() const noexcept(false);

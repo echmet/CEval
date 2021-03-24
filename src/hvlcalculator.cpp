@@ -8,7 +8,6 @@
 #include <QElapsedTimer>
 #include <QMessageBox>
 #include <QApplication>
-#include <QThread>
 #include <Eigen/Dense>
 #include <functional>
 
@@ -41,28 +40,8 @@ HVLCalculator::HVLInParameters::HVLInParameters()
 {
 }
 
-HVLCalculator::HVLEstimateParameters::HVLEstimateParameters(const double from, const double to, const double step,
-                                                            const double a0, const double a1, const double a2, const double a3,
-                                                            const bool negative):
-  from(from),
-  to(to),
-  step(step),
-  a0(a0),
-  a1(a1),
-  a2(a2),
-  a3(a3),
-  negative(negative)
-{
-}
-
-HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
-  QObject(parent)
-{
-}
-
 HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params) :
   m_regressor(new echmet::regressCore::HVLPeak<double, double>()),
-  m_aborted(false),
   m_params(params)
 {
 }
@@ -72,16 +51,6 @@ HVLCalculatorWorker::~HVLCalculatorWorker()
     delete m_regressor;
 }
 
-void HVLCalculatorWorker::abort()
-{
-  QMutexLocker locker(&m_abortLock);
-
-  if (!m_aborted) {
-    m_regressor->Abort();
-    m_aborted = true;
-  }
-}
-
 const HVLCalculator::HVLParameters & HVLCalculatorWorker::results() const
 {
   return m_outParams;
@@ -89,17 +58,6 @@ const HVLCalculator::HVLParameters & HVLCalculatorWorker::results() const
 
 void HVLCalculatorWorker::process()
 {
-  auto repFunc = [](const echmet::regressCore::RegressFunction<double, double> &rFunc, void *me) {
-    HVLCalculatorWorker *tMe = static_cast<HVLCalculatorWorker *>(me);
-    const int iter = rFunc.GetIterationCounter();
-
-    QTime now = QTime::currentTime();
-
-    const double elapsedTime = tMe->m_fitStartTime.msecsTo(now);
-    const double avgTimePerIter = elapsedTime / (iter * 1000.0);
-
-    emit tMe->nextIteration(iter, avgTimePerIter);
-  };
 
   int size = m_params.toIdx - m_params.fromIdx;
   if (size < 1)
@@ -117,11 +75,8 @@ void HVLCalculatorWorker::process()
                                echmet::HVLCore::Coefficients(m_params.a0, m_params.a1, m_params.a2, m_params.a3),
                                m_params.bsl, m_params.bslSlope)) {
     m_outParams.failure = HVLCalculator::HVLParameters::Failure::CANNOT_INIT;
-    emit finished();
     return;
   }
-
-  m_regressor->RegisterReportFunction(repFunc, this);
 
   if (m_params.a0fixed)
     m_regressor->FixParameter(echmet::regressCore::HVLPeakParams::a0, m_params.a0);
@@ -140,12 +95,10 @@ void HVLCalculatorWorker::process()
 
   if (m_regressor->IsAborted()) {
     m_outParams.failure = HVLCalculator::HVLParameters::Failure::ABORTED;
-    emit finished();
     return;
   }
   if (!ok) {
     m_outParams.failure = HVLCalculator::HVLParameters::Failure::NO_CONVERGENCE;
-    emit finished();
     return;
   }
 
@@ -158,10 +111,6 @@ void HVLCalculatorWorker::process()
   m_outParams.s0 = s0;
   m_outParams.iterations = m_regressor->GetIterationCounter();
   m_outParams.validate();
-
-  m_regressor->UnregisterReportFunction();
-
-  emit finished();
 }
 
 HVLCalculator::~HVLCalculator()
@@ -178,61 +127,11 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
   }
 }
 
-HVLEstimatorWorker::HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params) :
-  m_params(params)
-{
-}
-
-HVLEstimatorWorker::~HVLEstimatorWorker()
-{
-}
-
-void HVLEstimatorWorker::process()
-{
-  try {
-    m_precision = echmet::HVLCore::guessMPFRPrecision(m_params.a3);
-  } catch (const std::runtime_error &) {
-    m_precision = -1;
-  }
-
-  emit finished();
-}
-
-int HVLEstimatorWorker::precision() const
-{
-  if (m_precision > 0)
-    return m_precision;
-  else
-    throw std::runtime_error("MPFR precision out of bounds");
-}
-
-int HVLCalculator::estimatePrecision(const double from, const double to, const double step,
-                                     const double a0, const double a1, const double a2, const double a3,
-                                     const bool negative)
-{
-  HVLEstimateParameters params(from, to, step, a0, a1, a2, a3, negative);
-  HVLEstimateInProgressDialog dlg;
-  HVLEstimatorWorker worker(params);
-  QThread workerThread;
-
-  worker.moveToThread(&workerThread);
-
-  connect(&workerThread, &QThread::started, &worker, &HVLEstimatorWorker::process);
-  connect(&worker, &HVLEstimatorWorker::finished, &workerThread, &QThread::quit);
-  connect(&worker, &HVLEstimatorWorker::finished, &dlg, &HVLEstimateInProgressDialog::onEstimateDone);
-
-  workerThread.start();
-  dlg.exec();
-  workerThread.wait();
-
-  return worker.precision();
-}
-
 HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     double a0, double a1, double a2, double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations, int digits, const bool autoDigits,
+    const double epsilon, const int iterations,
     const bool showStats = false)
 {
   Q_ASSERT(s_me != nullptr);
@@ -242,7 +141,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   HVLInParameters in;
 
   if (!(epsilon > 0.0)) {
-    QMessageBox::warning(nullptr, tr("Invalid parameter"), tr("Value of \"epsilon\" must be positive"));
+    QMessageBox::warning(nullptr, QObject::tr("Invalid parameter"), QObject::tr("Value of \"epsilon\" must be positive"));
     return p;
   }
 
@@ -263,33 +162,19 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   in.toIdx = toIdx;
 
   HVLCalculatorWorker worker(in);
-  QThread thread;
-  worker.moveToThread(&thread);
-  connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
-  connect(&worker, &HVLCalculatorWorker::finished, &thread, &QThread::quit);
-  connect(&worker, &HVLCalculatorWorker::finished, &inProgressDlg, &HVLFitInProgressDialog::onHvlFitDone);
-  connect(&worker, &HVLCalculatorWorker::nextIteration, &inProgressDlg, &HVLFitInProgressDialog::setCurrentIteration);
-  connect(&inProgressDlg, &HVLFitInProgressDialog::abortFit, &worker, &HVLCalculatorWorker::abort, Qt::DirectConnection);
-
-  QElapsedTimer stopwatch;
-  stopwatch.start();
-
-  thread.start();
-  inProgressDlg.exec();
-  thread.wait();
-
+  worker.process();
   p = worker.results();
 
   switch (p.failure) {
   case HVLParameters::Failure::ABORTED:
     return p;
   case HVLParameters::Failure::CANNOT_INIT:
-    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor could not have been initialized"));
+    QMessageBox::warning(nullptr, QObject::tr("HVL fit failed"), QObject::tr("Regressor could not have been initialized"));
     return p;
   case HVLParameters::Failure::NO_CONVERGENCE:
-    QMessageBox::warning(nullptr, tr("HVL fit failed"), tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
-                                                           "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
-                                                           "of iterations will not have any effect.").arg(in.iterations));
+    QMessageBox::warning(nullptr, QObject::tr("HVL fit failed"), QObject::tr("Regressor failed to converge within %1 iterations. Try to increase the number of iterations and run the fit again.\n\n"
+                                                                             "Note that it might be impossible to fit your data with HVL function. In such a case increasing the number "
+                                                                             "of iterations will not have any effect.").arg(in.iterations));
 
     return p;
   case HVLParameters::Failure::OK:
@@ -304,14 +189,12 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
           "Iterations: %1 :\nold value -> new value :\n"
           "Sigma : %2 -> %3\n"
           "a1  : %4 -> %5\n"
-          "Time elapsed (sec): %6"
        ))
       .arg(p.iterations)
       .arg(p.s0, 10)
       .arg(p.s, 10)
       .arg(a1, 10)
       .arg(p.a1, 10)
-      .arg(static_cast<double>(stopwatch.elapsed()) / 1000.0)
     );
   }
 
@@ -321,7 +204,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
 QVector<QPointF> HVLCalculator::plot(
     const double a0,    const double a1, const double a2, const double a3,
     const double fromX, const double toX,
-    const double step,  const int digits
+    const double step
 )
 {
   Q_ASSERT(s_me != nullptr);
@@ -340,7 +223,7 @@ QVector<QPointF> HVLCalculator::plot(
 bool HVLCalculator::initialize()
 {
   try {
-    s_me = new HVLCalculator(nullptr, 30); /* Use some default precision, will be overriden by later */
+    s_me = new HVLCalculator(); /* Use some default precision, will be overriden by later */
   } catch (std::bad_alloc&) {
     QMessageBox::warning(nullptr, QObject::tr("HVL fitting error"), QObject::tr("Unable to initialize HVL calculator"));
     return false;

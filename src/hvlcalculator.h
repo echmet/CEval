@@ -4,7 +4,6 @@
 #include <QVector>
 #include <QPointF>
 #include <QObject>
-#include <QMutex>
 #include <QTime>
 
 namespace echmet {
@@ -13,9 +12,7 @@ namespace echmet {
   }
 }
 
-class HVLCalculator : public QObject
-{
-  Q_OBJECT
+class HVLCalculator {
 public:
   class HVLParameters {
   public:
@@ -45,23 +42,6 @@ public:
     bool m_valid;
   };
 
-  class HVLEstimateParameters {
-  public:
-    explicit HVLEstimateParameters(const double from, const double to, const double step,
-                                   const double a0, const double a1, const double a2, const double a3,
-                                   const bool negative);
-
-    const double from;
-    const double to;
-    const double step;
-    const double a0;
-    const double a1;
-    const double a2;
-    const double a3;
-    const bool negative;
-
-  };
-
   class HVLInParameters {
   public:
     explicit HVLInParameters();
@@ -88,29 +68,24 @@ public:
 
   static void applyBaseline(QVector<QPointF> &data, const double k, const double q);
 
-  static int estimatePrecision(const double from, const double to, const double step,
-                               const double a0, const double a1, const double a2, const double a3,
-                               const bool negative);
-
   static HVLParameters fit(
     const QVector<QPointF> &data, const int fromIdx, const int toIdx,
     const double a0, const double a1, const double a2, const double a3,
     const bool a0fixed, const bool a1fixed, const bool a2fixed, const bool a3fixed,
     const double bsl, const double bslSlope,
-    const double epsilon, const int iterations, const int digits,
-    const bool autoDigits,
+    const double epsilon, const int iterations,
     const bool showStats
   );
 
   static QVector<QPointF> plot(
     const double a0, const double a1, const double a2, const double a3,
     const double fromX, const double toX,
-    const double step,  const int    digits
+    const double step
   );
 
 
 private:
-  explicit HVLCalculator(QObject *parent, const int precision);
+  HVLCalculator() = default;
   void doFit(HVLParameters *out, const HVLInParameters *in);
 
   static HVLCalculator *s_me;
@@ -118,47 +93,19 @@ private:
 };
 
 class HVLCalculatorWorker : public QObject {
-  Q_OBJECT
 public:
   explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params);
   ~HVLCalculatorWorker();
   const HVLCalculator::HVLParameters & results() const;
 
-signals:
-  void finished();
-  void nextIteration(const int iteration, const double avgTimePerIter);
-
-public slots:
-  void abort();
   void process();
 
 private:
   echmet::regressCore::HVLPeak<double, double> *m_regressor;
   HVLCalculator::HVLParameters m_outParams;
   QTime m_fitStartTime;
-  QMutex m_abortLock;
-  bool m_aborted;
 
   const HVLCalculator::HVLInParameters m_params;
-
-};
-
-class HVLEstimatorWorker : public QObject {
-  Q_OBJECT
-public:
-  explicit HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params);
-  ~HVLEstimatorWorker();
-  int precision() const;
-
-signals:
-  void finished();
-
-public slots:
-  void process();
-
-private:
-  const HVLCalculator::HVLEstimateParameters &m_params;
-  int m_precision;
 
 };
 

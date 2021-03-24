@@ -1,7 +1,6 @@
 #ifndef HVLEXTRAPOLATOR_H
 #define HVLEXTRAPOLATOR_H
 
-#include "hvllibwrapper.h"
 #include "peakevaluator.h"
 #include <QPointF>
 #include <QVector>

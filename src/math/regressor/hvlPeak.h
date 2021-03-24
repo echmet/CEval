@@ -213,6 +213,7 @@ const {
 template <typename XT, typename YT>
 void HVLPeak<XT, YT>::AValidateParameters(MatrixY &params)
 {
+   (void)params;
   /* NOOP */
 }
 
