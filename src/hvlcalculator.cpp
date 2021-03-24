@@ -4,7 +4,6 @@
 #include "gui/hvlfitinprogressdialog.h"
 #include "gui/hvlestimateinprogressdialog.h"
 #include "math/hvlestimate.h"
-#include "hvllibwrapper.h"
 #include "math/regressor/hvlPeak.h"
 #include <QElapsedTimer>
 #include <QMessageBox>
@@ -57,13 +56,12 @@ HVLCalculator::HVLEstimateParameters::HVLEstimateParameters(const double from, c
 }
 
 HVLCalculator::HVLCalculator(QObject *parent, const int precision) :
-  QObject(parent),
-  m_wrapper(new HVLLibWrapper(precision))
+  QObject(parent)
 {
 }
 
-HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper, const bool autoDigits) :
-  m_regressor(new echmet::regressCore::HVLPeak<double, double>(wrapper, autoDigits)),
+HVLCalculatorWorker::HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params) :
+  m_regressor(new echmet::regressCore::HVLPeak<double, double>()),
   m_aborted(false),
   m_params(params)
 {
@@ -156,7 +154,7 @@ void HVLCalculatorWorker::process()
   m_outParams.a2 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a2);
   m_outParams.a3 = m_regressor->GetParameter(echmet::regressCore::HVLPeakParams::a3);
   m_outParams.s = m_regressor->GetS();
-  m_outParams.finalPrecision = m_regressor->FinalPrecision();
+  m_outParams.finalPrecision = 0;
   m_outParams.s0 = s0;
   m_outParams.iterations = m_regressor->GetIterationCounter();
   m_outParams.validate();
@@ -168,7 +166,6 @@ void HVLCalculatorWorker::process()
 
 HVLCalculator::~HVLCalculator()
 {
-  delete m_wrapper;
 }
 
 void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const double q)
@@ -181,9 +178,8 @@ void HVLCalculator::applyBaseline(QVector<QPointF> &data, const double k, const 
   }
 }
 
-HVLEstimatorWorker::HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params, HVLLibWrapper *wrapper) :
-  m_params(params),
-  m_wrapper(wrapper)
+HVLEstimatorWorker::HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params) :
+  m_params(params)
 {
 }
 
@@ -216,7 +212,7 @@ int HVLCalculator::estimatePrecision(const double from, const double to, const d
 {
   HVLEstimateParameters params(from, to, step, a0, a1, a2, a3, negative);
   HVLEstimateInProgressDialog dlg;
-  HVLEstimatorWorker worker(params, s_me->m_wrapper);
+  HVLEstimatorWorker worker(params);
   QThread workerThread;
 
   worker.moveToThread(&workerThread);
@@ -250,12 +246,6 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
     return p;
   }
 
-  try {
-    s_me->m_wrapper->setPrecision(digits);
-  } catch (HVLLibWrapper::HVLLibException &) {
-    return p;
-  }
-
   in.a0 = a0;
   in.a0fixed = a0fixed;
   in.a1 = a1;
@@ -272,7 +262,7 @@ HVLCalculator::HVLParameters HVLCalculator::fit(const QVector<QPointF> &data, co
   in.iterations = iterations;
   in.toIdx = toIdx;
 
-  HVLCalculatorWorker worker(in, s_me->m_wrapper, autoDigits);
+  HVLCalculatorWorker worker(in);
   QThread thread;
   worker.moveToThread(&thread);
   connect(&thread, &QThread::started, &worker, &HVLCalculatorWorker::process);
@@ -337,43 +327,14 @@ QVector<QPointF> HVLCalculator::plot(
   Q_ASSERT(s_me != nullptr);
   QVector<QPointF> vec;
 
-  try {
-    s_me->m_wrapper->setPrecision(digits);
-  } catch (HVLLibWrapper::HVLLibException &) {
-    return vec;
+  using HVLCalc = VHHVLCalculator<double>;
+
+  for (double x = fromX; x <= toX; x += step) {
+      double y = HVLCalc::y(x, a0, a1, a2, a3);
+      vec.push_back(QPointF(x, y));
   }
 
-  try {
-    HVLLibWrapper::Result result = s_me->m_wrapper->calculateRange(HVLLibWrapper::Parameter::T, fromX, toX, step, a0, a1, a2, a3);
-
-    for (int idx = 0; idx < result.count(); idx++) {
-      const HVLLibWrapper::XY &xy = result[idx];
-
-      vec.push_back(QPointF(xy.x, xy.y));
-    }
-
-    return vec;
-  } catch (const HVLLibWrapper::HVLLibException &ex) {
-    if (ex.isFatal) {
-      QMessageBox mbox(QMessageBox::Critical,
-                       tr("Failed to plot HVL function"),
-                       QString(tr("HVL function you tried to plot represents too sharp of a peak that "
-                                  "the calculation of error function triggered and exception "
-                                  "in the underlying math library.\n\n"
-                                  "Unfortunately, this left %1 in an inconsistent state and it needs to be terminated.\n\n"
-                                  "We are sorry about this but this is not a %1 issue and the best we can do for now "
-                                  "is let you know what happened.")).arg(Globals::SOFTWARE_NAME));
-      mbox.exec();
-      abort();
-    } else {
-      QMessageBox mbox(QMessageBox::Warning,
-                       tr("Failed to plot HVL function"), ex.what());
-
-      mbox.exec();
-
-      return {};
-    }
-  }
+  return vec;
 }
 
 bool HVLCalculator::initialize()

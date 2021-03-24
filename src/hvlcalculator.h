@@ -7,7 +7,6 @@
 #include <QMutex>
 #include <QTime>
 
-class HVLLibWrapper;
 namespace echmet {
   namespace regressCore {
     template<typename XT, typename YT> class HVLPeak;
@@ -114,8 +113,6 @@ private:
   explicit HVLCalculator(QObject *parent, const int precision);
   void doFit(HVLParameters *out, const HVLInParameters *in);
 
-  HVLLibWrapper *m_wrapper;
-
   static HVLCalculator *s_me;
 
 };
@@ -123,7 +120,7 @@ private:
 class HVLCalculatorWorker : public QObject {
   Q_OBJECT
 public:
-  explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params, HVLLibWrapper *wrapper, const bool autoDigits);
+  explicit HVLCalculatorWorker(const HVLCalculator::HVLInParameters &params);
   ~HVLCalculatorWorker();
   const HVLCalculator::HVLParameters & results() const;
 
@@ -149,7 +146,7 @@ private:
 class HVLEstimatorWorker : public QObject {
   Q_OBJECT
 public:
-  explicit HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params, HVLLibWrapper *wrapper);
+  explicit HVLEstimatorWorker(const HVLCalculator::HVLEstimateParameters &params);
   ~HVLEstimatorWorker();
   int precision() const;
 
@@ -161,7 +158,6 @@ public slots:
 
 private:
   const HVLCalculator::HVLEstimateParameters &m_params;
-  HVLLibWrapper *m_wrapper;
   int m_precision;
 
 };

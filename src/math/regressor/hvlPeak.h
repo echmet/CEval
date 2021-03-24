@@ -4,9 +4,12 @@
 //===========================================================================
 // INCLUDES
 
-#include "../../hvllibwrapper.h"
+//#include "../../hvllibwrapper.h"
 #include "../hvlestimate.h"
 #include "regress.h"
+#include <cassert>
+
+#include "../vhhvl.hpp"
 
 //===========================================================================
 // CODE
@@ -21,6 +24,8 @@ namespace regressCore {
 //---------------------------------------------------------------------------
 enum class HVLPeakParams : msize_t { a0, a1, a2, a3 };
 
+using HVLCalc = VHHVLCalculator<double>;
+
 //---------------------------------------------------------------------------
 template<typename XT = double, typename YT = double> class HVLPeak
 : public RegressFunction<XT, YT> {
@@ -28,7 +33,7 @@ public:
 
     typedef typename RegressFunction<XT, YT>::MatrixY MatrixY;
 
-    HVLPeak (HVLLibWrapper *hvlLib, const bool autoPrecision);
+    HVLPeak ();
     ~HVLPeak();
 
     bool Initialize (
@@ -37,11 +42,6 @@ public:
          YT eps, unsigned nmax, bool dumping,
          HVLCore::Coefficients c, YT bsl, YT bslSlope
     );
-
-    int FinalPrecision() const
-    {
-      return m_precision;
-    }
 
 protected:
 
@@ -75,10 +75,6 @@ protected:
     virtual void OnParamsChangedInternal () override;
 
 private:
-
-    HVLLibWrapper *m_hvlLib;
-    bool m_autoPrecision;
-    int m_precision;
     HVLCore::Coefficients m_c;
     YT m_bsl;
     YT m_bslSlope;
@@ -90,12 +86,9 @@ private:
 
 //---------------------------------------------------------------------------
 template <typename XT, typename YT>
-inline HVLPeak<XT, YT>::HVLPeak(HVLLibWrapper *hvlLib, const bool autoPrecision)
+inline HVLPeak<XT, YT>::HVLPeak()
 :
-    RegressFunction<XT, YT>(4),
-    m_hvlLib(hvlLib),
-    m_autoPrecision(autoPrecision),
-    m_precision(hvlLib->precision())
+    RegressFunction<XT, YT>(4)
 {}
 
 //---------------------------------------------------------------------------
@@ -128,7 +121,7 @@ template <typename XT, typename YT>
 HVLPeak<XT, YT> * HVLPeak<XT, YT>::ACreate() const
 {
 
-    return new HVLPeak(m_hvlLib, m_autoPrecision);
+    return new HVLPeak();
 
 }
 
@@ -140,7 +133,6 @@ bool HVLPeak<XT, YT>::AInitialize(
     MatrixY const &
 )
 {
-    if (m_hvlLib == nullptr) return false;
 
     this->SetParam(params, HVLPeakParams::a0, m_c.a0);
     this->SetParam(params, HVLPeakParams::a1, m_c.a1);
@@ -173,15 +165,12 @@ YT HVLPeak<XT, YT>::ACalculateFx (
         msize_t
 ) const {
 
-    if (m_hvlLib == nullptr)
-      return YT();
-
     YT a0 = this->GetParam(params, HVLPeakParams::a0);
     YT a1 = this->GetParam(params, HVLPeakParams::a1);
     YT a2 = this->GetParam(params, HVLPeakParams::a2);
     YT a3 = this->GetParam(params, HVLPeakParams::a3);
 
-    double t = m_hvlLib->calculate(HVLLibWrapper::Parameter::T, x, a0, a1, a2, a3).y;
+    double t = HVLCalc::y(x, a0, a1, a2, a3);
 
     return t + m_bslSlope * x + m_bsl;
 
@@ -203,10 +192,10 @@ YT HVLPeak<XT, YT>::ACalculateDerivative (
 
     switch(static_cast<HVLPeakParams>(param_idx))
     {
-      case HVLPeakParams::a0 : return m_hvlLib->calculate(HVLLibWrapper::Parameter::DA0, x, a0, a1, a2, a3).y;
-      case HVLPeakParams::a1 : return m_hvlLib->calculate(HVLLibWrapper::Parameter::DA1, x, a0, a1, a2, a3).y;
-      case HVLPeakParams::a2 : return m_hvlLib->calculate(HVLLibWrapper::Parameter::DA2, x, a0, a1, a2, a3).y;
-      case HVLPeakParams::a3 : return m_hvlLib->calculate(HVLLibWrapper::Parameter::DA3, x, a0, a1, a2, a3).y;
+      case HVLPeakParams::a0 : return HVLCalc::da0(x, a0, a1, a2, a3);
+      case HVLPeakParams::a1 : return HVLCalc::da1(x, a0, a1, a2, a3);
+      case HVLPeakParams::a2 : return HVLCalc::da2(x, a0, a1, a2, a3);
+      case HVLPeakParams::a3 : return HVLCalc::da3d(x, a0, a1, a2, a3);
       default: return YT();
     }
 }
@@ -224,21 +213,7 @@ const {
 template <typename XT, typename YT>
 void HVLPeak<XT, YT>::AValidateParameters(MatrixY &params)
 {
-  if (!m_autoPrecision)
-    return;
-
-  const YT a3 = this->GetParam(params, HVLPeakParams::a3);
-
-  try {
-    m_precision = echmet::HVLCore::guessMPFRPrecision(a3);
-
-    if (m_precision > 300)
-      m_precision = 300;
-  } catch (const std::runtime_error &) {
-    m_precision = 300;
-  }
-
-  this->m_hvlLib->setPrecision(m_precision);
+  /* NOOP */
 }
 
 
@@ -252,36 +227,24 @@ template <typename XT, typename YT>
 void HVLPeak<XT, YT>::ACalculateP()
 {
     /* I must have done something really terrible in my previous life... */
+    /* Me from 2021: You don't know the half of it :) */
 
-    typedef typename std::underlying_type<HVLPeakParams>::type PPUT;
-
-    auto MakeParamFlags = [](const PPUT fixedIdx) {
-         typedef typename std::underlying_type<HVLLibWrapper::ParameterFlags>::type FUType;
-
-         FUType f = HVLLibWrapper::ParameterFlags::T ;
-
-         for (PPUT fix = 0; fix != fixedIdx; ++fix)
-             f |= HVLLibWrapper::ParameterFlags::DA0 << fix;
-
-         return static_cast<HVLLibWrapper::ParameterFlags>(f);
-    };
-
-    const HVLLibWrapper::ParameterFlags pflags = MakeParamFlags(this->m_notFixed);
+    using PPUT = std::underlying_type<HVLPeakParams>::type;
 
     #pragma omp parallel for schedule(static)
     for (msize_t k = 0; k < this->m_x.size(); ++k) {
-        const HVLLibWrapper::XYPack pack = m_hvlLib->calculateMultiple(pflags,
-                                                                       this->m_x[k],
-                                                                       this->GetParam(this->m_params, HVLPeakParams::a0),
-                                                                       this->GetParam(this->m_params, HVLPeakParams::a1),
-                                                                       this->GetParam(this->m_params, HVLPeakParams::a2),
-                                                                       this->GetParam(this->m_params, HVLPeakParams::a3));
+        const auto pack = HVLCalc::everything(
+                         this->m_x[k],
+                         this->GetParam(this->m_params, HVLPeakParams::a0),
+                         this->GetParam(this->m_params, HVLPeakParams::a1),
+                         this->GetParam(this->m_params, HVLPeakParams::a2),
+                         this->GetParam(this->m_params, HVLPeakParams::a3));
 
-        const double t = pack[0].y; /* Zero corresponds to Parameter::T in HVLLibWrapper */
+        const double t = pack.y();
         this->m_fx(k, 0) = t + (this->m_x[k] * m_bslSlope) + m_bsl;
 
         for (PPUT pIdx = 0; pIdx != static_cast<PPUT>(this->m_notFixed); ++pIdx)
-            this->m_p(pIdx, k) = pack[pIdx + 2].y;
+            this->m_p(pIdx, k) = pack.results[pIdx + 2];
     }
 
 }

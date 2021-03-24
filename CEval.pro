@@ -159,7 +159,6 @@ SOURCES += src/main.cpp \
     src/gui/textexporterbackendconfigurationdialog.cpp \
     src/dataexporter/backends/textstreamexporterbackend.cpp \
     src/gui/appendoverwriteexportfilemessagebox.cpp \
-    src/hvllibwrapper.cpp \
     src/gui/specifypeakboundariesdialog.cpp \
     src/hyperbolafittingengine.cpp \
     src/gui/hyperbolafitwidget.cpp \
@@ -219,6 +218,7 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/foundpeaksmodel.h \
     src/math/extremesearching.h \
     src/evaluationresultsitems.h \
+    src/math/vhhvl.hpp \
     src/peakevaluator.h \
     src/math/hvlestimate.h \
     src/math/functions.h \
@@ -354,7 +354,6 @@ HEADERS  += src/gui/evalmainwindow.h \
     src/gui/textexporterbackendconfigurationdialog.h \
     src/dataexporter/backends/textstreamexporterbackend.h \
     src/gui/appendoverwriteexportfilemessagebox.h \
-    src/hvllibwrapper.h \
     src/gui/specifypeakboundariesdialog.h \
     src/gui/hyperbolafitwidget.h \
     src/hyperbolafititems.h \

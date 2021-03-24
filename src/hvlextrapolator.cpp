@@ -1,6 +1,9 @@
 #include "hvlextrapolator.h"
+#include "math/vhhvl.hpp"
 #include <cmath>
 #include <functional>
+
+using HVLCalc = VHHVLCalculator<double>;
 
 QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const double baselineIntercept,
                                               const double peakHeight,
@@ -8,7 +11,6 @@ QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const 
                                               const double a0, const double a1, const double a2, const double a3, const QVector<QPointF> &hvlPlot,
                                               const int hvlPrecision, const double tolerance)
 {
-  HVLLibWrapper hvlWrapper(hvlPrecision);
   QVector<QPointF> extrapolatedHvlPlot;
 
   if (tolerance <= 0.0)
@@ -23,7 +25,8 @@ QVector<QPointF> HVLExtrapolator::extrapolate(const double baselineSlope, const 
     while (true) {
       x = xShifter(x);
 
-      const double y = hvlWrapper.calculate(HVLLibWrapper::Parameter::T, x, a0, a1, a2, a3).y;
+      //const double y = hvlWrapper.calculate(HVLLibWrapper::Parameter::T, x, a0, a1, a2, a3).y;
+      const double y = HVLCalc::y(x, a0, a1, a2, a3);
       const double baselineY = baselineSlope * x + baselineIntercept;
 
       if (std::abs(y) <= threshold)
