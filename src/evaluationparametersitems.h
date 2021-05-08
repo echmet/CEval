@@ -110,7 +110,6 @@ public:
 
   enum class Int {
     ITERATIONS,
-    DIGITS,
     LAST_INDEX
   };
 

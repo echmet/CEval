@@ -364,7 +364,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlFitBooleanModel.setUnderlyingData(m_hvlFitBooleanValues.pointer());
 
   m_hvlFitIntValues[HVLFitParametersItems::Int::ITERATIONS] = s_defaultHvlIterations;
-  m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = s_defaultHvlDigits;
   m_hvlFitIntModel.setUnderlyingData(m_hvlFitIntValues.pointer());
 
   m_hvlFitOptionsValues[HVLFitOptionsItems::Boolean::DISABLE_AUTO_FIT] = false;
@@ -923,7 +922,6 @@ QVector<int> EvaluationEngine::defaultHvlIntValues() const
   QVector<int> def;
   def.resize(m_hvlFitIntModel.indexFromItem(HVLFitParametersItems::Int::LAST_INDEX));
 
-  def[m_hvlFitIntModel.indexFromItem(HVLFitParametersItems::Int::DIGITS)] = s_defaultHvlDigits;
   def[m_hvlFitIntModel.indexFromItem(HVLFitParametersItems::Int::ITERATIONS)] = s_defaultHvlIterations;
 
   return def;
@@ -939,11 +937,11 @@ QVector<double> EvaluationEngine::defaultSnrValues() const
   return def;
 }
 
-std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int> EvaluationEngine::doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
+MappedVectorWrapper<double, HVLFitResultsItems::Floating> EvaluationEngine::doHvlFit(const std::shared_ptr<PeakFinderResults::Result> &finderResults,
                                                                                      const double estA0, const double estA1, const double estA2, const double estA3,
                                                                                      const bool fixA0, const bool fixA1, const bool fixA2, const bool fixA3,
                                                                                      const double epsilon,
-                                                                                     const int iterations, const int digits,
+                                                                                     const int iterations,
                                                                                      const double tUsp,
                                                                                      const double baselineSlope, const double baselineIntercept,
                                                                                      bool *ok)
@@ -955,14 +953,14 @@ std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int> Evalu
   DataAccessLocker locker(&this->m_dataLockState);
   if (!isContextAccessible(locker)) {
     *ok = false;
-    return { results, digits };
+    return results;
   }
 
   /* Peak has no meaningful evaluation results,
    * do not process it */
   if (!finderResults->isValid()) {
     *ok = false;
-    return { results, digits };
+    return results;
   }
 
   HVLCalculator::HVLParameters p = HVLCalculator::fit(
@@ -985,7 +983,7 @@ std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int> Evalu
 
   if (!p.isValid()) {
     *ok = false;
-    return { results, digits };
+    return results;
   }
 
   results[HVLFitResultsItems::Floating::HVL_A0] = p.a0;
@@ -999,7 +997,7 @@ std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int> Evalu
 
 
   *ok = true;
-  return { results, p.finalPrecision };
+  return results;
 }
 
 void EvaluationEngine::drawEofMarker()
@@ -2041,16 +2039,12 @@ void EvaluationEngine::onDoHvlFit()
                           m_hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A3),
                           m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON),
                           m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS),
-                          m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
                           m_currentPeak.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP),
                           m_currentPeak.baselineSlope, m_currentPeak.baselineIntercept,
                           &ok);
   if (ok) {
-    m_hvlFitValues = std::get<0>(results);
-    m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = std::get<1>(results);
+    m_hvlFitValues = results;
     m_hvlFitModel.notifyAllDataChanged();
-    m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS,
-                                       HVLFitParametersItems::Int::DIGITS);
 
     const double a0 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A0);
     const double a1 = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_A1);
@@ -2709,9 +2703,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   bool hvlOk;
   double hvlEpsilon;
   int hvlIterations;
-  int hvlDigits;
   double hvlTUsp;
-  std::tuple<MappedVectorWrapper<double, HVLFitResultsItems::Floating>, int> hvlResultsPack;
   MappedVectorWrapper<double, HVLFitResultsItems::Floating> hvlResults;
 
   if (!er.isValid()) {
@@ -2727,7 +2719,6 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     HVL_a3 = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_A3);
     hvlEpsilon = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
-    hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
     hvlTUsp = srcCtx.hvlValues.at(HVLFitResultsItems::Floating::HVL_TUSP);
   } else {
     er = PeakEvaluator::estimateHvl(er, ep);
@@ -2741,19 +2732,18 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   }
 
   if (doHvlFitRq) {
-    hvlResultsPack = doHvlFit(fr,
-                              HVL_a0,
-                              HVL_a1,
-                              HVL_a2,
-                              HVL_a3,
-                              srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A0),
-                              srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A1),
-                              srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A2),
-                              srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A3),
-                              hvlEpsilon, hvlIterations, hvlDigits, hvlTUsp,
-                              er.baselineSlope, er.baselineIntercept,
-                              &hvlOk);
-    hvlResults = std::get<0>(hvlResultsPack);
+    hvlResults = doHvlFit(fr,
+                          HVL_a0,
+                          HVL_a1,
+                          HVL_a2,
+                          HVL_a3,
+                          srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A0),
+                          srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A1),
+                          srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A2),
+                          srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_FIX_A3),
+                          hvlEpsilon, hvlIterations, hvlTUsp,
+                          er.baselineSlope, er.baselineIntercept,
+                          &hvlOk);
     hvlResults[HVLFitResultsItems::Floating::HVL_TUSP] = er.HVL_tUSP;
 
     if (!hvlOk) {
@@ -2762,8 +2752,7 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
       hvlResults[HVLFitResultsItems::Floating::HVL_A2] = HVL_a2;
       hvlResults[HVLFitResultsItems::Floating::HVL_A3] = HVL_a3;
       hvlResults[HVLFitResultsItems::Floating::HVL_EPSILON] = hvlEpsilon;
-    } else
-      hvlDigits = std::get<1>(hvlResultsPack);
+    }
   } else {
     if (updateCurrentPeak)
       hvlResults = srcCtx.hvlValues;
@@ -2785,7 +2774,6 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
   HVLCalculator::applyBaseline(hvlPlot, er.baselineSlope, er.baselineIntercept);
 
   MappedVectorWrapper<int, HVLFitParametersItems::Int> hvlFitIntValues = srcCtx.hvlFitIntValues;
-  hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = hvlDigits;
 
   QVector<QPointF> hvlPlotEx;
 
@@ -2797,7 +2785,6 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
                                              hvlResults.at(HVLFitResultsItems::Floating::HVL_A2),
                                              hvlResults.at(HVLFitResultsItems::Floating::HVL_A3),
                                              hvlPlot,
-                                             hvlDigits,
                                              m_hvlExtrapolationFloatingValues.at(HVLExtrapolationParametersItems::Floating::TOLERANCE)
                                              );
 
@@ -2851,7 +2838,6 @@ void EvaluationEngine::replotHvl(const double a0, const double a1, const double 
                                              timeStep(0, m_currentDataContext->data->data.length() - 1),
                                              a0, a1, a2, a3,
                                              vec,
-                                             m_hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS),
                                              m_hvlExtrapolationFloatingValues.at(HVLExtrapolationParametersItems::Floating::TOLERANCE)
                                              );
     if (hvlPlotEx.size() == 0)
@@ -2993,11 +2979,9 @@ void EvaluationEngine::setEvaluationResults(const PeakContext &ctx)
 
   m_resultsNumericValues = ctx.resultsValues;
   m_hvlFitValues = ctx.hvlValues;
-  m_hvlFitIntValues[HVLFitParametersItems::Int::DIGITS] = ctx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
 
   m_resultsFloatingModel.notifyAllDataChanged();
   m_hvlFitModel.notifyAllDataChanged();
-  m_hvlFitIntModel.notifyDataChanged(HVLFitParametersItems::Int::DIGITS, HVLFitParametersItems::Int::DIGITS);
 
   m_snrFloatingValues = ctx.snrValues;
   m_snrFloatingModel.notifyAllDataChanged();
