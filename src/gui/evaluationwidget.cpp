@@ -22,10 +22,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
 
   ui->setupUi(this);
 
-#ifdef CEVAL_PUBLIC_RELEASE
-  ui->qtabw_evaluation->removeTab(2); /* Disable hackish export functionality by hiding its controls */
-#endif // CEVAL_PUBLIC_RELEASE
-
 #ifdef CEVAL_DISABLE_AUTO_FINDER
   ui->qpb_findPeak->setVisible(false);
   ui->qtabw_evaluation->removeTab(0);
