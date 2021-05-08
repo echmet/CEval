@@ -1739,6 +1739,17 @@ void EvaluationEngine::onClipboardExporterDelimiterChanged(const QString &delimi
 
 void EvaluationEngine::onCloseAllEvaluationFiles()
 {
+  if (m_exportOnFileLeftEnabled) {
+    int answer = QMessageBox::question(
+        nullptr,
+        tr("Function unavailable"),
+        tr("You have enabled automatic data export when a file is switched or closed. This function is currently "
+           "unavailable when you close all files simultaneously. Do you still want to close all currently open files?"),
+        QMessageBox::Yes | QMessageBox::No);
+    if (answer != QMessageBox::Yes)
+        return;
+  }
+
   DataAccessLocker locker(&this->m_dataLockState);
   if (!locker.lockForDataModification())
     return;
