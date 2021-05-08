@@ -33,6 +33,7 @@ private:
   EvaluationWidget *m_evaluationWidget;
 
 signals:
+  void closeAllFiles();
   void closeFile(const int idx);
   void fileSwitched(const int idx);
   void traverseFiles(const EvaluationEngineMsgs::Traverse dir);

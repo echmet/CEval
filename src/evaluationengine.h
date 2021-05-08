@@ -538,6 +538,7 @@ public slots:
   void onCancelEvaluatedPeakSelection();
   void onClipboardExporterDataArrangementChanged(const QModelIndex &idx);
   void onClipboardExporterDelimiterChanged(const QString &delimiter);
+  void onCloseAllEvaluationFiles();
   void onCloseCurrentEvaluationFile(const int idx);
   void onComboBoxChanged(EvaluationEngineMsgs::ComboBoxNotifier notifier);
   void onCommonParametersChanged();

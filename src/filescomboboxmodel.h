@@ -67,6 +67,13 @@ public:
   {
   }
 
+  void clear()
+  {
+      beginRemoveRows(QModelIndex(), 0, m_items.size());
+      this->m_items.clear();
+      endRemoveRows();
+  }
+
   int columnCount(const QModelIndex &parent = QModelIndex()) const override
   {
     Q_UNUSED(parent);

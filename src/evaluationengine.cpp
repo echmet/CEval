@@ -1737,6 +1737,23 @@ void EvaluationEngine::onClipboardExporterDelimiterChanged(const QString &delimi
   m_ctcDelimiter = delimiter;
 }
 
+void EvaluationEngine::onCloseAllEvaluationFiles()
+{
+  DataAccessLocker locker(&this->m_dataLockState);
+  if (!locker.lockForDataModification())
+    return;
+
+  if (m_allDataContexts.size() == 0)
+    return;
+
+  m_allDataContexts.clear();
+  m_loadedFilesModel.clear();
+
+  m_currentDataContext = std::shared_ptr<DataContext>(new DataContext(nullptr, "",  "", "", m_commonParamsEngine->currentContext(), freshEvaluationContext()));
+  m_currentDataContextKey = s_emptyCtxKey;
+  activateCurrentDataContext();
+}
+
 void EvaluationEngine::onCloseCurrentEvaluationFile(const int idx)
 {
   if (m_exportOnFileLeftEnabled)

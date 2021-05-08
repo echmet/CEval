@@ -18,6 +18,7 @@ void EvaluationUpperWidgetConnector::connectAll(QObject *anonWidget, QObject *an
   QObject::connect(w, &EvaluationUpperWidget::fileSwitched, e, &EvaluationEngine::onEvaluationFileSwitched);
   QObject::connect(e, &EvaluationEngine::evaluationFileAdded, w, &EvaluationUpperWidget::onFileSwitched);
   QObject::connect(e, &EvaluationEngine::evaluationFileSwitched, w, &EvaluationUpperWidget::onFileSwitched);
+  QObject::connect(w, &EvaluationUpperWidget::closeAllFiles, e, &EvaluationEngine::onCloseAllEvaluationFiles);
   QObject::connect(w, &EvaluationUpperWidget::closeFile, e, &EvaluationEngine::onCloseCurrentEvaluationFile);
   QObject::connect(e, &EvaluationEngine::comboBoxIndexChanged, w, &EvaluationUpperWidget::onComboBoxChangedExt);
   QObject::connect(w, &EvaluationUpperWidget::traverseFiles, e, &EvaluationEngine::onTraverseFiles);

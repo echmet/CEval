@@ -50,8 +50,7 @@ void EvaluationUpperWidget::onCloseAllFilesClicked()
   if (QMessageBox::question(this, tr("Close all files?"), tr("Are you sure you want to close all files?"))!= QMessageBox::Yes)
     return;
 
-  while (ui->qcbox_files->count() > 0)
-    emit closeFile(0);
+  emit closeAllFiles();
 }
 
 void EvaluationUpperWidget::onCloseFileClicked()
