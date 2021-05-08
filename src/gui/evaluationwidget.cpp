@@ -22,8 +22,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
 
   ui->setupUi(this);
 
-  ui->qle_hvlDigits->setDisabled(ui->qcb_hvlAutoDigits->checkState() == Qt::Checked);
-
 #ifdef CEVAL_PUBLIC_RELEASE
   ui->qtabw_evaluation->removeTab(2); /* Disable hackish export functionality by hiding its controls */
 #endif // CEVAL_PUBLIC_RELEASE
@@ -52,7 +50,6 @@ EvaluationWidget::EvaluationWidget(QWidget *parent) :
   connect(ui->qcbox_clipboardDataArrangement, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &EvaluationWidget::onClipboardExporterArrangementChanged);
   connect(ui->qle_clipboardDelimiter, &QLineEdit::textChanged, this, &EvaluationWidget::onClipboardExporterDelimiterTextChanged);
   connect(ui->qcb_exportOnLeave, &QCheckBox::clicked, this, &EvaluationWidget::onExportOnFileLeftClicked);
-  connect(ui->qcb_hvlAutoDigits, &QCheckBox::stateChanged, this, &EvaluationWidget::onHvlAutoDigitsStateChanged);
 }
 
 EvaluationWidget::~EvaluationWidget()
@@ -220,11 +217,6 @@ void EvaluationWidget::onFindPeaksClicked()
   emit findPeaks();
 }
 
-void EvaluationWidget::onHvlAutoDigitsStateChanged()
-{
-  ui->qle_hvlDigits->setDisabled(ui->qcb_hvlAutoDigits->checkState() == Qt::Checked);
-}
-
 void EvaluationWidget::onManageExporterSchemesClicked()
 {
   emit manageExporterSchemes();
@@ -309,7 +301,6 @@ void EvaluationWidget::setEvaluationHvlBooleanModel(AbstractMapperModel<bool, HV
   m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA1Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A1));
   m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA2Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A2));
   m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlA3Fixed, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_FIX_A3));
-  m_evaluationHvlFitBooleanMapper->addMapping(ui->qcb_hvlAutoDigits, model->indexFromItem(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS));
   m_evaluationHvlFitBooleanMapper->toFirst();
 }
 
@@ -332,7 +323,6 @@ void EvaluationWidget::setEvaluationHvlFitIntModel(AbstractMapperModel<int, HVLF
 {
   m_evaluationHvlFitIntMapper->setModel(model);
 
-  m_evaluationHvlFitIntMapper->addMapping(ui->qle_hvlDigits, model->indexFromItem(HVLFitParametersItems::Int::DIGITS));
   m_evaluationHvlFitIntMapper->addMapping(ui->qle_hvlMaxIterations, model->indexFromItem(HVLFitParametersItems::Int::ITERATIONS));
   m_evaluationHvlFitIntMapper->toFirst();
 }

@@ -624,7 +624,7 @@
             <x>0</x>
             <y>0</y>
             <width>742</width>
-            <height>1309</height>
+            <height>1278</height>
            </rect>
           </property>
           <property name="sizePolicy">
@@ -1380,36 +1380,10 @@
                   </property>
                  </widget>
                 </item>
-                <item row="3" column="2">
-                 <widget class="QLineEdit" name="qle_hvlDigits">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>25</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
                 <item row="0" column="3">
                  <widget class="QMappedCheckBox" name="qcb_hvlA0Fixed">
                   <property name="text">
                    <string>Fixed</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="0">
-                 <widget class="QLabel" name="q_hvlDigits">
-                  <property name="text">
-                   <string>Significant digits</string>
                   </property>
                  </widget>
                 </item>
@@ -1456,14 +1430,14 @@
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="0">
+                <item row="3" column="0">
                  <widget class="QLabel" name="ql_hvlA1Mobility">
                   <property name="text">
                    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;a1 u&lt;span style=&quot; vertical-align:sub;&quot;&gt;eff&lt;/span&gt; (10&lt;span style=&quot; vertical-align:super;&quot;&gt;-9&lt;/span&gt; m&lt;span style=&quot; vertical-align:super;&quot;&gt;2&lt;/span&gt;/V/s)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
                   </property>
                  </widget>
                 </item>
-                <item row="4" column="2">
+                <item row="3" column="2">
                  <widget class="FloatingValueLineEdit" name="qle_hvlA1Mobility">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
@@ -1479,13 +1453,6 @@
                   </property>
                   <property name="readOnly">
                    <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-                <item row="3" column="3">
-                 <widget class="QCheckBox" name="qcb_hvlAutoDigits">
-                  <property name="text">
-                   <string>Auto</string>
                   </property>
                  </widget>
                 </item>
@@ -2668,7 +2635,6 @@ padding-right: 3em;</string>
   <tabstop>qcb_hvlA3Fixed</tabstop>
   <tabstop>qle_hvlChiSquared</tabstop>
   <tabstop>qle_hvlEpsilon</tabstop>
-  <tabstop>qle_hvlDigits</tabstop>
   <tabstop>qle_hvlMaxIterations</tabstop>
   <tabstop>qpb_replotHvl</tabstop>
   <tabstop>qpb_doHvlFit</tabstop>
