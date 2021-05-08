@@ -105,7 +105,6 @@ public:
     HVL_FIX_A1,
     HVL_FIX_A2,
     HVL_FIX_A3,
-    HVL_AUTO_DIGITS,
     LAST_INDEX
   };
 

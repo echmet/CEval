@@ -361,7 +361,6 @@ EvaluationEngine::EvaluationEngine(CommonParametersEngine *commonParamsEngine, Q
   m_hvlFitValues[HVLFitResultsItems::Floating::HVL_EPSILON] = s_defaultHvlEpsilon;
   m_hvlFitModel.setUnderlyingData(m_hvlFitValues.pointer());
 
-  m_hvlFitBooleanValues[HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS] = true;
   m_hvlFitBooleanModel.setUnderlyingData(m_hvlFitBooleanValues.pointer());
 
   m_hvlFitIntValues[HVLFitParametersItems::Int::ITERATIONS] = s_defaultHvlIterations;
@@ -913,10 +912,7 @@ QVector<bool> EvaluationEngine::defaultHvlBooleanValues() const
   def.resize(m_hvlFitBooleanModel.indexFromItem(HVLFitParametersItems::Boolean::LAST_INDEX));
 
   for (int idx = 0; idx < m_hvlFitBooleanModel.indexFromItem(HVLFitParametersItems::Boolean::LAST_INDEX); idx++) {
-    if (m_hvlFitBooleanModel.indexFromItem(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS) == idx)
-      def[idx] = true;
-    else
-      def[idx] = false;
+    def[idx] = false;
   }
 
   return def;
@@ -2742,17 +2738,6 @@ EvaluationEngine::PeakContext EvaluationEngine::processFoundPeak(const QVector<Q
     hvlEpsilon = m_hvlFitValues.at(HVLFitResultsItems::Floating::HVL_EPSILON);
     hvlIterations = m_hvlFitIntValues.at(HVLFitParametersItems::Int::ITERATIONS);
     hvlTUsp = er.HVL_tUSP;
-
-    if (srcCtx.hvlFitBooleanValues.at(HVLFitParametersItems::Boolean::HVL_AUTO_DIGITS)) {
-      const double step = (fr->peakToX - fr->peakFromX) / (fr->toIndex - fr->fromIndex);
-      int _hvlDigits = 0;
-
-      if (_hvlDigits > 0)
-        hvlDigits = _hvlDigits;
-      else
-        hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
-    } else
-        hvlDigits = srcCtx.hvlFitIntValues.at(HVLFitParametersItems::Int::DIGITS);
   }
 
   if (doHvlFitRq) {
