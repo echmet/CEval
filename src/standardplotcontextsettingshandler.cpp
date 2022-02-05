@@ -1,4 +1,5 @@
 #include "standardplotcontextsettingshandler.h"
+#include <QFont>
 
 const QString StandardPlotContextSettingsHandler::SERIE_VISIBLE_SETTINGS_TAG("Serie-Visible");
 const QString StandardPlotContextSettingsHandler::LINE_COLOR_SETTINGS_TAG("Line-Color");

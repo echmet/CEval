@@ -1,10 +1,11 @@
 #include "plotcontext.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_picker.h"
-#include "qwt_plot_zoomer.h"
-#include "qwt_scale_draw.h"
-#include "qwt_scale_widget.h"
+#include <qwt_plot.h>
+#include <qwt_plot_curve.h>
+#include <qwt_plot_picker.h>
+#include <qwt_plot_zoomer.h>
+#include <qwt_scale_draw.h>
+#include <qwt_scale_map.h>
+#include <qwt_scale_widget.h>
 #include "gui/adjustplotvisualsdialog.h"
 #include "doubletostringconvertor.h"
 #include "ploteventfilter.h"

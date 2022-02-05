@@ -5,6 +5,7 @@
 #include <QImageWriter>
 #include <QList>
 #include <QMessageBox>
+#include <QPen>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_renderer.h>
@@ -106,10 +107,10 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     QFont yLeftTitleFont = plot->axisTitle(QwtPlot::yLeft).font();
     QFont yRightTitleFont = plot->axisTitle(QwtPlot::yRight).font();
     QFont titleFont = plot->title().font();
-    const qreal xBottomPenWidth = plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidth() : 1.0;
-    const qreal xTopPenWidth = plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidth() : 1.0;
-    const qreal yLeftPenWidth = plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidth() : 1.0;
-    const qreal yRightPenWidth = plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() > 0 ? plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidth() : 1.0;
+    const qreal xBottomPenWidth = plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidthF() > 0 ? plot->axisWidget(QwtPlot::xBottom)->scaleDraw()->penWidthF() : 1.0;
+    const qreal xTopPenWidth = plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidthF() > 0 ? plot->axisWidget(QwtPlot::xTop)->scaleDraw()->penWidthF() : 1.0;
+    const qreal yLeftPenWidth = plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidthF() > 0 ? plot->axisWidget(QwtPlot::yLeft)->scaleDraw()->penWidthF() : 1.0;
+    const qreal yRightPenWidth = plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidthF() > 0 ? plot->axisWidget(QwtPlot::yRight)->scaleDraw()->penWidthF() : 1.0;
 
     /* Recalculate sizes by the DPI for every element that needs it */
     const qreal outputInPixels = (static_cast<qreal>(p.dimensions.width()) / 2.54) * p.dpi;
@@ -128,10 +129,10 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
     yLeftTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
     yRightTitleFont.setPointSizeF(p.axisTitlesFontSize * scalingRatio);
     titleFont.setPointSizeF(p.chartTitleFontSize * scalingRatio);
-    exPlot.axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidth(int(_xBottomPenWidth));
-    exPlot.axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidth(int(_xTopPenWidth));
-    exPlot.axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidth(int(_yLeftPenWidth));
-    exPlot.axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidth(int(_yRightPenWidth));
+    exPlot.axisWidget(QwtPlot::xBottom)->scaleDraw()->setPenWidthF(_xBottomPenWidth);
+    exPlot.axisWidget(QwtPlot::xTop)->scaleDraw()->setPenWidthF(_xTopPenWidth);
+    exPlot.axisWidget(QwtPlot::yLeft)->scaleDraw()->setPenWidthF(_yLeftPenWidth);
+    exPlot.axisWidget(QwtPlot::yRight)->scaleDraw()->setPenWidthF(_yRightPenWidth);
 
     exPlot.setPalette(m_plotPalette);
     exPlot.axisWidget(QwtPlot::xBottom)->setPalette(m_plotPalette);
