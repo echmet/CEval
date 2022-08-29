@@ -16,8 +16,8 @@ public:
     explicit NativeData(std::shared_ptr<EFGData> &data, const QString &path, const QString &name);
 
     std::shared_ptr<EFGData> data;
-    const QString path;
-    const QString name;
+    QString path;
+    QString name;
   };
   typedef QVector<NativeData> NativeDataVec;
 

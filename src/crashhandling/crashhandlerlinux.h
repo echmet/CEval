@@ -42,7 +42,7 @@ private:
   bool handleSignal(siginfo_t *siginfo, void *vuctx);
   void restoreHandler(const int signum);
   bool restoreOriginalStack();
-  static constexpr size_t alternateStackSize();
+  static size_t alternateStackSize();
   static int clonedProcessFunc(void *param);
   static void crashHandlerFunc(int signum, siginfo_t *siginfo, void *vuctx);
   static bool retrigger(const int signum);

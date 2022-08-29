@@ -189,10 +189,10 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
 
   const auto clampIndex = [&](const int idx) {
     if (idx < 0)
-      return 0;
-    else if (idx >= p.data.size() - 1)
-      return p.data.size() - 1;
-    return idx;
+      return 0LL;
+    else if (idx >= p.data.size() - 1LL)
+      return p.data.size() - 1LL;
+    return static_cast<long long>(idx);
   };
 
   const int maximumIndex = [&]() {
@@ -200,8 +200,8 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     if (mi >= r.baselineCorrectedPeak.size())
       return r.baselineCorrectedPeak.size() - 1;
     else if (mi < 0)
-      return 0;
-    return mi;
+      return 0LL;
+    return static_cast<long long>(mi);
   }();
   /* Check that we have an actual peak, meaning that its maximum
    * must not be at neither of the ends of the given signal slice.

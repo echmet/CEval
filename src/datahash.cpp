@@ -11,7 +11,7 @@ DataHash::DataHash()
 {
   memset(m_data, 0, HASH_LENGTH_BYTES);
   m_numHash = qHashBits(m_data, HASH_LENGTH_BYTES);
-  m_hexString = QString('0', 2 * HASH_LENGTH_BYTES);
+  m_hexString = QString{2 * HASH_LENGTH_BYTES, '0'};
 }
 
 DataHash::DataHash(const QByteArray &data)

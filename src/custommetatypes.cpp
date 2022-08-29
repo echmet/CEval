@@ -89,8 +89,6 @@ QDataStream &operator<<(QDataStream &out, const DataExporter::Globals::DataArran
 
 void EMT::registerAll()
 {
-  qRegisterMetaTypeStreamOperators<DataExporter::Globals::DataArrangement>("DataArrangement");
-  qRegisterMetaTypeStreamOperators<SeriesSettingsMap>("SeriesSettingsMap");
   qRegisterMetaType<DataHash>("DataHash");
   qRegisterMetaType<SoftwareUpdateResult>("SoftwareUpdateResult");
 }

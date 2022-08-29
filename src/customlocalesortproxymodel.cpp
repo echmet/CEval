@@ -17,7 +17,7 @@ bool CustomLocaleSortProxyModel::lessThan(const QModelIndex &source_left, const 
   const QVariant leftData = sourceModel()->data(source_left, sortRole());
   const QVariant rightData = sourceModel()->data(source_right, sortRole());
 
-  if (leftData.type() == QVariant::String) {
+  if (leftData.metaType() == QMetaType{QMetaType::QString}) {
     const QString leftString = leftData.toString();
     const QString rightString = rightData.toString();
 

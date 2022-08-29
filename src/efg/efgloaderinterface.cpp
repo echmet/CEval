@@ -193,8 +193,6 @@ void EFGLoaderInterface::registerMetaTypes()
 {
   qRegisterMetaType<TagPathPack>();
   qRegisterMetaType<TagPathPackVec>();
-  qRegisterMetaTypeStreamOperators<TagPathPack>("TagPathPack");
-  qRegisterMetaTypeStreamOperators<TagPathPackVec>("TagPathPackVec");
   qRegisterMetaType<EFGDataSharedPtr>("EFGDataSharedPtr");
   qRegisterMetaType<EFGSupportedFileFormatVec>("EFGSupportedFileFormatVec");
 }

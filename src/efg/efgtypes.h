@@ -32,10 +32,10 @@ public:
   explicit EFGSupportedFileFormat();
   explicit EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag, const QMap<int, QString> &loadOptions);
 
-  const QString longDescription;
-  const QString shortDescription;
-  const QString formatTag;
-  const QMap<int, QString> loadOptions;
+  QString longDescription;
+  QString shortDescription;
+  QString formatTag;
+  QMap<int, QString> loadOptions;
 };
 
 typedef std::shared_ptr<EFGData> EFGDataSharedPtr;

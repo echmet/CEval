@@ -257,14 +257,14 @@ bool LocalSocketClient::loadData(NativeDataVec &ndVec, const QString &formatTag,
     for (uint32_t idx = 0; idx < ldrDesc->datapointsLength; idx++) {
       const EDII_IPCSockDatapoint *dp = reinterpret_cast<const EDII_IPCSockDatapoint *>(datapoints.data() + (idx * sizeof(EDII_IPCSockDatapoint)));
 
-      nativeDatapoints.push_back(QPointF(dp->x, dp->y));
+      nativeDatapoints.emplace_back(dp->x, dp->y);
     }
 
     auto efgData = std::shared_ptr<EFGData>(new EFGData{nativeDatapoints,
                                                         QString::fromUtf8(xDescBA), QString::fromUtf8(xUnitBA),
                                                         QString::fromUtf8(yDescBA), QString::fromUtf8(yUnitBA),
                                                         QString::fromUtf8(dataIdBA)});
-    ndVec.push_back(NativeData(efgData, QString::fromUtf8(pathBA), QString::fromUtf8(nameBA)));
+    ndVec.emplace_back(efgData, QString::fromUtf8(pathBA), QString::fromUtf8(nameBA));
   }
 
   FINALIZE(m_socket);

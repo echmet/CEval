@@ -1888,7 +1888,7 @@ void EvaluationEngine::onCopyToClipboard(const EvaluationEngineMsgs::CopyToClipb
 
   DataExporter::TextStreamExporterBackend backend(&toCopy, delimiter, m_ctcDataArrangement);
 
-  toCopy.setCodec("UTF-8");
+  toCopy.setEncoding(QStringConverter::Utf8);
 
   switch (ctc) {
   case EvaluationEngineMsgs::CopyToClipboard::EOFLOW:
