@@ -1,5 +1,7 @@
 #include "serieproperties.h"
 
+#include <QObject>
+
 SerieProperties::VisualStyle::VisualStyle(const QPen pen, QwtSymbol *symbol, const QwtPlotCurve::CurveStyle curveStyle, const bool visible) :
   curveStyle(curveStyle),
   pen(pen),

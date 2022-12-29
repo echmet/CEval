@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <QPointF>
+#include <QObject>
 #include <QVector>
 #include "serieproperties.h"
 
