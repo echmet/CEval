@@ -2,6 +2,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QMenu>
+#include <QTextStream>
 #include <functional>
 #include "custommetatypes.h"
 #include "globals.h"

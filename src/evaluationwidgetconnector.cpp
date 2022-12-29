@@ -1,4 +1,5 @@
 #include "evaluationwidgetconnector.h"
+#include <QDebug>
 #include "gui/evalmainwindow.h"
 #include "dataaccumulator.h"
 #include "helpers.h"

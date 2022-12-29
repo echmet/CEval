@@ -1,4 +1,5 @@
 #include "hyperbolafittingwidgetconnector.h"
+#include <QDebug>
 #include "gui/hyperbolafitwidget.h"
 #include "dataaccumulator.h"
 #include "gui/evalmainwindow.h"

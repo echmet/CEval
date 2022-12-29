@@ -25,6 +25,12 @@ unix {
         DEFINES += LIBHVL_COMPILER_MINGW
         DEFINES += ECHMET_COMPILER_GCC_LIKE
     }
+
+    contains(QT_ARCH, i386) {
+        CONFIG += win32_i386
+    } else {
+        CONFIG += win32_x86_64
+    }
 }
 
 linux {
