@@ -38,7 +38,7 @@ CrashHandlerLinux::~CrashHandlerLinux()
   uninstall();
 }
 
-constexpr size_t CrashHandlerLinux::alternateStackSize()
+size_t CrashHandlerLinux::alternateStackSize()
 {
   return (16384 > SIGSTKSZ) ? 16384 : SIGSTKSZ;
 }
