@@ -41,7 +41,7 @@ LONG WINAPI unhandledExceptionHandler(LPEXCEPTION_POINTERS exptrs)
   return me->mainThreadCrashed() ? EXCEPTION_CONTINUE_SEARCH : EXCEPTION_EXECUTE_HANDLER;
 }
 
-void __cdecl invalidParameterHandler(const TCHAR *expression, const TCHAR *function, const TCHAR *file, unsigned int line, uintptr_t pReserved)
+void __cdecl invalidParameterHandler(const wchar_t *expression, const wchar_t *function, const wchar_t *file, unsigned int line, uintptr_t pReserved)
 {
   (void)expression; (void)function; (void)file; (void)line; (void)pReserved;
 
