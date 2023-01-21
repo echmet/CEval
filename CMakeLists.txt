@@ -336,8 +336,8 @@ target_link_libraries(
 install(TARGETS CEval RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (UNIX)
-    install(FILES "res/CEval.desktop" DESTINATION "share/applications")
-    install(FILES "res/CEval_icon_16.png" DESTINATION "share/icons/hicolor/16x16/apps")
-    install(FILES "res/CEval_icon_32.png" DESTINATION "share/icons/hicolor/32x32/apps")
-    install(FILES "res/CEval_icon_64.png" DESTINATION "share/icons/hicolor/64x64/apps")
+    install(FILES "${CMAKE_SOURCE_DIR}/res/CEval.desktop" DESTINATION "share/applications")
+    install(FILES "${CMAKE_SOURCE_DIR}/res/CEval_icon_16.png" DESTINATION "share/icons/hicolor/16x16/apps")
+    install(FILES "${CMAKE_SOURCE_DIR}/res/CEval_icon_32.png" DESTINATION "share/icons/hicolor/32x32/apps")
+    install(FILES "${CMAKE_SOURCE_DIR}/res/CEval_icon_64.png" DESTINATION "share/icons/hicolor/64x64/apps")
 endif ()
