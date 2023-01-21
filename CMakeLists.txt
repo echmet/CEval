@@ -121,13 +121,15 @@ find_library(
         "${ECHMETUPDATECHECK_DIR}/${CMAKE_INSTALL_LIBDIR}"
     REGISTRY_VIEW TARGET
 )
-find_library(
-    LIBECHMETUPDATECHECK
-    libECHMETUpdateCheck
-    PATHS
-        "${ECHMETUPDATECHECK_DIR}/${CMAKE_INSTALL_LIBDIR}"
-    REGISTRY_VIEW TARGET
-)
+if (${LIBECHMETUPDATECHECK} STREQUAL "LIBECHMETUPDATECHECK-NOTFOUND")
+    find_library(
+        LIBECHMETUPDATECHECK
+        libECHMETUpdateCheck
+        PATHS
+            "${ECHMETUPDATECHECK_DIR}/${CMAKE_INSTALL_LIBDIR}"
+        REGISTRY_VIEW TARGET
+    )
+endif ()
 
 if (${LIBECHMETUPDATECHECK} STREQUAL "LIBECHMETUPDATECHECK-NOTFOUND")
     message(FATAL_ERROR "Cannot find ECHMETUpdateCheck library")
@@ -334,8 +336,8 @@ target_link_libraries(
 install(TARGETS CEval RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 if (UNIX)
-    install(FILES "CEval.desktop" DESTINATION "share/applications")
-    install(FILES "CEval_icon_16.png" DESTINATION "share/icons/hicolor/16x16/apps")
-    install(FILES "CEval_icon_32.png" DESTINATION "share/icons/hicolor/32x32/apps")
-    install(FILES "CEval_icon_64.png" DESTINATION "share/icons/hicolor/64x64/apps")
+    install(FILES "res/CEval.desktop" DESTINATION "share/applications")
+    install(FILES "res/CEval_icon_16.png" DESTINATION "share/icons/hicolor/16x16/apps")
+    install(FILES "res/CEval_icon_32.png" DESTINATION "share/icons/hicolor/32x32/apps")
+    install(FILES "res/CEval_icon_64.png" DESTINATION "share/icons/hicolor/64x64/apps")
 endif ()
