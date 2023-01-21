@@ -97,7 +97,7 @@ elseif (UNIX)
 
     if (NOT ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
         add_definitions(-DUSE_CRASHHANDLER)
-        set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -rdynamic)
+        set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -Wl,-export-dynamic)
     endif ()
 else ()
     message(FATAL_ERROR "Platform not recognized or not supported")
