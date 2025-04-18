@@ -30,7 +30,7 @@ else ()
     set(CMAKE_INSTALL_BINDIR "bin")
 endif ()
 
-find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network Svg)
 
 if (WIN32)
     if (MINGW OR MSYS)
@@ -328,6 +328,7 @@ target_link_libraries(
     PRIVATE Qt6::Gui
     PRIVATE Qt6::Widgets
     PRIVATE Qt6::Network
+    PRIVATE Qt6::Svg
     PRIVATE ${CEVAL_LINK_DBUS}
     PRIVATE ${CEVAL_LINK_PTHREAD}
     PRIVATE ${CEVAL_LINK_DBGHELP}
