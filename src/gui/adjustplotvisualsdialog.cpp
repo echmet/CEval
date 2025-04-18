@@ -105,7 +105,7 @@ AdjustPlotVisualsDialog::AdjustPlotVisualsDialog(QWidget *parent) :
   connect(ui->qspbox_pointLineThickness, static_cast<void (QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onPointLineThicknessChanges);
 
   connect(ui->qspbox_axisFontSize, static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this, &AdjustPlotVisualsDialog::onAxisFontSizeChanged);
-  connect(ui->qcb_axisBold, &QCheckBox::stateChanged, this, &AdjustPlotVisualsDialog::onAxisFontBoldChanged);
+  connect(ui->qcb_axisBold, &QCheckBox::checkStateChanged, this, &AdjustPlotVisualsDialog::onAxisFontBoldChanged);
 
   connect(ui->qcbox_series, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onSerieSelected);
   connect(ui->qcbox_lineStyles, static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this, &AdjustPlotVisualsDialog::onLineStyleSelected);

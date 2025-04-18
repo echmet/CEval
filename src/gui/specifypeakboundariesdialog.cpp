@@ -63,8 +63,8 @@ SpecifyPeakBoundariesDialog::SpecifyPeakBoundariesDialog(QWidget *parent) :
 
   connect(ui->qpb_cancel, &QPushButton::clicked, this, &SpecifyPeakBoundariesDialog::onCancelClicked);
   connect(ui->qpb_ok, &QPushButton::clicked, this, &SpecifyPeakBoundariesDialog::onOkClicked);
-  connect(ui->qcb_snapFrom, &QCheckBox::stateChanged, this, &SpecifyPeakBoundariesDialog::onSnapFromChanged);
-  connect(ui->qcb_snapTo, &QCheckBox::stateChanged, this, &SpecifyPeakBoundariesDialog::onSnapToChanged);
+  connect(ui->qcb_snapFrom, &QCheckBox::checkStateChanged, this, &SpecifyPeakBoundariesDialog::onSnapFromChanged);
+  connect(ui->qcb_snapTo, &QCheckBox::checkStateChanged, this, &SpecifyPeakBoundariesDialog::onSnapToChanged);
 }
 
 SpecifyPeakBoundariesDialog::~SpecifyPeakBoundariesDialog()
