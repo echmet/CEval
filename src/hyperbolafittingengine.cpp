@@ -919,7 +919,7 @@ bool HyperbolaFittingEngine::exportToCsvSingleFile(const QString &path, const QC
     return false;
   }
 
-  stream.setCodec("UTF-8");
+  stream.setEncoding(QStringConverter::Utf8);
   stream.setGenerateByteOrderMark(false);
 
   for (const std::shared_ptr<Analyte> &analyte : m_analytes) {
