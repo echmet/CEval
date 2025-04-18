@@ -187,7 +187,7 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     return std::abs(yVal) <= std::abs(0.05 * ir.peakHeightBaseline);
   };
 
-  const auto clampIndex = [&](const int idx) {
+  const auto clampIndex = [&](const int idx) -> intptr_t {
     if (idx < 0)
       return 0;
     else if (idx >= p.data.size() - 1)
@@ -195,7 +195,7 @@ PeakEvaluator::Results PeakEvaluator::estimateHvl(const Results &ir, const Param
     return idx;
   };
 
-  const int maximumIndex = [&]() {
+  const auto maximumIndex = [&]() -> intptr_t {
     auto mi = ir.peakIndex - p.fromIndex;
     if (mi >= r.baselineCorrectedPeak.size())
       return r.baselineCorrectedPeak.size() - 1;
