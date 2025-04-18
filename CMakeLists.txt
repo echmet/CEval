@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.10 FATAL_ERROR)
 
 if (WIN32 AND MSVC)
     set(CMAKE_SYSTEM_VERSION 8.1 CACHE TYPE INTERNAL FORCE)
@@ -30,7 +30,7 @@ else ()
     set(CMAKE_INSTALL_BINDIR "bin")
 endif ()
 
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Widgets Network)
+find_package(Qt6 REQUIRED COMPONENTS Core Gui Widgets Network)
 
 if (WIN32)
     if (MINGW OR MSYS)
@@ -71,12 +71,12 @@ if (WIN32)
         add_definitions(-D_WIN32_WINNT=0x0601)
     endif ()
 elseif (UNIX)
-    find_package(Qt5 REQUIRED COMPONENTS DBus)
+    find_package(Qt6 REQUIRED COMPONENTS DBus)
 
     add_definitions(-DECHMET_COMPILER_GCC_LIKE)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic -ftree-vectorize -msse2 -g -fopenmp")
 
-    set(CEVAL_LINK_DBUS Qt5::DBus)
+    set(CEVAL_LINK_DBUS Qt6::DBus)
     set(CEVAL_LINK_PTHREAD "pthread")
     set(CEVAL_LINK_DBGHELP "")
 
@@ -303,15 +303,15 @@ set_property(SOURCE "${CMAKE_CURRENT_BINARY_DIR}/src/dataexporter/moc_exportergl
 
 # Headers are not part of the source code so we need
 # to MOC them manually where required
-qt5_wrap_cpp(CEVAL_SRCS "src/commonparametersitems.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/dataaccumulatormsgs.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/evaluationenginemsgs.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/evaluationparametersitems.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/hyperbolafittingenginemsgs.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/hyperbolafititems.h")
-qt5_wrap_cpp(CEVAL_SRCS "src/dataexporter/exporterglobals.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/commonparametersitems.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/dataaccumulatormsgs.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/evaluationenginemsgs.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/evaluationparametersitems.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/hyperbolafittingenginemsgs.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/hyperbolafititems.h")
+qt6_wrap_cpp(CEVAL_SRCS "src/dataexporter/exporterglobals.h")
 if (UNIX)
-    qt5_wrap_cpp(CEVAL_SRCS "src/efg/dbusclient.h")
+    qt6_wrap_cpp(CEVAL_SRCS "src/efg/dbusclient.h")
 endif ()
 
 if (WIN32)
@@ -324,10 +324,10 @@ target_link_libraries(
     CEval
     PRIVATE ${LIBQWT}
     PRIVATE ${LIBECHMETUPDATECHECK}
-    PRIVATE Qt5::Core
-    PRIVATE Qt5::Gui
-    PRIVATE Qt5::Widgets
-    PRIVATE Qt5::Network
+    PRIVATE Qt6::Core
+    PRIVATE Qt6::Gui
+    PRIVATE Qt6::Widgets
+    PRIVATE Qt6::Network
     PRIVATE ${CEVAL_LINK_DBUS}
     PRIVATE ${CEVAL_LINK_PTHREAD}
     PRIVATE ${CEVAL_LINK_DBGHELP}
