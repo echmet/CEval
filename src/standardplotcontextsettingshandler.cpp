@@ -165,7 +165,7 @@ EMT::StringVariantMap StandardPlotContextSettingsHandler::saveUserSettings(PlotC
     if (!ctx.serieVisualStyle(id, vs))
       continue;
 
-    QMap<QString, QVariant> map;
+    QVariantMap map;
 
     map.insert(SERIE_VISIBLE_SETTINGS_TAG, vs.visible);
     map.insert(LINE_COLOR_SETTINGS_TAG, vs.pen.color());

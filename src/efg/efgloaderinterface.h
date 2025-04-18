@@ -23,57 +23,32 @@ class TagPathPack {
 public:
   QString tag;
   QString path;
-
-  friend QDataStream & operator<<(QDataStream &out, const TagPathPack &p)
-  {
-    out << p.tag << p.path;
-
-    return out;
-  }
-
-  friend QDataStream & operator>>(QDataStream &in, TagPathPack &p)
-  {
-    in >> p.tag;
-    in >> p.path;
-
-    return in;
-  }
 };
+
+inline
+QDataStream & operator<<(QDataStream &out, const TagPathPack &p)
+{
+  out << p.tag << p.path;
+
+  return out;
+}
+
+inline
+QDataStream & operator>>(QDataStream &in, TagPathPack &p)
+{
+  in >> p.tag;
+  in >> p.path;
+
+  return in;
+}
+
 Q_DECLARE_METATYPE(TagPathPack)
 
-class TagPathPackVec : public QVector<TagPathPack> {
-  friend QDataStream & operator<<(QDataStream &out, const TagPathPackVec &vec)
-  {
-    out << vec.size();
-    for (const auto & item : vec)
-      out << item;
-
-    return out;
-  }
-
-  friend QDataStream & operator>>(QDataStream &in, TagPathPackVec &vec)
-  {
-    qint32 dataSize;
-    qint32 ctr = 0;
-
-    in >> dataSize;
-
-    while (!in.atEnd() && ctr < dataSize) {
-      TagPathPack p;
-
-      in >> p.tag;
-      in >> p.path;
-
-      vec.push_back(p);
-      ctr++;
-    }
-
-    return in;
-  }
-};
+using TagPathPackVec = QVector<TagPathPack>;
 Q_DECLARE_METATYPE(TagPathPackVec)
 
 typedef QVector<EFGSupportedFileFormat> EFGSupportedFileFormatVec;
+Q_DECLARE_METATYPE(EFGSupportedFileFormatVec)
 
 class EFGLoaderInterface : public QObject
 {

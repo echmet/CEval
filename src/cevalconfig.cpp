@@ -21,9 +21,7 @@ CEvalConfig::CEvalConfig()
 {
   QSettings s(configFilePath(), QSettings::IniFormat);
 
-  QVariant root = s.value(ROOT_SETTINGS_TAG);
-  if (root.canConvert<EMT::StringVariantMap>())
-    m_cfg = root.value<EMT::StringVariantMap>();
+  m_cfg = s.value(ROOT_SETTINGS_TAG).value<QMap<QString, QVariant>>();
 }
 
 QString CEvalConfig::configFilePath()

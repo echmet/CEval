@@ -158,6 +158,10 @@ void setDefaultState(EvalMainWindow *w)
 
 int main(int argc, char *argv[])
 {
+
+  EMT::registerAll();
+  EFGLoaderInterface::registerMetaTypes();
+
   QApplication a(argc, argv);
   EvalMainWindow *w;
   DataAccumulator *dac;
@@ -177,9 +181,6 @@ int main(int argc, char *argv[])
   QCoreApplication::setOrganizationName(Globals::ORG_NAME);
   QCoreApplication::setApplicationName(Globals::SOFTWARE_NAME);
   QCoreApplication::setApplicationVersion(Globals::VERSION_STRING());
-
-  EMT::registerAll();
-  EFGLoaderInterface::registerMetaTypes();
 
   DoubleToStringConvertor::initialize();
 

@@ -47,9 +47,6 @@ void DoubleToStringConvertor::initialize()
 
 void DoubleToStringConvertor::loadUserSettings(const QVariant &settings)
 {
-  if (!settings.canConvert<EMT::StringVariantMap>())
-    return;
-
   const QLocale *oldLocale = new QLocale(s_me->m_locale);
 
   EMT::StringVariantMap map = settings.value<EMT::StringVariantMap>();
@@ -100,13 +97,15 @@ void DoubleToStringConvertor::notifyOnFormatChanged(QObject *o)
 
 QVariant DoubleToStringConvertor::saveUserSettings()
 {
-  EMT::StringVariantMap map;
+  QMap<QString, QVariant> map;
 
-  map[DIGITS_SETTINGS_TAG] = s_me->digits();
-  map[NUMBER_FORMAT_SETTINGS_TAG] = s_me->type();
-  map[LOCALE_SETTINGS_TAG] = s_me->m_locale.name();
+  map.insert(DIGITS_SETTINGS_TAG, s_me->digits());
+  map.insert(NUMBER_FORMAT_SETTINGS_TAG, s_me->type());
+  map.insert(LOCALE_SETTINGS_TAG, s_me->m_locale.name());
 
-  return QVariant::fromValue<EMT::StringVariantMap>(map);
+  qDebug() << map;
+
+  return map;
 }
 
 void DoubleToStringConvertor::setParameters(const char type, const int digits, const QString locName)

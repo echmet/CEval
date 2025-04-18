@@ -219,8 +219,6 @@ QVariant EFGLoaderInterface::saveUserSettings()
   for (auto it = m_lastPathsMap.begin(); it != m_lastPathsMap.end(); it++)
     vec.push_back(TagPathPack{it.key(), it.value()});
 
-  QVariant v = QVariant::fromValue<TagPathPackVec>(vec);
-
-  return v;
+  return QVariant::fromValue<TagPathPackVec>(vec);
 }
 

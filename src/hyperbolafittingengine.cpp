@@ -2300,7 +2300,7 @@ QVariant HyperbolaFittingEngine::saveUserSettings() const
   map[LAST_LOADSAVE_PATH_SETTINGS_TAG] = m_lastDataTablePath;
   map[LAST_EXPORT_TO_CSV_PATH_SETTINGS_TAG] = m_lastExportToCsvPath;
 
-  return QVariant::fromValue<EMT::StringVariantMap>(map);
+  return map;
 }
 
 int constexpr HyperbolaFittingEngine::seriesIndex(const Series s)
