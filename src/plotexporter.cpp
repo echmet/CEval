@@ -1,16 +1,23 @@
 #include "plotexporter.h"
 #include <cmath>
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QImageWriter>
 #include <QList>
 #include <QMessageBox>
 #include <QPen>
+#include <QScreen>
 #include <qwt_plot.h>
 #include <qwt_plot_curve.h>
 #include <qwt_plot_renderer.h>
 #include <qwt_plot_zoomer.h>
 #include <qwt_scale_widget.h>
+
+static
+qreal getCurrentScreenDpi(QWidget *w)
+{
+  QScreen *s = w->screen();
+  return s->logicalDotsPerInch();
+}
 
 PlotExporter::PlotExporter(QObject *parent) : QObject(parent)
 {
@@ -23,7 +30,6 @@ PlotExporter::PlotExporter(QObject *parent) : QObject(parent)
   m_exportDlg = new ExportPlotToImageDialog(m_supportedFormats);
 
   m_plotPalette.setColor(QPalette::WindowText, Qt::black);
-  m_plotPalette.setColor(QPalette::Foreground, Qt::black);
   m_plotPalette.setColor(QPalette::Text, Qt::black);
 }
 
@@ -114,7 +120,7 @@ void PlotExporter::exportPlot(QwtPlot *plot, const QRectF &zoom)
 
     /* Recalculate sizes by the DPI for every element that needs it */
     const qreal outputInPixels = (static_cast<qreal>(p.dimensions.width()) / 2.54) * p.dpi;
-    const qreal scalingRatio = (static_cast<qreal>(qApp->desktop()->logicalDpiX()) / p.dpi) * (outputInPixels / plot->geometry().width());
+    const qreal scalingRatio = (getCurrentScreenDpi(m_exportDlg) / p.dpi) * (outputInPixels / plot->geometry().width());
 
     const qreal _xBottomPenWidth = floor((xBottomPenWidth * scalingRatio) + 0.45);
     const qreal _xTopPenWidth = floor((xTopPenWidth * scalingRatio) + 0.45);
