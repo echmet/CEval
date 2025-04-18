@@ -30,6 +30,7 @@ QString SelectEDIIPath::browseToEDII(const QString &browseFrom)
   QString path = browseFrom;
   QFileDialog dlg(nullptr, "Set path to ECHMET Data Import Infrastructure service");
 
+  dlg.setFileMode(QFileDialog::Directory);
   dlg.setOptions(QFileDialog::ShowDirsOnly | QFileDialog::ReadOnly);
 
 
