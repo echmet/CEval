@@ -24,7 +24,7 @@ CommonParametersWidget::CommonParametersWidget(QWidget *parent) :
                                   QVariant::fromValue<CommonParametersItems::EOFSource>(CommonParametersItems::EOFSource::HVL_A1));
 
   connect(ui->qpb_readEof, &QPushButton::clicked, this, &CommonParametersWidget::onReadEofClicked);
-  connect(ui->qcb_noEof, &QMappedCheckBox::stateChanged, this, &CommonParametersWidget::onNoEofClicked);
+  connect(ui->qcb_noEof, &QMappedCheckBox::checkStateChanged, this, &CommonParametersWidget::onNoEofClicked);
 
   connect(ui->qcbox_eofSource, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated),
           this, &CommonParametersWidget::onEofSourceChanged);
