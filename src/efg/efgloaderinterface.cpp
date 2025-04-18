@@ -119,8 +119,8 @@ QByteArray EFGLoaderInterface::computeDataHash(const efg::IPCClient::NativeData 
   for (const auto & dp : nd.data->data) {
     const qreal x = dp.x();
     const qreal y = dp.y();
-    hash.addData(reinterpret_cast<const  char *>(&x), sizeof(qreal));
-    hash.addData(reinterpret_cast<const  char *>(&y), sizeof(qreal));
+    hash.addData(QByteArray(reinterpret_cast<const  char *>(&x), sizeof(qreal)));
+    hash.addData(QByteArray(reinterpret_cast<const  char *>(&y), sizeof(qreal)));
   }
 
   /* NOTE: There is a corner case of a possibly legitimate collision:
