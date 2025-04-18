@@ -14,7 +14,9 @@ NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
 
   /* Fill list of available locales */
   {
-    QString currentName = DoubleToStringConvertor::locale().name();
+    QString currentLocName = DoubleToStringConvertor::locale().name();
+    QString currentLocBcp47Name = DoubleToStringConvertor::locale().bcp47Name();
+
     int locIdx = 0;
     int ctr = 0;
     QList<QLocale> allLocales = QLocale::matchingLocales(QLocale::Language::AnyLanguage, QLocale::Script::AnyScript, QLocale::Country::AnyCountry);
@@ -50,16 +52,20 @@ NumberFormatDialog::NumberFormatDialog(QWidget *parent) :
         return newString;
       };
 
-      const QString firstName = removeDiacritics(first.nativeCountryName());
-      const QString secondName = removeDiacritics(second.nativeCountryName());
+      const QString firstName = removeDiacritics(first.nativeTerritoryName());
+      const QString secondName = removeDiacritics(second.nativeTerritoryName());
 
       return firstName < secondName;
     });
 
+    bool isLocIdxSet = false;
     for (const QLocale &loc : allLocales) {
-      ui->qcbox_formatting->addItem(QString("%1 (%2)").arg(loc.nativeCountryName()).arg(loc.bcp47Name()), loc.name());
-      if (loc.name() == currentName)
+      ui->qcbox_formatting->addItem(QString("%1 (%2)").arg(loc.nativeTerritoryName()).arg(loc.bcp47Name()), loc.name());
+
+      if (loc.name() == currentLocName && loc.bcp47Name() == currentLocBcp47Name && !isLocIdxSet) {
         locIdx = ctr;
+        isLocIdxSet = true;
+      }
       ctr++;
     }
     ui->qcbox_formatting->setCurrentIndex(locIdx);
