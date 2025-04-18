@@ -126,7 +126,7 @@ void EvalMainWindow::makeExportMenus()
 
 void EvalMainWindow::onActionAbout()
 {
-  AboutDialog dlg;
+  AboutDialog dlg(this);
 
   dlg.exec();
 }
@@ -190,7 +190,7 @@ void EvalMainWindow::onActionSetNumberFormat()
 
 void EvalMainWindow::onActionSetPathToEDII()
 {
-  SelectEDIIPath dlg;
+  SelectEDIIPath dlg(this);
 
   dlg.exec();
 }

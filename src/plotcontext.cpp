@@ -79,7 +79,7 @@ bool PlotContext::addSerie(const int id, const QString &title, SerieProperties::
 
 void PlotContext::adjustAppearance()
 {
-  AdjustPlotVisualsDialog dlg;
+  AdjustPlotVisualsDialog dlg(m_plot);
   int dlgRet;
 
   for (const int id : m_plotCurves.keys()) {
