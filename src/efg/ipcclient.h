@@ -14,6 +14,10 @@ public:
   public:
     explicit NativeData();
     explicit NativeData(std::shared_ptr<EFGData> &data, const QString &path, const QString &name);
+    NativeData(const NativeData &other);
+    NativeData(NativeData &&other) noexcept;
+
+    NativeData & operator=(NativeData &&other) noexcept;
 
     std::shared_ptr<EFGData> data;
     const QString path;

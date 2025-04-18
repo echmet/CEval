@@ -31,6 +31,10 @@ class EFGSupportedFileFormat {
 public:
   explicit EFGSupportedFileFormat();
   explicit EFGSupportedFileFormat(const QString &longDescription, const QString &shortDescription, const QString &formatTag, const QMap<int, QString> &loadOptions);
+  EFGSupportedFileFormat(const EFGSupportedFileFormat &other);
+  EFGSupportedFileFormat(EFGSupportedFileFormat &&other) noexcept;
+
+  EFGSupportedFileFormat & operator=(EFGSupportedFileFormat &&other) noexcept;
 
   const QString longDescription;
   const QString shortDescription;

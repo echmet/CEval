@@ -58,6 +58,32 @@ EFGSupportedFileFormat::EFGSupportedFileFormat(const QString &longDescription, c
 {
 }
 
+EFGSupportedFileFormat::EFGSupportedFileFormat(const EFGSupportedFileFormat &other) :
+  longDescription(other.longDescription),
+  shortDescription(other.shortDescription),
+  formatTag(other.formatTag),
+  loadOptions(other.loadOptions)
+{
+}
+
+EFGSupportedFileFormat::EFGSupportedFileFormat(EFGSupportedFileFormat &&other) noexcept :
+  longDescription(std::move(other.longDescription)),
+  shortDescription(std::move(other.shortDescription)),
+  formatTag(std::move(other.formatTag)),
+  loadOptions(std::move(other.loadOptions))
+{
+}
+
+EFGSupportedFileFormat & EFGSupportedFileFormat::operator=(EFGSupportedFileFormat &&other) noexcept
+{
+  const_cast<QString&>(longDescription) = std::move(other.longDescription);
+  const_cast<QString&>(shortDescription) = std::move(other.shortDescription);
+  const_cast<QString&>(formatTag) = std::move(other.formatTag);
+  const_cast<QMap<int, QString>&>(loadOptions) = std::move(other.loadOptions);
+
+  return *this;
+}
+
 namespace efg {
 
 void GUIDisplayer::onDisplayWarning(const QString &title, const QString &message)
