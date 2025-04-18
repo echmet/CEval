@@ -2,6 +2,7 @@
 #define PLOTCONTEXTLIMITED_H
 
 #include <memory>
+#include <QObject>
 #include <QPointF>
 #include <QVector>
 #include "serieproperties.h"
